@@ -1,3 +1,3 @@
-from .store import ArtifactStore, LocalStageStore, StoredArtifact, sha256_file
+from .store import ArtifactStore, LocalStageStore, RcloneDriveStore, StoredArtifact, sha256_file
 
-__all__ = ["ArtifactStore", "LocalStageStore", "StoredArtifact", "sha256_file"]
+__all__ = ["ArtifactStore", "LocalStageStore", "RcloneDriveStore", "StoredArtifact", "sha256_file"]
