@@ -1,0 +1,32 @@
+{
+  "schema_version": "ontology-map-export/v1",
+  "source": "EXAMPLE ONLY - not the current 31/43 production map",
+  "expected_node_count": 2,
+  "expected_relation_count": 1,
+  "categories": [
+    {"id": "core", "label": "핵심 체계"}
+  ],
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "Ontology Store",
+      "entity_type_id": "SystemComponent",
+      "category_id": "core"
+    },
+    {
+      "id": "n2",
+      "label": "Evidence Ledger",
+      "entity_type_id": "SystemComponent",
+      "category_id": "core"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "source_id": "n1",
+      "target_id": "n2",
+      "relation_type_id": "SUPPORTS",
+      "source_uri": "example://structured-source"
+    }
+  ]
+}
