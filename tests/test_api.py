@@ -10,6 +10,7 @@ def client() -> TestClient:
 def test_health():
     with client() as c:
         assert c.get("/health").json() == {"status": "ok"}
+        assert c.get("/health/db").json() == {"status": "ok", "database": "sqlite"}
 
 
 def test_entity_relation_evidence_flow():
