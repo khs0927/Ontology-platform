@@ -18,24 +18,18 @@ Status: baseline complete
 - evidence CRUD
 - health + database health endpoints
 - repository abstraction
-- API tests
 - canonical ORM aligned with PostgreSQL migrations
 - compatibility aliases for earlier API field names
-
-Validation: 6 API tests passed before P4; current suite expands this further.
 
 ## P3 — PostgreSQL runtime
 Status: in progress
 
-- PostgreSQL local runtime
 - idempotent core type/relation seed migration
 - migration application helper
 - database/extension verification helper
 - API ORM aligned to canonical migration column names
-- migrations applied against a real server — pending
-- pgvector extension verification against a real server — pending
+- real PostgreSQL + pgvector validation — tracked in issue #1
 - logical backup/restore — pending
-- local SQLite remains test fallback only
 
 ## P4 — Google Drive ArtifactStore
 Status: in progress
@@ -44,19 +38,18 @@ Status: in progress
 - Drive file id + SHA-256 registry fields
 - content-addressed local staging
 - provider-neutral ArtifactStore protocol
-- Google Drive authenticated adapter — pending
+- rclone Google Drive provider adapter
+- real authenticated Drive validation — tracked in issue #2
 - snapshots / exports / recovery integration — pending
-- no live database files in Drive
-
-Validation: 8 tests passing with artifact metadata and staging.
 
 ## P5 — Ontology Map bridge
-Status: planned
+Status: in progress
 
-- import current 31-node / 43-relation map source
-- API-backed graph instead of hard-coded site JSON
-- preserve node/category identity
-- expose evidence and relation provenance
+- versioned structured import contract
+- duplicate/dangling/count validation
+- synthetic example clearly separated from production source
+- recover real 31-node / 43-relation structured source — tracked in issue #3
+- canonical DB import and API-backed graph — pending
 
 ## P6 — Document ingestion + evidence
 Status: planned
@@ -92,3 +85,5 @@ Status: planned
 - IFC -> semantic objects
 - CAD handles / IFC GlobalId provenance
 - DWG/DXF/PDF cross-validation
+
+Current isolated test suite: 12 passing tests.
