@@ -46,12 +46,9 @@ def delete_entity(db: Session, row: models.Entity) -> None:
 
 def search_entities(db: Session, text_value: str, *, limit: int = 50) -> list[models.Entity]:
     pattern = f"%{text_value}%"
-    stmt = (
-        select(models.Entity)
-        .where(or_(models.Entity.name.ilike(pattern), models.Entity.description.ilike(pattern)))
-        .order_by(models.Entity.name)
-        .limit(limit)
-    )
+    stmt = select(models.Entity).where(
+        or_(models.Entity.name.ilike(pattern), models.Entity.description.ilike(pattern))
+    ).order_by(models.Entity.name).limit(limit)
     return list(db.scalars(stmt))
 
 
@@ -74,6 +71,22 @@ def get_relation(db: Session, relation_id: str) -> models.Relation | None:
 def delete_relation(db: Session, row: models.Relation) -> None:
     db.delete(row)
     db.commit()
+
+
+def create_artifact(db: Session, data: schemas.ArtifactCreate) -> models.Artifact:
+    row = models.Artifact(**data.model_dump())
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+def list_artifacts(db: Session, *, limit: int = 100, offset: int = 0) -> list[models.Artifact]:
+    return list(db.scalars(select(models.Artifact).order_by(models.Artifact.created_at).offset(offset).limit(limit)))
+
+
+def get_artifact(db: Session, artifact_id: str) -> models.Artifact | None:
+    return db.get(models.Artifact, artifact_id)
 
 
 def create_evidence(db: Session, data: schemas.EvidenceCreate) -> models.Evidence:
