@@ -17,7 +17,7 @@ def test_entity_relation_evidence_flow():
     with client() as c:
         a = c.post("/entities", json={
             "stable_key": "project:alpha",
-            "entity_type": "Project",
+            "entity_type_id": "Project",
             "name": "Alpha",
             "description": "Architecture project",
             "category": "architecture_site",
@@ -25,7 +25,7 @@ def test_entity_relation_evidence_flow():
         assert a.status_code == 201, a.text
         b = c.post("/entities", json={
             "stable_key": "tool:cad",
-            "entity_type": "Tool",
+            "entity_type_id": "Tool",
             "name": "CAD Bridge",
             "category": "cad_bim",
         })
@@ -35,7 +35,7 @@ def test_entity_relation_evidence_flow():
             "stable_key": "rel:alpha-uses-cad",
             "source_entity_id": a.json()["id"],
             "target_entity_id": b.json()["id"],
-            "relation_type": "USES",
+            "relation_type_id": "USES",
             "confidence": 0.95,
         })
         assert relation.status_code == 201, relation.text
@@ -53,9 +53,29 @@ def test_entity_relation_evidence_flow():
         assert [x["stable_key"] for x in query.json()] == ["project:alpha"]
 
 
+def test_legacy_type_aliases_are_accepted():
+    with client() as c:
+        entity = c.post("/entities", json={
+            "stable_key": "concept:legacy",
+            "entity_type": "Concept",
+            "name": "Legacy Alias",
+        })
+        assert entity.status_code == 201
+        assert entity.json()["entity_type_id"] == "Concept"
+
+
+def test_unknown_types_are_rejected():
+    with client() as c:
+        assert c.post("/entities", json={
+            "stable_key": "bad:type",
+            "entity_type_id": "NotAType",
+            "name": "Bad",
+        }).status_code == 422
+
+
 def test_duplicate_entity_is_conflict():
     with client() as c:
-        payload = {"stable_key": "concept:x", "entity_type": "Concept", "name": "X"}
+        payload = {"stable_key": "concept:x", "entity_type_id": "Concept", "name": "X"}
         assert c.post("/entities", json=payload).status_code == 201
         assert c.post("/entities", json=payload).status_code == 409
 
@@ -64,7 +84,7 @@ def test_entity_update_and_delete():
     with client() as c:
         created = c.post("/entities", json={
             "stable_key": "project:beta",
-            "entity_type": "Project",
+            "entity_type_id": "Project",
             "name": "Beta",
         })
         entity_id = created.json()["id"]
