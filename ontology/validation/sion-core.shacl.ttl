@@ -1,0 +1,57 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sion: <https://sion-jesus.xyz/ontology/core/> .
+
+sion:EntityShape
+    a sh:NodeShape ;
+    sh:targetClass sion:Entity ;
+    sh:property [
+        sh:path sion:id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path sion:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string
+    ] .
+
+sion:RelationShape
+    a sh:NodeShape ;
+    sh:targetClass sion:Relation ;
+    sh:property [
+        sh:path sion:source_id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path sion:target_id ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path sion:relation_type ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path sion:confidence ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0
+    ] .
+
+sion:EvidenceShape
+    a sh:NodeShape ;
+    sh:targetClass sion:Evidence ;
+    sh:or (
+        [ sh:property [ sh:path sion:relation_id ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path sion:entity_id ; sh:minCount 1 ] ]
+    ) ;
+    sh:property [
+        sh:path sion:verification_state ;
+        sh:in ( "unverified" "machine_verified" "human_verified" "rejected" )
+    ] .
