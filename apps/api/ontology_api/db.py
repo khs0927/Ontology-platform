@@ -12,6 +12,33 @@ class Base(DeclarativeBase):
     pass
 
 
+CORE_ENTITY_TYPES = (
+    ("Project", "Project"),
+    ("Tool", "Tool"),
+    ("Concept", "Concept"),
+    ("Document", "Document"),
+    ("Artifact", "Artifact"),
+    ("Dataset", "Dataset"),
+    ("SystemComponent", "System Component"),
+    ("Workflow", "Workflow"),
+    ("Decision", "Decision"),
+    ("Deliverable", "Deliverable"),
+)
+
+CORE_RELATION_TYPES = (
+    ("RELATED_TO", "Related To"),
+    ("USES", "Uses"),
+    ("PRODUCES", "Produces"),
+    ("DERIVED_FROM", "Derived From"),
+    ("PART_OF", "Part Of"),
+    ("DEPENDS_ON", "Depends On"),
+    ("VALIDATES", "Validates"),
+    ("REFERENCES", "References"),
+    ("IMPLEMENTS", "Implements"),
+    ("SUPPORTS", "Supports"),
+)
+
+
 class Database:
     def __init__(self, url: str):
         kwargs: dict = {"future": True}
@@ -26,8 +53,23 @@ class Database:
         self.engine = create_engine(url, **kwargs)
         self.SessionLocal = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def create_all(self) -> None:
+    @property
+    def is_sqlite(self) -> bool:
+        return self.engine.dialect.name == "sqlite"
+
+    def initialize(self) -> None:
+        if not self.is_sqlite:
+            return
         Base.metadata.create_all(self.engine)
+        from .models import EntityType, RelationType
+        with self.SessionLocal() as db:
+            for type_id, label in CORE_ENTITY_TYPES:
+                if db.get(EntityType, type_id) is None:
+                    db.add(EntityType(id=type_id, label=label, properties={}))
+            for type_id, label in CORE_RELATION_TYPES:
+                if db.get(RelationType, type_id) is None:
+                    db.add(RelationType(id=type_id, label=label, properties={}))
+            db.commit()
 
     def session(self) -> Generator[Session, None, None]:
         db = self.SessionLocal()
