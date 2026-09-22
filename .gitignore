@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+service-account*.json
+
+# Runtime / databases
+runtime/
+*.db
+*.sqlite*
+*.wal
+*.shm
+*.dump
+
+# Sync state
+.sync-state/
+sync_history.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode-test/

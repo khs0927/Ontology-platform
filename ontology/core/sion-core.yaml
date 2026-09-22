@@ -1,0 +1,180 @@
+id: https://sion-jesus.xyz/ontology/core
+name: ontology-core
+title: Ontology Core
+description: >
+  Canonical, domain-neutral ontology for projects, tools, documents,
+  workflows, decisions, artifacts, evidence, and knowledge relationships.
+license: MIT
+version: 0.1.0
+
+prefixes:
+  sion: https://sion-jesus.xyz/ontology/core/
+  linkml: https://w3id.org/linkml/
+  prov: http://www.w3.org/ns/prov#
+  schema: https://schema.org/
+
+default_prefix: sion
+default_range: string
+imports:
+  - linkml:types
+
+enums:
+  KnowledgeCategory:
+    permissible_values:
+      core:
+        description: Core systems and global project ontology
+      architecture_site:
+        description: Architecture and site context
+      cad_bim:
+        description: CAD, BIM, geometry and 3D systems
+      ai_automation:
+        description: AI agents, MCP and automation
+      content_assets:
+        description: Content, design assets and media
+      data_validation:
+        description: Data, evidence, storage and validation
+
+  VerificationState:
+    permissible_values:
+      unverified:
+      machine_verified:
+      human_verified:
+      rejected:
+
+  SourceKind:
+    permissible_values:
+      user:
+      document:
+      file:
+      database:
+      api:
+      mcp:
+      inferred:
+      imported:
+
+classes:
+  Entity:
+    description: Base node in the knowledge graph.
+    slots: [id, name, description, category, external_uri, properties, created_at, updated_at]
+
+  Project:
+    is_a: Entity
+    description: A project, initiative, application, or design effort.
+
+  Tool:
+    is_a: Entity
+    description: Software, model, MCP, service, framework, or executable tool.
+
+  Concept:
+    is_a: Entity
+    description: Domain concept, method, rule, technology, or abstract idea.
+
+  Document:
+    is_a: Entity
+    description: Human-readable document with optional external artifact backing.
+    slots: [artifact_id]
+
+  Artifact:
+    is_a: Entity
+    description: Immutable or versioned file/object stored outside the graph.
+    slots: [content_hash, storage_uri, mime_type, byte_size]
+
+  Dataset:
+    is_a: Artifact
+    description: Structured or semi-structured data artifact.
+
+  SystemComponent:
+    is_a: Entity
+    description: Runtime or architectural component.
+
+  Workflow:
+    is_a: Entity
+    description: A defined process or sequence of work.
+
+  Decision:
+    is_a: Entity
+    description: A project or design decision with supporting evidence.
+
+  Deliverable:
+    is_a: Artifact
+    description: Output intended for review, delivery, build, or publication.
+
+  Relation:
+    description: Typed edge between two entities.
+    slots: [id, source_id, target_id, relation_type, confidence, verification_state, source_kind, ontology_version, valid_from, valid_to, properties, created_at]
+
+  Evidence:
+    description: Source-backed evidence supporting a node or relation.
+    slots: [id, relation_id, entity_id, artifact_id, source_uri, source_locator, excerpt_hash, confidence, verification_state, extractor, model, created_at]
+
+slots:
+  id:
+    identifier: true
+    required: true
+    range: string
+  name:
+    required: true
+    range: string
+  description:
+    range: string
+  category:
+    range: KnowledgeCategory
+  external_uri:
+    range: uri
+  properties:
+    range: string
+    description: JSON object serialized when using LinkML flat interchange.
+  created_at:
+    range: datetime
+  updated_at:
+    range: datetime
+  artifact_id:
+    range: string
+  content_hash:
+    range: string
+    pattern: ^sha256:[0-9a-f]{64}$
+  storage_uri:
+    range: uri
+  mime_type:
+    range: string
+  byte_size:
+    range: integer
+    minimum_value: 0
+  source_id:
+    required: true
+    range: string
+  target_id:
+    required: true
+    range: string
+  relation_type:
+    required: true
+    range: string
+  confidence:
+    range: float
+    minimum_value: 0.0
+    maximum_value: 1.0
+  verification_state:
+    range: VerificationState
+  source_kind:
+    range: SourceKind
+  ontology_version:
+    range: string
+  valid_from:
+    range: datetime
+  valid_to:
+    range: datetime
+  relation_id:
+    range: string
+  entity_id:
+    range: string
+  source_uri:
+    range: uri
+  source_locator:
+    range: string
+    description: Page, line, node, CAD handle, IFC GlobalId, chunk id, etc.
+  excerpt_hash:
+    range: string
+  extractor:
+    range: string
+  model:
+    range: string
