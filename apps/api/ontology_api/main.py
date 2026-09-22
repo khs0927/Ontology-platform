@@ -15,7 +15,7 @@ from .db import Database
 def create_app(database_url: str | None = None) -> FastAPI:
     url = database_url or os.getenv("ONTOLOGY_DATABASE_URL", "sqlite:///./runtime/ontology.db")
     database = Database(url)
-    database.create_all()
+    database.initialize()
 
     app = FastAPI(title="Ontology Platform API", version="0.1.0")
     app.state.database = database
@@ -34,6 +34,8 @@ def create_app(database_url: str | None = None) -> FastAPI:
 
     @app.post("/entities", response_model=schemas.EntityRead, status_code=201)
     def create_entity(payload: schemas.EntityCreate, db: Session = Depends(get_db)):
+        if repository.get_entity_type(db, payload.entity_type_id) is None:
+            raise HTTPException(status_code=422, detail="entity type not found")
         try:
             return repository.create_entity(db, payload)
         except IntegrityError as exc:
@@ -84,6 +86,8 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=422, detail="source entity not found")
         if repository.get_entity(db, payload.target_entity_id) is None:
             raise HTTPException(status_code=422, detail="target entity not found")
+        if repository.get_relation_type(db, payload.relation_type_id) is None:
+            raise HTTPException(status_code=422, detail="relation type not found")
         try:
             return repository.create_relation(db, payload)
         except IntegrityError as exc:

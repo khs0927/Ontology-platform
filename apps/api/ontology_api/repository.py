@@ -6,6 +6,14 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 
 
+def get_entity_type(db: Session, type_id: str) -> models.EntityType | None:
+    return db.get(models.EntityType, type_id)
+
+
+def get_relation_type(db: Session, type_id: str) -> models.RelationType | None:
+    return db.get(models.RelationType, type_id)
+
+
 def create_entity(db: Session, data: schemas.EntityCreate) -> models.Entity:
     row = models.Entity(**data.model_dump())
     db.add(row)
@@ -36,8 +44,8 @@ def delete_entity(db: Session, row: models.Entity) -> None:
     db.commit()
 
 
-def search_entities(db: Session, text: str, *, limit: int = 50) -> list[models.Entity]:
-    pattern = f"%{text}%"
+def search_entities(db: Session, text_value: str, *, limit: int = 50) -> list[models.Entity]:
+    pattern = f"%{text_value}%"
     stmt = (
         select(models.Entity)
         .where(or_(models.Entity.name.ilike(pattern), models.Entity.description.ilike(pattern)))
