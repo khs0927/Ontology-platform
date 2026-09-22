@@ -77,6 +77,22 @@ class Relation(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class Artifact(Base):
+    __tablename__ = "artifacts"
+
+    id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True, default=_uuid)
+    stable_key: Mapped[str] = mapped_column(Text, unique=True, index=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    storage_uri: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    mime_type: Mapped[str | None] = mapped_column(Text, nullable=True)
+    byte_size: Mapped[int | None] = mapped_column(nullable=True)
+    provider: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    provider_file_id: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    properties: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class Evidence(Base):
     __tablename__ = "evidence"
     __table_args__ = (
@@ -88,7 +104,7 @@ class Evidence(Base):
     id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True, default=_uuid)
     entity_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), ForeignKey("entities.id", ondelete="CASCADE"), nullable=True, index=True)
     relation_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), ForeignKey("relations.id", ondelete="CASCADE"), nullable=True, index=True)
-    artifact_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
+    artifact_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), ForeignKey("artifacts.id"), nullable=True)
     chunk_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
     source_uri: Mapped[str | None] = mapped_column(Text, nullable=True)
     source_locator: Mapped[str | None] = mapped_column(Text, nullable=True)

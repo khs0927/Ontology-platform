@@ -19,10 +19,10 @@ Status: baseline complete
 - health + database health endpoints
 - repository abstraction
 - API tests
-- SQLite in-memory test fallback
-- PostgreSQL-ready SQLAlchemy connection path
+- canonical ORM aligned with PostgreSQL migrations
+- compatibility aliases for earlier API field names
 
-Validation: 4 API tests passing in the isolated development test environment.
+Validation: 6 API tests passed before P4; current suite expands this further.
 
 ## P3 — PostgreSQL runtime
 Status: in progress
@@ -31,18 +31,24 @@ Status: in progress
 - idempotent core type/relation seed migration
 - migration application helper
 - database/extension verification helper
+- API ORM aligned to canonical migration column names
 - migrations applied against a real server — pending
 - pgvector extension verification against a real server — pending
 - logical backup/restore — pending
 - local SQLite remains test fallback only
 
 ## P4 — Google Drive ArtifactStore
-Status: planned
+Status: in progress
 
-- Drive file id + SHA-256 registry
-- artifact metadata table integration
-- snapshots / exports / recovery layout
+- artifact metadata API
+- Drive file id + SHA-256 registry fields
+- content-addressed local staging
+- provider-neutral ArtifactStore protocol
+- Google Drive authenticated adapter — pending
+- snapshots / exports / recovery integration — pending
 - no live database files in Drive
+
+Validation: 8 tests passing with artifact metadata and staging.
 
 ## P5 — Ontology Map bridge
 Status: planned

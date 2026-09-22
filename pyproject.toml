@@ -22,9 +22,9 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["apps/api"]
-include = ["ontology_api*"]
+where = ["apps/api", "packages/drive-store"]
+include = ["ontology_api*", "ontology_drive_store*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["apps/api"]
+pythonpath = ["apps/api", "packages/drive-store"]
 testpaths = ["tests"]

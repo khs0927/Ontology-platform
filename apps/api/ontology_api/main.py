@@ -43,11 +43,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=409, detail="entity stable_key already exists") from exc
 
     @app.get("/entities", response_model=list[schemas.EntityRead])
-    def list_entities(
-        limit: int = Query(default=100, ge=1, le=500),
-        offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
-    ):
+    def list_entities(limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
         return repository.list_entities(db, limit=limit, offset=offset)
 
     @app.get("/entities/{entity_id}", response_model=schemas.EntityRead)
@@ -73,11 +69,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
         return None
 
     @app.get("/query/entities", response_model=list[schemas.EntityRead])
-    def query_entities(
-        q: str = Query(min_length=1),
-        limit: int = Query(default=50, ge=1, le=200),
-        db: Session = Depends(get_db),
-    ):
+    def query_entities(q: str = Query(min_length=1), limit: int = Query(default=50, ge=1, le=200), db: Session = Depends(get_db)):
         return repository.search_entities(db, q, limit=limit)
 
     @app.post("/relations", response_model=schemas.RelationRead, status_code=201)
@@ -110,12 +102,27 @@ def create_app(database_url: str | None = None) -> FastAPI:
         return None
 
     @app.get("/relations", response_model=list[schemas.RelationRead])
-    def list_relations(
-        limit: int = Query(default=100, ge=1, le=500),
-        offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
-    ):
+    def list_relations(limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
         return repository.list_relations(db, limit=limit, offset=offset)
+
+    @app.post("/artifacts", response_model=schemas.ArtifactRead, status_code=201)
+    def create_artifact(payload: schemas.ArtifactCreate, db: Session = Depends(get_db)):
+        try:
+            return repository.create_artifact(db, payload)
+        except IntegrityError as exc:
+            db.rollback()
+            raise HTTPException(status_code=409, detail="artifact stable_key already exists") from exc
+
+    @app.get("/artifacts/{artifact_id}", response_model=schemas.ArtifactRead)
+    def get_artifact(artifact_id: str, db: Session = Depends(get_db)):
+        row = repository.get_artifact(db, artifact_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail="artifact not found")
+        return row
+
+    @app.get("/artifacts", response_model=list[schemas.ArtifactRead])
+    def list_artifacts(limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
+        return repository.list_artifacts(db, limit=limit, offset=offset)
 
     @app.post("/evidence", response_model=schemas.EvidenceRead, status_code=201)
     def create_evidence(payload: schemas.EvidenceCreate, db: Session = Depends(get_db)):
@@ -123,6 +130,8 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=422, detail="entity not found")
         if payload.relation_id and db.get(models.Relation, payload.relation_id) is None:
             raise HTTPException(status_code=422, detail="relation not found")
+        if payload.artifact_id and repository.get_artifact(db, payload.artifact_id) is None:
+            raise HTTPException(status_code=422, detail="artifact not found")
         return repository.create_evidence(db, payload)
 
     @app.get("/evidence/{evidence_id}", response_model=schemas.EvidenceRead)
@@ -141,11 +150,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
         return None
 
     @app.get("/evidence", response_model=list[schemas.EvidenceRead])
-    def list_evidence(
-        limit: int = Query(default=100, ge=1, le=500),
-        offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
-    ):
+    def list_evidence(limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
         return repository.list_evidence(db, limit=limit, offset=offset)
 
     return app
