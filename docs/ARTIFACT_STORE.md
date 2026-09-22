@@ -24,25 +24,28 @@ Canonical metadata is stored in PostgreSQL `artifacts`:
 <stage-root>/<first-two-hash-chars>/<full-sha256>
 ```
 
-Repeated uploads of identical bytes converge to the same staged object.
+Repeated identical bytes converge to the same staged object.
 
-## Google Drive adapter boundary
+## rclone Google Drive provider
 
-Google Drive is a provider, not the database.
+`RcloneDriveStore` delegates Google OAuth and transfer behavior to the open-source `rclone` executable.
 
-A Drive implementation should:
+Upload path:
 
-1. receive a staged object,
-2. upload or deduplicate it,
-3. return a stable Drive file id,
-4. register the resulting `provider_file_id`, `storage_uri`, SHA-256 and metadata through the API,
-5. never place live PostgreSQL/SQLite database files in Drive.
+```text
+<remote>:<base-path>/<first-two-hash-chars>/<full-sha256>
+```
 
-No Google OAuth token, service account file, Doppler secret, or API credential is committed to this repository.
+The adapter uses:
+
+- `rclone copyto ... --immutable --checksum`
+- `rclone lsjson ... --stat --hash --hash-type SHA-256`
+
+The returned object ID is stored as `provider_file_id`. Size and SHA-256 are checked when the backend exposes them.
+
+rclone configuration is external to this repository. OAuth tokens, Google client secrets, service account files, and rclone config files must never be committed.
 
 ## Evidence link
-
-Evidence can point to an artifact record. This keeps the chain:
 
 ```text
 Entity / Relation -> Evidence -> Artifact metadata -> Drive object
