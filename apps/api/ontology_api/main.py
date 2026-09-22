@@ -4,6 +4,7 @@ import os
 from collections.abc import Generator
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -25,6 +26,11 @@ def create_app(database_url: str | None = None) -> FastAPI:
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/health/db")
+    def database_health(db: Session = Depends(get_db)) -> dict[str, str]:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok", "database": database.engine.dialect.name}
 
     @app.post("/entities", response_model=schemas.EntityRead, status_code=201)
     def create_entity(payload: schemas.EntityCreate, db: Session = Depends(get_db)):
