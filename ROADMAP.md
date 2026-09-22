@@ -1,7 +1,7 @@
 # Ontology Platform Roadmap
 
 ## P1 — Core ontology + validation
-Status: baseline established
+Status: baseline complete
 
 - LinkML-style canonical schema
 - SHACL validation rules
@@ -11,23 +11,30 @@ Status: baseline established
 - non-destructive cross-device backup design
 
 ## P2 — FastAPI CRUD/query
-Status: in progress
+Status: baseline complete
 
 - entity CRUD
 - relation CRUD
 - evidence CRUD
-- health/status endpoints
+- health + database health endpoints
 - repository abstraction
 - API tests
+- SQLite in-memory test fallback
+- PostgreSQL-ready SQLAlchemy connection path
+
+Validation: 4 API tests passing in the isolated development test environment.
 
 ## P3 — PostgreSQL runtime
-Status: next
+Status: in progress
 
 - PostgreSQL local runtime
-- migrations applied against a real server
-- pgvector extension verification
-- logical backup/restore
-- local SQLite only as test fallback where useful
+- idempotent core type/relation seed migration
+- migration application helper
+- database/extension verification helper
+- migrations applied against a real server — pending
+- pgvector extension verification against a real server — pending
+- logical backup/restore — pending
+- local SQLite remains test fallback only
 
 ## P4 — Google Drive ArtifactStore
 Status: planned
