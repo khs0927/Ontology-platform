@@ -22,11 +22,13 @@ A CI run performs:
 5. all numbered canonical migrations twice to check replay safety,
 6. PostgreSQL + pgvector capability verification,
 7. the complete pytest suite, including PostgreSQL integration,
-8. JUnit result publication to CircleCI.
+8. create a custom-format `pg_dump` archive from the disposable CI database,
+9. restore it into a fresh disposable database and compare all modeled table row counts,
+10. verify the restored PostgreSQL schema/extensions and rerun PostgreSQL integration tests,
+11. publish JUnit results to CircleCI.
 
-The GitHub Actions workflow additionally restores a `pg_dump` archive to a
-fresh database, compares table row counts, and reruns the PostgreSQL
-integration tests on that restored database.
+The GitHub Actions verification workflow is removed in this change. CircleCI is
+the single hosted CI authority after this PR is merged.
 
 Because `ONTOLOGY_TEST_POSTGRES_URL` is configured in CI, `tests/test_postgres_integration.py` runs instead of being skipped.
 
@@ -49,8 +51,10 @@ export ONTOLOGY_TEST_POSTGRES_URL='postgresql+psycopg://ontology@127.0.0.1:5433/
 pytest -q
 ```
 
-## Current limitation
+## CI status
 
-The CircleCI configuration is committed and YAML-structure validated. A real remote CircleCI pipeline run still requires the GitHub repository to be enabled/connected in the CircleCI account.
+The repository is connected to CircleCI. The `ci/circleci: test` check has
+passed on main and on the private-auth PR. All PostgreSQL and restore checks
+run against disposable CI databases; this job must never use production DSNs.
 
 Do not add retries to hide deterministic migration or test failures. The first failing migration/test should remain visible.
