@@ -158,11 +158,17 @@ def create_app(database_url: str | None = None) -> FastAPI:
 
     @app.post("/artifacts", response_model=schemas.ArtifactRead, status_code=201)
     def create_artifact(payload: schemas.ArtifactCreate, db: Session = Depends(get_db)):
+        if payload.entity_id:
+            entity = repository.get_entity(db, payload.entity_id)
+            if entity is None:
+                raise HTTPException(status_code=422, detail="artifact entity not found")
+            if entity.entity_type_id not in {"Artifact", "Dataset", "Deliverable"}:
+                raise HTTPException(status_code=422, detail="entity type cannot back an artifact")
         try:
             return repository.create_artifact(db, payload)
         except IntegrityError as exc:
             db.rollback()
-            raise HTTPException(status_code=409, detail="artifact stable_key already exists") from exc
+            raise HTTPException(status_code=409, detail="artifact violates canonical constraints or stable_key already exists") from exc
 
     @app.get("/artifacts/{artifact_id}", response_model=schemas.ArtifactRead)
     def get_artifact(artifact_id: str, db: Session = Depends(get_db)):
