@@ -105,3 +105,10 @@ class EvidenceRead(EvidenceCreate):
     model_config = ConfigDict(from_attributes=True)
     id: str
     created_at: datetime
+
+
+class RelationExplanation(BaseModel):
+    relation: RelationRead
+    source: EntityRead
+    target: EntityRead
+    evidence: list[EvidenceRead]
