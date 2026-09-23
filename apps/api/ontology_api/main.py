@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import os
+import secrets
 from collections.abc import Generator
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -15,10 +17,35 @@ from .db import Database
 from .map_import import MapImportConflict, MapImportInvalid, MapImportResult, import_map
 
 
-def create_app(database_url: str | None = None) -> FastAPI:
+def create_app(
+    database_url: str | None = None,
+    *,
+    security_mode: str | None = None,
+    api_token: str | None = None,
+) -> FastAPI:
     url = database_url or os.getenv("ONTOLOGY_DATABASE_URL", "sqlite:///./runtime/ontology.db")
     database = Database(url)
     database.initialize()
+
+    mode = security_mode or os.getenv("ONTOLOGY_SECURITY_MODE", "token")
+    if mode not in {"token", "disabled"}:
+        raise ValueError("ONTOLOGY_SECURITY_MODE must be 'token' or 'disabled'")
+    configured_api_token = api_token or os.getenv("ONTOLOGY_API_TOKEN")
+    bearer = HTTPBearer(auto_error=False)
+
+    def require_write_auth(
+        credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
+    ) -> None:
+        if mode == "disabled":
+            return
+        if not configured_api_token:
+            raise HTTPException(status_code=503, detail="write API disabled until ONTOLOGY_API_TOKEN is configured")
+        if credentials is None or credentials.scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="authentication required", headers={"WWW-Authenticate": "Bearer"})
+        if not secrets.compare_digest(credentials.credentials, configured_api_token):
+            raise HTTPException(status_code=401, detail="invalid bearer token", headers={"WWW-Authenticate": "Bearer"})
+
+    write_dependencies = [Depends(require_write_auth)]
 
     app = FastAPI(title="Ontology Platform API", version="0.1.0")
     app.state.database = database
@@ -29,6 +56,13 @@ def create_app(database_url: str | None = None) -> FastAPI:
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/health/security")
+    def security_health() -> dict[str, str | bool]:
+        return {
+            "mode": mode,
+            "write_auth_configured": mode == "disabled" or bool(configured_api_token),
+        }
 
     @app.get("/health/db")
     def database_health(db: Session = Depends(get_db)) -> dict[str, str]:
@@ -46,7 +80,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
             "relations": repository.list_relations(db, limit=relation_limit, offset=0),
         }
 
-    @app.post("/imports/map", response_model=MapImportResult, status_code=201)
+    @app.post("/imports/map", response_model=MapImportResult, status_code=201, dependencies=write_dependencies)
     def import_structured_map(payload: MapExport, db: Session = Depends(get_db)):
         try:
             return import_map(db, payload)
@@ -55,7 +89,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
         except MapImportInvalid as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    @app.post("/entities", response_model=schemas.EntityRead, status_code=201)
+    @app.post("/entities", response_model=schemas.EntityRead, status_code=201, dependencies=write_dependencies)
     def create_entity(payload: schemas.EntityCreate, db: Session = Depends(get_db)):
         if repository.get_entity_type(db, payload.entity_type_id) is None:
             raise HTTPException(status_code=422, detail="entity type not found")
@@ -82,14 +116,14 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=404, detail="entity not found")
         return repository.list_entity_evidence(db, entity_id)
 
-    @app.patch("/entities/{entity_id}", response_model=schemas.EntityRead)
+    @app.patch("/entities/{entity_id}", response_model=schemas.EntityRead, dependencies=write_dependencies)
     def update_entity(entity_id: str, payload: schemas.EntityUpdate, db: Session = Depends(get_db)):
         row = repository.get_entity(db, entity_id)
         if row is None:
             raise HTTPException(status_code=404, detail="entity not found")
         return repository.update_entity(db, row, payload)
 
-    @app.delete("/entities/{entity_id}", status_code=204)
+    @app.delete("/entities/{entity_id}", status_code=204, dependencies=write_dependencies)
     def delete_entity(entity_id: str, db: Session = Depends(get_db)):
         row = repository.get_entity(db, entity_id)
         if row is None:
@@ -101,7 +135,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     def query_entities(q: str = Query(min_length=1), limit: int = Query(default=50, ge=1, le=200), db: Session = Depends(get_db)):
         return repository.search_entities(db, q, limit=limit)
 
-    @app.post("/relations", response_model=schemas.RelationRead, status_code=201)
+    @app.post("/relations", response_model=schemas.RelationRead, status_code=201, dependencies=write_dependencies)
     def create_relation(payload: schemas.RelationCreate, db: Session = Depends(get_db)):
         if repository.get_entity(db, payload.source_entity_id) is None:
             raise HTTPException(status_code=422, detail="source entity not found")
@@ -144,7 +178,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
             "evidence": repository.list_relation_evidence(db, relation_id),
         }
 
-    @app.delete("/relations/{relation_id}", status_code=204)
+    @app.delete("/relations/{relation_id}", status_code=204, dependencies=write_dependencies)
     def delete_relation(relation_id: str, db: Session = Depends(get_db)):
         row = repository.get_relation(db, relation_id)
         if row is None:
@@ -156,7 +190,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     def list_relations(limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
         return repository.list_relations(db, limit=limit, offset=offset)
 
-    @app.post("/artifacts", response_model=schemas.ArtifactRead, status_code=201)
+    @app.post("/artifacts", response_model=schemas.ArtifactRead, status_code=201, dependencies=write_dependencies)
     def create_artifact(payload: schemas.ArtifactCreate, db: Session = Depends(get_db)):
         if payload.entity_id:
             entity = repository.get_entity(db, payload.entity_id)
@@ -181,7 +215,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     def list_artifacts(limit: int = Query(default=100, ge=1, le=500), offset: int = Query(default=0, ge=0), db: Session = Depends(get_db)):
         return repository.list_artifacts(db, limit=limit, offset=offset)
 
-    @app.post("/evidence", response_model=schemas.EvidenceRead, status_code=201)
+    @app.post("/evidence", response_model=schemas.EvidenceRead, status_code=201, dependencies=write_dependencies)
     def create_evidence(payload: schemas.EvidenceCreate, db: Session = Depends(get_db)):
         if payload.entity_id and repository.get_entity(db, payload.entity_id) is None:
             raise HTTPException(status_code=422, detail="entity not found")
@@ -204,7 +238,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=404, detail="evidence not found")
         return row
 
-    @app.delete("/evidence/{evidence_id}", status_code=204)
+    @app.delete("/evidence/{evidence_id}", status_code=204, dependencies=write_dependencies)
     def delete_evidence(evidence_id: str, db: Session = Depends(get_db)):
         row = repository.get_evidence(db, evidence_id)
         if row is None:
