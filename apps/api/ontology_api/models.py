@@ -78,6 +78,7 @@ class Artifact(Base):
     )
 
     id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True, default=_uuid)
+    entity_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), ForeignKey("entities.id", ondelete="CASCADE"), unique=True, nullable=True, index=True)
     stable_key: Mapped[str] = mapped_column(Text, unique=True, index=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     storage_uri: Mapped[str] = mapped_column(Text, nullable=False)
