@@ -31,7 +31,9 @@ class MapRelation(BaseModel):
 
 class MapExport(BaseModel):
     schema_version: str = "ontology-map-export/v1"
+    namespace: str = Field(default="ontology-map", min_length=1)
     source: str = Field(min_length=1)
+    source_uri: str = Field(min_length=1)
     expected_node_count: int = Field(ge=0)
     expected_relation_count: int = Field(ge=0)
     categories: list[MapCategory]
