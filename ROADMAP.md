@@ -86,4 +86,4 @@ Status: planned
 - CAD handles / IFC GlobalId provenance
 - DWG/DXF/PDF cross-validation
 
-Current isolated validation: 25 non-PostgreSQL tests passing. The PostgreSQL integration test remains environment-gated until a live pgvector runtime is available.
+Current isolated validation: 28 non-PostgreSQL tests passing. The PostgreSQL integration test remains environment-gated until a live pgvector runtime is available.

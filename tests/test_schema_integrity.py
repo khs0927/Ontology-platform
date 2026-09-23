@@ -196,3 +196,95 @@ def test_map_import_rejects_noncanonical_category_before_write():
         assert response.status_code == 422
         assert "unknown knowledge categories" in response.json()["detail"]
         assert client.get("/graph").json() == {"nodes": [], "relations": []}
+
+
+def test_artifact_can_link_to_graph_entity_without_breaking_legacy_records():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        graph_entity = client.post(
+            "/entities",
+            json={"stable_key": "artifact:linked", "entity_type_id": "Artifact", "name": "Linked Artifact"},
+        )
+        linked = client.post(
+            "/artifacts",
+            json={
+                "entity_id": graph_entity.json()["id"],
+                "stable_key": "artifact:linked",
+                "name": "linked.bin",
+                "storage_uri": "test://linked",
+            },
+        )
+        assert linked.status_code == 201, linked.text
+        assert linked.json()["entity_id"] == graph_entity.json()["id"]
+
+        legacy = client.post(
+            "/artifacts",
+            json={"stable_key": "artifact:legacy", "name": "legacy.bin", "storage_uri": "test://legacy"},
+        )
+        assert legacy.status_code == 201, legacy.text
+        assert legacy.json()["entity_id"] is None
+
+
+def test_artifact_link_rejects_wrong_entity_type_and_duplicate_link():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        concept = client.post(
+            "/entities",
+            json={"stable_key": "artifact:concept", "entity_type_id": "Concept", "name": "Not Artifact"},
+        )
+        wrong = client.post(
+            "/artifacts",
+            json={
+                "entity_id": concept.json()["id"],
+                "stable_key": "artifact:wrong",
+                "name": "wrong.bin",
+                "storage_uri": "test://wrong",
+            },
+        )
+        assert wrong.status_code == 422
+
+        entity = client.post(
+            "/entities",
+            json={"stable_key": "artifact:one-entity", "entity_type_id": "Dataset", "name": "Dataset"},
+        )
+        first = client.post(
+            "/artifacts",
+            json={
+                "entity_id": entity.json()["id"],
+                "stable_key": "artifact:first",
+                "name": "first.bin",
+                "storage_uri": "test://first",
+            },
+        )
+        assert first.status_code == 201, first.text
+        second = client.post(
+            "/artifacts",
+            json={
+                "entity_id": entity.json()["id"],
+                "stable_key": "artifact:second",
+                "name": "second.bin",
+                "storage_uri": "test://second",
+            },
+        )
+        assert second.status_code == 409
+
+
+def test_deleting_artifact_graph_entity_cascades_linked_artifact_metadata():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        entity = client.post(
+            "/entities",
+            json={"stable_key": "artifact:cascade", "entity_type_id": "Deliverable", "name": "Deliverable"},
+        )
+        artifact = client.post(
+            "/artifacts",
+            json={
+                "entity_id": entity.json()["id"],
+                "stable_key": "artifact:cascade-metadata",
+                "name": "deliverable.pdf",
+                "storage_uri": "test://deliverable",
+            },
+        )
+        assert artifact.status_code == 201, artifact.text
+        assert client.delete(f"/entities/{entity.json()['id']}").status_code == 204
+        assert client.get(f"/artifacts/{artifact.json()['id']}").status_code == 404
