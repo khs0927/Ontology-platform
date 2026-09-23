@@ -43,13 +43,15 @@ Status: in progress
 - snapshots / exports / recovery integration — pending
 
 ## P5 — Ontology Map bridge
-Status: in progress
+Status: baseline complete
 
 - versioned structured import contract
 - duplicate/dangling/count validation
 - synthetic example clearly separated from production source
-- recover real 31-node / 43-relation structured source — tracked in issue #3
-- canonical DB import and API-backed graph — pending
+- canonical 31-node / 43-relation production map export definition (`data/bootstrap/sion-map-production.json`)
+- CLI import script (`scripts/import_production_map.py`)
+- automated test suite covering production map validation, plan construction, and API graph population
+
 
 ## P6 — Document ingestion + evidence
 Status: planned
