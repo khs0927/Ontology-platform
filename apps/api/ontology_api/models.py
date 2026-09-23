@@ -51,6 +51,12 @@ class RelationType(Base):
 
 class Entity(Base):
     __tablename__ = "entities"
+    __table_args__ = (
+        CheckConstraint(
+            "category IS NULL OR category IN ('core','architecture_site','cad_bim','ai_automation','content_assets','data_validation')",
+            name="ck_entities_category",
+        ),
+    )
 
     id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True, default=_uuid)
     stable_key: Mapped[str] = mapped_column(Text, unique=True, index=True)
@@ -122,6 +128,10 @@ class Relation(Base):
         CheckConstraint(
             "source_entity_id <> target_entity_id OR relation_type_id = 'RELATED_TO'",
             name="ck_relation_self_loop",
+        ),
+        CheckConstraint(
+            "source_kind IS NULL OR source_kind IN ('user','document','file','database','api','mcp','inferred','imported')",
+            name="ck_relations_source_kind",
         ),
     )
 

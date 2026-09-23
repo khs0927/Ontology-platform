@@ -8,6 +8,15 @@ from ontology_map_bridge import MapExport, build_import_plan
 
 from . import models
 
+KNOWLEDGE_CATEGORIES = {
+    "core",
+    "architecture_site",
+    "cad_bim",
+    "ai_automation",
+    "content_assets",
+    "data_validation",
+}
+
 
 class MapImportConflict(RuntimeError):
     pass
@@ -26,6 +35,10 @@ class MapImportResult(BaseModel):
 
 def import_map(db: Session, export: MapExport) -> MapImportResult:
     plan = build_import_plan(export)
+
+    invalid_categories = sorted({item.category for item in plan.entities} - KNOWLEDGE_CATEGORIES)
+    if invalid_categories:
+        raise MapImportInvalid(f"unknown knowledge categories: {', '.join(invalid_categories)}")
 
     entity_type_ids = {item.entity_type_id for item in plan.entities}
     known_entity_types = set(

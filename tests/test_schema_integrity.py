@@ -144,3 +144,55 @@ def test_entity_delete_cascades_relation_and_evidence():
         assert client.delete(f"/entities/{source.json()['id']}").status_code == 204
         assert client.get(f"/relations/{relation.json()['id']}").status_code == 404
         assert client.get(f"/evidence/{evidence.json()['id']}").status_code == 404
+
+
+def test_invalid_category_and_source_kind_are_rejected_by_api_contract():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        bad_category = client.post(
+            "/entities",
+            json={"stable_key": "bad:category", "entity_type_id": "Concept", "name": "Bad", "category": "made_up"},
+        )
+        assert bad_category.status_code == 422
+
+        source = client.post(
+            "/entities",
+            json={"stable_key": "kind:a", "entity_type_id": "Concept", "name": "A"},
+        )
+        target = client.post(
+            "/entities",
+            json={"stable_key": "kind:b", "entity_type_id": "Concept", "name": "B"},
+        )
+        bad_kind = client.post(
+            "/relations",
+            json={
+                "stable_key": "kind:r",
+                "source_entity_id": source.json()["id"],
+                "target_entity_id": target.json()["id"],
+                "relation_type_id": "RELATED_TO",
+                "source_kind": "made_up",
+            },
+        )
+        assert bad_kind.status_code == 422
+
+
+def test_map_import_rejects_noncanonical_category_before_write():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    payload = {
+        "schema_version": "ontology-map-export/v1",
+        "namespace": "bad-category-map",
+        "source": "structured-source",
+        "source_uri": "test://bad-category-map",
+        "expected_node_count": 1,
+        "expected_relation_count": 0,
+        "categories": [{"id": "custom", "label": "Custom"}],
+        "nodes": [
+            {"id": "n1", "label": "Node", "entity_type_id": "Concept", "category_id": "custom"}
+        ],
+        "relations": [],
+    }
+    with TestClient(app) as client:
+        response = client.post("/imports/map", json=payload)
+        assert response.status_code == 422
+        assert "unknown knowledge categories" in response.json()["detail"]
+        assert client.get("/graph").json() == {"nodes": [], "relations": []}
