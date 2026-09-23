@@ -4,11 +4,11 @@
 
 Do not use a Google Drive synchronized folder as the active Git working tree. Git, package managers, file watchers, SQLite/WAL files, and build outputs create rapid temporary changes and can cause conflict copies or partial states.
 
-Ontology Platform uses three layers:
+Sion uses three layers:
 
-1. Local workspace — actual editing and builds.
-2. Git/GitHub — canonical code history and multi-computer collaboration.
-3. Google Drive — automatic safety copy, large artifacts, snapshots, recovery, and mobile access.
+1. Local workspace - actual editing and builds.
+2. Git/GitHub - canonical code history and multi-computer collaboration.
+3. Google Drive - automatic safety copy, large artifacts, snapshots, recovery, and mobile access.
 
 ## Drive layout
 
@@ -25,8 +25,6 @@ AEC-INTELLIGENCE/01_PROJECTS/SION-ONTOLOGY/
   02_EXPORTS/
   09_RECOVERY/
 
-The AEC-INTELLIGENCE path is retained as a legacy storage path for compatibility and can be migrated later without changing the code source of truth.
-
 ## Automatic backup semantics
 
 - Local additions/changes -> device-scoped Drive backup.
@@ -41,6 +39,10 @@ The AEC-INTELLIGENCE path is retained as a legacy storage path for compatibility
 2. Retrieve large project artifacts/data from Drive when needed.
 3. If the previous computer had uncommitted work, inspect its device backup and recover only those files.
 4. Each computer has a unique device-id, so device backups never overwrite another computer's workspace.
+
+## Mobile
+
+Mobile reads Drive artifacts/manifests and GitHub history. Mobile ChatGPT can instruct a connected remote worker to edit a local checkout. The phone does not need a writable Git working tree.
 
 ## Runtime databases
 

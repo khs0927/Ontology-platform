@@ -1,8 +1,8 @@
 id: https://sion-jesus.xyz/ontology/core
-name: ontology-core
-title: Ontology Core
+name: sion-core
+title: Sion Core Ontology
 description: >
-  Canonical, domain-neutral ontology for projects, tools, documents,
+  Canonical, domain-neutral ontology for Sion projects, tools, documents,
   workflows, decisions, artifacts, evidence, and knowledge relationships.
 license: MIT
 version: 0.1.0
@@ -54,8 +54,16 @@ enums:
 
 classes:
   Entity:
-    description: Base node in the knowledge graph.
-    slots: [id, name, description, category, external_uri, properties, created_at, updated_at]
+    description: Base node in the Sion knowledge graph.
+    slots:
+      - id
+      - name
+      - description
+      - category
+      - external_uri
+      - properties
+      - created_at
+      - updated_at
 
   Project:
     is_a: Entity
@@ -72,12 +80,17 @@ classes:
   Document:
     is_a: Entity
     description: Human-readable document with optional external artifact backing.
-    slots: [artifact_id]
+    slots:
+      - artifact_id
 
   Artifact:
     is_a: Entity
     description: Immutable or versioned file/object stored outside the graph.
-    slots: [content_hash, storage_uri, mime_type, byte_size]
+    slots:
+      - content_hash
+      - storage_uri
+      - mime_type
+      - byte_size
 
   Dataset:
     is_a: Artifact
@@ -101,11 +114,35 @@ classes:
 
   Relation:
     description: Typed edge between two entities.
-    slots: [id, source_id, target_id, relation_type, confidence, verification_state, source_kind, ontology_version, valid_from, valid_to, properties, created_at]
+    slots:
+      - id
+      - source_id
+      - target_id
+      - relation_type
+      - confidence
+      - verification_state
+      - source_kind
+      - ontology_version
+      - valid_from
+      - valid_to
+      - properties
+      - created_at
 
   Evidence:
     description: Source-backed evidence supporting a node or relation.
-    slots: [id, relation_id, entity_id, artifact_id, source_uri, source_locator, excerpt_hash, confidence, verification_state, extractor, model, created_at]
+    slots:
+      - id
+      - relation_id
+      - entity_id
+      - artifact_id
+      - source_uri
+      - source_locator
+      - excerpt_hash
+      - confidence
+      - verification_state
+      - extractor
+      - model
+      - created_at
 
 slots:
   id:
@@ -128,6 +165,7 @@ slots:
     range: datetime
   updated_at:
     range: datetime
+
   artifact_id:
     range: string
   content_hash:
@@ -140,6 +178,7 @@ slots:
   byte_size:
     range: integer
     minimum_value: 0
+
   source_id:
     required: true
     range: string
@@ -163,6 +202,7 @@ slots:
     range: datetime
   valid_to:
     range: datetime
+
   relation_id:
     range: string
   entity_id:

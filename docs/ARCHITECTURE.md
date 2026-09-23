@@ -1,4 +1,4 @@
-# Ontology Platform architecture v0.1
+# Sion Ontology Platform architecture v0.1
 
 ## Canonical layers
 
@@ -9,7 +9,7 @@
 5. **Artifact lake** — Google Drive, addressed by provider id + SHA-256.
 6. **Ingestion** — documents first; CAD/BIM/CAIR through optional adapters.
 7. **GraphRAG** — LightRAG/LlamaIndex-compatible service boundary.
-8. **Presentation** — Ontology Map through API, not hard-coded JSON.
+8. **Presentation** — Sion Ontology Map through API, not hard-coded JSON.
 
 ## Invariants
 
@@ -20,9 +20,9 @@
 - Google Drive stores artifacts and backups, not live runtime databases.
 - AEC/CAIR is an optional extension; the domain-neutral core must run without it.
 
-## Implementation order
+## Planned implementation order
 
-P1 schema + sync
+P1 schema + sync (current)
 P2 minimal FastAPI CRUD/query
 P3 PostgreSQL runtime
 P4 Drive ArtifactStore metadata adapter
@@ -32,13 +32,3 @@ P7 GraphRAG
 P8 AGE projection
 P9 CAIR/AEC adapter
 P10 CAD/BIM ingestion
-
-
-## Artifact graph identity
-
-Artifact storage metadata may optionally link to a canonical graph entity through `artifacts.entity_id`.
-
-- `Artifact`, `Dataset`, and `Deliverable` entity types may back an artifact record.
-- Existing standalone artifact metadata remains valid for backward compatibility.
-- A linked graph entity has at most one artifact metadata row.
-- Deleting a linked graph entity cascades to its artifact metadata; external provider objects are not automatically deleted.

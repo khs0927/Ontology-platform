@@ -1,20 +1,22 @@
-# Ontology Drive Sync v2
+# Sion Drive Sync v2
 
-The backup model is device-scoped and non-destructive.
+This replaces the old /MIR model with device-scoped, non-destructive backups.
 
-## Rules
+Windows:
+  powershell -ExecutionPolicy Bypass -File .\sync\install-windows.ps1 -DeviceId home-bedroom
 
-- Do not develop inside a Google Drive synchronized folder.
-- GitHub is the source of truth for code.
-- Drive stores safety copies, snapshots, exports, recovery data, and large artifacts.
-- Do not use destructive mirror behavior such as robocopy /MIR or rclone sync for working backups.
-- A missing local file is recorded as a tombstone; it does not automatically delete the Drive copy.
-- Secrets, dependency trees, caches, build output, and live DB WAL/SHM files are excluded.
+Use a different DeviceId on every other computer, for example office.
 
-## Drive path
+The scheduled task backs up C:\CODE every 5 minutes by default.
 
-Do not assume a fixed drive letter such as G:. Google Drive for Desktop can use a different drive letter or localized folder name. Platform-specific installers must detect the mounted Drive path or use an authenticated API/rclone remote.
+Manual backup:
+  python .\sync\sion_sync.py backup --source C:\CODE --drive-root "G:\내 드라이브\.CODE\_sync-v2" --device-id home-bedroom --workspace-name C_CODE --state-dir C:\SionSync\state
 
-## Manual engine
+Canonical promotion (clean Git tree only):
+  python .\sync\sion_sync.py promote --project C:\CODE\sion-ontology-platform --drive-root "G:\내 드라이브\.CODE\_sync-v2"
 
-`ontology_sync.py` implements the non-destructive copy semantics. Windows scheduling/Drive path discovery will be shipped only after it is verified on the target machine.
+Safety:
+- Device backups never auto-delete Drive files.
+- Local deletions are recorded in manifests.
+- Previous destination content is saved under history before replacement.
+- Secrets, dependency trees, caches, and build output are excluded.

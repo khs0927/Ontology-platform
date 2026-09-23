@@ -1,23 +1,72 @@
 {
-  "schema": "ontology-map-inventory/v1",
-  "source": "Ontology Map site artifact",
+  "schema": "sion-map-inventory/v1",
+  "source": "Sion Ontology Map site artifact",
   "observed_node_count": 31,
   "observed_relation_count": 43,
   "categories": [
-    {"id":"core","label":"핵심 체계","observed_count":6},
-    {"id":"architecture_site","label":"건축·대지","observed_count":4},
-    {"id":"cad_bim","label":"CAD·BIM","observed_count":5},
-    {"id":"ai_automation","label":"AI·자동화","observed_count":6},
-    {"id":"content_assets","label":"콘텐츠·자산","observed_count":4},
-    {"id":"data_validation","label":"데이터·검증","observed_count":6}
+    {
+      "id": "core",
+      "label": "핵심 체계",
+      "observed_count": 6
+    },
+    {
+      "id": "architecture_site",
+      "label": "건축·대지",
+      "observed_count": 4
+    },
+    {
+      "id": "cad_bim",
+      "label": "CAD·BIM",
+      "observed_count": 5
+    },
+    {
+      "id": "ai_automation",
+      "label": "AI·자동화",
+      "observed_count": 6
+    },
+    {
+      "id": "content_assets",
+      "label": "콘텐츠·자산",
+      "observed_count": 4
+    },
+    {
+      "id": "data_validation",
+      "label": "데이터·검증",
+      "observed_count": 6
+    }
   ],
   "visible_labels": [
-    "Global Project Ontology","대지맥락 팩","Dubai Concept","인허가 지식","건축 프로젝트",
-    "CAD Semantic Graph","DWG / DXF","CAD Bridge","Rhino / Grasshopper","BIM / 3D Model",
-    "Agent Orchestrator","DeepSeek Planner","GPT Executor","Browser Control","MCP Mesh",
-    "Safety & Approval","Zion Bible","Zeta Universe","Figma Asset System","Visual & Media Pack",
-    "Drawing Index","Ontology Store","Supabase / Postgres","Cross Validation","Evidence Ledger",
-    "Drive Mirror","Sites Dashboard","Project Workflow","Decision Memory","Deliverables","Mobile Command"
+    "Global Project Ontology",
+    "대지맥락 팩",
+    "Dubai Concept",
+    "인허가 지식",
+    "건축 프로젝트",
+    "CAD Semantic Graph",
+    "DWG / DXF",
+    "CAD Bridge",
+    "Rhino / Grasshopper",
+    "BIM / 3D Model",
+    "Agent Orchestrator",
+    "DeepSeek Planner",
+    "GPT Executor",
+    "Browser Control",
+    "MCP Mesh",
+    "Safety & Approval",
+    "Zion Bible",
+    "Zeta Universe",
+    "Figma Asset System",
+    "Visual & Media Pack",
+    "Drawing Index",
+    "Ontology Store",
+    "Supabase / Postgres",
+    "Cross Validation",
+    "Evidence Ledger",
+    "Drive Mirror",
+    "Sites Dashboard",
+    "Project Workflow",
+    "Decision Memory",
+    "Deliverables",
+    "Mobile Command"
   ],
   "note": "Labels are preserved exactly as observed. Category assignments and the 43 edge definitions are intentionally not inferred from flattened site text; they will be imported from structured source when available."
 }
