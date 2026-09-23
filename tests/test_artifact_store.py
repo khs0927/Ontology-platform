@@ -1,4 +1,6 @@
 from pathlib import Path
+from urllib.parse import urlsplit
+from urllib.request import url2pathname
 
 from ontology_drive_store import LocalStageStore
 
@@ -16,4 +18,6 @@ def test_stage_store_is_content_addressed_and_idempotent(tmp_path: Path):
     assert first.byte_size == len("hello ontology".encode())
     assert first.mime_type == "text/plain"
     assert first.provider == "local-stage"
-    assert Path(first.storage_uri.removeprefix("file://")).exists()
+    storage_uri = urlsplit(first.storage_uri)
+    assert storage_uri.scheme == "file"
+    assert Path(url2pathname(storage_uri.path)).exists()
