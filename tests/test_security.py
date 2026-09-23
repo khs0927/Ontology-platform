@@ -76,3 +76,18 @@ def test_private_mode_protects_reads_writes_and_openapi():
         assert client.post("/entities", json=payload, headers={"Authorization": "Bearer wrong"}).status_code == 401
         created = client.post("/entities", json=payload, headers={"Authorization": "Bearer private-test-token"})
         assert created.status_code == 201, created.text
+
+        openapi = client.get(
+            "/openapi.json",
+            headers={"Authorization": "Bearer private-test-token"},
+        ).json()
+        public_paths = {"/health", "/health/security"}
+        http_methods = {"delete", "get", "head", "options", "patch", "post", "put", "trace"}
+        for path, path_item in openapi["paths"].items():
+            for method, operation in path_item.items():
+                if method.lower() not in http_methods:
+                    continue
+                if path in public_paths:
+                    assert "security" not in operation
+                else:
+                    assert operation["security"] == [{"HTTPBearer": []}]
