@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -39,6 +39,14 @@ CORE_RELATION_TYPES = (
 )
 
 
+def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record) -> None:
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA foreign_keys=ON")
+    finally:
+        cursor.close()
+
+
 class Database:
     def __init__(self, url: str):
         kwargs: dict = {"future": True}
@@ -51,6 +59,8 @@ class Database:
                 if db_path.parent != Path("."):
                     db_path.parent.mkdir(parents=True, exist_ok=True)
         self.engine = create_engine(url, **kwargs)
+        if self.engine.dialect.name == "sqlite":
+            event.listen(self.engine, "connect", _enable_sqlite_foreign_keys)
         self.SessionLocal = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
 
     @property

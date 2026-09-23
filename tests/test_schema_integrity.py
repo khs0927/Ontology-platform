@@ -1,0 +1,146 @@
+from uuid import uuid4
+
+from fastapi.testclient import TestClient
+from sqlalchemy import text
+
+from ontology_api import models
+from ontology_api.main import create_app
+
+
+CORE_TABLES = {
+    "ontology_versions",
+    "entity_types",
+    "relation_types",
+    "entities",
+    "artifacts",
+    "documents",
+    "chunks",
+    "relations",
+    "evidence",
+}
+
+
+def test_sqlite_foreign_keys_are_enabled_before_use():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with app.state.database.engine.connect() as conn:
+        assert conn.execute(text("PRAGMA foreign_keys")).scalar_one() == 1
+
+
+def test_sqlite_metadata_matches_core_migration_tables():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with app.state.database.engine.connect() as conn:
+        tables = set(
+            conn.execute(text("SELECT name FROM sqlite_master WHERE type='table'")).scalars()
+        )
+    assert CORE_TABLES <= tables
+
+
+def test_invalid_chunk_evidence_is_rejected_before_database_error():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        entity = client.post(
+            "/entities",
+            json={"stable_key": "chunk:entity", "entity_type_id": "Document", "name": "Chunk Entity"},
+        )
+        assert entity.status_code == 201
+        response = client.post(
+            "/evidence",
+            json={"entity_id": entity.json()["id"], "chunk_id": str(uuid4())},
+        )
+        assert response.status_code == 422
+        assert response.json()["detail"] == "chunk not found"
+
+
+def test_valid_chunk_evidence_uses_real_foreign_key():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        entity = client.post(
+            "/entities",
+            json={"stable_key": "chunk:doc", "entity_type_id": "Document", "name": "Doc"},
+        )
+        artifact = client.post(
+            "/artifacts",
+            json={"stable_key": "chunk:artifact", "name": "doc.txt", "storage_uri": "test://doc"},
+        )
+        with app.state.database.SessionLocal() as db:
+            document = models.Document(
+                entity_id=entity.json()["id"],
+                artifact_id=artifact.json()["id"],
+                title="Doc",
+            )
+            db.add(document)
+            db.flush()
+            chunk = models.Chunk(document_id=document.id, ordinal=0, content="hello", locator="p1")
+            db.add(chunk)
+            db.commit()
+            chunk_id = chunk.id
+
+        evidence = client.post(
+            "/evidence",
+            json={"entity_id": entity.json()["id"], "chunk_id": chunk_id},
+        )
+        assert evidence.status_code == 201, evidence.text
+        assert evidence.json()["chunk_id"] == chunk_id
+
+
+def test_non_related_self_loop_is_rejected_by_sqlite_constraint():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        entity = client.post(
+            "/entities",
+            json={"stable_key": "loop:x", "entity_type_id": "Concept", "name": "Loop"},
+        )
+        entity_id = entity.json()["id"]
+
+        bad = client.post(
+            "/relations",
+            json={
+                "stable_key": "loop:bad",
+                "source_entity_id": entity_id,
+                "target_entity_id": entity_id,
+                "relation_type_id": "USES",
+            },
+        )
+        assert bad.status_code == 409
+
+        good = client.post(
+            "/relations",
+            json={
+                "stable_key": "loop:ok",
+                "source_entity_id": entity_id,
+                "target_entity_id": entity_id,
+                "relation_type_id": "RELATED_TO",
+            },
+        )
+        assert good.status_code == 201, good.text
+
+
+def test_entity_delete_cascades_relation_and_evidence():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        source = client.post(
+            "/entities",
+            json={"stable_key": "cascade:a", "entity_type_id": "Concept", "name": "A"},
+        )
+        target = client.post(
+            "/entities",
+            json={"stable_key": "cascade:b", "entity_type_id": "Concept", "name": "B"},
+        )
+        relation = client.post(
+            "/relations",
+            json={
+                "stable_key": "cascade:r",
+                "source_entity_id": source.json()["id"],
+                "target_entity_id": target.json()["id"],
+                "relation_type_id": "RELATED_TO",
+            },
+        )
+        evidence = client.post(
+            "/evidence",
+            json={"relation_id": relation.json()["id"], "source_uri": "test://cascade"},
+        )
+        assert evidence.status_code == 201
+
+        assert client.delete(f"/entities/{source.json()['id']}").status_code == 204
+        assert client.get(f"/relations/{relation.json()['id']}").status_code == 404
+        assert client.get(f"/evidence/{evidence.json()['id']}").status_code == 404
