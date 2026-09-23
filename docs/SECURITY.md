@@ -18,6 +18,14 @@ The token is compared with a constant-time comparison. The API never returns the
 
 If `ONTOLOGY_API_TOKEN` is absent, write requests return HTTP 503 instead of silently becoming unauthenticated.
 
+### private — all data routes
+
+Use `ONTOLOGY_SECURITY_MODE=private` when graph data and provenance must be
+visible only to authenticated clients. Every route except `/health` and
+`/health/security` requires the same Bearer token, including `/graph`, Evidence
+reads, database health, and the OpenAPI document. Without a configured token,
+data requests fail closed with HTTP 503.
+
 ### disabled — local/test only
 
 `ONTOLOGY_SECURITY_MODE=disabled` deliberately disables application-layer write authentication.
@@ -40,7 +48,9 @@ The current write guard covers:
 - POST artifact registration
 - POST/DELETE evidence operations
 
-Read endpoints remain available so the graph/dashboard can be separated from write authorization.
+In default `token` mode, read endpoints remain available so the graph/dashboard
+can be separated from write authorization. Set `private` mode for confidential
+data or a network exposed instance without a separate read access boundary.
 
 ## Secret handling
 
@@ -64,7 +74,7 @@ For external access:
 
 1. bind application services to loopback/private interfaces where practical,
 2. route through the existing reverse proxy / Cloudflare access boundary,
-3. keep write API bearer authentication enabled,
+3. select `private` mode when the reverse proxy does not authenticate read requests,
 4. expose only required routes,
 5. log authorization failures without logging bearer tokens.
 
