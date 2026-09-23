@@ -8,8 +8,11 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from ontology_map_bridge import MapExport
+
 from . import models, repository, schemas
 from .db import Database
+from .map_import import MapImportConflict, MapImportInvalid, MapImportResult, import_map
 
 
 def create_app(database_url: str | None = None) -> FastAPI:
@@ -42,6 +45,15 @@ def create_app(database_url: str | None = None) -> FastAPI:
             "nodes": repository.list_entities(db, limit=node_limit, offset=0),
             "relations": repository.list_relations(db, limit=relation_limit, offset=0),
         }
+
+    @app.post("/imports/map", response_model=MapImportResult, status_code=201)
+    def import_structured_map(payload: MapExport, db: Session = Depends(get_db)):
+        try:
+            return import_map(db, payload)
+        except MapImportConflict as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except MapImportInvalid as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     @app.post("/entities", response_model=schemas.EntityRead, status_code=201)
     def create_entity(payload: schemas.EntityCreate, db: Session = Depends(get_db)):
