@@ -32,3 +32,13 @@ P7 GraphRAG
 P8 AGE projection
 P9 CAIR/AEC adapter
 P10 CAD/BIM ingestion
+
+
+## Artifact graph identity
+
+Artifact storage metadata may optionally link to a canonical graph entity through `artifacts.entity_id`.
+
+- `Artifact`, `Dataset`, and `Deliverable` entity types may back an artifact record.
+- Existing standalone artifact metadata remains valid for backward compatibility.
+- A linked graph entity has at most one artifact metadata row.
+- Deleting a linked graph entity cascades to its artifact metadata; external provider objects are not automatically deleted.
