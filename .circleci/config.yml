@@ -15,6 +15,8 @@ jobs:
       ONTOLOGY_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_platform
       ONTOLOGY_TEST_POSTGRES_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_platform
       ONTOLOGY_SECURITY_MODE: disabled
+      ONTOLOGY_RESTORE_PG_DSN: postgresql://postgres:postgres@localhost:5432/ontology_restore_test
+      ONTOLOGY_RESTORE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_restore_test
 
     steps:
       - checkout
@@ -58,6 +60,10 @@ jobs:
           command: |
             mkdir -p test-results
             uv run pytest -q --junitxml=test-results/pytest.xml
+
+      - run:
+          name: Verify PostgreSQL backup restore
+          command: bash scripts/verify_postgres_restore.sh
 
       - store_test_results:
           path: test-results
