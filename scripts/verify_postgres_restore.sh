@@ -12,7 +12,8 @@ trap 'rm -f "$archive"' EXIT
 pg_dump --format=custom --file="$archive" "$ONTOLOGY_PG_DSN"
 test -s "$archive"
 
-psql "$ONTOLOGY_PG_DSN" -X -v ON_ERROR_STOP=1 -c 'CREATE DATABASE ontology_restore_test'
+psql "$ONTOLOGY_PG_DSN" -X -v ON_ERROR_STOP=1 -c 'DROP DATABASE IF EXISTS ontology_restore_test; CREATE DATABASE ontology_restore_test;'
+psql "$ONTOLOGY_RESTORE_PG_DSN" -X -v ON_ERROR_STOP=1 -c 'DROP SCHEMA IF EXISTS public CASCADE;'
 pg_restore --exit-on-error --no-owner --no-acl --dbname="$ONTOLOGY_RESTORE_PG_DSN" "$archive"
 
 for table in ontology_versions entity_types relation_types entities artifacts documents chunks relations evidence embeddings; do
