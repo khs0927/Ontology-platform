@@ -5,7 +5,9 @@ from typing import Any, Literal
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, model_validator
 
+KnowledgeCategory = Literal["core", "architecture_site", "cad_bim", "ai_automation", "content_assets", "data_validation"]
 VerificationState = Literal["unverified", "machine_verified", "human_verified", "rejected"]
+SourceKind = Literal["user", "document", "file", "database", "api", "mcp", "inferred", "imported"]
 
 
 class EntityCreate(BaseModel):
@@ -13,7 +15,7 @@ class EntityCreate(BaseModel):
     entity_type_id: str = Field(min_length=1, max_length=120, validation_alias=AliasChoices("entity_type_id", "entity_type"))
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
-    category: str | None = None
+    category: KnowledgeCategory | None = None
     external_uri: str | None = None
     properties: dict[str, Any] = Field(default_factory=dict)
     ontology_version: str | None = None
@@ -22,7 +24,7 @@ class EntityCreate(BaseModel):
 class EntityUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
-    category: str | None = None
+    category: KnowledgeCategory | None = None
     external_uri: str | None = None
     properties: dict[str, Any] | None = None
     ontology_version: str | None = None
@@ -42,7 +44,7 @@ class RelationCreate(BaseModel):
     relation_type_id: str = Field(min_length=1, max_length=120, validation_alias=AliasChoices("relation_type_id", "relation_type"))
     confidence: float | None = Field(default=None, ge=0, le=1)
     verification_state: VerificationState = "unverified"
-    source_kind: str | None = None
+    source_kind: SourceKind | None = None
     ontology_version: str | None = None
     valid_from: datetime | None = None
     valid_to: datetime | None = None
