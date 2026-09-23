@@ -65,6 +65,8 @@ class MapExport(BaseModel):
                 raise ValueError(f"unknown relation source_id: {relation.source_id}")
             if relation.target_id not in known_nodes:
                 raise ValueError(f"unknown relation target_id: {relation.target_id}")
+            if relation.source_id == relation.target_id and relation.relation_type_id != "RELATED_TO":
+                raise ValueError("self-loop relations must use relation_type_id RELATED_TO")
 
         if self.expected_node_count != len(self.nodes):
             raise ValueError(
