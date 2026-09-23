@@ -17,12 +17,16 @@ A CI run performs:
 
 1. checkout,
 2. PostgreSQL client installation,
-3. editable project/development dependency installation,
+3. locked project/development dependency installation with `uv.lock`,
 4. database readiness check,
-5. all numbered canonical migrations,
+5. all numbered canonical migrations twice to check replay safety,
 6. PostgreSQL + pgvector capability verification,
-7. the complete pytest suite,
+7. the complete pytest suite, including PostgreSQL integration,
 8. JUnit result publication to CircleCI.
+
+The GitHub Actions workflow additionally restores a `pg_dump` archive to a
+fresh database, compares table row counts, and reruns the PostgreSQL
+integration tests on that restored database.
 
 Because `ONTOLOGY_TEST_POSTGRES_URL` is configured in CI, `tests/test_postgres_integration.py` runs instead of being skipped.
 
@@ -33,7 +37,8 @@ The ordinary test suite explicitly uses `ONTOLOGY_SECURITY_MODE=disabled`; dedic
 Fast local unit/integration checks without PostgreSQL:
 
 ```bash
-pytest -q
+uv sync --locked --extra dev
+uv run pytest -q
 ```
 
 Local pgvector runtime:

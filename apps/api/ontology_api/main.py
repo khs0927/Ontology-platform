@@ -5,6 +5,7 @@ import secrets
 from collections.abc import Generator
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
@@ -28,8 +29,8 @@ def create_app(
     database.initialize()
 
     mode = security_mode or os.getenv("ONTOLOGY_SECURITY_MODE", "token")
-    if mode not in {"token", "disabled"}:
-        raise ValueError("ONTOLOGY_SECURITY_MODE must be 'token' or 'disabled'")
+    if mode not in {"token", "disabled", "private"}:
+        raise ValueError("ONTOLOGY_SECURITY_MODE must be 'token', 'private', or 'disabled'")
     configured_api_token = api_token or os.getenv("ONTOLOGY_API_TOKEN")
     bearer = HTTPBearer(auto_error=False)
 
@@ -49,6 +50,22 @@ def create_app(
 
     app = FastAPI(title="Ontology Platform API", version="0.1.0")
     app.state.database = database
+
+    if mode == "private":
+        @app.middleware("http")
+        async def require_private_auth(request, call_next):
+            if request.url.path in {"/health", "/health/security"}:
+                return await call_next(request)
+            if not configured_api_token:
+                return JSONResponse({"detail": "API disabled until ONTOLOGY_API_TOKEN is configured"}, status_code=503)
+            scheme, separator, supplied = request.headers.get("authorization", "").partition(" ")
+            if not separator or scheme.lower() != "bearer" or not secrets.compare_digest(supplied, configured_api_token):
+                return JSONResponse(
+                    {"detail": "authentication required"},
+                    status_code=401,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            return await call_next(request)
 
     def get_db() -> Generator[Session, None, None]:
         yield from database.session()

@@ -288,3 +288,36 @@ def test_deleting_artifact_graph_entity_cascades_linked_artifact_metadata():
         assert artifact.status_code == 201, artifact.text
         assert client.delete(f"/entities/{entity.json()['id']}").status_code == 204
         assert client.get(f"/artifacts/{artifact.json()['id']}").status_code == 404
+
+
+def test_linked_artifact_delete_keeps_document_and_removes_evidence():
+    app = create_app("sqlite+pysqlite:///:memory:")
+    with TestClient(app) as client:
+        linked = client.post("/entities", json={
+            "stable_key": "cascade:artifact:entity", "entity_type_id": "Artifact", "name": "Source"
+        })
+        document_entity = client.post("/entities", json={
+            "stable_key": "cascade:document:entity", "entity_type_id": "Document", "name": "Document"
+        })
+        artifact = client.post("/artifacts", json={
+            "stable_key": "cascade:artifact:metadata", "entity_id": linked.json()["id"],
+            "name": "source.txt", "storage_uri": "test://source"
+        })
+        assert artifact.status_code == 201, artifact.text
+        document_id = str(uuid4())
+        with app.state.database.SessionLocal() as db:
+            db.add(models.Document(
+                id=document_id, entity_id=document_entity.json()["id"],
+                artifact_id=artifact.json()["id"], title="Keep this document"
+            ))
+            db.commit()
+        evidence = client.post("/evidence", json={
+            "entity_id": document_entity.json()["id"], "artifact_id": artifact.json()["id"]
+        })
+        assert evidence.status_code == 201, evidence.text
+
+        assert client.delete(f"/entities/{linked.json()['id']}").status_code == 204
+        assert client.get(f"/artifacts/{artifact.json()['id']}").status_code == 404
+        assert client.get(f"/evidence/{evidence.json()['id']}").status_code == 404
+        with app.state.database.SessionLocal() as db:
+            assert db.get(models.Document, document_id).artifact_id is None

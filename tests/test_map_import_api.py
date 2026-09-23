@@ -68,3 +68,13 @@ def test_map_import_rejects_unknown_canonical_types_without_partial_write():
         assert response.status_code == 422
         graph = client.get("/graph").json()
         assert graph == {"nodes": [], "relations": []}
+
+
+def test_map_import_rejects_invalid_self_loop_without_partial_write():
+    bad = payload()
+    bad["relations"][0]["target_id"] = "a"
+    bad["relations"][0]["relation_type_id"] = "USES"
+    with TestClient(create_app("sqlite+pysqlite:///:memory:")) as client:
+        response = client.post("/imports/map", json=bad)
+        assert response.status_code == 422
+        assert client.get("/graph").json() == {"nodes": [], "relations": []}

@@ -1,4 +1,4 @@
-name: ontology-platform
+name: ${COMPOSE_PROJECT_NAME:-ontology-platform}
 
 services:
   postgres:
@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ontology
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${ONTOLOGY_PG_PORT:-5433}:5432"
     volumes:
       - ontology_postgres_data:/var/lib/postgresql/data
     healthcheck:
