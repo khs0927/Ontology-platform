@@ -86,4 +86,15 @@ Status: planned
 - CAD handles / IFC GlobalId provenance
 - DWG/DXF/PDF cross-validation
 
-Current isolated validation: 28 non-PostgreSQL tests passing. The PostgreSQL integration test remains environment-gated until a live pgvector runtime is available.
+Current isolated validation: 31 non-PostgreSQL tests passing. The PostgreSQL integration test remains environment-gated until a live pgvector runtime is available.
+
+
+## Security baseline
+
+Status: baseline complete
+
+- write APIs default to bearer-token protection
+- missing token configuration fails closed
+- local/test insecure mode must be explicitly selected
+- security health endpoint reveals configuration state without secret values
+- external reverse-proxy/access-layer hardening remains deployment-specific
