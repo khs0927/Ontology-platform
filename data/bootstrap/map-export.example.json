@@ -1,34 +1,34 @@
 {
-  "schema_version": "ontology-map-export/v1",
-  "namespace": "current-map-example",
-  "source": "EXAMPLE ONLY - not the current 31/43 production map",
-  "source_uri": "example://structured-source",
+  "schema": "sion-map-export/v1",
+  "source": "example-only",
   "expected_node_count": 2,
-  "expected_relation_count": 1,
-  "categories": [
-    {"id": "core", "label": "핵심 체계"}
-  ],
+  "expected_edge_count": 1,
   "nodes": [
     {
-      "id": "n1",
-      "label": "Ontology Store",
-      "entity_type_id": "SystemComponent",
-      "category_id": "core"
+      "stable_key": "project:sion-ontology",
+      "entity_type_id": "Project",
+      "name": "Sion Ontology",
+      "category": "core",
+      "properties": {}
     },
     {
-      "id": "n2",
-      "label": "Evidence Ledger",
-      "entity_type_id": "SystemComponent",
-      "category_id": "core"
+      "stable_key": "tool:fastapi",
+      "entity_type_id": "Tool",
+      "name": "FastAPI",
+      "category": "ai_automation",
+      "properties": {}
     }
   ],
-  "relations": [
+  "edges": [
     {
-      "id": "r1",
-      "source_id": "n1",
-      "target_id": "n2",
-      "relation_type_id": "SUPPORTS",
-      "source_uri": "example://structured-source"
+      "stable_key": "project:sion-ontology:USES:tool:fastapi",
+      "source_stable_key": "project:sion-ontology",
+      "target_stable_key": "tool:fastapi",
+      "relation_type_id": "USES",
+      "confidence": 1.0,
+      "verification_state": "human_verified",
+      "source_kind": "imported",
+      "properties": {}
     }
   ]
 }
