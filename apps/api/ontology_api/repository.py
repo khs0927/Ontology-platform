@@ -101,6 +101,26 @@ def list_evidence(db: Session, *, limit: int = 100, offset: int = 0) -> list[mod
     return list(db.scalars(select(models.Evidence).order_by(models.Evidence.created_at).offset(offset).limit(limit)))
 
 
+def list_relation_evidence(db: Session, relation_id: str) -> list[models.Evidence]:
+    return list(
+        db.scalars(
+            select(models.Evidence)
+            .where(models.Evidence.relation_id == relation_id)
+            .order_by(models.Evidence.created_at)
+        )
+    )
+
+
+def list_entity_evidence(db: Session, entity_id: str) -> list[models.Evidence]:
+    return list(
+        db.scalars(
+            select(models.Evidence)
+            .where(models.Evidence.entity_id == entity_id)
+            .order_by(models.Evidence.created_at)
+        )
+    )
+
+
 def get_evidence(db: Session, evidence_id: str) -> models.Evidence | None:
     return db.get(models.Evidence, evidence_id)
 

@@ -76,6 +76,12 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=404, detail="entity not found")
         return row
 
+    @app.get("/entities/{entity_id}/evidence", response_model=list[schemas.EvidenceRead])
+    def get_entity_evidence(entity_id: str, db: Session = Depends(get_db)):
+        if repository.get_entity(db, entity_id) is None:
+            raise HTTPException(status_code=404, detail="entity not found")
+        return repository.list_entity_evidence(db, entity_id)
+
     @app.patch("/entities/{entity_id}", response_model=schemas.EntityRead)
     def update_entity(entity_id: str, payload: schemas.EntityUpdate, db: Session = Depends(get_db)):
         row = repository.get_entity(db, entity_id)
@@ -115,6 +121,28 @@ def create_app(database_url: str | None = None) -> FastAPI:
         if row is None:
             raise HTTPException(status_code=404, detail="relation not found")
         return row
+
+    @app.get("/relations/{relation_id}/evidence", response_model=list[schemas.EvidenceRead])
+    def get_relation_evidence(relation_id: str, db: Session = Depends(get_db)):
+        if repository.get_relation(db, relation_id) is None:
+            raise HTTPException(status_code=404, detail="relation not found")
+        return repository.list_relation_evidence(db, relation_id)
+
+    @app.get("/relations/{relation_id}/explain", response_model=schemas.RelationExplanation)
+    def explain_relation(relation_id: str, db: Session = Depends(get_db)):
+        relation = repository.get_relation(db, relation_id)
+        if relation is None:
+            raise HTTPException(status_code=404, detail="relation not found")
+        source = repository.get_entity(db, relation.source_entity_id)
+        target = repository.get_entity(db, relation.target_entity_id)
+        if source is None or target is None:
+            raise HTTPException(status_code=500, detail="relation endpoint missing")
+        return {
+            "relation": relation,
+            "source": source,
+            "target": target,
+            "evidence": repository.list_relation_evidence(db, relation_id),
+        }
 
     @app.delete("/relations/{relation_id}", status_code=204)
     def delete_relation(relation_id: str, db: Session = Depends(get_db)):
