@@ -12,4 +12,4 @@ Initial projection rules:
 - stable_key is copied into every vertex/edge
 - provenance/evidence remains relational and is joined by stable_key/UUID
 
-This keeps Ontology Platform portable if AGE is unavailable on a specific computer.
+This keeps Sion portable if AGE is unavailable on a specific computer.

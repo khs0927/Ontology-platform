@@ -1,13 +1,13 @@
-# Ontology Platform - Agent Instructions
+# Sion Ontology Platform - Agent Instructions
 
 ## Workspace
-- Edit a local working copy, not a Google Drive synchronized folder.
+- This repository is a local working copy. Edit here, not inside a Google Drive synchronized folder.
 - Preserve existing files and uncommitted changes.
 - Do not expose secrets, OAuth tokens, Doppler values, .env files, or private keys.
 
 ## Source of truth
 - Git/GitHub is the canonical source for code history.
-- Google Drive is the backup, artifact lake, recovery store, and cross-device handoff layer.
+- Google Drive is the automatic backup, artifact lake, recovery store, and cross-device handoff layer.
 - Runtime databases are local/rebuildable. Back up dumps/snapshots, never live PostgreSQL/SQLite WAL files.
 
 ## Drive sync safety

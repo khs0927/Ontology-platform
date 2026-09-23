@@ -1,82 +1,190 @@
+from __future__ import annotations
+
 from fastapi.testclient import TestClient
 
-from ontology_api.main import create_app
+from sion_api.main import create_app
 
 
 def client() -> TestClient:
-    return TestClient(create_app("sqlite+pysqlite:///:memory:"))
+    app = create_app(database_url="sqlite://", auto_create_schema=True)
+    return TestClient(app)
 
 
-def test_health():
+def test_health_and_inventory():
     with client() as c:
-        assert c.get("/health").json() == {"status": "ok"}
-        assert c.get("/health/db").json() == {"status": "ok", "database": "sqlite"}
+        health = c.get("/health")
+        assert health.status_code == 200
+        assert health.json()["database"] == "sqlite"
+
+        inventory = c.get("/api/v1/bootstrap/map-inventory")
+        assert inventory.status_code == 200
+        body = inventory.json()
+        assert body["observed_node_count"] == 31
+        assert body["observed_relation_count"] == 43
+        assert len(body["visible_labels"]) == 31
 
 
-def test_entity_relation_evidence_flow():
+def test_entity_relation_evidence_graph_round_trip():
     with client() as c:
-        a = c.post("/entities", json={"stable_key":"project:alpha","entity_type_id":"Project","name":"Alpha","description":"Architecture project","category":"architecture_site"})
-        assert a.status_code == 201, a.text
-        b = c.post("/entities", json={"stable_key":"tool:cad","entity_type_id":"Tool","name":"CAD Bridge","category":"cad_bim"})
-        assert b.status_code == 201, b.text
-        relation = c.post("/relations", json={"stable_key":"rel:alpha-uses-cad","source_entity_id":a.json()["id"],"target_entity_id":b.json()["id"],"relation_type_id":"USES","confidence":0.95})
+        project = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "project:sion-ontology",
+                "entity_type_id": "Project",
+                "name": "Sion Ontology",
+                "category": "core",
+                "properties": {},
+            },
+        )
+        assert project.status_code == 201, project.text
+
+        tool = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "tool:fastapi",
+                "entity_type_id": "Tool",
+                "name": "FastAPI",
+                "category": "ai_automation",
+                "properties": {"role": "api"},
+            },
+        )
+        assert tool.status_code == 201, tool.text
+
+        relation = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "project:sion-ontology:USES:tool:fastapi",
+                "source_entity_id": project.json()["id"],
+                "target_entity_id": tool.json()["id"],
+                "relation_type_id": "USES",
+                "confidence": 1.0,
+                "verification_state": "human_verified",
+                "source_kind": "user",
+                "properties": {},
+            },
+        )
         assert relation.status_code == 201, relation.text
-        evidence = c.post("/evidence", json={"relation_id":relation.json()["id"],"source_uri":"file:///example.md","source_locator":"L1-L3","verification_state":"human_verified"})
+
+        evidence = c.post(
+            "/api/v1/evidence",
+            json={
+                "relation_id": relation.json()["id"],
+                "source_uri": "urn:test:user-confirmed",
+                "source_locator": "test",
+                "confidence": 1.0,
+                "verification_state": "human_verified",
+                "properties": {},
+            },
+        )
         assert evidence.status_code == 201, evidence.text
-        query = c.get("/query/entities", params={"q":"Alpha"})
-        assert query.status_code == 200
-        assert [x["stable_key"] for x in query.json()] == ["project:alpha"]
+
+        graph = c.get("/api/v1/graph")
+        assert graph.status_code == 200
+        body = graph.json()
+        assert body["node_count"] == 2
+        assert body["edge_count"] == 1
+        assert body["edges"][0]["type"] == "USES"
 
 
-def test_legacy_type_aliases_are_accepted():
+def test_rejects_unknown_references_and_duplicates():
     with client() as c:
-        entity = c.post("/entities", json={"stable_key":"concept:legacy","entity_type":"Concept","name":"Legacy Alias"})
+        entity = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "concept:test",
+                "entity_type_id": "Concept",
+                "name": "Test",
+                "properties": {},
+            },
+        )
         assert entity.status_code == 201
-        assert entity.json()["entity_type_id"] == "Concept"
+
+        duplicate = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "concept:test",
+                "entity_type_id": "Concept",
+                "name": "Duplicate",
+                "properties": {},
+            },
+        )
+        assert duplicate.status_code == 409
+
+        missing = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "bad",
+                "source_entity_id": entity.json()["id"],
+                "target_entity_id": "00000000-0000-0000-0000-000000000001",
+                "relation_type_id": "RELATED_TO",
+                "properties": {},
+            },
+        )
+        assert missing.status_code == 422
 
 
-def test_unknown_types_are_rejected():
+def test_rejects_invalid_evidence_without_target():
     with client() as c:
-        assert c.post("/entities", json={"stable_key":"bad:type","entity_type_id":"NotAType","name":"Bad"}).status_code == 422
+        result = c.post(
+            "/api/v1/evidence",
+            json={
+                "source_uri": "urn:test",
+                "properties": {},
+            },
+        )
+        assert result.status_code == 422
 
 
-def test_duplicate_entity_is_conflict():
+def test_vector_endpoints_require_postgres_pgvector():
     with client() as c:
-        payload = {"stable_key":"concept:x","entity_type_id":"Concept","name":"X"}
-        assert c.post("/entities", json=payload).status_code == 201
-        assert c.post("/entities", json=payload).status_code == 409
+        result = c.post(
+            "/api/v1/vector/search",
+            json={
+                "model": "test/free-model",
+                "embedding": [1.0, 0.0, 0.0],
+                "limit": 5,
+            },
+        )
+        assert result.status_code == 503
+        assert "PostgreSQL" in result.json()["detail"]
 
 
-def test_entity_update_and_delete():
+def test_embedding_requires_exactly_one_target():
     with client() as c:
-        created = c.post("/entities", json={"stable_key":"project:beta","entity_type_id":"Project","name":"Beta"})
-        entity_id = created.json()["id"]
-        updated = c.patch(f"/entities/{entity_id}", json={"name":"Beta Updated"})
-        assert updated.status_code == 200
-        assert updated.json()["name"] == "Beta Updated"
-        deleted = c.delete(f"/entities/{entity_id}")
-        assert deleted.status_code == 204
-        assert c.get(f"/entities/{entity_id}").status_code == 404
+        result = c.post(
+            "/api/v1/embeddings",
+            json={
+                "model": "test/free-model",
+                "embedding": [1.0, 0.0, 0.0],
+                "properties": {},
+            },
+        )
+        assert result.status_code == 422
 
 
-def test_artifact_metadata_and_evidence_link():
+def test_artifact_metadata_round_trip_and_duplicate_guard():
     with client() as c:
-        entity = c.post("/entities", json={"stable_key":"document:one","entity_type_id":"Document","name":"Document One"})
-        artifact = c.post("/artifacts", json={
-            "stable_key":"artifact:one",
-            "name":"one.txt",
-            "storage_uri":"gdrive://file-123",
-            "content_hash":"sha256:" + ("a" * 64),
-            "mime_type":"text/plain",
-            "byte_size":12,
-            "provider":"google-drive",
-            "provider_file_id":"file-123"
-        })
-        assert artifact.status_code == 201, artifact.text
-        evidence = c.post("/evidence", json={
-            "entity_id":entity.json()["id"],
-            "artifact_id":artifact.json()["id"],
-            "verification_state":"machine_verified"
-        })
-        assert evidence.status_code == 201, evidence.text
-        assert evidence.json()["artifact_id"] == artifact.json()["id"]
+        payload = {
+            "stable_key": "artifact:sha256:" + "a" * 64,
+            "name": "sample.dxf",
+            "storage_uri": "gdrive:///AEC-INTELLIGENCE/00_SOURCES/objects/sha256/aa/" + "a" * 64,
+            "content_hash": "sha256:" + "a" * 64,
+            "mime_type": "image/vnd.dxf",
+            "byte_size": 123,
+            "provider": "google_drive",
+            "properties": {"kind": "cad-source"},
+        }
+        created = c.post("/api/v1/artifacts", json=payload)
+        assert created.status_code == 201, created.text
+        artifact_id = created.json()["id"]
+
+        fetched = c.get(f"/api/v1/artifacts/{artifact_id}")
+        assert fetched.status_code == 200
+        assert fetched.json()["content_hash"] == payload["content_hash"]
+
+        listed = c.get("/api/v1/artifacts")
+        assert listed.status_code == 200
+        assert len(listed.json()) == 1
+
+        duplicate = c.post("/api/v1/artifacts", json=payload)
+        assert duplicate.status_code == 409
