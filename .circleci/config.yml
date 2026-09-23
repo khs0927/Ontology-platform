@@ -1,0 +1,64 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.12
+      - image: pgvector/pgvector:0.8.6-pg17
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ontology_platform
+
+    environment:
+      ONTOLOGY_PG_DSN: postgresql://postgres:postgres@localhost:5432/ontology_platform
+      ONTOLOGY_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_platform
+      ONTOLOGY_TEST_POSTGRES_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_platform
+      ONTOLOGY_SECURITY_MODE: disabled
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install PostgreSQL client
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+
+      - run:
+          name: Install project
+          command: python -m pip install -e ".[dev]"
+
+      - run:
+          name: Wait for PostgreSQL
+          command: |
+            for i in $(seq 1 60); do
+              if pg_isready -h localhost -p 5432 -U postgres -d ontology_platform; then
+                exit 0
+              fi
+              sleep 1
+            done
+            echo "PostgreSQL did not become ready" >&2
+            exit 1
+
+      - run:
+          name: Apply canonical migrations
+          command: bash scripts/apply_migrations.sh
+
+      - run:
+          name: Verify PostgreSQL and pgvector
+          command: python scripts/verify_postgres.py
+
+      - run:
+          name: Run test suite
+          command: |
+            mkdir -p test-results
+            pytest -q --junitxml=test-results/pytest.xml
+
+      - store_test_results:
+          path: test-results
+
+workflows:
+  validate:
+    jobs:
+      - test
