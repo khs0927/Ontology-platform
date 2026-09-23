@@ -63,6 +63,7 @@ class GraphRead(BaseModel):
 
 
 class ArtifactCreate(BaseModel):
+    entity_id: str | None = None
     stable_key: str = Field(min_length=1, max_length=255)
     name: str = Field(min_length=1, max_length=255)
     storage_uri: str = Field(min_length=1)
