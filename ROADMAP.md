@@ -98,3 +98,17 @@ Status: baseline complete
 - local/test insecure mode must be explicitly selected
 - security health endpoint reveals configuration state without secret values
 - external reverse-proxy/access-layer hardening remains deployment-specific
+
+
+## CI baseline
+
+Status: configuration complete, remote run pending
+
+- CircleCI 2.1 configuration
+- Python 3.12 primary executor
+- PostgreSQL 17 + pgvector 0.8.6 service container
+- canonical migration execution
+- PostgreSQL/pgvector verifier
+- complete pytest suite with PostgreSQL integration enabled
+- JUnit test results
+- remote CircleCI project activation/run remains pending
