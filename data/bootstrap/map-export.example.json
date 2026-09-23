@@ -1,6 +1,8 @@
 {
   "schema_version": "ontology-map-export/v1",
+  "namespace": "current-map-example",
   "source": "EXAMPLE ONLY - not the current 31/43 production map",
+  "source_uri": "example://structured-source",
   "expected_node_count": 2,
   "expected_relation_count": 1,
   "categories": [

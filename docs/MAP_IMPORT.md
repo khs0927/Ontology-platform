@@ -4,35 +4,20 @@ The published map currently exposes enough flattened text to confirm 31 nodes, 4
 
 Therefore the platform does **not** infer missing relations.
 
-## Import contract
+## Export contract
 
-The first structured migration uses `ontology-map-export/v1`.
+`ontology-map-export/v1` contains:
 
-Required sections:
-
-- source
-- expected_node_count
-- expected_relation_count
+- namespace — stable namespace used to avoid collisions with future maps
+- source — human-readable source description
+- source_uri — durable source locator used for provenance
+- expected node/relation counts
 - categories
 - nodes
 - relations
 
-Each node carries:
-
-- stable source id
-- label
-- canonical entity_type_id
-- category_id
-- optional properties
-
-Each relation carries:
-
-- stable source id
-- source_id
-- target_id
-- canonical relation_type_id
-- optional source_uri / source_locator
-- optional properties
+Every node must specify its canonical `entity_type_id` and `category_id`.
+Every relation must specify exact source/target ids and a canonical `relation_type_id`.
 
 ## Validation
 
@@ -44,6 +29,30 @@ The contract rejects:
 - node count mismatch
 - relation count mismatch
 
-The production 31/43 map will only be imported after its real structured source is recovered.
+## Dry-run canonical plan
 
-`data/bootstrap/map-export.example.json` is deliberately synthetic and must never be treated as the production map source.
+Before any database write:
+
+```bash
+python scripts/plan_map_import.py path/to/export.json > import-plan.json
+```
+
+The plan produces deterministic stable keys:
+
+```text
+map:<namespace>:node:<source-node-id>
+map:<namespace>:relation:<source-relation-id>
+```
+
+It also creates one provenance record per relation using the relation-level source URI when present, otherwise the export-level source URI.
+
+Imported relations default to:
+
+```text
+source_kind = imported
+verification_state = unverified
+```
+
+This intentionally separates "successfully imported" from "human verified".
+
+The production 31/43 map will only be written after the real structured source is recovered. `data/bootstrap/map-export.example.json` remains synthetic and must never be treated as production data.
