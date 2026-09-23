@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 15
     services:
       postgres:
-        image: pgvector/pgvector:0.8.6-pg16
+        image: pgvector/pgvector:0.8.6-pg17
         env:
           POSTGRES_DB: ontology
           POSTGRES_USER: ontology
