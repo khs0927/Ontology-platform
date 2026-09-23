@@ -113,7 +113,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
             return repository.create_relation(db, payload)
         except IntegrityError as exc:
             db.rollback()
-            raise HTTPException(status_code=409, detail="relation stable_key already exists") from exc
+            raise HTTPException(status_code=409, detail="relation violates canonical constraints or stable_key already exists") from exc
 
     @app.get("/relations/{relation_id}", response_model=schemas.RelationRead)
     def get_relation(relation_id: str, db: Session = Depends(get_db)):
@@ -183,7 +183,13 @@ def create_app(database_url: str | None = None) -> FastAPI:
             raise HTTPException(status_code=422, detail="relation not found")
         if payload.artifact_id and repository.get_artifact(db, payload.artifact_id) is None:
             raise HTTPException(status_code=422, detail="artifact not found")
-        return repository.create_evidence(db, payload)
+        if payload.chunk_id and repository.get_chunk(db, payload.chunk_id) is None:
+            raise HTTPException(status_code=422, detail="chunk not found")
+        try:
+            return repository.create_evidence(db, payload)
+        except IntegrityError as exc:
+            db.rollback()
+            raise HTTPException(status_code=409, detail="evidence violates canonical constraints") from exc
 
     @app.get("/evidence/{evidence_id}", response_model=schemas.EvidenceRead)
     def get_evidence(evidence_id: str, db: Session = Depends(get_db)):

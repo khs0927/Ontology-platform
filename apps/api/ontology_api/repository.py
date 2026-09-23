@@ -89,6 +89,14 @@ def get_artifact(db: Session, artifact_id: str) -> models.Artifact | None:
     return db.get(models.Artifact, artifact_id)
 
 
+def get_document(db: Session, document_id: str) -> models.Document | None:
+    return db.get(models.Document, document_id)
+
+
+def get_chunk(db: Session, chunk_id: str) -> models.Chunk | None:
+    return db.get(models.Chunk, chunk_id)
+
+
 def create_evidence(db: Session, data: schemas.EvidenceCreate) -> models.Evidence:
     row = models.Evidence(**data.model_dump())
     db.add(row)
