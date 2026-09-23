@@ -15,15 +15,24 @@ jobs:
       ONTOLOGY_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_platform
       ONTOLOGY_TEST_POSTGRES_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_platform
       ONTOLOGY_SECURITY_MODE: disabled
+      ONTOLOGY_RESTORE_PG_DSN: postgresql://postgres:postgres@localhost:5432/ontology_restore_test
+      ONTOLOGY_RESTORE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ontology_restore_test
 
     steps:
       - checkout
 
       - run:
-          name: Install PostgreSQL client
+          name: Install PostgreSQL 17 client
           command: |
             sudo apt-get update
-            sudo apt-get install -y postgresql-client
+            sudo apt-get install -y curl ca-certificates gnupg
+            curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/postgresql.gpg
+            CODENAME=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME}}")
+            echo "deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt ${CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client-17
+            psql --version
+            pg_dump --version
 
       - run:
           name: Install locked project dependencies
@@ -58,6 +67,10 @@ jobs:
           command: |
             mkdir -p test-results
             uv run pytest -q --junitxml=test-results/pytest.xml
+
+      - run:
+          name: Verify PostgreSQL backup restore
+          command: bash scripts/verify_postgres_restore.sh
 
       - store_test_results:
           path: test-results
