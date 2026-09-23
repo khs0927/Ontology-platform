@@ -55,6 +55,11 @@ class RelationRead(RelationCreate):
     created_at: datetime
 
 
+class GraphRead(BaseModel):
+    nodes: list[EntityRead]
+    relations: list[RelationRead]
+
+
 class ArtifactCreate(BaseModel):
     stable_key: str = Field(min_length=1, max_length=255)
     name: str = Field(min_length=1, max_length=255)
