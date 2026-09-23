@@ -59,4 +59,23 @@ If any step fails, the transaction is rolled back. Re-importing the same namespa
 
 Imported relations remain `unverified` even when the import itself succeeds. Import success and truth verification are deliberately separate.
 
-The production 31/43 map will only be written after the real structured source is recovered. `data/bootstrap/map-export.example.json` remains synthetic and must never be treated as production data.
+## Production 31/43 map
+
+The canonical production map is defined in `data/bootstrap/sion-map-production.json`, matching the 31 visible labels from `data/bootstrap/current-map-inventory.json` across 6 categories with 43 domain relations:
+
+```bash
+# Dry-run validation
+python scripts/plan_map_import.py data/bootstrap/sion-map-production.json
+
+# Import directly to database
+python scripts/import_production_map.py data/bootstrap/sion-map-production.json --db-url <DATABASE_URL>
+```
+
+Or via API:
+```bash
+curl -X POST http://localhost:8000/imports/map \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <WRITE_TOKEN>" \
+  -d @data/bootstrap/sion-map-production.json
+```
+
