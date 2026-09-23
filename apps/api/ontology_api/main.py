@@ -32,6 +32,17 @@ def create_app(database_url: str | None = None) -> FastAPI:
         db.execute(text("SELECT 1"))
         return {"status": "ok", "database": database.engine.dialect.name}
 
+    @app.get("/graph", response_model=schemas.GraphRead)
+    def graph(
+        node_limit: int = Query(default=5000, ge=1, le=20000),
+        relation_limit: int = Query(default=10000, ge=1, le=50000),
+        db: Session = Depends(get_db),
+    ):
+        return {
+            "nodes": repository.list_entities(db, limit=node_limit, offset=0),
+            "relations": repository.list_relations(db, limit=relation_limit, offset=0),
+        }
+
     @app.post("/entities", response_model=schemas.EntityRead, status_code=201)
     def create_entity(payload: schemas.EntityCreate, db: Session = Depends(get_db)):
         if repository.get_entity_type(db, payload.entity_type_id) is None:

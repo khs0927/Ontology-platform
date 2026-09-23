@@ -2,70 +2,82 @@
 
 PostgreSQL is the canonical runtime database for Ontology Platform. SQLite exists only as a lightweight test/development fallback.
 
-## Requirements
+## Fast local runtime with Docker
 
-- PostgreSQL
-- `psql` client
-- pgvector extension available to the PostgreSQL server
-- Python dependencies from `pyproject.toml`
-
-No database password or DSN should be committed to Git.
-
-## 1. Create a database
-
-Example only:
+The repository includes a loopback-only development PostgreSQL using the official pgvector image:
 
 ```bash
-createdb ontology_platform
+sh scripts/dev_postgres.sh up
 ```
 
-## 2. Apply migrations
+This starts PostgreSQL 17 + pgvector 0.8.6 on:
 
-Use a standard PostgreSQL DSN for `psql`:
+```text
+127.0.0.1:5433
+database: ontology_platform
+user: ontology
+```
+
+The development container uses PostgreSQL trust authentication but the port is bound to `127.0.0.1` only. Do not use this configuration for a public or production server.
+
+Commands:
+
+```bash
+sh scripts/dev_postgres.sh verify
+sh scripts/dev_postgres.sh down
+sh scripts/dev_postgres.sh reset   # explicitly removes the local DB volume
+```
+
+`up` waits for health, applies all numbered SQL migrations inside the PostgreSQL container, and runs `scripts/verify_postgres.py`.
+
+## External PostgreSQL runtime
+
+For an external server:
 
 ```bash
 export ONTOLOGY_PG_DSN='postgresql://USER:PASSWORD@HOST:5432/ontology_platform'
 bash scripts/apply_migrations.sh
-```
 
-The migration helper applies numbered `.sql` files in order and stops on the first error.
-
-`002_vector.sql` intentionally fails if the server does not provide pgvector. That failure is useful: vector capability should not be silently assumed.
-
-## 3. Configure the API
-
-SQLAlchemy/psycopg URL:
-
-```bash
 export ONTOLOGY_DATABASE_URL='postgresql+psycopg://USER:PASSWORD@HOST:5432/ontology_platform'
-uvicorn ontology_api.main:app --app-dir apps/api
-```
-
-## 4. Verify the database
-
-```bash
 python scripts/verify_postgres.py
 ```
 
-The verifier reports only database/server capability metadata. It does not print the connection URL or password.
+No database password or DSN should be committed to Git.
 
-Expected checks:
+## API
 
-- PostgreSQL connection succeeds
-- `pgcrypto` is installed
-- `vector` is installed
-- canonical core tables exist
-- seed entity/relation types exist
+```bash
+export ONTOLOGY_DATABASE_URL='postgresql+psycopg://ontology@127.0.0.1:5433/ontology_platform'
+uvicorn ontology_api.main:app --app-dir apps/api
+```
 
-## 5. API health
+Health endpoints:
 
 ```text
 GET /health
 GET /health/db
 ```
 
-`/health/db` performs a real `SELECT 1` using the configured SQLAlchemy engine.
+Graph snapshot endpoint:
+
+```text
+GET /graph
+```
+
+The graph endpoint reads canonical entity/relation tables; it does not depend on Apache AGE and can feed the current map UI before AGE is enabled.
+
+## Verification
+
+`scripts/verify_postgres.py` checks:
+
+- PostgreSQL connection
+- pgcrypto
+- pgvector
+- canonical core tables
+- seed entity/relation types
+
+It never prints the configured connection URL or password.
 
 ## Backup principle
 
-Google Drive must receive logical dumps or exported canonical datasets, not PostgreSQL data-directory files, WAL files, or a live database directory.
+Google Drive receives logical dumps or exported canonical datasets, not PostgreSQL data-directory files, WAL files, or a live database directory.
