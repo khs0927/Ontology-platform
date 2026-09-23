@@ -52,6 +52,26 @@ def create_app(
     app.state.database = database
 
     if mode == "private":
+        original_openapi = app.openapi
+
+        def private_openapi():
+            if app.openapi_schema is None:
+                openapi_schema = original_openapi()
+                private_security = [{"HTTPBearer": []}]
+                public_paths = {"/health", "/health/security"}
+                http_methods = {"delete", "get", "head", "options", "patch", "post", "put", "trace"}
+                for path, path_item in openapi_schema.get("paths", {}).items():
+                    if path in public_paths:
+                        continue
+                    for method, operation in path_item.items():
+                        if method.lower() in http_methods:
+                            operation["security"] = private_security
+                app.openapi_schema = openapi_schema
+            return app.openapi_schema
+
+        app.openapi = private_openapi
+
+    if mode == "private":
         @app.middleware("http")
         async def require_private_auth(request, call_next):
             if request.url.path in {"/health", "/health/security"}:
