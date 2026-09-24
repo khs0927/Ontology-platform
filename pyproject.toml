@@ -13,12 +13,18 @@ dependencies = [
   "sqlalchemy==2.0.54",
   "uvicorn==0.53.0",
   "psycopg[binary]==3.3.6",
+  "alembic==1.17.1",
 ]
+
+[project.scripts]
+sion-agent-bridge = "sion_ingestion.bridge_cli:main"
 
 [project.optional-dependencies]
 test = [
-  "httpx==0.28.1",
+  "httpx2==2.13.1",
+  "PyYAML==6.0.3",
   "pytest==9.1.1",
+  "alembic==1.17.1",
 ]
 
 [tool.pytest.ini_options]
@@ -26,9 +32,19 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.setuptools]
-packages = ["sion_api", "sion_ingestion", "sion_drive_store"]
+packages = ["sion_api", "sion_api.resources", "sion_ingestion", "sion_drive_store"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"sion_api.resources" = [
+  "sion-core.yaml",
+  "sion-core.shacl.ttl",
+  "current-map-inventory.json",
+  "map-export.example.json",
+]
 
 [tool.setuptools.package-dir]
 sion_api = "apps/api/sion_api"
+"sion_api.resources" = "apps/api/sion_api/resources"
 sion_ingestion = "packages/ingestion/sion_ingestion"
 sion_drive_store = "packages/drive-store/sion_drive_store"

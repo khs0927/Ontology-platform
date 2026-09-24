@@ -175,12 +175,29 @@ Invoke-SionBackup -Source $config.remote_project_root -Workspace "SION_ONTOLOGY_
 Set-Content -LiteralPath $runnerPath -Value $runner -Encoding UTF8
 
 $taskName = "SionDriveBackupV2"
-$taskCommand = "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\SionSync\sync-now.ps1"
-& schtasks.exe /Create /F /SC MINUTE /MO $EveryMinutes /TN $taskName /TR $taskCommand | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Write-Log "ERROR: Failed to register scheduled task. ExitCode=$LASTEXITCODE"
-    throw "Failed to register scheduled task."
-}
+$taskPath = "\"
+$taskMarker = "SionDriveBackupV2:managed-v2"
+$taskCollisions = @(Get-ScheduledTask -TaskName $taskName -TaskPath $taskPath -ErrorAction SilentlyContinue)
+if ($taskCollisions.Count -gt 0) { throw "Scheduled task '$taskPath$taskName' already exists; refusing to modify or delete it." }
+$markerCollisions = @(Get-ScheduledTask -ErrorAction SilentlyContinue | Where-Object {
+    $_.TaskName -like "*$taskMarker*" -or $_.Description -like "*$taskMarker*"
+})
+if ($markerCollisions.Count -gt 0) { throw "Scheduled task marker '$taskMarker' is already in use; refusing to modify existing tasks." }
+
+# Direct executable and validated argument array. No cmd.exe, schtasks, or command string.
+$powerShellExe = (Get-Command powershell.exe -ErrorAction Stop).Source
+$runnerPath = [IO.Path]::GetFullPath((Join-Path $installRoot "sync-now.ps1"))
+$actionArgs = [string[]]@("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $runnerPath)
+$action = New-ScheduledTaskAction -Execute $powerShellExe -Argument $actionArgs -WorkingDirectory $installRoot
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes $EveryMinutes)
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RunOnlyIfNetworkAvailable `
+    -ExecutionTimeLimit (New-TimeSpan -Minutes 30) -MultipleInstances IgnoreNew
+$principal = New-ScheduledTaskPrincipal -UserId ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name) `
+    -LogonType Interactive -RunLevel Limited
+$task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
+    -Description "Managed by $taskMarker"
+Register-ScheduledTask -TaskName $taskName -TaskPath $taskPath -InputObject $task -ErrorAction Stop | Out-Null
+Write-Log "Scheduled task registered: $taskPath$taskName every $EveryMinutes minute(s)."
 
 Write-Log "Scheduled task registered: $taskName every $EveryMinutes minute(s)."
 Write-Log "Source C_CODE exists: $(Test-Path -LiteralPath $SourceRoot -PathType Container)"
@@ -190,6 +207,7 @@ Write-Log "Running initial backup..."
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runnerPath
 $initialExit = $LASTEXITCODE
 Write-Log "Initial backup runner exit code: $initialExit"
+if ($initialExit -ne 0) { throw "Initial backup failed with exit code $initialExit" }
 
 $manifestCandidate = Join-Path $driveRoot "manifests\$DeviceId"
 if (Test-Path -LiteralPath $manifestCandidate) {

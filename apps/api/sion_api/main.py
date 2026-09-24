@@ -1,17 +1,21 @@
 from __future__ import annotations
 
 import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 import uuid
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from . import models, repository, schemas, vector_repository
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
+from .health import check_readiness
+from .security import is_loopback_host, require_local_bearer, validate_startup_settings
 
 
 def create_app(
@@ -31,6 +35,9 @@ def create_app(
             ontology_path=settings.ontology_path,
             map_inventory_path=settings.map_inventory_path,
             cors_origins=settings.cors_origins,
+            api_host=settings.api_host,
+            local_api_token=settings.local_api_token,
+            environment=settings.environment,
         )
     elif auto_create_schema is not None:
         settings = Settings(
@@ -39,7 +46,11 @@ def create_app(
             ontology_path=settings.ontology_path,
             map_inventory_path=settings.map_inventory_path,
             cors_origins=settings.cors_origins,
+            api_host=settings.api_host,
+            local_api_token=settings.local_api_token,
+            environment=settings.environment,
         )
+    validate_startup_settings(settings)
 
     engine = build_engine(settings.database_url)
     factory = build_session_factory(engine)
@@ -50,14 +61,61 @@ def create_app(
         with factory() as session:
             repository.seed_core_types(session)
 
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        if settings.environment == "production":
+            result = check_readiness(engine)
+            if result["status"] != "ready":
+                raise RuntimeError(f"production readiness failed: {result}")
+        yield
+
     app = FastAPI(
         title="Sion Ontology API",
         version="0.1.0",
         description="Canonical API for Sion ontology, knowledge graph and evidence.",
+        lifespan=lifespan,
     )
     app.state.settings = settings
     app.state.engine = engine
     app.state.session_factory = factory
+
+    @app.middleware("http")
+    async def authenticate_local_api(request, call_next):
+        protected_docs = request.url.path in {"/docs", "/redoc", "/openapi.json"}
+        if (
+            request.url.path.startswith("/api/")
+            or request.url.path == "/health/ready"
+            or (request.app.state.settings.local_api_token is not None and protected_docs)
+        ):
+            try:
+                authorization = request.headers.get("authorization", "")
+                scheme, _, token = authorization.partition(" ")
+                credentials = (
+                    HTTPAuthorizationCredentials(scheme=scheme, credentials=token)
+                    if scheme and token
+                    else None
+                )
+                require_local_bearer(request, credentials)
+            except HTTPException as exc:
+                from fastapi.responses import JSONResponse
+                return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
+        return await call_next(request)
+
+    original_openapi = app.openapi
+
+    def secured_openapi():
+        schema = original_openapi()
+        schema.setdefault("components", {}).setdefault("securitySchemes", {})["BearerAuth"] = {
+            "type": "http", "scheme": "bearer", "bearerFormat": "opaque"
+        }
+        for path, item in schema.get("paths", {}).items():
+            if path.startswith("/api/") or path == "/health/ready" or path in {"/docs", "/redoc", "/openapi.json"}:
+                for operation in item.values():
+                    if isinstance(operation, dict):
+                        operation.setdefault("security", [{"BearerAuth": []}])
+        return schema
+
+    app.openapi = secured_openapi
 
     app.add_middleware(
         CORSMiddleware,
@@ -67,14 +125,27 @@ def create_app(
         allow_headers=["*"],
     )
 
-    @app.get("/health")
-    def health():
+    @app.get("/health/live")
+    def health_live():
         return {
             "status": "ok",
             "service": "sion-ontology-api",
             "version": "0.1.0",
-            "database": engine.dialect.name,
         }
+
+    @app.get("/health")
+    def health():
+        body = health_live()
+        body["database"] = engine.dialect.name
+        return body
+
+    @app.get("/health/ready")
+    def health_ready():
+        result = check_readiness(engine)
+        if result["status"] != "ready":
+            from fastapi.responses import JSONResponse
+            return JSONResponse(status_code=503, content=result)
+        return result
 
     @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse)
     def ontology_schema():

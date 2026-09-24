@@ -1,38 +1,40 @@
 # Automated Background Sync Task Installer for Windows
-# Registers a scheduled task that runs every 15 minutes in the background.
-
+# Registers a least-privilege, current-user task without deleting an existing task.
 param(
-    [string]$IntervalMinutes = "15",
-    [string]$TaskName = "SionAgentOntologySync"
+    [ValidateRange(1, 1440)][int]$IntervalMinutes = 15,
+    [ValidateNotNullOrEmpty()][string]$TaskName = "SionAgentOntologySync"
 )
 
 $ErrorActionPreference = "Stop"
-
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $repoRoot = Split-Path -Parent $scriptDir
-$pythonExe = (Get-Command python).Source
 $bridgeScript = Join-Path $scriptDir "run_agent_bridge.py"
+$pythonExe = (Get-Command python.exe -ErrorAction Stop).Source
+if (-not (Test-Path -LiteralPath $bridgeScript -PathType Leaf)) { throw "Bridge script not found: $bridgeScript" }
 
-Write-Host "[*] Configuring automated ontology sync task: $TaskName"
-Write-Host "    - Python: $pythonExe"
-Write-Host "    - Script: $bridgeScript"
-Write-Host "    - Interval: Every $IntervalMinutes minutes"
+# Never unregister a colliding task: it may belong to another worker or install.
+$taskPath = "\"
+$marker = "SionAgentOntologySync:v2"
+$existing = @(Get-ScheduledTask -TaskName $TaskName -TaskPath $taskPath -ErrorAction SilentlyContinue)
+if ($existing.Count -gt 0) { throw "Scheduled task '$taskPath$TaskName' already exists; refusing to modify or delete it." }
+$markerCollision = @(Get-ScheduledTask -ErrorAction SilentlyContinue | Where-Object { $_.TaskName -like "*$marker*" -or $_.Description -like "*$marker*" })
+if ($markerCollision.Count -gt 0) { throw "Scheduled task marker '$marker' is already in use; refusing to modify existing tasks." }
 
-$action = New-ScheduledTaskAction -Execute $pythonExe -Argument "`"$bridgeScript`"" -WorkingDirectory $repoRoot
-$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes ([int]$IntervalMinutes))
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RunOnlyIfNetworkAvailable
-
-try {
-    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-    Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Description "Automated multi-agent ontology session ingestion and Google Drive sync"
-    Write-Host "[+] Successfully registered Scheduled Task '$TaskName'."
-} catch {
-    # Fallback to schtasks if New-ScheduledTask fails
-    $schCmd = "schtasks /Create /F /SC MINUTE /MO $IntervalMinutes /TN `"$TaskName`" /TR `"`"$pythonExe`" `"$bridgeScript`"`""
-    Invoke-Expression $schCmd
-    Write-Host "[+] Successfully registered task using schtasks."
-}
+# Direct executable and argument array, never a shell command string.
+$actionArgs = [string[]]@($bridgeScript)
+$action = New-ScheduledTaskAction -Execute $pythonExe -Argument $actionArgs -WorkingDirectory $repoRoot
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes)
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RunOnlyIfNetworkAvailable `
+    -ExecutionTimeLimit (New-TimeSpan -Minutes 30) -MultipleInstances IgnoreNew
+$principal = New-ScheduledTaskPrincipal -UserId ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name) `
+    -LogonType Interactive -RunLevel Limited
+$task = New-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -Principal $principal `
+    -Description "Managed by $marker"
+Register-ScheduledTask -TaskName $TaskName -TaskPath $taskPath -InputObject $task -ErrorAction Stop | Out-Null
+Write-Host "[+] Successfully registered Scheduled Task '$taskPath$TaskName'."
 
 Write-Host "[*] Running initial sync test..."
 & $pythonExe $bridgeScript
+$initialExit = $LASTEXITCODE
+if ($initialExit -ne 0) { throw "Initial sync failed with exit code $initialExit" }
 Write-Host "[+] All set! This computer will now automatically ingest and sync agent sessions."

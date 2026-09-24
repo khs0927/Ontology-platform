@@ -160,6 +160,17 @@ class Relation(Base):
             "confidence IS NULL OR (confidence >= 0 AND confidence <= 1)",
             name="ck_relation_confidence",
         ),
+        CheckConstraint(
+            "source_entity_id <> target_entity_id", name="ck_relation_no_self_loop"
+        ),
+        CheckConstraint(
+            "valid_to IS NULL OR valid_from IS NULL OR valid_to >= valid_from",
+            name="ck_relation_temporal_order",
+        ),
+        CheckConstraint(
+            "verification_state IN ('unverified', 'machine_verified', 'human_verified', 'rejected')",
+            name="ck_relation_verification_state",
+        ),
         Index("idx_relations_source", "source_entity_id"),
         Index("idx_relations_target", "target_entity_id"),
         Index("idx_relations_type", "relation_type_id"),
@@ -202,8 +213,20 @@ class Evidence(Base):
             name="ck_evidence_confidence",
         ),
         CheckConstraint(
-            "entity_id IS NOT NULL OR relation_id IS NOT NULL",
-            name="ck_evidence_target",
+            "((entity_id IS NOT NULL AND relation_id IS NULL) OR (entity_id IS NULL AND relation_id IS NOT NULL))",
+            name="ck_evidence_target_xor",
+        ),
+        CheckConstraint(
+            "artifact_id IS NOT NULL OR chunk_id IS NOT NULL OR source_uri IS NOT NULL",
+            name="ck_evidence_source",
+        ),
+        CheckConstraint(
+            "excerpt_hash IS NULL OR (length(excerpt_hash) = 71 AND substr(excerpt_hash, 1, 7) = 'sha256:' AND substr(excerpt_hash, 8) NOT GLOB '*[^0-9a-f]*')",
+            name="ck_evidence_excerpt_hash",
+        ),
+        CheckConstraint(
+            "verification_state IN ('unverified', 'machine_verified', 'human_verified', 'rejected')",
+            name="ck_evidence_verification_state",
         ),
         Index("idx_evidence_entity", "entity_id"),
         Index("idx_evidence_relation", "relation_id"),
@@ -216,7 +239,13 @@ class Evidence(Base):
     relation_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("relations.id", ondelete="CASCADE"), nullable=True
     )
-    source_uri: Mapped[str] = mapped_column(Text, nullable=False)
+    artifact_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("artifacts.id"), nullable=True
+    )
+    chunk_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("chunks.id"), nullable=True
+    )
+    source_uri: Mapped[str | None] = mapped_column(Text, nullable=True)
     source_locator: Mapped[str | None] = mapped_column(Text, nullable=True)
     excerpt_hash: Mapped[str | None] = mapped_column(String(100), nullable=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)

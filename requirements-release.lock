@@ -1,0 +1,16 @@
+# Generated for codex/p0-remediation-20260924. Do not edit by hand.
+# Fully-qualified, exact, hash-pinned direct release/build inputs.
+# PostgreSQL vector support is provided by pgvector plus the server extension named `vector`;
+# `vector` is not a Python distribution and therefore has no PyPI hash.
+alembic==1.17.1 --hash=sha256:cbc2386e60f89608bb63f30d2d6cc66c7aaed1fe105bd862828600e5ad167023
+fastapi==0.141.1 --hash=sha256:bfb91aa2d334c61cb35ba9a116fc123b3d3df31640b801cf57a7a78ec3f603b3
+httpx2==2.13.1 --hash=sha256:6dff50fabc270ee5fd25d845d0b078ed20564579744d6d962850975996d2f9a4
+pgvector==0.5.0 --hash=sha256:fedc9800894e6da2be51358d7b7c574bf34f247ca741a5a09513622135f5964f
+psycopg[binary]==3.3.6 --hash=sha256:a1db9f7148b06a28606767efaca51fa6f9398c5c0a3810519be69d7000bdb631
+pydantic==2.13.5 --hash=sha256:346a034f080da3755d8e9cb5e00e8b07de1d39e4f6e2c87d8ab7cafa0b269a73
+pytest==9.1.1 --hash=sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c
+pyinstaller==6.22.3 --hash=sha256:05eb2f5615503e72939a7224d68b4aff572c6b0438ee4a17d0a4b481f399362d
+PyYAML==6.0.3 --hash=sha256:d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f
+setuptools==84.0.0 --hash=sha256:51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670
+sqlalchemy==2.0.54 --hash=sha256:7e33a631ab1474f8fe6b910bd1a07b7b8009c4c78cdd3fb18001b03e3bc2e1d2
+uvicorn==0.53.0 --hash=sha256:e8dca71ec86dce5f04e333f0d56cdedf942446e6643b9cea1af0d6d3a02cb03e

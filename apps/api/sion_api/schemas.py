@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
+import re
 import uuid
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+VerificationState = Literal["unverified", "machine_verified", "human_verified", "rejected"]
+SourceKind = Literal["user", "document", "file", "database", "api", "mcp", "inferred", "imported"]
+_HASH_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 class EntityCreate(BaseModel):
@@ -32,8 +37,8 @@ class RelationCreate(BaseModel):
     target_entity_id: uuid.UUID
     relation_type_id: str = Field(min_length=1, max_length=100)
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
-    verification_state: str = "unverified"
-    source_kind: str | None = None
+    verification_state: VerificationState = "unverified"
+    source_kind: SourceKind | None = None
     ontology_version: str | None = None
     valid_from: datetime | None = None
     valid_to: datetime | None = None
@@ -56,19 +61,30 @@ class RelationRead(RelationCreate):
 class EvidenceCreate(BaseModel):
     entity_id: uuid.UUID | None = None
     relation_id: uuid.UUID | None = None
-    source_uri: str = Field(min_length=1)
+    artifact_id: uuid.UUID | None = None
+    chunk_id: uuid.UUID | None = None
+    source_uri: str | None = Field(default=None, min_length=1)
     source_locator: str | None = None
     excerpt_hash: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
-    verification_state: str = "unverified"
+    verification_state: VerificationState = "unverified"
     extractor: str | None = None
     model: str | None = None
     properties: dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator("excerpt_hash")
+    @classmethod
+    def validate_excerpt_hash(cls, value: str | None) -> str | None:
+        if value is not None and not _HASH_RE.fullmatch(value):
+            raise ValueError("excerpt_hash must match sha256:<64hex>")
+        return value
+
     @model_validator(mode="after")
-    def has_target(self):
-        if self.entity_id is None and self.relation_id is None:
-            raise ValueError("entity_id or relation_id is required")
+    def validate_evidence_contract(self):
+        if (self.entity_id is None) == (self.relation_id is None):
+            raise ValueError("exactly one of entity_id or relation_id is required")
+        if all(value is None for value in (self.artifact_id, self.chunk_id, self.source_uri)):
+            raise ValueError("artifact_id, chunk_id, or source_uri is required")
         return self
 
 

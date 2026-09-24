@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any, Literal
@@ -10,10 +11,59 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from sion_api import models
+from sion_ingestion.dlp import DLPDecision, scan_payload
 
 
 class GraphImportError(ValueError):
     pass
+
+
+class GraphIdentityConflictError(GraphImportError):
+    """An existing graph identity has a different canonical payload."""
+
+
+class MapDLPError(GraphImportError):
+    """A map export was rejected by the fail-closed DLP gate."""
+
+
+CANONICAL_NODE_FIELDS = (
+    "entity_type_id", "name", "category", "description", "external_uri",
+    "properties", "ontology_version",
+)
+CANONICAL_EDGE_FIELDS = (
+    "relation_type_id", "confidence", "verification_state", "source_kind",
+    "ontology_version", "properties",
+)
+CANONICAL_HASH_PROPERTY = "__sion_canonical_hash"
+
+
+def _canonical_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def canonical_hash(payload: dict[str, Any]) -> str:
+    return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+
+
+def node_canonical_payload(node: MapNode | None = None, **values: Any) -> dict[str, Any]:
+    raw = node.model_dump() if node is not None else values
+    result = {key: raw.get(key) for key in CANONICAL_NODE_FIELDS}
+    if isinstance(result.get("properties"), dict):
+        result["properties"] = {k: v for k, v in result["properties"].items() if k != CANONICAL_HASH_PROPERTY}
+    return result
+
+
+def edge_canonical_payload(edge: MapEdge | None = None, **values: Any) -> dict[str, Any]:
+    raw = edge.model_dump() if edge is not None else values
+    result = {key: raw.get(key) for key in CANONICAL_EDGE_FIELDS}
+    if isinstance(result.get("properties"), dict):
+        result["properties"] = {k: v for k, v in result["properties"].items() if k != CANONICAL_HASH_PROPERTY}
+    return result
+
+
+def hash_upsert_conflict(existing_hash: str | None, incoming_hash: str) -> bool:
+    """Return true only when a present identity hash differs from the new one."""
+    return existing_hash is not None and existing_hash != incoming_hash
 
 
 class MapNode(BaseModel):
@@ -94,12 +144,53 @@ def load_map_export(path: str | Path) -> MapExport:
     return MapExport.model_validate(raw)
 
 
-def import_map_export(session: Session, export: MapExport) -> ImportResult:
-    """Non-destructive idempotent import.
+def import_map_export(
+    session: Session,
+    export: MapExport,
+    *,
+    dlp_hmac_key: bytes | str | None = None,
+    already_scanned: DLPDecision | None = None,
+    pre_sanitized: DLPDecision | None = None,
+) -> ImportResult:
+    """Non-destructive idempotent import with a pre-write DLP gate.
 
-    Existing stable keys are skipped, never overwritten or deleted.
-    Edges are resolved only from nodes present in the export or already in DB.
+    Public callers get a fail-closed scan of the complete export. The bridge may
+    pass the decision from its pre-sink boundary as ``already_scanned``; that is
+    an explicit trusted-boundary exception, so a tokenized PII export is not
+    scanned a second time without the HMAC key. Only the decision's sanitized
+    payload is eligible for canonical hashing and graph writes.
+
+    A same-hash identity is skipped; a different hash raises
+    ``GraphIdentityConflictError`` after rolling back the import.
     """
+    if already_scanned is not None and pre_sanitized is not None:
+        raise TypeError("pass only one trusted DLP decision")
+    decision = already_scanned or pre_sanitized
+    if decision is None:
+        decision = scan_payload(
+            export.model_dump(by_alias=True),
+            hmac_key=dlp_hmac_key,
+        )
+    if not decision.allowed:
+        if decision.action != "tokenized" or not isinstance(decision.sanitized_payload, dict):
+            session.rollback()
+            reason = decision.metadata.get("reason", "payload_not_allowed")
+            raise MapDLPError(
+                f"map export rejected by DLP gate: action={decision.action}, reason={reason}"
+            )
+        try:
+            export = MapExport.model_validate(decision.sanitized_payload)
+        except Exception:
+            session.rollback()
+            raise MapDLPError(
+                "map export rejected by DLP gate: sanitized payload is invalid"
+            ) from None
+    elif isinstance(decision.sanitized_payload, dict):
+        export = MapExport.model_validate(decision.sanitized_payload)
+    else:
+        session.rollback()
+        raise MapDLPError("map export rejected by DLP gate: sanitized payload is invalid")
+
     created_nodes = skipped_nodes = created_edges = skipped_edges = 0
 
     node_by_key: dict[str, models.Entity] = {
@@ -115,9 +206,25 @@ def import_map_export(session: Session, export: MapExport) -> ImportResult:
         if session.get(models.EntityType, node.entity_type_id) is None:
             raise GraphImportError(f"unknown entity type: {node.entity_type_id}")
         if node.stable_key in node_by_key:
+            existing = node_by_key[node.stable_key]
+            existing_hash = (existing.properties or {}).get(CANONICAL_HASH_PROPERTY)
+            if existing_hash is None:
+                existing_hash = canonical_hash(node_canonical_payload(**{
+                    key: getattr(existing, key) for key in CANONICAL_NODE_FIELDS
+                }))
+            incoming_hash = canonical_hash(node_canonical_payload(node))
+            if hash_upsert_conflict(existing_hash, incoming_hash):
+                session.rollback()
+                raise GraphIdentityConflictError(
+                    f"node identity conflict: {node.stable_key}"
+                )
             skipped_nodes += 1
             continue
-        row = models.Entity(**node.model_dump())
+        payload = node.model_dump()
+        payload_hash = canonical_hash(node_canonical_payload(node))
+        payload["properties"] = dict(payload["properties"] or {})
+        payload["properties"][CANONICAL_HASH_PROPERTY] = payload_hash
+        row = models.Entity(**payload)
         session.add(row)
         session.flush()
         node_by_key[node.stable_key] = row
@@ -130,18 +237,31 @@ def import_map_export(session: Session, export: MapExport) -> ImportResult:
         existing = session.scalar(
             select(models.Relation).where(models.Relation.stable_key == edge.stable_key)
         )
-        if existing is not None:
-            skipped_edges += 1
-            continue
-
         source = node_by_key.get(edge.source_stable_key)
         target = node_by_key.get(edge.target_stable_key)
         if source is None or target is None:
             raise GraphImportError(f"unresolved edge: {edge.stable_key}")
+        if existing is not None:
+            existing_hash = (existing.properties or {}).get(CANONICAL_HASH_PROPERTY)
+            if existing_hash is None:
+                existing_hash = canonical_hash(edge_canonical_payload(**{
+                    key: getattr(existing, key) for key in CANONICAL_EDGE_FIELDS
+                }))
+            incoming_hash = canonical_hash(edge_canonical_payload(edge))
+            if hash_upsert_conflict(existing_hash, incoming_hash):
+                session.rollback()
+                raise GraphIdentityConflictError(
+                    f"edge identity conflict: {edge.stable_key}"
+                )
+            skipped_edges += 1
+            continue
 
         payload = edge.model_dump(
             exclude={"source_stable_key", "target_stable_key"}
         )
+        payload_hash = canonical_hash(edge_canonical_payload(edge))
+        payload["properties"] = dict(payload["properties"] or {})
+        payload["properties"][CANONICAL_HASH_PROPERTY] = payload_hash
         row = models.Relation(
             **payload,
             source_entity_id=source.id,
