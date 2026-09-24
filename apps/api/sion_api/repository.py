@@ -18,6 +18,18 @@ class MissingReferenceError(Exception):
     pass
 
 
+def _constraint_name(exc: IntegrityError) -> str:
+    orig = getattr(exc, "orig", None)
+    return str(getattr(orig, "diag", None) or orig or "").lower()
+
+
+def _raise_integrity(exc: IntegrityError, *, entity: str) -> None:
+    text = _constraint_name(exc)
+    if "foreign key" in text or "violates foreign key" in text or "fk_" in text:
+        raise MissingReferenceError(f"{entity} references a missing record") from exc
+    raise ConflictError(f"{entity} violates a database constraint") from exc
+
+
 def seed_core_types(session: Session) -> None:
     entity_types = [
         ("Entity", "Entity"),
@@ -66,7 +78,7 @@ def create_entity(session: Session, payload: EntityCreate) -> models.Entity:
         session.commit()
     except IntegrityError as exc:
         session.rollback()
-        raise ConflictError(f"entity stable_key already exists: {payload.stable_key}") from exc
+        _raise_integrity(exc, entity="entity")
     session.refresh(row)
     return row
 
@@ -84,9 +96,7 @@ def create_relation(session: Session, payload: RelationCreate) -> models.Relatio
         session.commit()
     except IntegrityError as exc:
         session.rollback()
-        raise ConflictError(
-            f"relation stable_key already exists: {payload.stable_key}"
-        ) from exc
+        _raise_integrity(exc, entity="relation")
     session.refresh(row)
     return row
 
@@ -98,7 +108,11 @@ def create_evidence(session: Session, payload: EvidenceCreate) -> models.Evidenc
         raise MissingReferenceError("evidence relation does not exist")
     row = models.Evidence(**payload.model_dump())
     session.add(row)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError as exc:
+        session.rollback()
+        _raise_integrity(exc, entity="evidence")
     session.refresh(row)
     return row
 
@@ -169,9 +183,7 @@ def create_artifact(session: Session, payload) -> models.Artifact:
         session.commit()
     except IntegrityError as exc:
         session.rollback()
-        raise ConflictError(
-            f"artifact stable_key already exists: {payload.stable_key}"
-        ) from exc
+        _raise_integrity(exc, entity="artifact")
     session.refresh(row)
     return row
 

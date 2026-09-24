@@ -21,6 +21,18 @@ SION_DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:5432/DB
 SION_AUTO_CREATE_SCHEMA=0
 ```
 
-Production PostgreSQL uses the SQL migrations under `migrations/`.
-SQLite exists only for local smoke tests and does not replace PostgreSQL as
-the canonical deployment database.
+Production PostgreSQL uses the SQL migrations under `migrations/`. Alembic baseline and branch work is partial; migration release evidence is not complete. SQLite exists only for local smoke tests and does not replace PostgreSQL as the canonical deployment database.
+
+## Authentication and deployment boundary
+
+The API is local-first. If a token is configured, API requests require:
+
+```http
+Authorization: Bearer <SION_LOCAL_API_TOKEN>
+```
+
+A non-loopback host requires `SION_LOCAL_API_TOKEN`; startup fails without it. This local bearer boundary is partial and is not production-grade identity or authorization. Public deployment remains unapproved. The API is not evidence of completed document extraction, GraphRAG, or CAD/BIM support; see the status matrix in [../../docs/STATUS.md](../../docs/STATUS.md).
+
+## Verification
+
+Use [../../docs/STATUS.md](../../docs/STATUS.md#verification-baseline) as the single source for commands and the manually maintained **52+ targeted tests** baseline. Do not duplicate or dynamically generate the test count here.

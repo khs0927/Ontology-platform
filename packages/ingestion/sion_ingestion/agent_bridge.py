@@ -131,7 +131,7 @@ class AntigravityReader(BaseAgentReader):
 
         for sdir in candidates:
             log_file = sdir / ".system_generated" / "logs" / "transcript.jsonl"
-            if not log_file.exists():
+            if not log_file.exists() or log_file.stat().st_size > MAX_TRANSCRIPT_BYTES:
                 continue
 
             session_id = sdir.name
@@ -190,7 +190,7 @@ class AntigravityReader(BaseAgentReader):
                     device_id=device_id,
                     title=title,
                     cwd=cwd,
-                    created_at=created_at or datetime.now(timezone.utc).isoformat(),
+                    created_at=created_at or _file_timestamp(log_file),
                     tools=tools,
                     artifacts=artifacts,
                     decisions=decisions,
@@ -279,7 +279,7 @@ class CodexReader(BaseAgentReader):
                     device_id=device_id,
                     title=title,
                     cwd=cwd,
-                    created_at=created_at or datetime.now(timezone.utc).isoformat(),
+                    created_at=created_at or _file_timestamp(log_file),
                     tools=tools,
                     artifacts=artifacts,
                     decisions=decisions,
@@ -304,7 +304,7 @@ class ClaudeReader(BaseAgentReader):
             return []
 
         files = sorted(
-            [p for p in self.transcripts_dir.glob("*.jsonl") if p.stat().st_size > 100],
+            [p for p in self.transcripts_dir.glob("*.jsonl") if 100 < p.stat().st_size <= MAX_TRANSCRIPT_BYTES],
             key=lambda p: p.stat().st_mtime,
             reverse=True,
         )
@@ -372,7 +372,7 @@ class ClaudeReader(BaseAgentReader):
                     device_id=device_id,
                     title=title,
                     cwd=cwd,
-                    created_at=created_at or datetime.now(timezone.utc).isoformat(),
+                    created_at=created_at or _file_timestamp(log_file),
                     tools=tools,
                     artifacts=artifacts,
                     decisions=decisions,
@@ -414,6 +414,16 @@ def register_provider(name: str, reader_cls: type[BaseAgentReader]) -> None:
     PROVIDER_REGISTRY[name.lower()] = reader_cls
 
 
+MAX_TRANSCRIPT_BYTES = 5_000_000
+
+
+def _file_timestamp(path: Path) -> str:
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
+    except OSError:
+        return "1970-01-01T00:00:00+00:00"
+
+
 class AgentOntologyBridge:
     """Bridges AgentSessions into sion-core ontology nodes and edges with multi-device support."""
 
@@ -441,7 +451,9 @@ class AgentOntologyBridge:
                 )
 
             # 2. Workflow Node (Session execution scoped to device)
-            wf_key = f"workflow:{sess.provider}:{self._slugify(sess.device_id)}:{sess.session_id[:16]}"
+            session_identity = self._slugify(sess.session_id)
+            cwd_hash = hashlib.sha256(sess.cwd.encode("utf-8")).hexdigest()
+            wf_key = f"workflow:{sess.provider}:{self._slugify(sess.device_id)}:{session_identity}:{cwd_hash}"
             nodes[wf_key] = MapNode(
                 stable_key=wf_key,
                 entity_type_id="Workflow",
@@ -471,7 +483,7 @@ class AgentOntologyBridge:
             # 3. Project Node
             if sess.cwd:
                 proj_name = Path(sess.cwd).name or "workspace"
-                proj_key = f"project:{self._slugify(proj_name)}"
+                proj_key = f"project:{self._slugify(proj_name)}:{hashlib.sha256(sess.cwd.encode('utf-8')).hexdigest()}"
                 if proj_key not in nodes:
                     nodes[proj_key] = MapNode(
                         stable_key=proj_key,
@@ -656,8 +668,7 @@ ON CONFLICT (id) DO NOTHING;\n""",
                 f"INSERT INTO entities (id, stable_key, entity_type_id, name, description, category, properties, created_at, updated_at) "
                 f"VALUES (gen_random_uuid(), {_sql_str(node.stable_key)}, {_sql_str(node.entity_type_id)}, {_sql_str(node.name)}, "
                 f"{_sql_str(node.description)}, {_sql_str(node.category)}, '{props_json}'::jsonb, NOW(), NOW()) "
-                f"ON CONFLICT (stable_key) DO UPDATE SET "
-                f"name = EXCLUDED.name, description = EXCLUDED.description, properties = EXCLUDED.properties, updated_at = NOW();"
+                f"ON CONFLICT (stable_key) DO NOTHING;"
             )
 
         sql_lines.append("\n-- 4. Relations")
