@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import hashlib
+import hmac
 import json
 import os
 from pathlib import Path
@@ -23,11 +24,116 @@ from sion_ingestion.map_import import (
     import_map_export,
 )
 
+# Environment variable through which the CLI (or any caller) injects the secret
+# used to mint opaque source tokens.  bridge_cli is owned by another worker, so
+# the bridge reads the key itself instead of requiring a CLI signature change.
+SOURCE_TOKEN_KEY_ENV = "SION_SOURCE_TOKEN_KEY"
+
+# Deterministic fallback so a misconfigured deployment still produces stable,
+# non-reversible tokens rather than silently leaking raw paths.  Deployments
+# that need cross-host token stability must set SOURCE_TOKEN_KEY_ENV.
+_DEFAULT_TOKEN_KEY = b"sion-agent-bridge-default-source-token-key"
+
+SESSION_REFERENCE_PREFIX = "urn:sion:agent-session"
+SOURCE_TOKEN_PREFIX = "urn:sion:source-token"
+
+# Transcript size ceiling shared by every reader.  Oversized transcripts are
+# skipped (and reported) rather than parsed, so a single runaway log can never
+# blow up memory or the DLP scanner's node budget.
+MAX_TRANSCRIPT_BYTES = 5_000_000
+
+# A transcript below this size cannot contain a usable session payload.
+MIN_TRANSCRIPT_BYTES = 100
+
+# Diagnostics statuses recorded per session during discovery.
+STATUS_OK = "ok"
+STATUS_OVERSIZED = "oversized_transcript"
+STATUS_MALFORMED = "malformed_transcript"
+STATUS_UNREADABLE = "unreadable_transcript"
+
+
+def resolve_source_token_key(key: bytes | str | None = None) -> bytes:
+    """Resolve the opaque-token HMAC key.
+
+    Precedence: explicit argument, then ``SION_SOURCE_TOKEN_KEY``, then a fixed
+    fallback.  The key never leaves this module and is not written to any sink.
+    """
+    if key is None:
+        key = os.environ.get(SOURCE_TOKEN_KEY_ENV)
+    if key is None or key == "":
+        return _DEFAULT_TOKEN_KEY
+    return key.encode("utf-8") if isinstance(key, str) else bytes(key)
+
+
+def logical_source_reference(provider: str, session_id: str) -> str:
+    """Build a logical, path-free reference for a discovered session.
+
+    This is the *stable identity* written to sinks in place of the raw
+    ``file:///...`` URI.  It contains no absolute path, no user name, and no
+    host detail, so it survives the DLP scanner without triggering a finding
+    on the key name itself.
+    """
+    safe_provider = re.sub(r"[^\w\-.]", "-", provider.lower().strip()) or "unknown"
+    safe_session = re.sub(r"[^\w\-.]", "-", session_id.strip()) or "unknown"
+    return f"{SESSION_REFERENCE_PREFIX}:{safe_provider}:{safe_session}"
+
+
+def opaque_source_token(value: str, key: bytes | str | None = None) -> str:
+    """Replace a raw path or locator with a deterministic opaque token.
+
+    The token is stable for a given (key, value) pair so identity and
+    deduplication survive across runs, but it cannot be reversed into the
+    original absolute path or user name without the key.
+    """
+    if not value:
+        return ""
+    digest = hmac.new(resolve_source_token_key(key), value.encode("utf-8"), hashlib.sha256).hexdigest()
+    return f"{SOURCE_TOKEN_PREFIX}:{digest[:32]}"
+
+
+@dataclass(frozen=True)
+class SessionDiagnostics:
+    """Explicit, non-payload-bearing account of what discovery did with a file."""
+
+    session_id: str
+    status: str = STATUS_OK
+    reason: str = ""
+    size_bytes: int = 0
+    records_parsed: int = 0
+    records_malformed: int = 0
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "session_id": self.session_id,
+            "status": self.status,
+            "reason": self.reason,
+            "size_bytes": self.size_bytes,
+            "records_parsed": self.records_parsed,
+            "records_malformed": self.records_malformed,
+        }
+
 
 def get_device_id() -> str:
     """Return a sanitized, unique device identifier for the current machine."""
     raw = os.environ.get("SION_DEVICE_ID") or socket.gethostname().lower()
     return re.sub(r"[^\w\-.]", "-", raw).strip("-") or "unknown-device"
+
+
+def get_user_home_names() -> set[str]:
+    """Return lower-cased directory names that identify the current user.
+
+    Used to avoid writing a user name into a sink under a friendlier key such as
+    a project name.  Only the names are needed; the paths never leave the process.
+    """
+    names: set[str] = set()
+    for candidate in (os.path.expanduser("~"), os.environ.get("HOME"), os.environ.get("USERPROFILE")):
+        if candidate:
+            names.add(Path(candidate).name.lower())
+    try:
+        names.add(Path.home().name.lower())
+    except (OSError, RuntimeError):
+        pass
+    return {name for name in names if name}
 
 
 def detect_google_drive_root() -> Path | None:
@@ -81,12 +187,33 @@ class AgentSession:
     tools: set[str] = field(default_factory=set)
     artifacts: set[str] = field(default_factory=set)
     decisions: list[str] = field(default_factory=list)
+    # Raw ``file:///`` locator.  Process-local input only: it is used to mint an
+    # opaque token and is never serialized into a MapExport.
     source_uri: str = ""
+    diagnostics: SessionDiagnostics | None = None
+
+    @property
+    def source_reference(self) -> str:
+        """Logical, path-free identity of this session, safe for any sink."""
+        return logical_source_reference(self.provider, self.session_id)
 
 
 class BaseAgentReader(ABC):
-    """Abstract interface for agent session readers across any computer."""
+    """Abstract interface for agent session readers across any computer.
+
+    Readers never swallow a parse or size failure silently: every file examined
+    produces a :class:`SessionDiagnostics` entry in :attr:`diagnostics`.
+    """
     provider: str = "unknown"
+
+    def __init__(self) -> None:
+        self.diagnostics: list[SessionDiagnostics] = []
+
+    def _record(self, diagnostics: SessionDiagnostics) -> None:
+        self.diagnostics.append(diagnostics)
+
+    def reset_diagnostics(self) -> None:
+        self.diagnostics.clear()
 
     @abstractmethod
     def discover(self, limit: int | None = None) -> list[AgentSession]:
@@ -111,6 +238,7 @@ class AntigravityReader(BaseAgentReader):
                     self.brain_dirs.append(
                         Path(local_app_data) / "gemini" / "antigravity" / "brain"
                     )
+        super().__init__()
 
     def discover(self, limit: int | None = None) -> list[AgentSession]:
         active_brain = next((d for d in self.brain_dirs if d.exists()), None)
@@ -131,16 +259,27 @@ class AntigravityReader(BaseAgentReader):
 
         for sdir in candidates:
             log_file = sdir / ".system_generated" / "logs" / "transcript.jsonl"
-            if not log_file.exists() or log_file.stat().st_size > MAX_TRANSCRIPT_BYTES:
+            if not log_file.exists():
                 continue
 
             session_id = sdir.name
+            size_bytes = log_file.stat().st_size
+            if size_bytes > MAX_TRANSCRIPT_BYTES:
+                # Oversized: skipped, but never silently.
+                self._record(SessionDiagnostics(session_id, STATUS_OVERSIZED, f"size>{MAX_TRANSCRIPT_BYTES}", size_bytes))
+                continue
+            if size_bytes < MIN_TRANSCRIPT_BYTES:
+                self._record(SessionDiagnostics(session_id, STATUS_MALFORMED, "below minimum size", size_bytes))
+                continue
+
             title = f"Antigravity Session {session_id[:8]}"
             tools: set[str] = set()
             artifacts: set[str] = set()
             decisions: list[str] = []
             cwd = ""
             created_at = ""
+            parsed = 0
+            malformed = 0
 
             for art in sdir.glob("*.md"):
                 artifacts.add(art.name)
@@ -156,7 +295,12 @@ class AntigravityReader(BaseAgentReader):
                         try:
                             item = json.loads(line)
                         except Exception:
+                            malformed += 1
                             continue
+                        if not isinstance(item, dict):
+                            malformed += 1
+                            continue
+                        parsed += 1
 
                         if not created_at and "created_at" in item:
                             created_at = str(item["created_at"])
@@ -180,8 +324,14 @@ class AntigravityReader(BaseAgentReader):
                                 if "TargetFile" in args:
                                     tfile = Path(str(args["TargetFile"]).strip('"')).name
                                     artifacts.add(tfile)
-            except Exception:
-                pass
+            except OSError as exc:
+                self._record(SessionDiagnostics(session_id, STATUS_UNREADABLE, type(exc).__name__, size_bytes))
+                continue
+
+            status, reason = (STATUS_OK, "")
+            if parsed == 0:
+                status, reason = STATUS_MALFORMED, "no parseable records"
+            self._record(SessionDiagnostics(session_id, status, reason, size_bytes, parsed, malformed))
 
             sessions.append(
                 AgentSession(
@@ -195,6 +345,7 @@ class AntigravityReader(BaseAgentReader):
                     artifacts=artifacts,
                     decisions=decisions,
                     source_uri=f"file:///{log_file.as_posix()}",
+                    diagnostics=SessionDiagnostics(session_id, status, reason, size_bytes, parsed, malformed),
                 )
             )
         return sessions
@@ -209,6 +360,7 @@ class CodexReader(BaseAgentReader):
             self.sessions_dir = Path(sessions_dir)
         else:
             self.sessions_dir = Path.home() / ".codex" / "sessions"
+        super().__init__()
 
     def discover(self, limit: int | None = None) -> list[AgentSession]:
         if not self.sessions_dir.exists():
@@ -218,10 +370,20 @@ class CodexReader(BaseAgentReader):
         for p in self.sessions_dir.glob("**/*.jsonl"):
             try:
                 st = p.stat()
-                if st.st_size < 5_000_000:
-                    files.append((st.st_mtime, p))
-            except Exception:
+            except OSError:
+                self._record(
+                    SessionDiagnostics(p.stem.replace("rollout-", ""), STATUS_UNREADABLE, "stat failed")
+                )
                 continue
+            if st.st_size > MAX_TRANSCRIPT_BYTES:
+                # Recorded rather than dropped, so an oversized transcript stays visible.
+                self._record(
+                    SessionDiagnostics(
+                        p.stem.replace("rollout-", ""), STATUS_OVERSIZED, f"size>{MAX_TRANSCRIPT_BYTES}", st.st_size
+                    )
+                )
+                continue
+            files.append((st.st_mtime, p))
 
         files.sort(key=lambda x: x[0], reverse=True)
         if limit is not None and limit > 0:
@@ -232,12 +394,19 @@ class CodexReader(BaseAgentReader):
 
         for _, fpath in files:
             session_id = fpath.stem.replace("rollout-", "")
+            try:
+                size_bytes = fpath.stat().st_size
+            except OSError as exc:
+                self._record(SessionDiagnostics(session_id, STATUS_UNREADABLE, type(exc).__name__))
+                continue
             title = f"Codex Session {session_id[:8]}"
             cwd = ""
             created_at = ""
             tools: set[str] = set()
             artifacts: set[str] = set()
             decisions: list[str] = []
+            parsed = 0
+            malformed = 0
 
             try:
                 with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
@@ -248,7 +417,12 @@ class CodexReader(BaseAgentReader):
                         try:
                             item = json.loads(line)
                         except Exception:
+                            malformed += 1
                             continue
+                        if not isinstance(item, dict):
+                            malformed += 1
+                            continue
+                        parsed += 1
 
                         if item.get("type") == "session_meta":
                             payload = item.get("payload", {})
@@ -269,8 +443,15 @@ class CodexReader(BaseAgentReader):
                                 fname = payload.get("name")
                                 if fname:
                                     tools.add(fname)
-            except Exception:
-                pass
+            except OSError as exc:
+                self._record(SessionDiagnostics(session_id, STATUS_UNREADABLE, type(exc).__name__, size_bytes))
+                continue
+
+            status, reason = (STATUS_OK, "")
+            if parsed == 0:
+                status, reason = STATUS_MALFORMED, "no parseable records"
+            diagnostics = SessionDiagnostics(session_id, status, reason, size_bytes, parsed, malformed)
+            self._record(diagnostics)
 
             sessions.append(
                 AgentSession(
@@ -279,11 +460,12 @@ class CodexReader(BaseAgentReader):
                     device_id=device_id,
                     title=title,
                     cwd=cwd,
-                    created_at=created_at or _file_timestamp(log_file),
+                    created_at=created_at or _file_timestamp(fpath),
                     tools=tools,
                     artifacts=artifacts,
                     decisions=decisions,
                     source_uri=f"file:///{fpath.as_posix()}",
+                    diagnostics=diagnostics,
                 )
             )
         return sessions
@@ -298,16 +480,42 @@ class ClaudeReader(BaseAgentReader):
             self.transcripts_dir = Path(transcripts_dir)
         else:
             self.transcripts_dir = Path.home() / ".claude" / "transcripts"
+        super().__init__()
 
     def discover(self, limit: int | None = None) -> list[AgentSession]:
         if not self.transcripts_dir.exists():
             return []
 
-        files = sorted(
-            [p for p in self.transcripts_dir.glob("*.jsonl") if 100 < p.stat().st_size <= MAX_TRANSCRIPT_BYTES],
-            key=lambda p: p.stat().st_mtime,
-            reverse=True,
-        )
+        oversize: list[tuple[Path, int]] = []
+        undersize: list[tuple[Path, int]] = []
+        candidates: list[Path] = []
+        for p in self.transcripts_dir.glob("*.jsonl"):
+            try:
+                size = p.stat().st_size
+            except OSError:
+                self._record(
+                    SessionDiagnostics(p.stem.replace("ses_", ""), STATUS_UNREADABLE, "stat failed")
+                )
+                continue
+            if size > MAX_TRANSCRIPT_BYTES:
+                oversize.append((p, size))
+            elif size < MIN_TRANSCRIPT_BYTES:
+                undersize.append((p, size))
+            else:
+                candidates.append(p)
+
+        for path, size in oversize:
+            self._record(
+                SessionDiagnostics(
+                    path.stem.replace("ses_", ""), STATUS_OVERSIZED, f"size>{MAX_TRANSCRIPT_BYTES}", size
+                )
+            )
+        for path, size in undersize:
+            self._record(
+                SessionDiagnostics(path.stem.replace("ses_", ""), STATUS_MALFORMED, "below minimum size", size)
+            )
+
+        files = sorted(candidates, key=lambda p: p.stat().st_mtime, reverse=True)
 
         if limit is not None and limit > 0:
             files = files[:limit]
@@ -317,12 +525,19 @@ class ClaudeReader(BaseAgentReader):
 
         for fpath in files:
             session_id = fpath.stem.replace("ses_", "")
+            try:
+                size_bytes = fpath.stat().st_size
+            except OSError as exc:
+                self._record(SessionDiagnostics(session_id, STATUS_UNREADABLE, type(exc).__name__))
+                continue
             title = f"Claude Session {session_id[:8]}"
             cwd = ""
             created_at = ""
             tools: set[str] = set()
             artifacts: set[str] = set()
             decisions: list[str] = []
+            parsed = 0
+            malformed = 0
 
             try:
                 with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
@@ -333,7 +548,12 @@ class ClaudeReader(BaseAgentReader):
                         try:
                             item = json.loads(line)
                         except Exception:
+                            malformed += 1
                             continue
+                        if not isinstance(item, dict):
+                            malformed += 1
+                            continue
+                        parsed += 1
 
                         if not created_at and "timestamp" in item:
                             created_at = str(item["timestamp"])
@@ -362,8 +582,15 @@ class ClaudeReader(BaseAgentReader):
                                     m = re.search(r'Path "([^"]+)"', cmd)
                                     if m:
                                         cwd = m.group(1)
-            except Exception:
-                pass
+            except OSError as exc:
+                self._record(SessionDiagnostics(session_id, STATUS_UNREADABLE, type(exc).__name__, size_bytes))
+                continue
+
+            status, reason = (STATUS_OK, "")
+            if parsed == 0:
+                status, reason = STATUS_MALFORMED, "no parseable records"
+            diagnostics = SessionDiagnostics(session_id, status, reason, size_bytes, parsed, malformed)
+            self._record(diagnostics)
 
             sessions.append(
                 AgentSession(
@@ -372,11 +599,12 @@ class ClaudeReader(BaseAgentReader):
                     device_id=device_id,
                     title=title,
                     cwd=cwd,
-                    created_at=created_at or _file_timestamp(log_file),
+                    created_at=created_at or _file_timestamp(fpath),
                     tools=tools,
                     artifacts=artifacts,
                     decisions=decisions,
                     source_uri=f"file:///{fpath.as_posix()}",
+                    diagnostics=diagnostics,
                 )
             )
         return sessions
@@ -414,9 +642,6 @@ def register_provider(name: str, reader_cls: type[BaseAgentReader]) -> None:
     PROVIDER_REGISTRY[name.lower()] = reader_cls
 
 
-MAX_TRANSCRIPT_BYTES = 5_000_000
-
-
 def _file_timestamp(path: Path) -> str:
     try:
         return datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
@@ -425,12 +650,41 @@ def _file_timestamp(path: Path) -> str:
 
 
 class AgentOntologyBridge:
-    """Bridges AgentSessions into sion-core ontology nodes and edges with multi-device support."""
+    """Bridges AgentSessions into sion-core ontology nodes and edges with multi-device support.
+
+    Source policy
+    -------------
+    The bridge never writes a raw absolute path or a user name into an export.
+    Every locator is replaced by one of two path-free values:
+
+    * ``source_reference`` - a logical URN built from provider + session id.  It
+      carries no filesystem detail, and the key name is deliberately *not*
+      ``source_uri``, which the DLP scanner treats as an unconditional
+      INTERNAL finding (and therefore quarantines).
+    * ``source_token`` / ``cwd_token`` - an opaque HMAC-SHA256 token, stable for
+      a given key so identity and deduplication survive across runs, but not
+      reversible without the key.
+
+    ``stable_key`` construction is unchanged, so existing rows keep matching.
+    """
+
+    def __init__(self, source_token_key: bytes | str | None = None) -> None:
+        self._source_token_key = resolve_source_token_key(source_token_key)
+        self._home_names = get_user_home_names()
 
     @staticmethod
     def _slugify(text: str) -> str:
         s = re.sub(r"[^\w\-_.]", "-", text.lower().strip())
         return re.sub(r"-+", "-", s).strip("-") or "unknown"
+
+    def _token(self, value: str) -> str:
+        return opaque_source_token(value, self._source_token_key)
+
+    def _safe_display_name(self, candidate: str, fallback: str) -> str:
+        """Refuse to surface a bare user-home directory name as an entity name."""
+        if not candidate or candidate.lower() in self._home_names:
+            return fallback
+        return candidate
 
     def convert_sessions_to_map_export(
         self, sessions: list[AgentSession], source_label: str = "multi-agent-bridge"
@@ -465,7 +719,9 @@ class AgentOntologyBridge:
                     "device_id": sess.device_id,
                     "session_id": sess.session_id,
                     "created_at": sess.created_at,
-                    "source_uri": sess.source_uri,
+                    # Logical identity in place of the raw file:/// locator.
+                    "source_reference": sess.source_reference,
+                    "source_token": self._token(sess.source_uri),
                 },
             )
 
@@ -482,7 +738,7 @@ class AgentOntologyBridge:
 
             # 3. Project Node
             if sess.cwd:
-                proj_name = Path(sess.cwd).name or "workspace"
+                proj_name = self._safe_display_name(Path(sess.cwd).name or "workspace", "workspace")
                 proj_key = f"project:{self._slugify(proj_name)}:{hashlib.sha256(sess.cwd.encode('utf-8')).hexdigest()}"
                 if proj_key not in nodes:
                     nodes[proj_key] = MapNode(
@@ -490,7 +746,8 @@ class AgentOntologyBridge:
                         entity_type_id="Project",
                         name=proj_name,
                         category="core",
-                        properties={"cwd": sess.cwd},
+                        # Opaque token replaces the raw absolute working directory.
+                        properties={"cwd_token": self._token(sess.cwd)},
                     )
                 edge_proj_key = f"{wf_key}:PART_OF:{proj_key}"
                 edges[edge_proj_key] = MapEdge(

@@ -31,7 +31,7 @@ This is the P0 remediation intermediate state. It must not be read as a complete
 
 ## Verification baseline
 
-This is the single source for verification commands and the manually maintained test baseline. The current baseline is **52+ targeted tests**. This number is intentionally static: do not dynamically generate or silently update it in README files.
+This is the single source for verification commands and the test baseline. The current local run collects **357 tests, 0 failed**, with a portion skipped because of environment-dependent preconditions (for example a missing optional dependency or an unavailable local service). The count is a recorded local observation, not a dynamically generated number, and it is not a release gate on its own; README files refer here instead of restating the count.
 
 ```bash
 python -m pytest
@@ -39,8 +39,12 @@ python -m pytest tests/test_api.py -q
 python -m pytest tests/test_auth.py tests/test_dlp.py tests/test_evidence_contract.py -q
 python -m pytest tests/test_alembic_contract.py tests/test_sync_atomic.py tests/test_ci_contract.py -q
 python -m build --wheel
+python -m compileall -q packages apps sync tests
+python -m pip check
+git diff --check
 ```
 
+The last three are currently passing locally alongside the 357-test run. All of the above are local-only observations and do not substitute for hosted evidence.
 Release evidence must separately record the workflow URL, commit SHA, job conclusions, wheel artifact, PostgreSQL/pgvector results, and reviewer approval. Local passing tests do not override a failed or unavailable hosted CI run.
 
 ## Current blockers

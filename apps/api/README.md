@@ -35,4 +35,4 @@ A non-loopback host requires `SION_LOCAL_API_TOKEN`; startup fails without it. T
 
 ## Verification
 
-Use [../../docs/STATUS.md](../../docs/STATUS.md#verification-baseline) as the single source for commands and the manually maintained **52+ targeted tests** baseline. Do not duplicate or dynamically generate the test count here.
+Use [../../docs/STATUS.md](../../docs/STATUS.md#verification-baseline) as the single source for commands and the current test baseline (357 tests, 0 failures, some environment-dependent skips). That count is a recorded local observation; do not duplicate or dynamically generate it here.
