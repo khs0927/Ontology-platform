@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from sion_api import models
-from sion_ingestion.dlp import DLPDecision, scan_payload
+from sion_ingestion.dlp import DLPDecision, canonical_payload_digest, scan_payload
 
 
 class GraphImportError(ValueError):
@@ -26,6 +26,10 @@ class MapDLPError(GraphImportError):
     """A map export was rejected by the fail-closed DLP gate."""
 
 
+class MapDLPBindingError(MapDLPError):
+    """A caller-supplied DLP decision could not be verified for this export."""
+
+
 CANONICAL_NODE_FIELDS = (
     "entity_type_id", "name", "category", "description", "external_uri",
     "properties", "ontology_version",
@@ -34,6 +38,9 @@ CANONICAL_EDGE_FIELDS = (
     "relation_type_id", "confidence", "verification_state", "source_kind",
     "ontology_version", "properties",
 )
+#: Endpoints are part of the edge identity. Without them, rewiring an edge
+#: under an unchanged ``stable_key`` would hash identically and be skipped.
+CANONICAL_EDGE_ENDPOINT_FIELDS = ("source_stable_key", "target_stable_key")
 CANONICAL_HASH_PROPERTY = "__sion_canonical_hash"
 
 
@@ -56,6 +63,8 @@ def node_canonical_payload(node: MapNode | None = None, **values: Any) -> dict[s
 def edge_canonical_payload(edge: MapEdge | None = None, **values: Any) -> dict[str, Any]:
     raw = edge.model_dump() if edge is not None else values
     result = {key: raw.get(key) for key in CANONICAL_EDGE_FIELDS}
+    for key in CANONICAL_EDGE_ENDPOINT_FIELDS:
+        result[key] = raw.get(key)
     if isinstance(result.get("properties"), dict):
         result["properties"] = {k: v for k, v in result["properties"].items() if k != CANONICAL_HASH_PROPERTY}
     return result
@@ -144,6 +153,50 @@ def load_map_export(path: str | Path) -> MapExport:
     return MapExport.model_validate(raw)
 
 
+def _verify_trusted_decision(
+    session: Session,
+    export: MapExport,
+    decision: DLPDecision,
+    dlp_hmac_key: bytes | str | None,
+) -> None:
+    """Fail closed unless ``decision`` provably covers ``export``.
+
+    Two shapes are accepted, matching the two real caller boundaries:
+
+    * a decision scanned from the export the caller now holds
+      (``source_digest`` match), whose sanitized payload is what gets written;
+    * a decision whose sanitized payload is exactly this export
+      (``payload_digest`` match), used when the caller already adopted the
+      sanitized export from the pre-sink boundary.
+
+    Everything else - forged, stale, policy-mismatched, or another export's
+    decision - is rejected after a rollback, before canonical hashing and
+    before any row is written.
+    """
+
+    export_payload = export.model_dump(by_alias=True)
+    export_digest = canonical_payload_digest(export_payload)
+
+    # Shape 1: the decision was scanned from exactly this export.
+    ok, reason = decision.verify_binding(payload=export_payload, key=dlp_hmac_key)
+    if not ok:
+        # Shape 2: the caller already adopted the decision's sanitized export,
+        # so the source digest legitimately differs. Re-verify every check that
+        # does not depend on which payload the decision was taken over.
+        ok, shape2_reason = decision.verify_binding(key=dlp_hmac_key)
+        if not ok:
+            session.rollback()
+            raise MapDLPBindingError(
+                f"map export rejected by DLP gate: unverified_trusted_decision:{reason}"
+            )
+        if decision.payload_digest != export_digest:
+            session.rollback()
+            raise MapDLPBindingError(
+                "map export rejected by DLP gate: "
+                f"unverified_trusted_decision:{shape2_reason or 'source_digest_mismatch'}"
+            )
+
+
 def import_map_export(
     session: Session,
     export: MapExport,
@@ -160,13 +213,22 @@ def import_map_export(
     scanned a second time without the HMAC key. Only the decision's sanitized
     payload is eligible for canonical hashing and graph writes.
 
+    A trusted decision is accepted only when it verifies: it must be bound to
+    this exact export by canonical payload digest, carry the current policy
+    version, still be inside its issued/expires window, and satisfy the HMAC
+    signer binding when a key is available. A forged, stale, or mismatched
+    decision is rolled back and refused.
+
     A same-hash identity is skipped; a different hash raises
     ``GraphIdentityConflictError`` after rolling back the import.
     """
     if already_scanned is not None and pre_sanitized is not None:
         raise TypeError("pass only one trusted DLP decision")
-    decision = already_scanned or pre_sanitized
-    if decision is None:
+    trusted_decision = already_scanned or pre_sanitized
+    if trusted_decision is not None:
+        _verify_trusted_decision(session, export, trusted_decision, dlp_hmac_key)
+        decision = trusted_decision
+    else:
         decision = scan_payload(
             export.model_dump(by_alias=True),
             hmac_key=dlp_hmac_key,
@@ -244,8 +306,17 @@ def import_map_export(
         if existing is not None:
             existing_hash = (existing.properties or {}).get(CANONICAL_HASH_PROPERTY)
             if existing_hash is None:
+                existing_source = session.get(models.Entity, existing.source_entity_id)
+                existing_target = session.get(models.Entity, existing.target_entity_id)
+                if existing_source is None or existing_target is None:
+                    session.rollback()
+                    raise GraphIdentityConflictError(
+                        f"edge identity conflict: {edge.stable_key}"
+                    )
                 existing_hash = canonical_hash(edge_canonical_payload(**{
-                    key: getattr(existing, key) for key in CANONICAL_EDGE_FIELDS
+                    **{key: getattr(existing, key) for key in CANONICAL_EDGE_FIELDS},
+                    "source_stable_key": existing_source.stable_key,
+                    "target_stable_key": existing_target.stable_key,
                 }))
             incoming_hash = canonical_hash(edge_canonical_payload(edge))
             if hash_upsert_conflict(existing_hash, incoming_hash):

@@ -46,7 +46,7 @@ See [sync/README.md](sync/README.md) and [apps/api/README.md](apps/api/README.md
 
 ## Verification
 
-Use the single verification source in [docs/STATUS.md](docs/STATUS.md#verification-baseline). The documented baseline is currently **52+ targeted tests**. This is a static, manually maintained baseline, not a dynamically generated count. Run the commands from that section and record their result separately.
+Use the single verification source in [docs/STATUS.md](docs/STATUS.md#verification-baseline). The latest local run collects 357 tests with 0 failures, plus some environment-dependent skips; that is a recorded local observation, not a release gate. Run the commands from that section and record their result separately.
 
 ## Integration policy
 

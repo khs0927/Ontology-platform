@@ -25,10 +25,13 @@ jobs:
         with: {python-version: "3.12"}
       - name: Install test dependencies
         run: python -m pip install --upgrade pip && python -m pip install -e ".[test]"
+        shell: bash
       - name: Run actual pytest suite
         run: python -m pytest
+        shell: bash
       - name: Run security and durability contracts
         run: python -m pytest tests/test_auth.py tests/test_dlp.py tests/test_evidence_contract.py tests/test_bridge_upsert.py tests/test_sync_atomic.py tests/test_automation_security.py tests/test_frozen_contract.py -q
+        shell: bash
 
   alembic-revision-contract:
     runs-on: ubuntu-24.04
@@ -37,8 +40,10 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Verify Alembic revision contract
         run: python -m pytest tests/test_alembic_contract.py -q
+        shell: bash
       - name: Verify migrations
         run: test -f migrations/001_core.sql && test -f migrations/002_vector.sql && test -f migrations/versions/0001_baseline.py
+        shell: bash
 
   postgres-core:
     runs-on: ubuntu-24.04
@@ -59,13 +64,16 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with: {python-version: "3.12"}
       - run: python -m pip install -e ".[test]"
+        shell: bash
       - name: Upgrade PostgreSQL core schema with Alembic
         run: alembic upgrade head
+        shell: bash
       - name: Verify Alembic current matches head
         run: |
           alembic current
           alembic heads
           test "$(alembic current | sed 's/ (head)//')" = "$(alembic heads | sed 's/ (head)//')"
+        shell: bash
       - name: Verify core readiness
         run: |
           python - <<'PY'
@@ -75,8 +83,10 @@ jobs:
           result = check_readiness(create_engine(os.environ["SION_DATABASE_URL"]), vector_enabled=False)
           assert result["status"] == "ready", result
           PY
+        shell: bash
       - name: Run core-only PostgreSQL contracts
         run: python -m pytest tests/test_readiness.py -k "not vector" -q
+        shell: bash
 
   postgres-pgvector:
     runs-on: ubuntu-24.04
@@ -98,13 +108,16 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with: {python-version: "3.12"}
       - run: python -m pip install -e ".[test]"
+        shell: bash
       - name: Upgrade PostgreSQL schema through vector head with Alembic
         run: alembic upgrade head
+        shell: bash
       - name: Verify Alembic current matches head
         run: |
           alembic current
           alembic heads
           test "$(alembic current | sed 's/ (head)//')" = "$(alembic heads | sed 's/ (head)//')"
+        shell: bash
       - name: Verify pgvector readiness
         run: |
           python - <<'PY'
@@ -114,8 +127,10 @@ jobs:
           result = check_readiness(create_engine(os.environ["SION_DATABASE_URL"]), vector_enabled=True)
           assert result["status"] == "ready", result
           PY
+        shell: bash
       - name: Run pgvector-only contracts
         run: python -m pytest tests/test_vector_readiness.py -q
+        shell: bash
 
   resource-wheel-contract:
     runs-on: ubuntu-24.04
@@ -126,8 +141,10 @@ jobs:
         with: {python-version: "3.12"}
       - name: Build and clean-install wheel
         run: python -m pip install --upgrade pip build && python -m build --wheel --outdir dist . && python -m venv .clean-venv && .clean-venv/bin/python -m pip install dist/*.whl && .clean-venv/bin/python -c "import sion_api, sion_ingestion, sion_drive_store"
+        shell: bash
       - name: Verify wheel resources
         run: python -m pytest tests/test_resource_package.py -q
+        shell: bash
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with: {name: wheel-artifacts, path: dist/*.whl, retention-days: 7}
 
@@ -138,3 +155,4 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Scan committed secrets
         run: python -c "import pathlib,re,sys; files=[p for p in pathlib.Path('.').rglob('*') if p.is_file() and '.git' not in p.parts and '.venv' not in p.parts]; bad=[str(p) for p in files if re.search(r'(?i)(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|aws_access_key_id\s*=|sk-[A-Za-z0-9]{20,})', p.read_text(errors='ignore'))]; print('\n'.join(bad)); sys.exit(bool(bad))"
+        shell: bash

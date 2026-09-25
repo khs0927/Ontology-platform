@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 import uuid
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
@@ -16,6 +19,126 @@ from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .health import check_readiness
 from .security import is_loopback_host, require_local_bearer, validate_startup_settings
+
+try:  # pragma: no cover - exercised through the API tests
+    from sion_ingestion.dlp import DLPDecision, scan_payload as _dlp_scan_payload
+except Exception:  # the API must stay importable without the ingestion package
+    DLPDecision = None  # type: ignore[assignment]
+    _dlp_scan_payload = None  # type: ignore[assignment]
+
+
+DLP_HMAC_KEY_ENV = "SION_DLP_HMAC_KEY"
+DLP_GATE_STATUS_CODE = 422
+DLP_SANITIZED_UNDECIDED = {
+    "allowed": False,
+    "action": "quarantine",
+    "findings": [],
+    "metadata": {"reason": "dlp_scanner_unavailable", "fail_closed": True},
+}
+# The evidence contract stores an opaque provenance reference in the top level
+# ``source_uri`` field. The scanner classifies that key as INTERNAL, so the
+# field is exempted by exact path. The value itself is still scanned for
+# secrets, PII and local paths, and a nested ``properties.source_uri`` is not
+# exempt, which keeps the key from being used as a smuggling channel.
+_DLP_EXEMPT_FINDINGS = {("source_uri", "$.source_uri")}
+
+_dlp_logger = logging.getLogger("sion_api.dlp")
+
+
+def _dlp_hmac_key() -> bytes | None:
+    raw = os.getenv(DLP_HMAC_KEY_ENV)
+    if not raw:
+        return None
+    return raw.encode("utf-8")
+
+
+def _blocking_findings(decision: Any) -> list[Any]:
+    return [
+        finding
+        for finding in decision.findings
+        if (finding.kind, finding.path) not in _DLP_EXEMPT_FINDINGS
+    ]
+
+
+def _reject_dlp_payload(
+    sink: str,
+    decision: Any,
+    session: Session | None,
+    reason: str,
+) -> None:
+    if session is not None:
+        session.rollback()
+    if decision is not None:
+        _dlp_logger.warning(
+            "api dlp gate rejected sink=%s action=%s metadata=%s",
+            sink,
+            decision.action,
+            decision.metadata,
+        )
+    else:
+        _dlp_logger.warning("api dlp gate rejected sink=%s reason=%s", sink, reason)
+    raise HTTPException(
+        status_code=DLP_GATE_STATUS_CODE,
+        detail={
+            "detail": "payload rejected by DLP gate",
+            "sink": sink,
+            "reason": reason,
+            "dlp": decision.to_dict() if decision is not None else dict(DLP_SANITIZED_UNDECIDED),
+        },
+    )
+
+
+def enforce_dlp_gate(payload: Any, *, sink: str, session: Session | None = None) -> Any:
+    """Fail-closed pre-write DLP gate for an authenticated API write sink.
+
+    The payload is scanned before any repository call, so a rejected write
+    never reaches a commit. A blocked payload is refused with sanitized
+    decision metadata only; raw values are never logged or echoed. PII-only
+    payloads admitted as ``tokenized`` are persisted in their sanitized form
+    instead of being written raw.
+    """
+
+    try:
+        raw_payload = payload.model_dump(mode="json")
+    except Exception:
+        _reject_dlp_payload(sink, None, session, "payload_not_serializable")
+
+    exempt_source_uri = raw_payload.get("source_uri")
+
+    if _dlp_scan_payload is None:
+        _reject_dlp_payload(sink, None, session, "dlp_scanner_unavailable")
+
+    try:
+        decision = _dlp_scan_payload(raw_payload, hmac_key=_dlp_hmac_key())
+    except Exception:
+        _reject_dlp_payload(sink, None, session, "scanner_error")
+
+    if decision.metadata.get("fail_closed"):
+        _reject_dlp_payload(
+            sink, decision, session, decision.metadata.get("reason", "scanner_fail_closed")
+        )
+
+    blocking = _blocking_findings(decision)
+
+    if not blocking and isinstance(decision.sanitized_payload, dict):
+        sanitized = dict(decision.sanitized_payload)
+        if exempt_source_uri is not None and "source_uri" in sanitized:
+            sanitized["source_uri"] = exempt_source_uri
+        try:
+            return type(payload).model_validate(sanitized)
+        except Exception:
+            _reject_dlp_payload(sink, decision, session, "sanitized_payload_invalid")
+
+    if decision.action == "tokenized" and isinstance(decision.sanitized_payload, dict):
+        try:
+            return type(payload).model_validate(dict(decision.sanitized_payload))
+        except Exception:
+            _reject_dlp_payload(sink, decision, session, "sanitized_payload_invalid")
+
+    _reject_dlp_payload(
+        sink, decision, session, decision.metadata.get("reason", "payload_not_allowed")
+    )
+    raise AssertionError("unreachable")  # pragma: no cover
 
 
 def create_app(
@@ -170,6 +293,7 @@ def create_app(
         payload: schemas.EntityCreate,
         session: Session = Depends(get_session),
     ):
+        payload = enforce_dlp_gate(payload, sink="entity", session=session)
         try:
             return repository.create_entity(session, payload)
         except repository.MissingReferenceError as exc:
@@ -204,6 +328,7 @@ def create_app(
         payload: schemas.RelationCreate,
         session: Session = Depends(get_session),
     ):
+        payload = enforce_dlp_gate(payload, sink="relation", session=session)
         try:
             return repository.create_relation(session, payload)
         except repository.MissingReferenceError as exc:
@@ -228,6 +353,7 @@ def create_app(
         payload: schemas.EvidenceCreate,
         session: Session = Depends(get_session),
     ):
+        payload = enforce_dlp_gate(payload, sink="evidence", session=session)
         try:
             return repository.create_evidence(session, payload)
         except repository.MissingReferenceError as exc:
@@ -273,6 +399,7 @@ def create_app(
         payload: schemas.ArtifactCreate,
         session: Session = Depends(get_session),
     ):
+        payload = enforce_dlp_gate(payload, sink="artifact", session=session)
         try:
             return repository.create_artifact(session, payload)
         except repository.ConflictError as exc:
@@ -305,6 +432,7 @@ def create_app(
         payload: schemas.EmbeddingCreate,
         session: Session = Depends(get_session),
     ):
+        payload = enforce_dlp_gate(payload, sink="embedding", session=session)
         try:
             return vector_repository.create_embedding(session, payload)
         except vector_repository.VectorBackendUnavailable as exc:
@@ -322,6 +450,7 @@ def create_app(
         payload: schemas.VectorSearchRequest,
         session: Session = Depends(get_session),
     ):
+        payload = enforce_dlp_gate(payload, sink="vector_search", session=session)
         try:
             hits = vector_repository.search_vectors(session, payload)
         except vector_repository.VectorBackendUnavailable as exc:

@@ -24,4 +24,4 @@ Safety and current limits:
 - Content-addressed Drive staging is partial; an authenticated production uploader/scheduler and production release evidence remain incomplete.
 - Do not place a live PostgreSQL database in the Drive-synced tree.
 
-For the implementation/partial/planned matrix and release blockers, see [../docs/STATUS.md](../docs/STATUS.md). Verification commands and the manually maintained **52+ targeted tests** baseline are maintained only in [../docs/STATUS.md#verification-baseline](../docs/STATUS.md#verification-baseline).
+For the implementation/partial/planned matrix and release blockers, see [../docs/STATUS.md](../docs/STATUS.md). Verification commands and the current test baseline (357 tests, 0 failures, some environment-dependent skips, local-only) are maintained only in [../docs/STATUS.md#verification-baseline](../docs/STATUS.md#verification-baseline).

@@ -6,9 +6,12 @@ only payload accepted by sinks is the scanner's sanitized payload.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import hashlib
 import json
 import os
 import shutil
+import socket
 import sys
 import time
 from pathlib import Path
@@ -53,6 +56,78 @@ def _runtime_path(value: str | os.PathLike[str], root: Path) -> Path:
     except ValueError as exc:
         raise ValueError("output path is outside the data root") from exc
     return candidate
+
+
+def _staging_dir(root: Path, run_id: str) -> Path:
+    """Return a run-scoped staging directory contained by the data root."""
+    return _runtime_path(f"staging/{run_id}", root)
+
+
+def _digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _file_digest(path: Path) -> tuple[str, int]:
+    """Read a file back from disk and return its (sha256, byte size)."""
+    hasher = hashlib.sha256()
+    size = 0
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            hasher.update(chunk)
+            size += len(chunk)
+    return hasher.hexdigest(), size
+
+
+def _write_staged(path: Path, content: str) -> tuple[str, int]:
+    """Write one artifact into staging and return its expected (sha256, size)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = content.encode("utf-8")
+    with path.open("wb") as handle:
+        handle.write(data)
+        handle.flush()
+        os.fsync(handle.fileno())
+    return _digest(data), len(data)
+
+
+def _verify_digest(path: Path, expected_digest: str, expected_size: int, label: str) -> None:
+    """Fail closed unless the on-disk file matches the expected hash and size."""
+    actual_digest, actual_size = _file_digest(path)
+    if actual_digest != expected_digest or actual_size != expected_size:
+        raise OSError(f"{label} read-back verification failed for '{path.name}'")
+
+
+@contextlib.contextmanager
+def _publish_lock(lock_path: Path):
+    """Hold an exclusive publish lock so two writers cannot interleave a target."""
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        handle = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError as exc:
+        raise RuntimeError(f"publish lock already held for '{lock_path.name}'") from exc
+    try:
+        record = {"pid": os.getpid(), "host": socket.gethostname(), "created": time.time()}
+        os.write(handle, json.dumps(record).encode("utf-8"))
+        os.close(handle)
+        handle = -1
+        yield
+    finally:
+        if handle != -1:
+            os.close(handle)
+        lock_path.unlink(missing_ok=True)
+
+
+def _atomic_publish(src: Path, dst: Path, expected_digest: str, expected_size: int) -> None:
+    """Publish a staged artifact: lock, temp copy, read-back verify, then replace."""
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = dst.parent / f".{dst.name}.sion-publish.lock"
+    tmp_path = dst.parent / f".{dst.name}.sion-publish.tmp"
+    with _publish_lock(lock_path):
+        try:
+            shutil.copy2(src, tmp_path)
+            _verify_digest(tmp_path, expected_digest, expected_size, "staging copy")
+            os.replace(tmp_path, dst)
+        finally:
+            tmp_path.unlink(missing_ok=True)
 
 
 def _safe_dlp_log(decision: DLPDecision) -> None:
@@ -106,36 +181,74 @@ def run_cycle(args: argparse.Namespace, providers: list[str], limit_val: int | N
         print("[*] Dry run complete. Database and Drive were not modified.")
         return 0
 
-    for path, content in ((out_json, json.dumps(export.model_dump(by_alias=True), indent=2, ensure_ascii=False)), (out_pg, pg), (out_graph, graph)):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+    run_id = f"{time.strftime('%Y%m%dT%H%M%S')}-{os.getpid()}"
+    staging = _staging_dir(root, run_id)
+    artifacts = (
+        ("export.json", json.dumps(export.model_dump(by_alias=True), indent=2, ensure_ascii=False)),
+        ("export.sql", pg),
+        ("export.md", graph),
+    )
+    staged: dict[str, tuple[Path, str, int]] = {}
+    try:
+        for name, content in artifacts:
+            digest, size = _write_staged(staging / name, content)
+            _verify_digest(staging / name, digest, size, "staging")
+            staged[name] = (staging / name, digest, size)
+    except OSError as exc:
+        print(f"  [!] staging failed: {exc}; no sinks published")
+        shutil.rmtree(staging, ignore_errors=True)
+        return 1
+    print(f"  [stage] verified {len(staged)} artifact(s) in staging ({staging.name})")
 
-    from sion_api.db import build_engine, build_session_factory
-    from sion_api.repository import seed_core_types
-    engine = build_engine(args.db_url)
-    with build_session_factory(engine)() as db:
-        seed_core_types(db)
-        result = import_map_export(db, export, already_scanned=decision)
+    # The DB import is the commit point: external sinks are published only after it succeeds.
+    try:
+        from sion_api.db import build_engine, build_session_factory
+        from sion_api.repository import seed_core_types
+        engine = build_engine(args.db_url)
+        with build_session_factory(engine)() as db:
+            seed_core_types(db)
+            result = import_map_export(db, export, already_scanned=decision)
+    except Exception as exc:
+        print(f"  [!] DB import failed: {type(exc).__name__}; no sinks published")
+        shutil.rmtree(staging, ignore_errors=True)
+        return 1
     print(f"  [+] Local DB: {result.created_nodes} created, {result.skipped_nodes} skipped (existing)")
+
+    local_targets = (("export.json", out_json), ("export.sql", out_pg), ("export.md", out_graph))
+    try:
+        for name, dst in local_targets:
+            src, digest, size = staged[name]
+            _atomic_publish(src, dst, digest, size)
+    except Exception as exc:
+        print(f"  [!] local publish failed: {type(exc).__name__}; Drive not attempted")
+        shutil.rmtree(staging, ignore_errors=True)
+        return 1
+    print(f"  [local] published {len(local_targets)} artifact(s)")
 
     drive_root = detect_google_drive_root()
     if not drive_root or not drive_root.exists():
         print("  [!] Google Drive root not detected. Saved to local runtime directory only.")
+        shutil.rmtree(staging, ignore_errors=True)
         return 0
-    targets = [(out_pg, drive_root / "AEC-INTELLIGENCE/03_KNOWLEDGE_GRAPH/sion_pg_knowledge_graph.sql"), (out_json, drive_root / "AEC-INTELLIGENCE/03_KNOWLEDGE_GRAPH/sion_knowledge_graph.json"), (out_graph, drive_root / "AEC-INTELLIGENCE/09_AGENT_MEMORY/agent_knowledge_graph.md")]
+    targets = [
+        ("export.sql", drive_root / "AEC-INTELLIGENCE/03_KNOWLEDGE_GRAPH/sion_pg_knowledge_graph.sql"),
+        ("export.json", drive_root / "AEC-INTELLIGENCE/03_KNOWLEDGE_GRAPH/sion_knowledge_graph.json"),
+        ("export.md", drive_root / "AEC-INTELLIGENCE/09_AGENT_MEMORY/agent_knowledge_graph.md"),
+    ]
     successes, failures, last_attempt = 0, [], "not_started"
-    for src, dst in targets:
+    for name, dst in targets:
         last_attempt = dst.name
+        src, digest, size = staged[name]
         try:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+            _atomic_publish(src, dst, digest, size)
             successes += 1
         except Exception:
             failures.append(dst.name)
     print(f"  [Drive] verified {successes}/{len(targets)} target(s); last_attempt={last_attempt}")
+    shutil.rmtree(staging, ignore_errors=True)
     if failures:
         print(
-            f"  [!] partial sink state: {successes} succeeded, "
+            f"  [!] partial_failure: {successes} succeeded, "
             f"{len(failures)} failed; last_attempt={last_attempt}"
         )
         return 1
