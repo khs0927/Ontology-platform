@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from sion_api.main import create_app
-from sion_api.security import is_loopback_host
+from sion_api.security import is_loopback_host, require_local_bearer
 
 
 def auth_client(token: str = "local-test-token"):
@@ -73,3 +76,19 @@ def test_unprotected_loopback_documentation_in_development():
     with TestClient(create_app(database_url="sqlite://", auto_create_schema=True)) as client:
         assert client.get("/docs").status_code == 200
         assert client.get("/openapi.json").status_code == 200
+
+
+def test_actual_non_loopback_transport_requires_token_even_if_configured_loopback():
+    app = create_app(database_url="sqlite://", auto_create_schema=True)
+    local_request = SimpleNamespace(
+        app=app,
+        scope={"server": ("127.0.0.1", 3012), "client": ("127.0.0.1", 50000)},
+    )
+    assert require_local_bearer(local_request, None) is None
+
+    exposed_request = SimpleNamespace(
+        app=app,
+        scope={"server": ("0.0.0.0", 3012), "client": ("192.168.1.50", 50000)},
+    )
+    with pytest.raises(HTTPException, match="local API token is not configured"):
+        require_local_bearer(exposed_request, None)

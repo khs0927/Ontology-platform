@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import socket
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -96,14 +97,58 @@ def _verify_digest(path: Path, expected_digest: str, expected_size: int, label: 
         raise OSError(f"{label} read-back verification failed for '{path.name}'")
 
 
-@contextlib.contextmanager
-def _publish_lock(lock_path: Path):
-    """Hold an exclusive publish lock so two writers cannot interleave a target."""
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
+def _pid_is_alive(pid: int) -> bool:
+    """Conservatively report whether a same-host lock owner is still alive."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        try:
+            completed = subprocess.run(
+                ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return True
+        return completed.returncode == 0 and str(pid) in completed.stdout
     try:
-        handle = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-    except FileExistsError as exc:
-        raise RuntimeError(f"publish lock already held for '{lock_path.name}'") from exc
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except (PermissionError, OSError):
+        return True
+    return True
+
+
+@contextlib.contextmanager
+def _publish_lock(lock_path: Path, stale_after: float = 1800.0):
+    """Hold an exclusive lock and reclaim only clearly stale same-host owners."""
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    while True:
+        try:
+            handle = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            break
+        except FileExistsError as exc:
+            try:
+                record = json.loads(lock_path.read_text(encoding="utf-8"))
+                owner_host = str(record["host"])
+                owner_pid = int(record["pid"])
+                age = time.time() - float(record["created"])
+            except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as parse_exc:
+                raise RuntimeError(f"invalid publish lock for '{lock_path.name}'") from parse_exc
+            if (
+                owner_host == socket.gethostname()
+                and age > stale_after
+                and not _pid_is_alive(owner_pid)
+            ):
+                try:
+                    lock_path.unlink()
+                except FileNotFoundError:
+                    pass
+                continue
+            raise RuntimeError(f"publish lock already held for '{lock_path.name}'") from exc
     try:
         record = {"pid": os.getpid(), "host": socket.gethostname(), "created": time.time()}
         os.write(handle, json.dumps(record).encode("utf-8"))

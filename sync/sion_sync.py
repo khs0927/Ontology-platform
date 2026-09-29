@@ -127,7 +127,7 @@ def backup(a):
     rel=p.relative_to(src).as_posix();st=p.stat();digest=sha(p);d=dest/Path(rel);current[rel]={"size":st.st_size,"mtime_ns":st.st_mtime_ns,"sha256":digest}
     if d.exists() and not(d.is_symlink()or _reparse(d)) and sha(d)==digest:skipped+=1;continue
     if d.exists():
-     _reject(d);h=history/ts/workspace/Path(rel);h.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(d,h)
+     _reject(d);h=history/ts/run_id/workspace/Path(rel);h.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(d,h)
     _atomic_copy(p,d)
     if sha(d)!=digest:raise OSError(f"destination verification failed: {rel}")
     changed+=1
@@ -160,7 +160,10 @@ def promote(a):
  name=safe_id(a.project_name or project.name);commit=info["head"];root=drv/"canonical"/name;dest=root/commit
  with sync_lock(root/".sion-sync.lock"):
   valid,old=_valid_published_snapshot(dest,commit,name)
-  if valid:print(json.dumps({"status":"already-present","project":name,"git_sha":commit}));return 0
+  if valid:
+   pointer={"status":"published","snapshot":str(dest),"git_sha":commit,"run_id":old["run_id"]}
+   if read_json(root/"latest.json",None)!=pointer:write_json(root/"latest.json",pointer)
+   print(json.dumps({"status":"already-present","project":name,"git_sha":commit}));return 0
   root.mkdir(parents=True,exist_ok=True)
   if dest.exists():
    quarantine=root/f".quarantine-{uuid.uuid4().hex}";os.replace(dest,quarantine);print(json.dumps({"status":"quarantined-incomplete","path":str(quarantine)}),file=sys.stderr)

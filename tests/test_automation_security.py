@@ -44,6 +44,9 @@ def test_posix_installer_uses_managed_wrapper_and_propagates_failure():
     assert "crontab" in source
     assert "Initial sync failed with exit code" in source
     assert "exit \"$INITIAL_EXIT\"" in source
+    assert "/usr/bin/timeout" not in source
+    assert "subprocess.run(" in source
+    assert "timeout=1800" in source
 
 
 def test_frozen_bridge_path_is_not_derived_from_meipass():
