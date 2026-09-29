@@ -21,6 +21,23 @@ def is_loopback_host(host: str) -> bool:
         return False
 
 
+def _scope_endpoint_loopback(request: Request, key: str) -> bool | None:
+    """Return loopback status for an ASGI transport endpoint when it is an IP.
+
+    Real Uvicorn transports expose server/client as IP tuples. Test transports
+    may use synthetic names such as testserver; those are treated as unknown so
+    the configured bind policy remains the fallback.
+    """
+    endpoint = request.scope.get(key)
+    if not isinstance(endpoint, (tuple, list)) or not endpoint:
+        return None
+    normalized = str(endpoint[0]).strip().lower().strip("[]")
+    try:
+        return ipaddress.ip_address(normalized).is_loopback
+    except ValueError:
+        return None
+
+
 def validate_startup_settings(settings: Settings) -> None:
     if settings.environment == "production":
         if not settings.local_api_token:
@@ -41,8 +58,18 @@ def require_local_bearer(
 ) -> None:
     settings: Settings = request.app.state.settings
     if settings.local_api_token is None:
-        if not is_loopback_host(settings.api_host):
-            raise HTTPException(status_code=403, detail="local API token is not configured")
+        configured_loopback = is_loopback_host(settings.api_host)
+        server_loopback = _scope_endpoint_loopback(request, "server")
+        client_loopback = _scope_endpoint_loopback(request, "client")
+        if (
+            not configured_loopback
+            or server_loopback is False
+            or client_loopback is False
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="local API token is not configured for this network path",
+            )
         return
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(

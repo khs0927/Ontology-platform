@@ -16,7 +16,24 @@ mkdir -p "$REPO_ROOT/runtime"
 cat > "$WRAPPER" <<'WRAPPER'
 #!/bin/sh
 set -eu
-exec /usr/bin/timeout 1800 "$SION_PYTHON" "$SION_BRIDGE" >> "$SION_LOG" 2>&1
+"$SION_PYTHON" - "$SION_BRIDGE" "$SION_LOG" <<'PY'
+import subprocess
+import sys
+
+bridge, log_path = sys.argv[1:3]
+with open(log_path, "ab", buffering=0) as log:
+    try:
+        completed = subprocess.run(
+            [sys.executable, bridge],
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            timeout=1800,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        raise SystemExit(124)
+raise SystemExit(completed.returncode)
+PY
 WRAPPER
 chmod 700 "$WRAPPER"
 # crontab invokes only the fixed wrapper; it never embeds command text or quotes paths.

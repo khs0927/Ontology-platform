@@ -199,3 +199,23 @@ def test_drive_publish_verifies_hash_by_reading_written_file_back(tmp_path, monk
     staged_hash = _sha(_runtime_path("runtime/export.json", _data_root()))
     drive_hash = _sha(drive / "AEC-INTELLIGENCE/03_KNOWLEDGE_GRAPH/sion_knowledge_graph.json")
     assert staged_hash == drive_hash
+
+
+def test_publish_lock_reclaims_stale_same_host_owner(tmp_path):
+    import socket
+    import time
+
+    lock = tmp_path / ".stale.lock"
+    lock.write_text(
+        json.dumps(
+            {
+                "pid": 999999999,
+                "host": socket.gethostname(),
+                "created": time.time() - 60,
+            }
+        )
+    )
+    with _publish_lock(lock, stale_after=1.0):
+        current = json.loads(lock.read_text())
+        assert current["pid"] > 0
+    assert not lock.exists()

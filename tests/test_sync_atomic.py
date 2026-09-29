@@ -63,3 +63,24 @@ def test_incomplete_existing_snapshot_is_repaired_and_quarantined(tmp_path):
  info=sync.git_info(repo);drv=tmp_path/"drv";bad=drv/"canonical"/"p"/info["head"];bad.mkdir(parents=True);(bad/"_snapshot.json").write_text("{}")
  assert sync.promote(argparse.Namespace(project=str(repo),drive_root=str(drv),project_name="p"))==0
  assert (bad/".complete").is_file() and list((drv/"canonical"/"p").glob(".quarantine-*"))
+
+
+def test_history_paths_remain_unique_for_two_changes_in_same_second(tmp_path, monkeypatch):
+ src=tmp_path/"src";src.mkdir();(src/"a.txt").write_text("one");drv=tmp_path/"drv";state=tmp_path/"state"
+ monkeypatch.setattr(sync,"stamp",lambda:"20260930-000000Z")
+ assert sync.backup(args(src,drv,state))==0
+ (src/"a.txt").write_text("two");assert sync.backup(args(src,drv,state))==0
+ (src/"a.txt").write_text("three");assert sync.backup(args(src,drv,state))==0
+ versions=list((drv/"history"/"dev").rglob("a.txt"))
+ assert len(versions)==2
+ assert {p.read_text() for p in versions}=={"one","two"}
+
+
+def test_idempotent_promote_repairs_missing_latest_pointer(tmp_path):
+ import subprocess
+ repo=tmp_path/"repo";repo.mkdir();subprocess.run(["git","init"],cwd=repo,check=True,capture_output=True);(repo/"x").write_text("x");subprocess.run(["git","add","."],cwd=repo,check=True,capture_output=True);subprocess.run(["git","-c","user.name=t","-c","user.email=t@e","commit","-m","x"],cwd=repo,check=True,capture_output=True)
+ drv=tmp_path/"drv";a=argparse.Namespace(project=str(repo),drive_root=str(drv),project_name="p")
+ assert sync.promote(a)==0
+ latest=drv/"canonical"/"p"/"latest.json";latest.unlink()
+ assert sync.promote(a)==0
+ pointer=json.loads(latest.read_text());assert pointer["git_sha"]==sync.git_info(repo)["head"] and pointer["run_id"]
