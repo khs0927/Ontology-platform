@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
+from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
+
 from . import models, repository, schemas, vector_repository
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -18,6 +20,7 @@ def create_app(
     *,
     database_url: str | None = None,
     auto_create_schema: bool | None = None,
+    aec_adapter: AecCairAdapter | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -58,6 +61,11 @@ def create_app(
     app.state.settings = settings
     app.state.engine = engine
     app.state.session_factory = factory
+
+    if aec_adapter is None:
+        aec_config = AecCairConfig.from_env()
+        aec_adapter = AecCairAdapter(aec_config) if aec_config is not None else None
+    app.state.aec_adapter = aec_adapter
 
     app.add_middleware(
         CORSMiddleware,
@@ -259,6 +267,40 @@ def create_app(
             hits=[schemas.VectorHit.model_validate(hit) for hit in hits],
             count=len(hits),
         )
+
+    @app.get("/api/v1/aec/status")
+    def aec_status():
+        enabled = aec_adapter is not None and aec_adapter.enabled
+        return {
+            "status": "ok" if enabled else "disabled",
+            "enabled": enabled,
+            "mode": "read_only_federation",
+            "source": "khs0927/Ontology",
+            "canonical": False,
+        }
+
+    @app.get("/api/v1/aec/query")
+    def aec_query(
+        question: str = Query(min_length=1, max_length=2000),
+        top_k: int = Query(default=10, ge=0, le=100),
+        project_id: str | None = Query(default=None, max_length=200),
+    ):
+        if aec_adapter is None or not aec_adapter.enabled:
+            raise HTTPException(status_code=503, detail="AEC/CAIR federation is not configured")
+        try:
+            result = aec_adapter.query_global_memory(
+                question,
+                top_k=top_k,
+                project_id=project_id,
+            )
+        except AecCairError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {
+            "source": "khs0927/Ontology",
+            "canonical": False,
+            "read_only": True,
+            "result": result,
+        }
 
     return app
 
