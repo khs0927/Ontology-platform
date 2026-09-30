@@ -53,3 +53,16 @@ This platform automatically discovers and ingests interaction sessions from mult
 ## Integration Policy
 
 The existing `khs0927/Ontology` repository is integrated through adapters only after individual components pass compatibility and license checks. Live runtime databases stay local; Google Drive receives logical dumps, snapshots, and canonical manifests.
+
+### AEC/CAIR federation
+
+The ingestion package now includes a read-only `AecCairAdapter` that talks to the public `khs0927/Ontology` repository through its `aec-mcp` stdio boundary. It does not import CAIR rows into Sion automatically and it cannot call mutating Ontology tools.
+
+Configure it only on a machine that has the Ontology checkout and `aec-mcp` available:
+
+```powershell
+$env:SION_AEC_ONTOLOGY_ROOT = "C:\\CODE\\Ontology"
+$env:SION_AEC_MCP_COMMAND = "aec-mcp"
+```
+
+Allowed federation calls are limited to `aec.get_object`, `aec.query_global_memory`, `aec.graph_backend_plan`, and the in-memory `aec.graph_hydradb_preview`. Canonical Sion persistence remains independent.

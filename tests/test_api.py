@@ -188,3 +188,53 @@ def test_artifact_metadata_round_trip_and_duplicate_guard():
 
         duplicate = c.post("/api/v1/artifacts", json=payload)
         assert duplicate.status_code == 409
+
+
+class FakeAecAdapter:
+    enabled = True
+
+    def __init__(self):
+        self.calls = []
+
+    def query_global_memory(self, question, *, top_k=10, project_id=None):
+        self.calls.append((question, top_k, project_id))
+        return {
+            "route": "GLOBAL_MEMORY",
+            "query": question,
+            "hits": [{"project_id": project_id or "P1", "object_id": "aec://object/door-1", "score": 0.9}],
+        }
+
+
+def test_aec_federation_status_is_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("SION_AEC_ONTOLOGY_ROOT", raising=False)
+    app = create_app(database_url="sqlite://", auto_create_schema=True)
+    with TestClient(app) as c:
+        status = c.get("/api/v1/aec/status")
+        assert status.status_code == 200
+        assert status.json() == {
+            "status": "disabled",
+            "enabled": False,
+            "mode": "read_only_federation",
+            "source": "khs0927/Ontology",
+            "canonical": False,
+        }
+
+        query = c.get("/api/v1/aec/query", params={"question": "door"})
+        assert query.status_code == 503
+
+
+def test_aec_federation_query_is_read_only_and_advisory():
+    adapter = FakeAecAdapter()
+    app = create_app(database_url="sqlite://", auto_create_schema=True, aec_adapter=adapter)
+    with TestClient(app) as c:
+        response = c.get(
+            "/api/v1/aec/query",
+            params={"question": "door near lobby", "top_k": 4, "project_id": "P-AEC"},
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["source"] == "khs0927/Ontology"
+        assert body["canonical"] is False
+        assert body["read_only"] is True
+        assert body["result"]["route"] == "GLOBAL_MEMORY"
+        assert adapter.calls == [("door near lobby", 4, "P-AEC")]
