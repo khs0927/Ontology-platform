@@ -1,5 +1,6 @@
 """Sion ingestion adapters."""
 
+from .aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 from .map_import import (
     GraphImportError,
     MapExport,
@@ -8,6 +9,9 @@ from .map_import import (
 )
 
 __all__ = [
+    "AecCairAdapter",
+    "AecCairConfig",
+    "AecCairError",
     "GraphImportError",
     "MapExport",
     "import_map_export",
