@@ -30,12 +30,46 @@ class HindsightConfig:
     api_key: str | None = field(default=None, repr=False)
     timeout_seconds: float = 20.0
     api_profile: str = HINDSIGHT_API_PROFILE
+    allow_remote_egress: bool = False
 
     def __post_init__(self) -> None:
         if self.api_profile != HINDSIGHT_API_PROFILE:
             raise HindsightMemoryError(
                 f"Hindsight adapter profile is pinned to {HINDSIGHT_API_PROFILE}"
             )
+        if not self.bank_id.strip():
+            raise HindsightMemoryError("Hindsight bank_id must not be empty")
+        if not 0 < self.timeout_seconds <= 120:
+            raise HindsightMemoryError("Hindsight timeout must be in (0, 120]")
+
+        parsed = urlparse(self.base_url)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.username
+            or parsed.password
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise HindsightMemoryError(
+                "Hindsight base_url must be an absolute http(s) URL without credentials, query, or fragment"
+            )
+        host = (parsed.hostname or "").lower()
+        try:
+            local = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            local = host == "localhost"
+        if not local:
+            if parsed.scheme != "https":
+                raise HindsightMemoryError("non-loopback Hindsight requires https")
+            if not self.allow_remote_egress:
+                raise HindsightMemoryError(
+                    "remote Hindsight egress requires explicit allow_remote_egress"
+                )
+            if not self.api_key:
+                raise HindsightMemoryError(
+                    "Hindsight API key is required for a non-loopback URL"
+                )
 
     @classmethod
     def from_env(cls) -> "HindsightConfig | None":
@@ -50,44 +84,19 @@ class HindsightConfig:
                 "SION_HINDSIGHT_URL and SION_HINDSIGHT_BANK_ID must be configured together"
             )
 
-        parsed = urlparse(base_url)
-        if (
-            parsed.scheme not in {"http", "https"}
-            or not parsed.netloc
-            or parsed.username
-            or parsed.password
-        ):
-            raise HindsightMemoryError(
-                "SION_HINDSIGHT_URL must be an absolute http(s) URL without embedded credentials"
-            )
-        host = (parsed.hostname or "").lower()
         try:
-            local = ipaddress.ip_address(host).is_loopback
-        except ValueError:
-            local = host == "localhost"
-        if not local:
-            if parsed.scheme != "https":
-                raise HindsightMemoryError(
-                    "non-loopback Hindsight requires https"
-                )
-            if not _env_true("SION_HINDSIGHT_ALLOW_REMOTE"):
-                raise HindsightMemoryError(
-                    "remote Hindsight egress requires SION_HINDSIGHT_ALLOW_REMOTE=1"
-                )
-            if not api_key:
-                raise HindsightMemoryError(
-                    "SION_HINDSIGHT_API_KEY is required for a non-loopback Hindsight URL"
-                )
-
-        timeout = float(os.getenv("SION_HINDSIGHT_TIMEOUT", "20"))
-        if timeout <= 0 or timeout > 120:
-            raise HindsightMemoryError("SION_HINDSIGHT_TIMEOUT must be in (0, 120]")
+            timeout = float(os.getenv("SION_HINDSIGHT_TIMEOUT", "20"))
+        except ValueError as exc:
+            raise HindsightMemoryError(
+                "SION_HINDSIGHT_TIMEOUT must be numeric"
+            ) from exc
 
         return cls(
             base_url=base_url.rstrip("/"),
             bank_id=bank_id,
             api_key=api_key,
             timeout_seconds=timeout,
+            allow_remote_egress=_env_true("SION_HINDSIGHT_ALLOW_REMOTE"),
         )
 
 
