@@ -207,7 +207,7 @@ class HindsightMemoryAdapter:
         title = str(getattr(session, "title", "") or "").strip()
         created_at = str(getattr(session, "created_at", "") or "").strip()
         cwd = str(getattr(session, "cwd", "") or "").strip()
-        project = Path(cwd).name if cwd else ""
+        project = re.split(r"[\\/]", cwd.rstrip("\\/"))[-1] if cwd else ""
         tools = sorted(str(v) for v in (getattr(session, "tools", set()) or set()))
         artifacts = sorted(str(v) for v in (getattr(session, "artifacts", set()) or set()))
         decisions = [
