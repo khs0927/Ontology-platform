@@ -565,6 +565,40 @@ class AgentOntologyBridge:
             }
         )
 
+    def retain_sessions_to_advisory_memory(
+        self,
+        sessions: list[AgentSession],
+        memory_adapter: Any,
+    ) -> dict[str, Any]:
+        """Explicitly retain normalized session summaries in advisory memory.
+
+        This is never called as a side effect of canonical graph ingestion.
+        The adapter decides the external memory representation; CAIR/Sion
+        entities and relations are not written or promoted here.
+        """
+        results: list[dict[str, Any]] = []
+        errors: list[dict[str, str]] = []
+        for session in sessions:
+            try:
+                results.append(memory_adapter.retain_agent_session(session))
+            except Exception as exc:
+                errors.append(
+                    {
+                        "provider": session.provider,
+                        "session_id": session.session_id,
+                        "error": str(exc),
+                    }
+                )
+        return {
+            "status": "SUCCESS_WITH_WARNINGS" if errors else "SUCCESS",
+            "retained": len(results),
+            "failed": len(errors),
+            "results": results,
+            "errors": errors,
+            "canonical": False,
+            "advisory": True,
+        }
+
     @staticmethod
     def generate_mermaid_graph(export: MapExport, max_nodes: int = 80) -> str:
         lines = ["flowchart TD"]
