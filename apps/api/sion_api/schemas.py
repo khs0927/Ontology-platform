@@ -41,6 +41,9 @@ class RelationCreate(BaseModel):
 
     @model_validator(mode="after")
     def validity_order(self):
+        for name, value in (("valid_from", self.valid_from), ("valid_to", self.valid_to)):
+            if value is not None and (value.tzinfo is None or value.utcoffset() is None):
+                raise ValueError(f"{name} must include a timezone")
         if self.valid_from and self.valid_to and self.valid_to < self.valid_from:
             raise ValueError("valid_to must not precede valid_from")
         return self
@@ -51,6 +54,17 @@ class RelationRead(RelationCreate):
 
     id: uuid.UUID
     created_at: datetime
+
+
+class RelationInvalidate(BaseModel):
+    valid_to: datetime
+    reason: str | None = Field(default=None, max_length=1000)
+
+    @model_validator(mode="after")
+    def timezone_required(self):
+        if self.valid_to.tzinfo is None or self.valid_to.utcoffset() is None:
+            raise ValueError("valid_to must include a timezone")
+        return self
 
 
 class EvidenceCreate(BaseModel):
