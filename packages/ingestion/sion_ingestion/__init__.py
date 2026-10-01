@@ -1,6 +1,7 @@
 """Sion ingestion adapters."""
 
 from .aec_cair import AecCairAdapter, AecCairConfig, AecCairError
+from .hindsight_memory import HindsightConfig, HindsightMemoryAdapter, HindsightMemoryError
 from .map_import import (
     GraphImportError,
     MapExport,
@@ -9,6 +10,9 @@ from .map_import import (
 )
 
 __all__ = [
+    "HindsightConfig",
+    "HindsightMemoryAdapter",
+    "HindsightMemoryError",
     "AecCairAdapter",
     "AecCairConfig",
     "AecCairError",
