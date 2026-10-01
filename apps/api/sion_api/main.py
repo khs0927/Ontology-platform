@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 
 from . import models, repository, schemas, vector_repository
+from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 
@@ -21,6 +22,7 @@ def create_app(
     database_url: str | None = None,
     auto_create_schema: bool | None = None,
     aec_adapter: AecCairAdapter | None = None,
+    auth_policy: AuthPolicy | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -62,6 +64,12 @@ def create_app(
     app.state.engine = engine
     app.state.session_factory = factory
 
+    auth_policy = auth_policy or AuthPolicy.from_env()
+    app.state.auth_policy = auth_policy
+    read_knowledge = require_scope(auth_policy, "read:knowledge")
+    write_knowledge = require_scope(auth_policy, "write:knowledge")
+    read_aec = require_scope(auth_policy, "read:aec")
+
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()
         aec_adapter = AecCairAdapter(aec_config) if aec_config is not None else None
@@ -84,14 +92,14 @@ def create_app(
             "database": engine.dialect.name,
         }
 
-    @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse)
+    @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse, dependencies=[Depends(read_knowledge)])
     def ontology_schema():
         path: Path = settings.ontology_path
         if not path.exists():
             raise HTTPException(status_code=503, detail="ontology schema unavailable")
         return path.read_text(encoding="utf-8")
 
-    @app.get("/api/v1/bootstrap/map-inventory")
+    @app.get("/api/v1/bootstrap/map-inventory", dependencies=[Depends(read_knowledge)])
     def map_inventory():
         path: Path = settings.map_inventory_path
         if not path.exists():
@@ -102,6 +110,7 @@ def create_app(
         "/api/v1/entities",
         response_model=schemas.EntityRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_entity(
         payload: schemas.EntityCreate,
@@ -114,7 +123,7 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/entities", response_model=list[schemas.EntityRead])
+    @app.get("/api/v1/entities", response_model=list[schemas.EntityRead], dependencies=[Depends(read_knowledge)])
     def list_entities(
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
@@ -122,7 +131,7 @@ def create_app(
     ):
         return repository.list_entities(session, limit=limit, offset=offset)
 
-    @app.get("/api/v1/entities/{entity_id}", response_model=schemas.EntityRead)
+    @app.get("/api/v1/entities/{entity_id}", response_model=schemas.EntityRead, dependencies=[Depends(read_knowledge)])
     def get_entity(
         entity_id: uuid.UUID,
         session: Session = Depends(get_session),
@@ -136,6 +145,7 @@ def create_app(
         "/api/v1/relations",
         response_model=schemas.RelationRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_relation(
         payload: schemas.RelationCreate,
@@ -148,7 +158,7 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/relations", response_model=list[schemas.RelationRead])
+    @app.get("/api/v1/relations", response_model=list[schemas.RelationRead], dependencies=[Depends(read_knowledge)])
     def list_relations(
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
@@ -160,6 +170,7 @@ def create_app(
         "/api/v1/evidence",
         response_model=schemas.EvidenceRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_evidence(
         payload: schemas.EvidenceCreate,
@@ -170,7 +181,7 @@ def create_app(
         except repository.MissingReferenceError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead])
+    @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead], dependencies=[Depends(read_knowledge)])
     def list_evidence(
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
@@ -178,7 +189,7 @@ def create_app(
     ):
         return repository.list_evidence(session, limit=limit, offset=offset)
 
-    @app.get("/api/v1/graph", response_model=schemas.GraphResponse)
+    @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_knowledge)])
     def graph(
         limit: int = Query(default=500, ge=1, le=5000),
         session: Session = Depends(get_session),
@@ -205,6 +216,7 @@ def create_app(
         "/api/v1/artifacts",
         response_model=schemas.ArtifactRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_artifact(
         payload: schemas.ArtifactCreate,
@@ -215,7 +227,7 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/artifacts", response_model=list[schemas.ArtifactRead])
+    @app.get("/api/v1/artifacts", response_model=list[schemas.ArtifactRead], dependencies=[Depends(read_knowledge)])
     def list_artifacts(
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
@@ -223,7 +235,7 @@ def create_app(
     ):
         return repository.list_artifacts(session, limit=limit, offset=offset)
 
-    @app.get("/api/v1/artifacts/{artifact_id}", response_model=schemas.ArtifactRead)
+    @app.get("/api/v1/artifacts/{artifact_id}", response_model=schemas.ArtifactRead, dependencies=[Depends(read_knowledge)])
     def get_artifact(
         artifact_id: uuid.UUID,
         session: Session = Depends(get_session),
@@ -237,6 +249,7 @@ def create_app(
         "/api/v1/embeddings",
         response_model=schemas.EmbeddingRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_embedding(
         payload: schemas.EmbeddingCreate,
@@ -254,6 +267,7 @@ def create_app(
     @app.post(
         "/api/v1/vector/search",
         response_model=schemas.VectorSearchResponse,
+        dependencies=[Depends(read_knowledge)],
     )
     def vector_search(
         payload: schemas.VectorSearchRequest,
@@ -268,7 +282,7 @@ def create_app(
             count=len(hits),
         )
 
-    @app.get("/api/v1/aec/status")
+    @app.get("/api/v1/aec/status", dependencies=[Depends(read_aec)])
     def aec_status():
         enabled = aec_adapter is not None and aec_adapter.enabled
         return {
@@ -279,7 +293,7 @@ def create_app(
             "canonical": False,
         }
 
-    @app.get("/api/v1/aec/query")
+    @app.get("/api/v1/aec/query", dependencies=[Depends(read_aec)])
     def aec_query(
         question: str = Query(min_length=1, max_length=2000),
         top_k: int = Query(default=10, ge=0, le=100),
