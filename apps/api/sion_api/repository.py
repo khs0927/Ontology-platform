@@ -90,7 +90,12 @@ def create_relation(session: Session, payload: RelationCreate) -> models.Relatio
         raise MissingReferenceError("target entity does not exist")
     if session.get(models.RelationType, payload.relation_type_id) is None:
         raise MissingReferenceError(f"unknown relation type: {payload.relation_type_id}")
-    row = models.Relation(**payload.model_dump())
+    values = payload.model_dump()
+    if values.get("valid_from") is not None:
+        values["valid_from"] = _utc_datetime(values["valid_from"])
+    if values.get("valid_to") is not None:
+        values["valid_to"] = _utc_datetime(values["valid_to"])
+    row = models.Relation(**values)
     session.add(row)
     try:
         session.commit()
@@ -135,6 +140,8 @@ def list_relations(
     active_only: bool = False,
 ) -> list[models.Relation]:
     effective_at = at or (datetime.now(timezone.utc) if active_only else None)
+    if effective_at is not None:
+        effective_at = _utc_datetime(effective_at)
     statement = select(models.Relation)
     if effective_at is not None:
         statement = statement.where(_relation_valid_at(effective_at))
@@ -205,6 +212,8 @@ def get_graph(
         return [], []
 
     effective_at = at or (datetime.now(timezone.utc) if active_only else None)
+    if effective_at is not None:
+        effective_at = _utc_datetime(effective_at)
     statement = select(models.Relation).where(
         models.Relation.source_entity_id.in_(node_ids),
         models.Relation.target_entity_id.in_(node_ids),
