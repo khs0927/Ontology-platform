@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from . import models
-from .schemas import EntityCreate, EvidenceCreate, RelationCreate
+from .schemas import EntityCreate, EvidenceCreate, RelationCreate, RelationInvalidate
 
 
 class ConflictError(Exception):
@@ -16,6 +17,17 @@ class ConflictError(Exception):
 
 class MissingReferenceError(Exception):
     pass
+
+
+def _utc_datetime(value: datetime) -> datetime:
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+
+
+def _relation_valid_at(at: datetime):
+    return and_(
+        or_(models.Relation.valid_from.is_(None), models.Relation.valid_from <= at),
+        or_(models.Relation.valid_to.is_(None), models.Relation.valid_to > at),
+    )
 
 
 def seed_core_types(session: Session) -> None:
@@ -78,7 +90,12 @@ def create_relation(session: Session, payload: RelationCreate) -> models.Relatio
         raise MissingReferenceError("target entity does not exist")
     if session.get(models.RelationType, payload.relation_type_id) is None:
         raise MissingReferenceError(f"unknown relation type: {payload.relation_type_id}")
-    row = models.Relation(**payload.model_dump())
+    values = payload.model_dump()
+    if values.get("valid_from") is not None:
+        values["valid_from"] = _utc_datetime(values["valid_from"])
+    if values.get("valid_to") is not None:
+        values["valid_to"] = _utc_datetime(values["valid_to"])
+    row = models.Relation(**values)
     session.add(row)
     try:
         session.commit()
@@ -115,16 +132,54 @@ def list_entities(session: Session, *, limit: int, offset: int) -> list[models.E
 
 
 def list_relations(
-    session: Session, *, limit: int, offset: int
+    session: Session,
+    *,
+    limit: int,
+    offset: int,
+    at: datetime | None = None,
+    active_only: bool = False,
 ) -> list[models.Relation]:
+    effective_at = at or (datetime.now(timezone.utc) if active_only else None)
+    if effective_at is not None:
+        effective_at = _utc_datetime(effective_at)
+    statement = select(models.Relation)
+    if effective_at is not None:
+        statement = statement.where(_relation_valid_at(effective_at))
     return list(
         session.scalars(
-            select(models.Relation)
+            statement
             .order_by(models.Relation.created_at, models.Relation.id)
             .offset(offset)
             .limit(limit)
         )
     )
+
+
+def invalidate_relation(
+    session: Session,
+    relation_id: uuid.UUID,
+    payload: RelationInvalidate,
+) -> models.Relation:
+    row = session.get(models.Relation, relation_id)
+    if row is None:
+        raise MissingReferenceError("relation does not exist")
+    if row.valid_to is not None:
+        raise ConflictError("relation is already invalidated")
+    valid_to = _utc_datetime(payload.valid_to)
+    if row.valid_from is not None and valid_to < _utc_datetime(row.valid_from):
+        raise ConflictError("valid_to must not precede valid_from")
+
+    row.valid_to = valid_to
+    properties = dict(row.properties or {})
+    temporal = dict(properties.get("temporal") or {})
+    temporal["invalidated_at"] = payload.valid_to.isoformat()
+    if payload.reason:
+        temporal["reason"] = payload.reason
+    properties["temporal"] = temporal
+    row.properties = properties
+    session.commit()
+    session.refresh(row)
+    return row
 
 
 def list_evidence(
@@ -140,7 +195,13 @@ def list_evidence(
     )
 
 
-def get_graph(session: Session, *, limit: int):
+def get_graph(
+    session: Session,
+    *,
+    limit: int,
+    at: datetime | None = None,
+    active_only: bool = False,
+):
     nodes = list(
         session.scalars(
             select(models.Entity).order_by(models.Entity.created_at).limit(limit)
@@ -149,16 +210,17 @@ def get_graph(session: Session, *, limit: int):
     node_ids = {node.id for node in nodes}
     if not node_ids:
         return [], []
-    edges = list(
-        session.scalars(
-            select(models.Relation)
-            .where(
-                models.Relation.source_entity_id.in_(node_ids),
-                models.Relation.target_entity_id.in_(node_ids),
-            )
-            .order_by(models.Relation.created_at)
-        )
+
+    effective_at = at or (datetime.now(timezone.utc) if active_only else None)
+    if effective_at is not None:
+        effective_at = _utc_datetime(effective_at)
+    statement = select(models.Relation).where(
+        models.Relation.source_entity_id.in_(node_ids),
+        models.Relation.target_entity_id.in_(node_ids),
     )
+    if effective_at is not None:
+        statement = statement.where(_relation_valid_at(effective_at))
+    edges = list(session.scalars(statement.order_by(models.Relation.created_at)))
     return nodes, edges
 
 
