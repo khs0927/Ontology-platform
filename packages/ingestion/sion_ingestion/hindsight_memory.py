@@ -18,6 +18,28 @@ class HindsightMemoryError(RuntimeError):
 
 HINDSIGHT_API_PROFILE = "v0.10.2"
 
+_SECRET_ASSIGNMENT = re.compile(
+    r"(?i)\\b(api[_-]?key|access[_-]?token|refresh[_-]?token|token|secret|password|passwd)"
+    r"(\\s*[:=]\\s*)([^\\s,;]+)"
+)
+_SECRET_PREFIXES = (
+    re.compile(r"\\bsk-[A-Za-z0-9_-]{16,}\\b"),
+    re.compile(r"\\bgh[pousr]_[A-Za-z0-9]{20,}\\b"),
+    re.compile(r"\\bgithub_pat_[A-Za-z0-9_]{20,}\\b"),
+    re.compile(r"\\bcfat_[A-Za-z0-9_-]{20,}\\b"),
+    re.compile(r"\\bapikey_[A-Za-z0-9_-]{20,}\\b"),
+)
+
+
+def _redact_obvious_secrets(value: str) -> str:
+    redacted = _SECRET_ASSIGNMENT.sub(
+        lambda match: f"{match.group(1)}{match.group(2)}[REDACTED]",
+        value,
+    )
+    for pattern in _SECRET_PREFIXES:
+        redacted = pattern.sub("[REDACTED]", redacted)
+    return redacted
+
 
 def _env_true(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
@@ -130,7 +152,7 @@ class HindsightMemoryAdapter:
 
     def _url(self, suffix: str) -> str:
         bank = quote(self.config.bank_id, safe="")
-        return f"{self.config.base_url}/v1/default/banks/{bank}{suffix}"
+        return f"{self.config.base_url.rstrip('/')}/v1/default/banks/{bank}{suffix}"
 
     def _request(self, suffix: str, payload: dict[str, Any]) -> Any:
         body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
@@ -220,7 +242,12 @@ class HindsightMemoryAdapter:
             "canonical": "false",
             "advisory": "true",
         }
-        return "\n".join(lines), metadata
+        content = _redact_obvious_secrets("\n".join(lines))
+        metadata = {
+            key: _redact_obvious_secrets(value)
+            for key, value in metadata.items()
+        }
+        return content, metadata
 
     def retain_agent_session(self, session: Any) -> dict[str, Any]:
         content, metadata = self._session_summary(session)
