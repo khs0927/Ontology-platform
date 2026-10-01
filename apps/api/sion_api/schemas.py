@@ -56,7 +56,7 @@ class RelationCreate(BaseModel):
             if left.tzinfo is None:
                 left = left.replace(tzinfo=timezone.utc)
             if right.tzinfo is None:
-                right = right.replace(tzinfo=__import__("datetime").timezone.utc)
+                right = right.replace(tzinfo=timezone.utc)
             if right < left:
                 raise ValueError("valid_to must not precede valid_from")
         return self
@@ -116,6 +116,13 @@ class GraphEdge(BaseModel):
     verification_state: str
     valid_from: datetime | None = None
     valid_to: datetime | None = None
+
+    @field_validator("valid_from", "valid_to", mode="before")
+    @classmethod
+    def normalize_graph_time(cls, value):
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+        return value
 
 
 class GraphResponse(BaseModel):
