@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import hashlib
 import json
+import ipaddress
 import os
 from pathlib import Path
 from typing import Any, Callable
@@ -15,12 +16,26 @@ class HindsightMemoryError(RuntimeError):
     pass
 
 
+HINDSIGHT_API_PROFILE = "v0.10.2"
+
+
+def _env_true(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 @dataclass(frozen=True)
 class HindsightConfig:
     base_url: str
     bank_id: str
-    api_key: str | None = None
+    api_key: str | None = field(default=None, repr=False)
     timeout_seconds: float = 20.0
+    api_profile: str = HINDSIGHT_API_PROFILE
+
+    def __post_init__(self) -> None:
+        if self.api_profile != HINDSIGHT_API_PROFILE:
+            raise HindsightMemoryError(
+                f"Hindsight adapter profile is pinned to {HINDSIGHT_API_PROFILE}"
+            )
 
     @classmethod
     def from_env(cls) -> "HindsightConfig | None":
@@ -36,16 +51,33 @@ class HindsightConfig:
             )
 
         parsed = urlparse(base_url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.username or parsed.password:
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.username
+            or parsed.password
+        ):
             raise HindsightMemoryError(
                 "SION_HINDSIGHT_URL must be an absolute http(s) URL without embedded credentials"
             )
         host = (parsed.hostname or "").lower()
-        local = host in {"localhost", "127.0.0.1", "::1"}
-        if not local and not api_key:
-            raise HindsightMemoryError(
-                "SION_HINDSIGHT_API_KEY is required for a non-loopback Hindsight URL"
-            )
+        try:
+            local = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            local = host == "localhost"
+        if not local:
+            if parsed.scheme != "https":
+                raise HindsightMemoryError(
+                    "non-loopback Hindsight requires https"
+                )
+            if not _env_true("SION_HINDSIGHT_ALLOW_REMOTE"):
+                raise HindsightMemoryError(
+                    "remote Hindsight egress requires SION_HINDSIGHT_ALLOW_REMOTE=1"
+                )
+            if not api_key:
+                raise HindsightMemoryError(
+                    "SION_HINDSIGHT_API_KEY is required for a non-loopback Hindsight URL"
+                )
 
         timeout = float(os.getenv("SION_HINDSIGHT_TIMEOUT", "20"))
         if timeout <= 0 or timeout > 120:
@@ -93,7 +125,11 @@ class HindsightMemoryAdapter:
 
     def _request(self, suffix: str, payload: dict[str, Any]) -> Any:
         body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "sion-ontology-platform/0.1 hindsight-advisory/v0.10.2",
+        }
         if self.config.api_key:
             headers["Authorization"] = f"Bearer {self.config.api_key}"
         request = Request(self._url(suffix), data=body, headers=headers, method="POST")
@@ -196,6 +232,7 @@ class HindsightMemoryAdapter:
             "status": "SUCCESS",
             "source": "hindsight",
             "bank_id": self.config.bank_id,
+            "api_profile": self.config.api_profile,
             "document_id": item["document_id"],
             "canonical": False,
             "advisory": True,
@@ -223,20 +260,9 @@ class HindsightMemoryAdapter:
             "source": "hindsight",
             "operation": "recall",
             "bank_id": self.config.bank_id,
+            "api_profile": self.config.api_profile,
             "canonical": False,
             "advisory": True,
             "result": result,
         }
 
-    def reflect(self, query: str) -> dict[str, Any]:
-        if not isinstance(query, str) or not query.strip():
-            raise HindsightMemoryError("reflect query must not be empty")
-        result = self._request("/reflect", {"query": query.strip()})
-        return {
-            "source": "hindsight",
-            "operation": "reflect",
-            "bank_id": self.config.bank_id,
-            "canonical": False,
-            "advisory": True,
-            "result": result,
-        }
