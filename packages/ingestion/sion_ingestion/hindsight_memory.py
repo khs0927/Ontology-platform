@@ -5,7 +5,6 @@ import hashlib
 import json
 import ipaddress
 import os
-from pathlib import Path
 import re
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
