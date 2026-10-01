@@ -19,6 +19,10 @@ class MissingReferenceError(Exception):
     pass
 
 
+def _utc_datetime(value: datetime) -> datetime:
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+
+
 def _relation_valid_at(at: datetime):
     return and_(
         or_(models.Relation.valid_from.is_(None), models.Relation.valid_from <= at),
@@ -154,10 +158,11 @@ def invalidate_relation(
         raise MissingReferenceError("relation does not exist")
     if row.valid_to is not None:
         raise ConflictError("relation is already invalidated")
-    if row.valid_from is not None and payload.valid_to < row.valid_from:
+    valid_to = _utc_datetime(payload.valid_to)
+    if row.valid_from is not None and valid_to < _utc_datetime(row.valid_from):
         raise ConflictError("valid_to must not precede valid_from")
 
-    row.valid_to = payload.valid_to
+    row.valid_to = valid_to
     properties = dict(row.properties or {})
     temporal = dict(properties.get("temporal") or {})
     temporal["invalidated_at"] = payload.valid_to.isoformat()
