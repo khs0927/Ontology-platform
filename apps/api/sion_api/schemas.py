@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 import uuid
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class EntityCreate(BaseModel):
@@ -39,6 +39,15 @@ class RelationCreate(BaseModel):
     valid_to: datetime | None = None
     properties: dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator("valid_from", "valid_to", mode="before")
+    @classmethod
+    def normalize_relation_time(cls, value):
+        if value is None or isinstance(value, str):
+            return value
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+        return value
+
     @model_validator(mode="after")
     def validity_order(self):
         if self.valid_from and self.valid_to:
@@ -68,6 +77,7 @@ class RelationInvalidate(BaseModel):
     def timezone_required(self):
         if self.valid_to.tzinfo is None or self.valid_to.utcoffset() is None:
             raise ValueError("valid_to must include a timezone")
+        self.valid_to = self.valid_to.astimezone(timezone.utc)
         return self
 
 
