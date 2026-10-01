@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 import uuid
 
@@ -45,7 +45,7 @@ class RelationCreate(BaseModel):
             left = self.valid_from
             right = self.valid_to
             if left.tzinfo is None:
-                left = left.replace(tzinfo=__import__("datetime").timezone.utc)
+                left = left.replace(tzinfo=timezone.utc)
             if right.tzinfo is None:
                 right = right.replace(tzinfo=__import__("datetime").timezone.utc)
             if right < left:
