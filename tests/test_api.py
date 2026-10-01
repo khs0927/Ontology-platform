@@ -307,3 +307,139 @@ def test_bearer_wildcard_token_can_read_and_write_knowledge():
         listed = c.get("/api/v1/entities", headers=headers)
         assert listed.status_code == 200
         assert len(listed.json()) == 1
+
+
+def test_temporal_relations_support_history_current_view_and_invalidation():
+    with client() as c:
+        source = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "project:temporal",
+                "entity_type_id": "Project",
+                "name": "Temporal Project",
+                "properties": {},
+            },
+        )
+        target = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "tool:temporal",
+                "entity_type_id": "Tool",
+                "name": "Temporal Tool",
+                "properties": {},
+            },
+        )
+        assert source.status_code == 201
+        assert target.status_code == 201
+
+        created = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "project:temporal:USES:tool:temporal:v1",
+                "source_entity_id": source.json()["id"],
+                "target_entity_id": target.json()["id"],
+                "relation_type_id": "USES",
+                "valid_from": "2026-01-01T00:00:00+00:00",
+                "properties": {},
+            },
+        )
+        assert created.status_code == 201, created.text
+        relation_id = created.json()["id"]
+
+        before = c.get(
+            "/api/v1/relations",
+            params={"at": "2025-12-31T23:59:59+00:00"},
+        )
+        assert before.status_code == 200
+        assert before.json() == []
+
+        during = c.get(
+            "/api/v1/relations",
+            params={"at": "2026-01-15T00:00:00+00:00"},
+        )
+        assert during.status_code == 200
+        assert [row["id"] for row in during.json()] == [relation_id]
+
+        invalidated = c.post(
+            f"/api/v1/relations/{relation_id}/invalidate",
+            json={
+                "valid_to": "2026-02-01T00:00:00+00:00",
+                "reason": "superseded by design revision",
+            },
+        )
+        assert invalidated.status_code == 200, invalidated.text
+        assert invalidated.json()["properties"]["temporal"]["reason"] == "superseded by design revision"
+
+        historical = c.get(
+            "/api/v1/relations",
+            params={"at": "2026-01-31T23:59:59+00:00"},
+        )
+        assert len(historical.json()) == 1
+
+        boundary = c.get(
+            "/api/v1/relations",
+            params={"at": "2026-02-01T00:00:00+00:00"},
+        )
+        assert boundary.json() == []
+
+        current = c.get("/api/v1/relations", params={"active_only": "true"})
+        assert current.status_code == 200
+        assert current.json() == []
+
+        historical_graph = c.get(
+            "/api/v1/graph",
+            params={"at": "2026-01-15T00:00:00+00:00"},
+        )
+        assert historical_graph.status_code == 200
+        assert historical_graph.json()["edge_count"] == 1
+        assert historical_graph.json()["edges"][0]["valid_from"] is not None
+        assert historical_graph.json()["edges"][0]["valid_to"] is not None
+
+        current_graph = c.get("/api/v1/graph", params={"active_only": "true"})
+        assert current_graph.status_code == 200
+        assert current_graph.json()["edge_count"] == 0
+
+        repeated = c.post(
+            f"/api/v1/relations/{relation_id}/invalidate",
+            json={"valid_to": "2026-03-01T00:00:00+00:00"},
+        )
+        assert repeated.status_code == 409
+
+
+def test_temporal_invalidation_rejects_time_before_valid_from():
+    with client() as c:
+        source = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "concept:temporal-source",
+                "entity_type_id": "Concept",
+                "name": "Source",
+                "properties": {},
+            },
+        )
+        target = c.post(
+            "/api/v1/entities",
+            json={
+                "stable_key": "concept:temporal-target",
+                "entity_type_id": "Concept",
+                "name": "Target",
+                "properties": {},
+            },
+        )
+        created = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "temporal:future",
+                "source_entity_id": source.json()["id"],
+                "target_entity_id": target.json()["id"],
+                "relation_type_id": "RELATED_TO",
+                "valid_from": "2026-05-01T00:00:00+00:00",
+                "properties": {},
+            },
+        )
+        assert created.status_code == 201
+        rejected = c.post(
+            f"/api/v1/relations/{created.json()['id']}/invalidate",
+            json={"valid_to": "2026-04-01T00:00:00+00:00"},
+        )
+        assert rejected.status_code == 409
