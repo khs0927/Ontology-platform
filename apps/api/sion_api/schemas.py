@@ -41,11 +41,15 @@ class RelationCreate(BaseModel):
 
     @model_validator(mode="after")
     def validity_order(self):
-        for name, value in (("valid_from", self.valid_from), ("valid_to", self.valid_to)):
-            if value is not None and (value.tzinfo is None or value.utcoffset() is None):
-                raise ValueError(f"{name} must include a timezone")
-        if self.valid_from and self.valid_to and self.valid_to < self.valid_from:
-            raise ValueError("valid_to must not precede valid_from")
+        if self.valid_from and self.valid_to:
+            left = self.valid_from
+            right = self.valid_to
+            if left.tzinfo is None:
+                left = left.replace(tzinfo=__import__("datetime").timezone.utc)
+            if right.tzinfo is None:
+                right = right.replace(tzinfo=__import__("datetime").timezone.utc)
+            if right < left:
+                raise ValueError("valid_to must not precede valid_from")
         return self
 
 
@@ -100,6 +104,8 @@ class GraphEdge(BaseModel):
     type: str
     confidence: float | None = None
     verification_state: str
+    valid_from: datetime | None = None
+    valid_to: datetime | None = None
 
 
 class GraphResponse(BaseModel):
