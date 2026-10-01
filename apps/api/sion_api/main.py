@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 
 from . import models, repository, schemas, vector_repository
+from .auth import ApiAuthConfig, install_auth_firewall
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 
@@ -21,6 +22,7 @@ def create_app(
     database_url: str | None = None,
     auto_create_schema: bool | None = None,
     aec_adapter: AecCairAdapter | None = None,
+    auth_config: ApiAuthConfig | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -61,6 +63,9 @@ def create_app(
     app.state.settings = settings
     app.state.engine = engine
     app.state.session_factory = factory
+
+    auth_config = auth_config or ApiAuthConfig.from_env()
+    install_auth_firewall(app, auth_config)
 
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()
