@@ -50,6 +50,35 @@ This platform automatically discovers and ingests interaction sessions from mult
 
 ---
 
+## API security / remote access
+
+Sion fails closed for network access.
+
+- Default `SION_API_AUTH_MODE=local`: only loopback clients can use `/api/v1/*`; remote clients receive `403`.
+- `SION_API_AUTH_MODE=token`: every `/api/v1/*` request requires a Bearer token, including local clients.
+- `/health` is the only public route. CORS preflight (`OPTIONS`) is allowed, but the real request is still authenticated.
+- Unknown API routes are denied by the firewall rather than exposed accidentally.
+
+Token scopes are configured only through the environment:
+
+```powershell
+$env:SION_API_AUTH_MODE = "token"
+$env:SION_API_TOKENS_JSON = '{"power-cad-token":["read:aec"],"admin-token":["*"]}'
+```
+
+Supported scopes:
+
+- `read:aec`: `/api/v1/aec/*`
+- `read:graph`: graph and vector-search reads
+- `read:schema`: ontology schema and bootstrap inventory
+- `read:knowledge`: entity/relation/evidence/artifact reads
+- `write:knowledge`: entity/relation/evidence/artifact/embedding writes
+- `*`: all currently exposed API scopes
+
+Do not put bearer tokens in source, GitHub Actions YAML, Google Drive manifests, or CAIR/provenance files.
+
+---
+
 ## Integration Policy
 
 The existing `khs0927/Ontology` repository is integrated through adapters only after individual components pass compatibility and license checks. Live runtime databases stay local; Google Drive receives logical dumps, snapshots, and canonical manifests.
