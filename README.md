@@ -87,3 +87,18 @@ Supported scopes:
 
 `local-or-bearer` is also available when loopback access should remain token-free while remote callers use bearer tokens. Tokens are compared in constant time and are never written to API responses.
 
+
+
+### Temporal knowledge
+
+Relations use half-open validity intervals: `[valid_from, valid_to)`.
+
+- `GET /api/v1/relations?at=<ISO-8601>` returns relations valid at a historical instant.
+- `GET /api/v1/relations?active_only=true` returns relations valid now.
+- `GET /api/v1/graph?at=...` and `active_only=true` apply the same temporal filter to graph edges.
+- `POST /api/v1/relations/{relation_id}/invalidate` closes an open relation with an explicit `valid_to` and optional reason.
+- An already-invalidated relation cannot be silently rewritten.
+- Invalidation before `valid_from` is rejected.
+- Temporal comparisons are normalized to UTC; SQLite timestamps read back without tzinfo are interpreted as UTC.
+
+This keeps superseded design facts queryable for permit/construction revisions without treating old facts as currently valid.
