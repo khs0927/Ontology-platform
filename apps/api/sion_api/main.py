@@ -110,6 +110,7 @@ def create_app(
         "/api/v1/entities",
         response_model=schemas.EntityRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_entity(
         payload: schemas.EntityCreate,
@@ -144,6 +145,7 @@ def create_app(
         "/api/v1/relations",
         response_model=schemas.RelationRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_relation(
         payload: schemas.RelationCreate,
@@ -168,6 +170,7 @@ def create_app(
         "/api/v1/evidence",
         response_model=schemas.EvidenceRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_evidence(
         payload: schemas.EvidenceCreate,
@@ -213,6 +216,7 @@ def create_app(
         "/api/v1/artifacts",
         response_model=schemas.ArtifactRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_artifact(
         payload: schemas.ArtifactCreate,
@@ -245,6 +249,7 @@ def create_app(
         "/api/v1/embeddings",
         response_model=schemas.EmbeddingRead,
         status_code=201,
+        dependencies=[Depends(write_knowledge)],
     )
     def create_embedding(
         payload: schemas.EmbeddingCreate,
@@ -262,6 +267,7 @@ def create_app(
     @app.post(
         "/api/v1/vector/search",
         response_model=schemas.VectorSearchResponse,
+        dependencies=[Depends(read_knowledge)],
     )
     def vector_search(
         payload: schemas.VectorSearchRequest,
