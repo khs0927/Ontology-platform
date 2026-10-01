@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 import uuid
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class EntityCreate(BaseModel):
@@ -39,10 +39,26 @@ class RelationCreate(BaseModel):
     valid_to: datetime | None = None
     properties: dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator("valid_from", "valid_to", mode="before")
+    @classmethod
+    def normalize_relation_time(cls, value):
+        if value is None or isinstance(value, str):
+            return value
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+        return value
+
     @model_validator(mode="after")
     def validity_order(self):
-        if self.valid_from and self.valid_to and self.valid_to < self.valid_from:
-            raise ValueError("valid_to must not precede valid_from")
+        if self.valid_from and self.valid_to:
+            left = self.valid_from
+            right = self.valid_to
+            if left.tzinfo is None:
+                left = left.replace(tzinfo=timezone.utc)
+            if right.tzinfo is None:
+                right = right.replace(tzinfo=timezone.utc)
+            if right < left:
+                raise ValueError("valid_to must not precede valid_from")
         return self
 
 
@@ -51,6 +67,18 @@ class RelationRead(RelationCreate):
 
     id: uuid.UUID
     created_at: datetime
+
+
+class RelationInvalidate(BaseModel):
+    valid_to: datetime
+    reason: str | None = Field(default=None, max_length=1000)
+
+    @model_validator(mode="after")
+    def timezone_required(self):
+        if self.valid_to.tzinfo is None or self.valid_to.utcoffset() is None:
+            raise ValueError("valid_to must include a timezone")
+        self.valid_to = self.valid_to.astimezone(timezone.utc)
+        return self
 
 
 class EvidenceCreate(BaseModel):
@@ -86,6 +114,15 @@ class GraphEdge(BaseModel):
     type: str
     confidence: float | None = None
     verification_state: str
+    valid_from: datetime | None = None
+    valid_to: datetime | None = None
+
+    @field_validator("valid_from", "valid_to", mode="before")
+    @classmethod
+    def normalize_graph_time(cls, value):
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+        return value
 
 
 class GraphResponse(BaseModel):

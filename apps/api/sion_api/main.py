@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 import uuid
 
@@ -162,9 +163,34 @@ def create_app(
     def list_relations(
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
+        at: datetime | None = Query(default=None, description="Return relations valid at this instant"),
+        active_only: bool = Query(default=False, description="Return relations valid now; ignored when at is supplied"),
         session: Session = Depends(get_session),
     ):
-        return repository.list_relations(session, limit=limit, offset=offset)
+        return repository.list_relations(
+            session,
+            limit=limit,
+            offset=offset,
+            at=at,
+            active_only=active_only,
+        )
+
+    @app.post(
+        "/api/v1/relations/{relation_id}/invalidate",
+        response_model=schemas.RelationRead,
+        dependencies=[Depends(write_knowledge)],
+    )
+    def invalidate_relation(
+        relation_id: uuid.UUID,
+        payload: schemas.RelationInvalidate,
+        session: Session = Depends(get_session),
+    ):
+        try:
+            return repository.invalidate_relation(session, relation_id, payload)
+        except repository.MissingReferenceError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except repository.ConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     @app.post(
         "/api/v1/evidence",
@@ -192,9 +218,16 @@ def create_app(
     @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_knowledge)])
     def graph(
         limit: int = Query(default=500, ge=1, le=5000),
+        at: datetime | None = Query(default=None, description="Return graph edges valid at this instant"),
+        active_only: bool = Query(default=False, description="Return graph edges valid now; ignored when at is supplied"),
         session: Session = Depends(get_session),
     ):
-        nodes, edges = repository.get_graph(session, limit=limit)
+        nodes, edges = repository.get_graph(
+            session,
+            limit=limit,
+            at=at,
+            active_only=active_only,
+        )
         return schemas.GraphResponse(
             nodes=[schemas.EntityRead.model_validate(node) for node in nodes],
             edges=[
@@ -205,6 +238,8 @@ def create_app(
                     type=edge.relation_type_id,
                     confidence=edge.confidence,
                     verification_state=edge.verification_state,
+                    valid_from=edge.valid_from,
+                    valid_to=edge.valid_to,
                 )
                 for edge in edges
             ],
