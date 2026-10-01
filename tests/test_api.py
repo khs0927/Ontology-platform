@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from sion_api.auth import AuthPolicy
 from sion_api.main import create_app
 
 
@@ -238,3 +239,71 @@ def test_aec_federation_query_is_read_only_and_advisory():
         assert body["read_only"] is True
         assert body["result"]["route"] == "GLOBAL_MEMORY"
         assert adapter.calls == [("door near lobby", 4, "P-AEC")]
+
+
+def test_bearer_scope_enforces_least_privilege():
+    token = "read-aec-token-1234567890"
+    policy = AuthPolicy(
+        mode="bearer",
+        token_scopes=((token, frozenset({"read:aec"})),),
+    )
+    adapter = FakeAecAdapter()
+    app = create_app(
+        database_url="sqlite://",
+        auto_create_schema=True,
+        aec_adapter=adapter,
+        auth_policy=policy,
+    )
+    headers = {"Authorization": f"Bearer {token}"}
+    with TestClient(app) as c:
+        missing = c.get("/api/v1/aec/status")
+        assert missing.status_code == 401
+
+        allowed = c.get("/api/v1/aec/status", headers=headers)
+        assert allowed.status_code == 200
+
+        denied_read = c.get("/api/v1/entities", headers=headers)
+        assert denied_read.status_code == 403
+        assert "read:knowledge" in denied_read.json()["detail"]
+
+        denied_write = c.post(
+            "/api/v1/entities",
+            headers=headers,
+            json={
+                "stable_key": "concept:blocked",
+                "entity_type_id": "Concept",
+                "name": "Blocked",
+                "properties": {},
+            },
+        )
+        assert denied_write.status_code == 403
+        assert "write:knowledge" in denied_write.json()["detail"]
+
+
+def test_bearer_wildcard_token_can_read_and_write_knowledge():
+    token = "admin-token-123456789012"
+    policy = AuthPolicy(
+        mode="bearer",
+        token_scopes=((token, frozenset({"*"})),),
+    )
+    app = create_app(
+        database_url="sqlite://",
+        auto_create_schema=True,
+        auth_policy=policy,
+    )
+    headers = {"Authorization": f"Bearer {token}"}
+    with TestClient(app) as c:
+        created = c.post(
+            "/api/v1/entities",
+            headers=headers,
+            json={
+                "stable_key": "concept:authorized",
+                "entity_type_id": "Concept",
+                "name": "Authorized",
+                "properties": {},
+            },
+        )
+        assert created.status_code == 201, created.text
+        listed = c.get("/api/v1/entities", headers=headers)
+        assert listed.status_code == 200
+        assert len(listed.json()) == 1

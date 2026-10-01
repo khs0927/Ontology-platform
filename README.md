@@ -66,3 +66,24 @@ $env:SION_AEC_MCP_COMMAND = "aec-mcp"
 ```
 
 Allowed federation calls are limited to `aec.get_object`, `aec.query_global_memory`, `aec.graph_backend_plan`, and the in-memory `aec.graph_hydradb_preview`. Canonical Sion persistence remains independent.
+
+
+### API security
+
+Sion is local-only by default. Requests to `/api/v1/*` from loopback clients work without a token, while remote clients are rejected.
+
+For remote access, configure scoped bearer authentication:
+
+```powershell
+$env:SION_API_AUTH_MODE = "bearer"
+$env:SION_API_TOKENS_JSON = '{"replace-with-long-token":["read:aec","read:knowledge"],"replace-with-admin-token":["*"]}'
+```
+
+Supported scopes:
+- `read:aec` — AEC/CAIR federation status and queries.
+- `read:knowledge` — ontology schema, inventories, entities, relations, evidence, graph, artifacts, and vector search.
+- `write:knowledge` — entity/relation/evidence/artifact/embedding writes.
+- `*` — all scopes.
+
+`local-or-bearer` is also available when loopback access should remain token-free while remote callers use bearer tokens. Tokens are compared in constant time and are never written to API responses.
+
