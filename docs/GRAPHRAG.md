@@ -32,6 +32,28 @@ CREATE EXTENSION IF NOT EXISTS age;
 -- postgresql.conf: shared_preload_libraries = 'age'
 ```
 
+### Sharing the Ontology pipeline's PostgreSQL
+
+The Ontology pipeline's `aec-postgres-age` container (PostgreSQL 16 with AGE
+and pgvector, host port `55432`) can host the projection in a separate
+database. `scripts/graphrag_db_setup.sql` creates `sion_graphrag` and loads
+AGE per session through `session_preload_libraries`, so the server config
+does not change:
+
+```bash
+psql -h localhost -p 55432 -U aec -d aec -f scripts/graphrag_db_setup.sql
+```
+
+```bash
+POSTGRES_HOST=localhost
+POSTGRES_PORT=55432
+POSTGRES_USER=aec
+POSTGRES_PASSWORD=<AEC_DB_PASSWORD>
+POSTGRES_DATABASE=sion_graphrag
+SION_GRAPHRAG_STORAGE=postgres
+SION_GRAPHRAG_WORKSPACE=sion
+```
+
 `SION_GRAPHRAG_STORAGE=local` uses LightRAG's file stores under
 `SION_GRAPHRAG_WORKING_DIR` (default `runtime/graphrag`) for machines without
 AGE.
@@ -61,6 +83,8 @@ when the engine starts.
 ## Verified
 
 - `tests/test_graphrag.py` round-trips on local storage.
+- Manually verified with the `session_preload_libraries` setup above (no
+  `shared_preload_libraries`) on the same versions, with the same result.
 - Manually verified on PostgreSQL 16 + Apache AGE 1.6.0 + pgvector 0.6.0:
   two projections left 2 graph nodes, 1 edge, 2 entity vectors and 3 chunk
   vectors, and a `mix` query returned the door entity with its DWG evidence.
