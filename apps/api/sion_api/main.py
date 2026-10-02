@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
+from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 
 from . import models, repository, schemas, vector_repository
@@ -24,6 +25,7 @@ def create_app(
     auto_create_schema: bool | None = None,
     aec_adapter: AecCairAdapter | None = None,
     auth_policy: AuthPolicy | None = None,
+    graphrag: SionGraphRag | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -75,6 +77,11 @@ def create_app(
         aec_config = AecCairConfig.from_env()
         aec_adapter = AecCairAdapter(aec_config) if aec_config is not None else None
     app.state.aec_adapter = aec_adapter
+
+    if graphrag is None:
+        graphrag_config = GraphRagConfig.from_env()
+        graphrag = SionGraphRag(graphrag_config) if graphrag_config is not None else None
+    app.state.graphrag = graphrag
 
     app.add_middleware(
         CORSMiddleware,
@@ -350,6 +357,44 @@ def create_app(
             "read_only": True,
             "result": result,
         }
+
+    def require_graphrag() -> SionGraphRag:
+        if graphrag is None:
+            raise HTTPException(status_code=503, detail="GraphRAG layer is not configured")
+        return graphrag
+
+    @app.get("/api/v1/graphrag/status", dependencies=[Depends(read_knowledge)])
+    def graphrag_status():
+        if graphrag is None:
+            return {"configured": False, "canonical": False}
+        config = graphrag.config
+        return {
+            "configured": True,
+            "canonical": False,
+            "engine": "lightrag",
+            "storage": config.storage,
+            "workspace": config.workspace,
+            "embedding_model": config.embedding_model,
+            "answers_enabled": config.answers_enabled,
+        }
+
+    @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
+    async def graphrag_project():
+        engine = require_graphrag()
+        try:
+            written = await engine.project(factory)
+        except GraphRagUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        return {"canonical": False, "written": written}
+
+    @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
+    async def graphrag_query(payload: schemas.GraphRagQuery):
+        engine = require_graphrag()
+        try:
+            result = await engine.query(payload.question, mode=payload.mode, top_k=payload.top_k)
+        except GraphRagUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        return {"canonical": False, **result}
 
     return app
 
