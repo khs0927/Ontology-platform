@@ -16,6 +16,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+graphrag = [
+  "lightrag-hku==1.5.7",
+  "asyncpg==0.31.0",
+  "pgvector==0.5.0",
+]
 test = [
   "httpx==0.28.1",
   "pytest==9.1.1",
@@ -26,9 +31,10 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.setuptools]
-packages = ["sion_api", "sion_ingestion", "sion_drive_store"]
+packages = ["sion_api", "sion_ingestion", "sion_drive_store", "sion_graphrag"]
 
 [tool.setuptools.package-dir]
 sion_api = "apps/api/sion_api"
 sion_ingestion = "packages/ingestion/sion_ingestion"
 sion_drive_store = "packages/drive-store/sion_drive_store"
+sion_graphrag = "packages/graphrag/sion_graphrag"

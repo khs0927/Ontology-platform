@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Literal
 import uuid
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -199,3 +199,9 @@ class ArtifactRead(ArtifactCreate):
 
     id: uuid.UUID
     created_at: datetime
+
+
+class GraphRagQuery(BaseModel):
+    question: str = Field(min_length=1, max_length=2000)
+    mode: Literal["local", "global", "hybrid", "naive", "mix"] = "mix"
+    top_k: int = Field(default=20, ge=1, le=200)
