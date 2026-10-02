@@ -1,0 +1,35 @@
+name: Hindsight advisory memory
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ingestion/sion_ingestion/advisory_memory.py"
+      - "scripts/run_hindsight_memory.py"
+      - "tests/test_advisory_memory.py"
+      - "docs/HINDSIGHT_MEMORY.md"
+      - ".github/workflows/hindsight-advisory.yml"
+  push:
+    branches:
+      - "feat/hindsight-advisory-memory-*"
+
+permissions:
+  contents: read
+
+jobs:
+  advisory-memory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+      - name: Compile
+        run: python -m compileall -q packages/ingestion/sion_ingestion/advisory_memory.py scripts/run_hindsight_memory.py
+      - name: Test advisory memory
+        run: python -m pytest -q tests/test_advisory_memory.py
