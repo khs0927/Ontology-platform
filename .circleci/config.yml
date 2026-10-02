@@ -1,0 +1,23 @@
+version: 2.1
+
+# Mirrors .github/workflows/tests.yml so the connected CircleCI project
+# reports the same pytest result instead of "no configuration".
+jobs:
+  pytest:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run:
+          name: Install package with test and GraphRAG extras
+          command: |
+            python -m pip install --upgrade pip
+            python -m pip install -e ".[test,graphrag]"
+      - run:
+          name: Run tests
+          command: python -m pytest
+
+workflows:
+  tests:
+    jobs:
+      - pytest
