@@ -115,7 +115,10 @@ class AecCairAdapter:
             if isinstance(value, dict):
                 responses.append(value)
 
-        response = next((row for row in responses if row.get("id") == 2), None)
+        tool_responses = [row for row in responses if type(row.get("id")) is int and row["id"] == 2]
+        if len(tool_responses) > 1:
+            raise AecCairError("Ontology MCP returned duplicate tool responses")
+        response = tool_responses[0] if tool_responses else None
         if response is None:
             raise AecCairError("Ontology MCP returned no tool response")
         if "error" in response:
@@ -123,6 +126,8 @@ class AecCairAdapter:
         result = response.get("result")
         if not isinstance(result, dict):
             raise AecCairError("Ontology MCP returned an invalid tool result")
+        if result.get("isError") is True:
+            raise AecCairError("Ontology MCP returned an error tool result")
         structured = result.get("structuredContent")
         if not isinstance(structured, dict):
             raise AecCairError("Ontology MCP result has no structuredContent")
