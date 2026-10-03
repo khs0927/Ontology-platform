@@ -267,6 +267,8 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
                         "schema": "aec-executor-handoff/1",
                         "producer": "khs0927/Ontology",
                         "consumers": ["khs0927/power-cad-mcp", "khs0927/All-In-Cad"],
+                        "verified_consumers": ["khs0927/power-cad-mcp", "khs0927/All-In-Cad"],
+                        "pending_consumers": [],
                         "purpose": "test",
                         "invariants": ["execution_authorized=false"],
                         "verification": {
@@ -281,6 +283,8 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
                         "schema": "cad-drawing-grammar/1",
                         "producer": "khs0927/HS-CAD",
                         "consumers": ["khs0927/power-cad-mcp"],
+                        "verified_consumers": [],
+                        "pending_consumers": ["khs0927/power-cad-mcp"],
                         "purpose": "test",
                         "invariants": ["read-only"],
                         "verification": {
@@ -337,6 +341,42 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
         assert pending.status_code == 200
         assert pending.json()["count"] == 1
         assert pending.json()["contracts"][0]["id"] == "cad-drawing-grammar"
+
+
+def test_project_contract_catalog_rejects_unclassified_consumers(tmp_path):
+    registry = tmp_path / "integration.contracts.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "project_contracts": [
+                    {
+                        "id": "bad-contract",
+                        "schema": "bad/1",
+                        "producer": "khs0927/source",
+                        "consumers": ["khs0927/consumer"],
+                        "verified_consumers": [],
+                        "pending_consumers": [],
+                        "purpose": "invalid fixture",
+                        "invariants": ["read-only"],
+                        "verification": {
+                            "status": "declared",
+                            "scope": "test fixture",
+                            "evidence": ["https://example.invalid/ci"],
+                            "real_cad_e2e": False,
+                        },
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    try:
+        ProjectContractCatalog(registry)
+    except Exception as exc:
+        assert "verified or pending" in str(exc)
+    else:
+        raise AssertionError("unclassified consumer must be rejected")
 
 
 def test_bearer_scope_enforces_least_privilege():
