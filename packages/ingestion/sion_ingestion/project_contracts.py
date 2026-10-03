@@ -68,6 +68,7 @@ class ProjectContractCatalog:
                 "verified_in_ci",
                 "producer_verified_consumer_pending",
                 "reference_contract_verified",
+                "partial_consumers_verified",
                 "declared",
             }
             if status not in allowed_status:
