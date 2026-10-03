@@ -60,6 +60,29 @@ class ProjectContractCatalog:
                 raise ProjectContractCatalogError(f"invalid consumers for {contract_id}")
             if not row.get("schema") and not row.get("contract"):
                 raise ProjectContractCatalogError(f"schema or contract required for {contract_id}")
+            verification = row.get("verification")
+            if not isinstance(verification, dict):
+                raise ProjectContractCatalogError(f"verification required for {contract_id}")
+            status = verification.get("status")
+            allowed_status = {
+                "verified_in_ci",
+                "producer_verified_consumer_pending",
+                "reference_contract_verified",
+                "declared",
+            }
+            if status not in allowed_status:
+                raise ProjectContractCatalogError(
+                    f"invalid verification status for {contract_id}: {status}"
+                )
+            evidence = verification.get("evidence")
+            if not isinstance(evidence, list) or not evidence:
+                raise ProjectContractCatalogError(
+                    f"verification evidence required for {contract_id}"
+                )
+            if not isinstance(verification.get("real_cad_e2e"), bool):
+                raise ProjectContractCatalogError(
+                    f"real_cad_e2e boolean required for {contract_id}"
+                )
             seen.add(contract_id)
             normalized.append(dict(row))
         return normalized
@@ -70,6 +93,7 @@ class ProjectContractCatalog:
         producer: str | None = None,
         consumer: str | None = None,
         schema: str | None = None,
+        verification_status: str | None = None,
     ) -> list[dict[str, Any]]:
         rows = self.read()
         if producer is not None:
@@ -78,4 +102,10 @@ class ProjectContractCatalog:
             rows = [row for row in rows if consumer in row.get("consumers", [])]
         if schema is not None:
             rows = [row for row in rows if row.get("schema") == schema]
+        if verification_status is not None:
+            rows = [
+                row
+                for row in rows
+                if (row.get("verification") or {}).get("status") == verification_status
+            ]
         return rows
