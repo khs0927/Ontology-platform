@@ -383,6 +383,7 @@ def create_app(
         producer: str | None = Query(default=None, max_length=200),
         consumer: str | None = Query(default=None, max_length=200),
         schema: str | None = Query(default=None, max_length=200),
+        verification_status: str | None = Query(default=None, max_length=80),
     ):
         if project_contract_catalog is None or not project_contract_catalog.enabled:
             raise HTTPException(status_code=503, detail="project contract registry is not configured")
@@ -391,6 +392,7 @@ def create_app(
                 producer=producer,
                 consumer=consumer,
                 schema=schema,
+                verification_status=verification_status,
             )
         except ProjectContractCatalogError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
