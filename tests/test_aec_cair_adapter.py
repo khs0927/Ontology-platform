@@ -64,3 +64,16 @@ def test_adapter_surfaces_tool_failures(tmp_path: Path, monkeypatch):
     monkeypatch.setattr("sion_ingestion.aec_cair.subprocess.run", fake_run)
     with pytest.raises(AecCairError, match="boom"):
         _adapter(tmp_path).get_object("aec://object/1")
+
+
+@pytest.mark.parametrize("duplicate", [False, True])
+def test_adapter_rejects_error_and_duplicate_tool_results(tmp_path: Path, monkeypatch, duplicate):
+    payload = {"jsonrpc": "2.0", "id": 2, "result": {
+        "isError": not duplicate, "structuredContent": {"status": "OK"}}}
+    stdout = json.dumps(payload) + "\n"
+    if duplicate:
+        stdout += json.dumps(payload) + "\n"
+    monkeypatch.setattr("sion_ingestion.aec_cair.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(returncode=0, stdout=stdout, stderr=""))
+    with pytest.raises(AecCairError, match="duplicate|error tool result"):
+        _adapter(tmp_path).get_object("aec://object/1")
