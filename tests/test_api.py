@@ -269,6 +269,12 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
                         "consumers": ["khs0927/power-cad-mcp", "khs0927/All-In-Cad"],
                         "purpose": "test",
                         "invariants": ["execution_authorized=false"],
+                        "verification": {
+                            "status": "verified_in_ci",
+                            "scope": "test fixture",
+                            "evidence": ["https://example.invalid/ci/1"],
+                            "real_cad_e2e": False,
+                        },
                     },
                     {
                         "id": "cad-drawing-grammar",
@@ -277,6 +283,12 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
                         "consumers": ["khs0927/power-cad-mcp"],
                         "purpose": "test",
                         "invariants": ["read-only"],
+                        "verification": {
+                            "status": "producer_verified_consumer_pending",
+                            "scope": "test fixture",
+                            "evidence": ["https://example.invalid/ci/2"],
+                            "real_cad_e2e": False,
+                        },
                     },
                 ]
             }
@@ -309,6 +321,22 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
         assert by_schema.status_code == 200
         assert by_schema.json()["count"] == 1
         assert by_schema.json()["contracts"][0]["producer"] == "khs0927/Ontology"
+
+        verified = c.get(
+            "/api/v1/contracts",
+            params={"verification_status": "verified_in_ci"},
+        )
+        assert verified.status_code == 200
+        assert verified.json()["count"] == 1
+        assert verified.json()["contracts"][0]["id"] == "aec-source-to-cad-executor"
+
+        pending = c.get(
+            "/api/v1/contracts",
+            params={"verification_status": "producer_verified_consumer_pending"},
+        )
+        assert pending.status_code == 200
+        assert pending.json()["count"] == 1
+        assert pending.json()["contracts"][0]["id"] == "cad-drawing-grammar"
 
 
 def test_bearer_scope_enforces_least_privilege():
