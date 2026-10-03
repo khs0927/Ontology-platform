@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
+
 from fastapi.testclient import TestClient
 
 from sion_api.auth import AuthPolicy
 from sion_api.main import create_app
+from sion_ingestion.project_contracts import ProjectContractCatalog
 
 
 def client() -> TestClient:
@@ -239,6 +242,73 @@ def test_aec_federation_query_is_read_only_and_advisory():
         assert body["read_only"] is True
         assert body["result"]["route"] == "GLOBAL_MEMORY"
         assert adapter.calls == [("door near lobby", 4, "P-AEC")]
+
+
+def test_project_contract_catalog_is_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("SION_PROJECT_CONTRACTS_PATH", raising=False)
+    app = create_app(database_url="sqlite://", auto_create_schema=True)
+    with TestClient(app) as c:
+        status = c.get("/api/v1/contracts/status")
+        assert status.status_code == 200
+        assert status.json()["configured"] is False
+        assert status.json()["mode"] == "read_only_catalog"
+        result = c.get("/api/v1/contracts")
+        assert result.status_code == 503
+
+
+def test_project_contract_catalog_filters_without_mutation(tmp_path):
+    registry = tmp_path / "integration.contracts.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "project_contracts": [
+                    {
+                        "id": "aec-source-to-cad-executor",
+                        "schema": "aec-executor-handoff/1",
+                        "producer": "khs0927/Ontology",
+                        "consumers": ["khs0927/power-cad-mcp", "khs0927/All-In-Cad"],
+                        "purpose": "test",
+                        "invariants": ["execution_authorized=false"],
+                    },
+                    {
+                        "id": "cad-drawing-grammar",
+                        "schema": "cad-drawing-grammar/1",
+                        "producer": "khs0927/HS-CAD",
+                        "consumers": ["khs0927/power-cad-mcp"],
+                        "purpose": "test",
+                        "invariants": ["read-only"],
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    catalog = ProjectContractCatalog(registry)
+    app = create_app(
+        database_url="sqlite://",
+        auto_create_schema=True,
+        project_contract_catalog=catalog,
+    )
+    with TestClient(app) as c:
+        status = c.get("/api/v1/contracts/status")
+        assert status.status_code == 200
+        assert status.json()["enabled"] is True
+
+        by_consumer = c.get(
+            "/api/v1/contracts",
+            params={"consumer": "khs0927/power-cad-mcp"},
+        )
+        assert by_consumer.status_code == 200
+        assert by_consumer.json()["count"] == 2
+        assert by_consumer.json()["read_only"] is True
+
+        by_schema = c.get(
+            "/api/v1/contracts",
+            params={"schema": "aec-executor-handoff/1"},
+        )
+        assert by_schema.status_code == 200
+        assert by_schema.json()["count"] == 1
+        assert by_schema.json()["contracts"][0]["producer"] == "khs0927/Ontology"
 
 
 def test_bearer_scope_enforces_least_privilege():
