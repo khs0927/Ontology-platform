@@ -84,6 +84,37 @@ class ProjectContractCatalog:
                 raise ProjectContractCatalogError(
                     f"real_cad_e2e boolean required for {contract_id}"
                 )
+
+            consumers = row.get("consumers")
+            verified_consumers = row.get("verified_consumers")
+            pending_consumers = row.get("pending_consumers")
+            if (
+                not isinstance(consumers, list)
+                or not isinstance(verified_consumers, list)
+                or not isinstance(pending_consumers, list)
+            ):
+                raise ProjectContractCatalogError(
+                    f"consumer verification lists required for {contract_id}"
+                )
+            declared = set(consumers)
+            verified = set(verified_consumers)
+            pending = set(pending_consumers)
+            if verified & pending:
+                raise ProjectContractCatalogError(
+                    f"consumer cannot be both verified and pending for {contract_id}"
+                )
+            if verified | pending != declared:
+                raise ProjectContractCatalogError(
+                    f"every consumer must be verified or pending for {contract_id}"
+                )
+            if status == "verified_in_ci" and pending:
+                raise ProjectContractCatalogError(
+                    f"verified_in_ci cannot have pending consumers for {contract_id}"
+                )
+            if status == "partial_consumers_verified" and (not verified or not pending):
+                raise ProjectContractCatalogError(
+                    f"partial consumer verification requires both sets for {contract_id}"
+                )
             seen.add(contract_id)
             normalized.append(dict(row))
         return normalized
