@@ -12,6 +12,10 @@ from sqlalchemy.orm import Session
 
 from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
+from sion_ingestion.project_contracts import (
+    ProjectContractCatalog,
+    ProjectContractCatalogError,
+)
 
 from . import models, repository, schemas, vector_repository
 from .auth import AuthPolicy, require_scope
@@ -26,6 +30,7 @@ def create_app(
     aec_adapter: AecCairAdapter | None = None,
     auth_policy: AuthPolicy | None = None,
     graphrag: SionGraphRag | None = None,
+    project_contract_catalog: ProjectContractCatalog | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -77,6 +82,10 @@ def create_app(
         aec_config = AecCairConfig.from_env()
         aec_adapter = AecCairAdapter(aec_config) if aec_config is not None else None
     app.state.aec_adapter = aec_adapter
+
+    if project_contract_catalog is None:
+        project_contract_catalog = ProjectContractCatalog.from_env()
+    app.state.project_contract_catalog = project_contract_catalog
 
     if graphrag is None:
         graphrag_config = GraphRagConfig.from_env()
@@ -356,6 +365,41 @@ def create_app(
             "canonical": False,
             "read_only": True,
             "result": result,
+        }
+
+    @app.get("/api/v1/contracts/status", dependencies=[Depends(read_knowledge)])
+    def project_contract_status():
+        enabled = project_contract_catalog is not None and project_contract_catalog.enabled
+        return {
+            "configured": project_contract_catalog is not None,
+            "enabled": enabled,
+            "mode": "read_only_catalog",
+            "source": "khs0927/All-in-memory",
+            "canonical": False,
+        }
+
+    @app.get("/api/v1/contracts", dependencies=[Depends(read_knowledge)])
+    def project_contracts(
+        producer: str | None = Query(default=None, max_length=200),
+        consumer: str | None = Query(default=None, max_length=200),
+        schema: str | None = Query(default=None, max_length=200),
+    ):
+        if project_contract_catalog is None or not project_contract_catalog.enabled:
+            raise HTTPException(status_code=503, detail="project contract registry is not configured")
+        try:
+            rows = project_contract_catalog.find(
+                producer=producer,
+                consumer=consumer,
+                schema=schema,
+            )
+        except ProjectContractCatalogError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {
+            "source": "khs0927/All-in-memory",
+            "canonical": False,
+            "read_only": True,
+            "count": len(rows),
+            "contracts": rows,
         }
 
     def require_graphrag() -> SionGraphRag:
