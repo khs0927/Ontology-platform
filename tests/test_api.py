@@ -372,7 +372,7 @@ def test_project_contract_catalog_rejects_unclassified_consumers(tmp_path):
     )
 
     try:
-        ProjectContractCatalog(registry)
+        ProjectContractCatalog(registry).read()
     except Exception as exc:
         assert "verified or pending" in str(exc)
     else:
