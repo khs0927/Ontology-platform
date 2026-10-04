@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -27,7 +27,18 @@ def build_engine(database_url: str) -> Engine:
             parents=True, exist_ok=True
         )
         options["connect_args"] = {"check_same_thread": False}
-    return create_engine(database_url, **options)
+
+    engine = create_engine(database_url, **options)
+    if engine.dialect.name == "sqlite":
+        @event.listens_for(engine, "connect")
+        def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record):
+            cursor = dbapi_connection.cursor()
+            try:
+                cursor.execute("PRAGMA foreign_keys=ON")
+            finally:
+                cursor.close()
+
+    return engine
 
 
 def build_session_factory(engine: Engine) -> sessionmaker[Session]:
