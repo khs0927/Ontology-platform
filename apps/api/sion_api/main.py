@@ -222,6 +222,8 @@ def create_app(
             return repository.create_evidence(session, payload)
         except repository.MissingReferenceError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except repository.ConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead], dependencies=[Depends(read_knowledge)])
     def list_evidence(
