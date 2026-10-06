@@ -581,3 +581,56 @@ def test_temporal_invalidation_rejects_time_before_valid_from():
             json={"valid_to": "2026-04-01T00:00:00+00:00"},
         )
         assert rejected.status_code == 409
+
+
+def test_rejects_values_postgres_check_constraints_would_reject():
+    with client() as c:
+        ids = []
+        for key, type_id in (("project:a", "Project"), ("tool:b", "Tool")):
+            response = c.post(
+                "/api/v1/entities",
+                json={"stable_key": key, "entity_type_id": type_id, "name": key},
+            )
+            assert response.status_code == 201, response.text
+            ids.append(response.json()["id"])
+        a, b = ids
+
+        bad_state = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "a:USES:b",
+                "source_entity_id": a,
+                "target_entity_id": b,
+                "relation_type_id": "USES",
+                "verification_state": "bogus",
+            },
+        )
+        assert bad_state.status_code == 422
+
+        typed_self_loop = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "a:USES:a",
+                "source_entity_id": a,
+                "target_entity_id": a,
+                "relation_type_id": "USES",
+            },
+        )
+        assert typed_self_loop.status_code == 422
+
+        related_self_loop = c.post(
+            "/api/v1/relations",
+            json={
+                "stable_key": "a:RELATED_TO:a",
+                "source_entity_id": a,
+                "target_entity_id": a,
+                "relation_type_id": "RELATED_TO",
+            },
+        )
+        assert related_self_loop.status_code == 201, related_self_loop.text
+
+        bad_evidence = c.post(
+            "/api/v1/evidence",
+            json={"entity_id": a, "source_uri": "file:///x", "verification_state": "bogus"},
+        )
+        assert bad_evidence.status_code == 422
