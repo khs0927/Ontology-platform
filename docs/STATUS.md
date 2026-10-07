@@ -194,8 +194,8 @@ They have separate runtimes (.NET/AutoCAD, ZWCAD COM, Node), and none of them wa
 
 Still needs the owner's decision:
 1. Purge the two historical `bin/sion-agent-bridge.exe` blobs (~74 MB of the 73.7 MiB pack) from
-   history. This rewrites history and needs a force push, so it was not done.
-2. Archive the merged source repos (ArchOntos, Ontology, GOD-CAD) and CAD-MCP. Not done.
+   history. This rewrites history and needs a force push, so it was not done. **Done later with approval; see the follow-up below.**
+2. Archive the merged source repos (ArchOntos, Ontology, GOD-CAD) and CAD-MCP. Not done. **Done later with approval; see the follow-up below.**
 3. Structured 31-node/43-edge map export. Still not fabricated.
 
 ## Follow-up 2026-10-08 (KST)
@@ -208,3 +208,11 @@ Still needs the owner's decision:
 - aec `POST /v1/search` now accepts power-cad-mcp's `model` hint and rejects a model other than
   `AEC_EMBEDDING_MODEL` with 422 (previously ignored silently).
 - #20 and #21 were closed as superseded (#22–#27 and the follow-up PR).
+- History purge (user-approved): `bin/sion-agent-bridge.exe` was removed from all history with
+  `git filter-repo`. Pack size went from 75.7 MiB to 2.6 MiB; v0.2.0 release assets are unchanged.
+  A pre-rewrite mirror and an all-refs bundle are kept outside the repository.
+- The 25 binary files left out of the Ontology import (`fixtures/simple_house.dwg` and 24
+  `global/**/*.parquet` companions) are restored byte-identical in `packages/aec`. The three DWG
+  tests are back to their Ontology originals (the "fixture not in the monorepo" guards were removed),
+  so `packages/aec` now holds every file of Ontology `master` (d39a56a). ArchOntos, GOD-CAD and
+  CAD-MCP are archived read-only; Ontology is archived after this change.
