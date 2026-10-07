@@ -48,3 +48,17 @@ sion_api = "apps/api/sion_api"
 sion_ingestion = "packages/ingestion/sion_ingestion"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+extend-exclude = ["build", "dist", "bin"]
+
+[tool.ruff.lint]
+# Correctness-focused set; style rules are intentionally not enforced yet.
+select = ["E4", "E7", "E9", "F", "B"]
+ignore = ["B008"]  # FastAPI Depends()/Query() defaults are idiomatic
+
+[tool.ruff.lint.per-file-ignores]
+"sync/sion_sync.py" = ["E701", "E702"]  # deliberately compact standalone script
+"scripts/*.py" = ["E402"]  # sys.path bootstrap before imports
