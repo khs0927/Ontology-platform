@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/hs-steel-draw-plan-1.schema.json",
+  "title": "hs-steel-draw-plan/1",
+  "description": "Producer: hs-steel-cad DrawPlan.ToPowerCadHandoff (src/HsSteel.Drafting/DrawPlan.cs, pinned 233a4a4), exposed as MCP tool hs_draw_plan_handoff. Consumer: power-cad-mcp. A non-authorizing handoff: each row keeps the strict Power CAD create 'spec' apart from the HS-STEEL 'tag'. contract_digest = lowercase hex SHA-256 of the payload without contract_digest, serialized as canonical JSON (object keys sorted ordinally, no whitespace).",
+  "type": "object",
+  "required": [
+    "schema",
+    "producer",
+    "title",
+    "units",
+    "scale",
+    "meta",
+    "entities",
+    "execution_authorized",
+    "may_execute_mutation",
+    "requires_live_document_binding",
+    "tags_require_xdata_persistence",
+    "contract_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "hs-steel-draw-plan/1"
+    },
+    "producer": {
+      "const": "khs0927/hs-steel-cad"
+    },
+    "title": {
+      "type": "string"
+    },
+    "units": {
+      "const": "mm"
+    },
+    "scale": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "meta": {
+      "type": "object"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "spec",
+          "tag"
+        ],
+        "properties": {
+          "spec": {
+            "type": "object",
+            "required": [
+              "type",
+              "layer"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "arc",
+                  "circle",
+                  "dimension",
+                  "insert",
+                  "leader",
+                  "line",
+                  "polyline",
+                  "text"
+                ]
+              },
+              "layer": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "not": {
+              "required": [
+                "hs"
+              ]
+            }
+          },
+          "tag": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "may_execute_mutation": {
+      "const": false
+    },
+    "requires_live_document_binding": {
+      "const": true
+    },
+    "tags_require_xdata_persistence": {
+      "const": true
+    },
+    "contract_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "additionalProperties": false
+}

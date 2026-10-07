@@ -3,13 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any, Literal
-import uuid
 
 from pydantic import BaseModel, Field, model_validator
+from sion_api import models
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
-from sion_api import models
 
 
 class GraphImportError(ValueError):

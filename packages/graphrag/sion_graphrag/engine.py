@@ -7,8 +7,8 @@ provider packages at runtime.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -103,7 +103,7 @@ class SionGraphRag:
             from lightrag import LightRAG
             from lightrag.utils import EmbeddingFunc
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
-            raise GraphRagUnavailable("install the 'graphrag' extra (lightrag-hku)") from exc
+            raise GraphRagUnavailable("install the 'rag' extra: pip install 'sion-ontology-platform[rag]' (lightrag-hku)") from exc
         config = self.config
         embed = self._embedding_func
         if embed is None:

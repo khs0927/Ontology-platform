@@ -1,0 +1,13 @@
+{
+  "command": "move_layer",
+  "params": {
+    "layer": "A-WALL",
+    "dx": 100,
+    "dy": 0,
+    "dz": 0
+  },
+  "safety": {
+    "backup_required": true,
+    "preview_required": true
+  }
+}

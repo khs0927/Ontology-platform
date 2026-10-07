@@ -1,0 +1,417 @@
+{
+  "$defs": {
+    "Edge": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "graph": {
+          "enum": [
+            "topology",
+            "semantic",
+            "edit"
+          ],
+          "title": "Graph",
+          "type": "string"
+        },
+        "relation": {
+          "enum": [
+            "touches_at_endpoint",
+            "represented_by",
+            "requires_update"
+          ],
+          "title": "Relation",
+          "type": "string"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "graph",
+        "relation",
+        "evidence"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceRef"
+        },
+        "cad_type": {
+          "title": "Cad Type",
+          "type": "string"
+        },
+        "layer": {
+          "title": "Layer",
+          "type": "string"
+        },
+        "layer_locked": {
+          "default": false,
+          "title": "Layer Locked",
+          "type": "boolean"
+        },
+        "geometry": {
+          "$ref": "#/$defs/Geometry"
+        },
+        "analysis_supported": {
+          "title": "Analysis Supported",
+          "type": "boolean"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "cad_type",
+        "layer",
+        "geometry",
+        "analysis_supported"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "calibrated": {
+          "const": false,
+          "default": false,
+          "title": "Calibrated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "method",
+        "value",
+        "score"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Geometry": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "LINE",
+            "LWPOLYLINE",
+            "CIRCLE",
+            "ARC",
+            "UNSUPPORTED"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "points": {
+          "items": {
+            "maxItems": 3,
+            "minItems": 3,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius"
+        },
+        "start_angle": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Angle"
+        },
+        "end_angle": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Angle"
+        },
+        "closed": {
+          "default": false,
+          "title": "Closed",
+          "type": "boolean"
+        },
+        "coordinate_system": {
+          "const": "WCS",
+          "default": "WCS",
+          "title": "Coordinate System",
+          "type": "string"
+        },
+        "units": {
+          "const": "mm",
+          "default": "mm",
+          "title": "Units",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Geometry",
+      "type": "object"
+    },
+    "SemanticObject": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "class_uri": {
+          "title": "Class Uri",
+          "type": "string"
+        },
+        "status": {
+          "const": "candidate",
+          "default": "candidate",
+          "title": "Status",
+          "type": "string"
+        },
+        "entity_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Entity Ids",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "class_uri",
+        "entity_ids",
+        "evidence"
+      ],
+      "title": "SemanticObject",
+      "type": "object"
+    },
+    "SourceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "drawing_id": {
+          "minLength": 1,
+          "title": "Drawing Id",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "format": {
+          "enum": [
+            "DXF",
+            "DWG"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "layout": {
+          "default": "Model",
+          "title": "Layout",
+          "type": "string"
+        },
+        "handle": {
+          "pattern": "^[0-9A-F]+$",
+          "title": "Handle",
+          "type": "string"
+        },
+        "insert_path": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Insert Path",
+          "type": "array"
+        }
+      },
+      "required": [
+        "drawing_id",
+        "revision",
+        "format",
+        "handle"
+      ],
+      "title": "SourceRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "default": "0.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "drawing_id": {
+      "minLength": 1,
+      "title": "Drawing Id",
+      "type": "string"
+    },
+    "revision": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Revision",
+      "type": "string"
+    },
+    "source_name": {
+      "title": "Source Name",
+      "type": "string"
+    },
+    "source_format": {
+      "const": "DXF",
+      "default": "DXF",
+      "title": "Source Format",
+      "type": "string"
+    },
+    "source_units": {
+      "enum": [
+        "mm",
+        "cm",
+        "m",
+        "in",
+        "ft"
+      ],
+      "title": "Source Units",
+      "type": "string"
+    },
+    "unit_evidence": {
+      "enum": [
+        "header",
+        "user_override"
+      ],
+      "title": "Unit Evidence",
+      "type": "string"
+    },
+    "scope": {
+      "const": "modelspace_top_level",
+      "default": "modelspace_top_level",
+      "title": "Scope",
+      "type": "string"
+    },
+    "topology_tolerance_mm": {
+      "default": 0.1,
+      "exclusiveMinimum": 0,
+      "title": "Topology Tolerance Mm",
+      "type": "number"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/Entity"
+      },
+      "title": "Entities",
+      "type": "array"
+    },
+    "semantic_objects": {
+      "items": {
+        "$ref": "#/$defs/SemanticObject"
+      },
+      "title": "Semantic Objects",
+      "type": "array"
+    },
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/Edge"
+      },
+      "title": "Edges",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "drawing_id",
+    "revision",
+    "source_name",
+    "source_units",
+    "unit_evidence"
+  ],
+  "title": "Drawing",
+  "type": "object"
+}

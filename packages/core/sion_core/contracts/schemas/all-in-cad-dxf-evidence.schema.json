@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/all-in-cad-dxf-evidence.schema.json",
+  "title": "All-In-Cad DxfEvidence (model-space census)",
+  "description": "Shape of All-In-Cad all_in_cad.dxf_evidence.DxfEvidence (pinned 329f9ad): an ezdxf.recover census of model space. Sion produces the same shape with sion_cad.reader.dxf_census, so both lanes can be cross-checked (entity_count, layer_counts, ordered handles/types). Sion adds 'parser' and 'warnings'; auditor_has_errors is null when the built-in parser (no audit) was used.",
+  "type": "object",
+  "required": ["path", "entity_count", "layer_counts", "entities", "auditor_has_errors"],
+  "properties": {
+    "path": {"type": "string", "minLength": 1},
+    "entity_count": {"type": "integer", "minimum": 0},
+    "layer_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 1}},
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["handle", "dxftype", "layer"],
+        "properties": {
+          "handle": {"type": ["string", "null"], "pattern": "^[0-9A-Fa-f]+$"},
+          "dxftype": {"type": "string", "pattern": "^[A-Z0-9_]+$"},
+          "layer": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "auditor_has_errors": {"type": ["boolean", "null"]},
+    "parser": {"enum": ["ezdxf", "text-fallback"]},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

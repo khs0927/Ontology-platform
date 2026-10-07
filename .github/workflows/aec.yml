@@ -1,0 +1,132 @@
+name: AEC / CAD (Ontology + GOD-CAD)
+
+# CI for packages/aec (khs0927/Ontology, aec_intelligence) and packages/cad/god-cad
+# (khs0927/GOD-CAD), both merged via git subtree. Ported from their standalone
+# workflows. Both now read DXF through the shared sion_cad.reader, so the repo
+# root is installed (--no-deps; the reader is dependency-free) next to them.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  aec-intelligence:
+    name: aec_intelligence lint + tests + extensions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: packages/aec
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install test runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,cad,bim,shacl,semantic,parquet,operational]" pillow "ruff==0.16.10"
+          python -m pip install --no-deps -e ../..
+      - name: Lint (ruff, correctness rules from pyproject.toml)
+        run: ruff check src tests extensions
+      - name: Compile Python sources
+        run: python -m compileall -q src extensions
+      - name: Test core package
+        run: python -m pytest -q tests
+      - name: Test intelligence extension
+        env:
+          PYTHONPATH: extensions/intelligence_fabric
+        run: python -m pytest -q extensions/intelligence_fabric/tests/test_intelligence_fabric.py
+      - name: Test drawing-context safety contracts
+        env:
+          PYTHONPATH: extensions/drawing_context
+        run: python -m pytest -q extensions/drawing_context/tests
+      - name: Test external capability evidence contracts
+        env:
+          PYTHONPATH: extensions/external_capabilities
+        run: python -m pytest -q extensions/external_capabilities/tests
+
+  aec-operational-postgres:
+    name: aec_intelligence operational stack (PostgreSQL + AGE + pgvector + PostGIS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: packages/aec
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Build and start PostgreSQL (AGE + pgvector + PostGIS)
+        run: |
+          docker build -f docker/Dockerfile.db -t aec-postgres-age:ci docker
+          docker run -d --name aec-db -e POSTGRES_DB=aec -e POSTGRES_USER=aec \
+            -e POSTGRES_PASSWORD=ci -p 55432:5432 aec-postgres-age:ci
+          for i in $(seq 1 60); do docker exec aec-db pg_isready -U aec -d aec && break; sleep 1; done
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install test runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,cad,operational]"
+          python -m pip install --no-deps -e ../..
+      - name: Test operational stack against PostgreSQL
+        env:
+          AEC_TEST_DATABASE_URL: postgresql://aec:ci@localhost:55432/aec
+        run: python -m pytest -q -rs tests/test_operational_*.py tests/test_worker_resilience.py tests/test_phase2_ingest_resilience.py
+
+  aec-app-image:
+    name: aec_intelligence api/worker image (monorepo build context)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Build the api/worker image
+        run: |
+          # A decoy .env and private log must never reach the image (Dockerfile.app.dockerignore).
+          echo "AEC_API_TOKEN=ci-decoy-not-a-secret" > packages/aec/.env
+          mkdir -p packages/aec/logs && echo "decoy private log" > packages/aec/logs/decoy.log
+          DOCKER_BUILDKIT=1 docker build -f packages/aec/docker/Dockerfile.app -t aec-intelligence-app:ci .
+          rm -r packages/aec/.env packages/aec/logs
+      - name: Image hygiene (no .env/.git/.venv/logs, non-root, nothing else from the monorepo)
+        run: |
+          docker run --rm aec-intelligence-app:ci sh -c 'test ! -e /app/.env && test ! -e /app/.git && test ! -e /app/.venv && test ! -e /app/logs && test ! -e /app/packages && test "$(id -u)" != 0 && echo hygiene-ok'
+      - name: Smoke-test the image
+        run: |
+          docker run --rm aec-intelligence-app:ci python -c "import aec_intelligence.operational.api, aec_intelligence.dxf, sion_cad.reader, ezdxf, fitz, psycopg; print('ok')"
+          docker run --rm aec-intelligence-app:ci python -m aec_intelligence.operational.cli --help
+
+  god-cad:
+    name: GOD-CAD (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.12"]
+    defaults:
+      run:
+        working-directory: packages/cad/god-cad
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements-dev.lock
+      - run: python -m pip install --no-deps -e .
+      - run: python -m pip install --no-deps -e ../../..
+      - run: python -m ruff check .
+      - run: python -m ruff format --check .
+      - run: python -m pytest -q
+      - run: python scripts/export_schemas.py --check
+      - run: python scripts/demo.py --out artifacts/ci-demo
