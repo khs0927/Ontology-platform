@@ -38,3 +38,8 @@ sync_history.log
 Thumbs.db
 .idea/
 .vscode-test/
+
+# Built executables are published as GitHub Release assets, never committed
+bin/*.exe
+bin/sion-agent-bridge
+*.exe
