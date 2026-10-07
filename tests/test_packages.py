@@ -54,7 +54,7 @@ def test_require_names_the_extra():
 
 def test_extras_report_matches_registry():
     report = extras_report()
-    assert set(report) == set(EXTRAS) == {"cad", "bim", "rag", "drive"}
+    assert set(report) == set(EXTRAS) == {"cad", "bim", "rag", "drive", "regulation"}
     for extra, info in report.items():
         assert info["installed"] == (not info["missing"])
         assert info["installed"] == all(is_available(m) for m in EXTRAS[extra])
@@ -66,5 +66,5 @@ def test_extras_endpoint(tmp_path):
     app = create_app(database_url=f"sqlite:///{tmp_path / 'x.db'}")
     with TestClient(app) as client:
         body = client.get("/api/v1/system/extras").json()
-    assert set(body["extras"]) == {"cad", "bim", "rag", "drive"}
+    assert set(body["extras"]) == {"cad", "bim", "rag", "drive", "regulation"}
     assert body["version"]

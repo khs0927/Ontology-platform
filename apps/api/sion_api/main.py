@@ -21,7 +21,7 @@ from sion_ingestion.project_contracts import (
 )
 from sqlalchemy.orm import Session
 
-from . import __version__, models, repository, schemas, vector_repository
+from . import __version__, models, outbox, regulation, repository, schemas, vector_repository
 from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -515,6 +515,43 @@ def create_app(
     @app.post("/api/v1/ingest/ifc", dependencies=[Depends(write_knowledge)])
     def ingest_ifc_route(payload: dict, session: Session = Depends(get_session)):
         return ingest_ifc(session, single_file(payload, {".ifc"}, "ifc"))
+
+    # --- transactional outbox (pull consumers) ---------------------------------
+    @app.get("/api/v1/outbox", response_model=list[schemas.OutboxEventRead], dependencies=[Depends(read_knowledge)])
+    def list_outbox(
+        limit: int = Query(default=100, ge=1, le=1000),
+        session: Session = Depends(get_session),
+    ):
+        return outbox.pending(session, limit=limit)
+
+    @app.post("/api/v1/outbox/ack", dependencies=[Depends(write_knowledge)])
+    def ack_outbox(payload: schemas.OutboxAck, session: Session = Depends(get_session)):
+        published = outbox.acknowledge(session, payload.published, consumer=payload.consumer)
+        failed = 0
+        for item in payload.failed:
+            if outbox.fail(session, item.id, item.error) is not None:
+                failed += 1
+        return {"published": published, "failed": failed}
+
+    # --- ArchOntos rule evaluator ----------------------------------------------
+    @app.get("/api/v1/regulation/status", dependencies=[Depends(read_knowledge)])
+    def regulation_status():
+        return regulation.status()
+
+    @app.post("/api/v1/regulation/evaluate", dependencies=[Depends(read_knowledge)])
+    def regulation_evaluate(payload: schemas.RegulationEvaluate, session: Session = Depends(get_session)):
+        entity_properties = None
+        if payload.entity_id is not None:
+            row = session.get(models.Entity, payload.entity_id)
+            if row is None:
+                raise HTTPException(status_code=404, detail="entity not found")
+            entity_properties = row.properties
+        facts = regulation.merge_facts(entity_properties, payload.facts)
+        try:
+            result = regulation.evaluate(payload.rule, facts)
+        except regulation.RegulationUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        return {"entity_id": payload.entity_id, "engine": "archontos", "result": result}
 
     return app
 
