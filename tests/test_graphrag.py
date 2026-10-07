@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-
 from sion_api.main import create_app
 from sion_graphrag import GraphRagConfig, build_custom_kg
 
@@ -88,7 +87,6 @@ def test_lightrag_round_trip_on_local_storage(tmp_path: Path):
     pytest.importorskip("lightrag")
     import numpy as np
     from lightrag.utils import Tokenizer
-
     from sion_graphrag import SionGraphRag
 
     class CharTokenizer:

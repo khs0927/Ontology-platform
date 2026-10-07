@@ -5,7 +5,6 @@ from __future__ import annotations
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-
 CREATE_GRAPH = """
 CREATE EXTENSION IF NOT EXISTS age;
 LOAD 'age';
