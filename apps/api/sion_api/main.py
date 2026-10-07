@@ -1,17 +1,21 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 import uuid
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 
 from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
+from sion_ingestion.document_ingest import ingest_documents
+from sion_ingestion.dxf_ingest import ingest_dxf
+from sion_ingestion.ifc_ingest import ifcopenshell_available, ingest_ifc
 from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
@@ -31,6 +35,7 @@ def create_app(
     auth_policy: AuthPolicy | None = None,
     graphrag: SionGraphRag | None = None,
     project_contract_catalog: ProjectContractCatalog | None = None,
+    ingest_roots: list[Path] | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -441,6 +446,70 @@ def create_app(
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return {"canonical": False, **result}
+
+    @app.get("/map")
+    def ontology_map():
+        page = Path(__file__).resolve().parents[3] / "apps" / "web" / "index.html"
+        if not page.exists():
+            raise HTTPException(status_code=404, detail="map page missing")
+        return FileResponse(page)
+
+    if ingest_roots is None:
+        raw_roots = os.getenv("SION_INGEST_ROOTS", "").strip()
+        ingest_roots = [Path(item) for item in raw_roots.split(os.pathsep) if item.strip()]
+    resolved_roots = [root.resolve() for root in ingest_roots]
+    app.state.ingest_roots = resolved_roots
+
+    def resolve_ingest_path(raw: str) -> Path:
+        """Server-side file reads are confined to SION_INGEST_ROOTS.
+
+        Without configured roots, ingestion is only allowed in local-only
+        auth mode (the API is then unreachable remotely anyway).
+        """
+        path = Path(raw).resolve()
+        if not resolved_roots:
+            if auth_policy.mode != "local-only":
+                raise HTTPException(
+                    status_code=403,
+                    detail="file ingestion requires SION_INGEST_ROOTS when remote auth is enabled",
+                )
+            return path
+        for root in resolved_roots:
+            if path == root or root in path.parents:
+                return path
+        raise HTTPException(status_code=403, detail="path outside SION_INGEST_ROOTS")
+
+    def single_file(payload: dict, suffixes: set[str], label: str) -> Path:
+        raw = payload.get("path")
+        if not raw or not isinstance(raw, str):
+            raise HTTPException(status_code=422, detail="path required")
+        path = resolve_ingest_path(raw)
+        if path.suffix.lower() not in suffixes or not path.is_file():
+            raise HTTPException(status_code=422, detail=f"{label} file required")
+        return path
+
+    @app.post("/api/v1/ingest/documents", dependencies=[Depends(write_knowledge)])
+    def ingest_document_route(payload: dict, session: Session = Depends(get_session)):
+        raw_paths = payload.get("paths", [])
+        if not raw_paths or not isinstance(raw_paths, list):
+            raise HTTPException(status_code=422, detail="paths required")
+        paths = [resolve_ingest_path(str(item)) for item in raw_paths]
+        return ingest_documents(session, paths)
+
+    @app.post("/api/v1/ingest/dxf", dependencies=[Depends(write_knowledge)])
+    def ingest_dxf_route(payload: dict, session: Session = Depends(get_session)):
+        return ingest_dxf(session, single_file(payload, {".dxf"}, "dxf"))
+
+    @app.get("/api/v1/ingest/ifc/status", dependencies=[Depends(read_knowledge)])
+    def ingest_ifc_status():
+        return {
+            "ifcopenshell": ifcopenshell_available(),
+            "fallback": "step-fallback",
+        }
+
+    @app.post("/api/v1/ingest/ifc", dependencies=[Depends(write_knowledge)])
+    def ingest_ifc_route(payload: dict, session: Session = Depends(get_session)):
+        return ingest_ifc(session, single_file(payload, {".ifc"}, "ifc"))
 
     return app
 
