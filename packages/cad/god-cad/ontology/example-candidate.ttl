@@ -1,0 +1,14 @@
+@prefix cad: <https://github.com/khs0927/GOD-CAD/ns#> .
+@prefix beo: <https://w3id.org/beo#> .
+@prefix ex: <urn:god-cad:illustration:> .
+
+# This is a conceptual example, not a parser export or a real drawing identity.
+ex:line39A7 a cad:SourceEntity ; cad:handle "39A7" ; cad:layer "WAL1" .
+ex:wallCandidate a cad:SemanticCandidate ;
+    cad:proposedClass beo:Wall ;
+    cad:sourceEntity ex:line39A7 ;
+    cad:hasEvidence ex:layerEvidence .
+ex:layerEvidence a cad:Evidence ;
+    cad:method "layer_prior_v1" ; cad:ruleScore 0.5 ; cad:calibrated false .
+
+# Deliberately no assertion: ex:wallCandidate a beo:Wall .
