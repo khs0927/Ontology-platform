@@ -505,6 +505,25 @@ def create_app(
     def ingest_dxf_route(payload: dict, session: Session = Depends(get_session)):
         return ingest_dxf(session, single_file(payload, {".dxf"}, "dxf"))
 
+    @app.post("/api/v1/analyze/dxf", dependencies=[Depends(read_knowledge)])
+    def analyze_dxf_route(payload: dict):
+        """GOD-CAD evidence-linked analysis (no writes). Path confinement as for ingest."""
+        from sion_cad.analysis import AnalysisUnavailable, analyze_dxf
+
+        path = single_file(payload, {".dxf"}, "dxf")
+        drawing_id = payload.get("drawing_id")
+        units = payload.get("units")
+        if drawing_id is not None and (not isinstance(drawing_id, str) or not drawing_id.strip()):
+            raise HTTPException(status_code=422, detail="drawing_id must be a non-empty string")
+        if units is not None and units not in {"mm", "cm", "m", "in", "ft"}:
+            raise HTTPException(status_code=422, detail="units must be one of mm, cm, m, in, ft")
+        try:
+            return analyze_dxf(path, drawing_id=drawing_id, units=units)
+        except AnalysisUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     @app.get("/api/v1/ingest/ifc/status", dependencies=[Depends(read_knowledge)])
     def ingest_ifc_status():
         return {

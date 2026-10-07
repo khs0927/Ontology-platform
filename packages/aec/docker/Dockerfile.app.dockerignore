@@ -1,0 +1,26 @@
+# Used by BuildKit for docker/Dockerfile.app (context = monorepo root).
+# Whitelist: only packages/aec and the shared DXF reader reach the build.
+*
+!packages/aec/
+!packages/cad/sion_cad/
+# Never ship secrets, host environments, VCS data or private runtime output.
+**/.env
+**/.env.*
+!**/.env.example
+**/*.bak
+**/.venv
+**/venv
+**/.git
+**/.github
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/.cache
+**/*.dump
+**/*.sql.gz
+**/node_modules
+packages/aec/logs
+packages/aec/runtime
+packages/aec/projects

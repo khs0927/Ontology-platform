@@ -9,15 +9,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Build context is the Sion monorepo root (see docker-compose.yml):
+#   docker build -f packages/aec/docker/Dockerfile.app .
+# Dockerfile.app.dockerignore whitelists only packages/aec and the shared DXF reader.
+
+# Shared monorepo DXF reader (sion_cad.reader, dependency-free import); aec_intelligence.dxf uses it.
+COPY packages/cad/sion_cad /opt/sion-shared/sion_cad
+ENV PYTHONPATH=/opt/sion-shared
+
 # Dependencies come from pyproject.toml extras (single source of truth, same versions CI tests).
 # Copy only what the install needs first so source edits do not invalidate the dependency layer.
-COPY pyproject.toml ./
-COPY src ./src
+COPY packages/aec/pyproject.toml ./
+COPY packages/aec/src ./src
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -e ".[operational,cad,pdf]"
 
-# .dockerignore keeps .env, .venv and .git out of this copy.
-COPY . .
+# The ignore file keeps .env, .venv, logs and .git out of this copy.
+COPY packages/aec/ .
 
 # Unprivileged runtime user; the code stays root-owned (read-only for it). The code is baked into the
 # image (compose no longer bind-mounts the repository), so a compromised API process can neither read

@@ -36,6 +36,8 @@ def test_dwg_dxf_ifc_fixture_mapping_preserves_shared_semantics(tmp_path: Path):
     executable = shutil.which("ODAFileConverter") or Path(r"C:\Program Files\ODA\ODAFileConverter 27.1.0\ODAFileConverter.exe")
     if not Path(executable).is_file():
         pytest.skip("ODA File Converter is not configured; IFC/DXF comparison passed")
+    if not (fixture_root / "simple_house.dwg").is_file():
+        pytest.skip("binary DWG fixture not in the monorepo; IFC/DXF comparison passed")
     converted = ODAConverter(executable).convert_to_dxf(fixture_root / "simple_house.dwg", tmp_path / "dwg")
     assert converted.status == "SUCCESS"
     dwg_counts = _cad_semantic_counts(Path(converted.output))

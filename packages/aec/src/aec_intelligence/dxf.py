@@ -310,71 +310,14 @@ def _normalize_entity(entity: Any) -> NormalizedCADEntity:
     return NormalizedCADEntity(handle, entity_type, layer, geometry, properties, bbox)
 
 
-def read_dxf(path: str | Path) -> tuple[Any, list[str]]:
-    """Read a DXF, falling back to ``ezdxf.recover`` for damaged or legacy files.
-
-    ezdxf decodes pre-R2007 files with the ``$DWGCODEPAGE`` header (ANSI_949 -> cp949 for
-    Korean drawings). When the strict reader fails, the recover reader repairs structure and
-    encoding problems; its fixes and errors are returned as warnings so they stay auditable.
-    """
-    if ezdxf is None:
-        raise RuntimeError("ezdxf is required for DXF ingestion; install the [cad] extra")
-    warnings: list[str] = []
-    try:
-        doc = ezdxf.readfile(str(path))
-    except IOError:
-        raise
-    except Exception as exc:
-        from ezdxf import recover
-
-        warnings.append(f"DXF strict read failed ({type(exc).__name__}: {exc}); recovered with ezdxf.recover")
-        doc, auditor = recover.readfile(str(path))
-        warnings.extend(f"recover fix: {fix.message}" for fix in list(auditor.fixes)[:50])
-        warnings.extend(f"recover error: {error.message}" for error in list(auditor.errors)[:50])
-    codepage = str(doc.header.get("$DWGCODEPAGE", "") or "")
-    if doc.dxfversion < "AC1021":
-        sniffed = _sniff_korean_encoding(path, str(doc.encoding))
-        if sniffed:
-            warnings.append(f"$DWGCODEPAGE={codepage or 'missing'} but text bytes are {sniffed}; re-read as {sniffed}")
-            doc = ezdxf.readfile(str(path), encoding=sniffed)
-        elif codepage and codepage.upper() != "ANSI_1252":
-            warnings.append(f"Legacy DXF decoded with $DWGCODEPAGE={codepage} ({doc.encoding})")
-    return doc, warnings
-
-
-_HANGUL_RE = re.compile("[\uac00-\ud7a3]")
-
-
-def _sniff_korean_encoding(path: str | Path, encoding: str) -> str | None:
-    """Detect CP949 bytes in a legacy DXF whose header claims a Western code page."""
-    if encoding.lower().replace("-", "") not in {"cp1252", "windows1252", "latin1", "iso88591", "ascii"}:
-        return None
-    try:
-        data = Path(path).read_bytes()
-    except OSError:
-        return None
-    if not any(byte >= 0x80 for byte in data):
-        return None
-    try:
-        decoded = data.decode("cp949")
-    except UnicodeDecodeError:
-        return None
-    non_ascii = sum(1 for ch in decoded if ord(ch) >= 0x80)
-    hangul = len(_HANGUL_RE.findall(decoded))
-    return "cp949" if hangul >= 2 and hangul >= 0.6 * non_ascii else None
-
-
-def decode_dxf_text(value: Any) -> str:
-    """Decode ``\\U+AC70``-style escapes that legacy DXF writers use for characters outside the code page."""
-    text = str(value)
-    if "\\U+" in text or "\\u+" in text:
-        try:
-            from ezdxf.lldxf.encoding import decode_dxf_unicode
-
-            return decode_dxf_unicode(text)
-        except Exception:
-            return re.sub(r"\\[Uu]\+([0-9A-Fa-f]{4})", lambda m: chr(int(m.group(1), 16)), text)
-    return text
+# The DXF reading path (strict -> ezdxf.recover, CP949 sniffing, \U+ escapes) is shared by the
+# whole Sion monorepo and lives in sion_cad.reader (packages/cad). These names are kept for
+# existing callers.
+from sion_cad.reader import (  # noqa: E402, F401  (re-exported)
+    decode_dxf_text,
+    open_dxf as read_dxf,
+    sniff_korean_encoding as _sniff_korean_encoding,
+)
 
 
 class DXFParser:

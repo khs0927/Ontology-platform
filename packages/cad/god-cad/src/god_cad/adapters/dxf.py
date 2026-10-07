@@ -3,7 +3,7 @@
 import hashlib
 from pathlib import Path
 
-import ezdxf
+from sion_cad.reader import open_dxf
 
 from god_cad.identity import entity_id
 from god_cad.models import Drawing, Entity, Geometry, SourceRef
@@ -55,7 +55,8 @@ def ingest_dxf(path: Path, drawing_id: str, units: str | None = None) -> Drawing
     if path.suffix.lower() != ".dxf":
         raise ValueError("This adapter accepts DXF only; native DWG is not implemented")
     revision = hashlib.sha256(path.read_bytes()).hexdigest()
-    document = ezdxf.readfile(path)
+    # Shared monorepo reader: strict read, ezdxf.recover fallback, CP949 detection.
+    document, read_warnings = open_dxf(path)
     source_units = units or HEADER_UNITS.get(int(document.header.get("$INSUNITS", 0)))
     if source_units not in FACTORS:
         raise ValueError("Unknown/unsupported source units; provide --units mm|cm|m|in|ft")
@@ -88,6 +89,7 @@ def ingest_dxf(path: Path, drawing_id: str, units: str | None = None) -> Drawing
                 limitations=limitations,
             )
         )
+    warnings.extend(read_warnings)
     unsupported = sum(not e.analysis_supported for e in entities)
     if hashlib.sha256(path.read_bytes()).hexdigest() != revision:
         raise ValueError("Source changed while parsing; retry on a stable copy")
