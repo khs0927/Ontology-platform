@@ -152,6 +152,23 @@ Verified in a fresh venv (`pip install -e '.[test]'`, Python 3.13):
 - CI: GitHub workflows aligned on `actions/checkout@v7.0.1` and
   `actions/setup-python@v7.0.0`. Not executed on GitHub from here.
 
+Follow-up (same day): dependency upgrades and optional OSS parsers
+- Upgraded: fastapi 0.141.1→0.142.2, sqlalchemy 2.0.54→2.1.3, uvicorn
+  0.53.0→0.54.0, asyncpg 0.31.0→0.32.0, setuptools build req >=75→>=84.
+  Already current: pydantic 2.13.5, psycopg 3.3.6, httpx 0.28.1, pytest 9.1.1,
+  lightrag-hku 1.5.7, pgvector 0.5.0, actions/checkout v7.0.1,
+  actions/setup-python v7.0.0.
+- New extras: `dxf` (ezdxf), `ifc` (ifcopenshell 0.9), `drive`
+  (google-api-python-client, google-auth), `all`, `dev` (ruff, build).
+  DXF text fallback rewritten to handle padded group codes and to scan only
+  the ENTITIES section; it now matches ezdxf output on the test drawing.
+- Results: all extras, Py 3.12 and 3.13: 66 passed. Minimal `.[test]`:
+  62 passed, 4 skipped (optional libs absent). `ruff check .` clean
+  (E701/E702/E402 ignored for existing upstream style). wheel + sdist build OK.
+  `scripts/build_exe.py` produces a working Linux binary under Python 3.12;
+  the Windows .exe must still be built on Windows (PyInstaller cannot
+  cross-compile). `bin/sion-agent-bridge.exe` was not rebuilt.
+
 Still blocked (needs the owner's data/credentials):
 1. Structured 31-node/43-edge Map export — not fabricated.
 2. Drive live upload — needs a service-account key + shared folder ID, or the
