@@ -5,8 +5,18 @@ from .store import (
     DriveLayout,
     LocalContentAddressedStore,
 )
+from .upload import (
+    DriveUploadUnavailable,
+    publish,
+    publish_to_mounted_drive,
+    upload_with_service_account,
+)
 
 __all__ = [
+    "DriveUploadUnavailable",
+    "publish",
+    "publish_to_mounted_drive",
+    "upload_with_service_account",
     "ArtifactDescriptor",
     "DriveLayout",
     "LocalContentAddressedStore",
