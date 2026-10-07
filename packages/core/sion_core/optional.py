@@ -22,6 +22,8 @@ EXTRAS: dict[str, tuple[str, ...]] = {
     "rag": ("lightrag", "asyncpg", "pgvector"),
     "drive": ("googleapiclient", "google.oauth2"),
     "regulation": ("pydantic_settings", "asyncpg", "greenlet"),
+    "documents": ("pypdf", "docx"),
+    "validation": ("rdflib", "pyshacl"),
 }
 
 # import name -> extra that provides it

@@ -582,6 +582,27 @@ def create_app(
             body["land"] = land["land"]
         return body
 
+    @app.get("/api/v1/validation/shacl", dependencies=[Depends(read_knowledge)])
+    def shacl_validation(
+        limit: int = Query(default=10_000, ge=1, le=100_000),
+        session: Session = Depends(get_session),
+    ):
+        """Validate the stored graph against sion-core.shacl.ttl (extra ``validation``; 503 without it)."""
+        from sion_api import shacl
+
+        try:
+            report = shacl.validate_session(session, shacl.shapes_path(settings.ontology_path), limit=limit)
+        except shacl.ShaclUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        return {
+            "conforms": report.conforms,
+            "triple_count": report.triple_count,
+            "validated": report.counts,
+            "truncated": report.truncated,
+            "violation_count": len(report.violations),
+            "violations": report.violations[: shacl.MAX_VIOLATIONS],
+        }
+
     return app
 
 
