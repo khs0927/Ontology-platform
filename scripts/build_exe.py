@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Build script to compile the Sion Agent Bridge into a standalone Windows .exe"""
+"""Build the Sion Agent Bridge into a standalone executable (.exe on Windows)."""
 
 from pathlib import Path
+import argparse
 import subprocess
 import sys
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
-def build():
-    print("[*] Compiling standalone executable: bin/sion-agent-bridge.exe...")
+def build(distpath: Path | None = None, workpath: Path | None = None) -> Path:
+    distpath = distpath or REPO_ROOT / "bin"
+    suffix = ".exe" if sys.platform == "win32" else ""
+    print(f"[*] Compiling standalone executable: {distpath / ('sion-agent-bridge' + suffix)}...")
     cmd = [
         sys.executable,
         "-m",
@@ -19,7 +22,11 @@ def build():
         "--name",
         "sion-agent-bridge",
         "--distpath",
-        str(REPO_ROOT / "bin"),
+        str(distpath),
+        "--workpath",
+        str(workpath or REPO_ROOT / "build" / "pyinstaller"),
+        "--specpath",
+        str(workpath or REPO_ROOT / "build" / "pyinstaller"),
         "--paths",
         str(REPO_ROOT / "apps" / "api"),
         "--paths",
@@ -41,14 +48,22 @@ def build():
         "--hidden-import",
         "sion_ingestion.map_import",
         "--hidden-import",
+        "sion_ingestion.document_ingest",
+        "--hidden-import",
         "sqlalchemy",
         "--hidden-import",
         "pydantic",
         str(REPO_ROOT / "scripts" / "run_agent_bridge.py"),
     ]
     subprocess.run(cmd, check=True)
-    print("\n[+] Build complete: bin/sion-agent-bridge.exe")
+    target = distpath / f"sion-agent-bridge{suffix}"
+    print(f"\n[+] Build complete: {target}")
+    return target
 
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--distpath", type=Path, help="output dir (default: bin/)")
+    parser.add_argument("--workpath", type=Path, help="PyInstaller work/spec dir (default: build/pyinstaller)")
+    ns = parser.parse_args()
+    build(ns.distpath, ns.workpath)
