@@ -115,7 +115,11 @@ def create_evidence(session: Session, payload: EvidenceCreate) -> models.Evidenc
         raise MissingReferenceError("evidence relation does not exist")
     row = models.Evidence(**payload.model_dump())
     session.add(row)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError as exc:
+        session.rollback()
+        raise ConflictError("evidence violates a database constraint") from exc
     session.refresh(row)
     return row
 
