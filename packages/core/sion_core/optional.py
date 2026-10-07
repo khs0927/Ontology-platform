@@ -21,6 +21,7 @@ EXTRAS: dict[str, tuple[str, ...]] = {
     "bim": ("ifcopenshell",),
     "rag": ("lightrag", "asyncpg", "pgvector"),
     "drive": ("googleapiclient", "google.oauth2"),
+    "regulation": ("pydantic_settings", "asyncpg", "greenlet"),
 }
 
 # import name -> extra that provides it

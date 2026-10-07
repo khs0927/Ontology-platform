@@ -1,0 +1,160 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg18
+    environment:
+      POSTGRES_DB: archontos
+      POSTGRES_USER: archontos
+      POSTGRES_PASSWORD: archontos
+    ports:
+      # Loopback only: default credentials must not be reachable from the network.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - archontos-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archontos -d archontos"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    # OPT-IN (docker compose --profile s3 ...). The default artifact backend is the local
+    # content-addressed store. MinIO community is source-only/archived upstream; this is the last
+    # official image and gets no further security fixes - keep it on loopback, dev only.
+    # See docs/ARTIFACT-STORAGE.md.
+    profiles: ["s3"]
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address ":9001"
+    environment:
+      # Same variables/defaults as the app settings (.env.example, archontos.config).
+      MINIO_ROOT_USER: ${ARCHONTOS_MINIO_ACCESS_KEY:-archontos}
+      MINIO_ROOT_PASSWORD: ${ARCHONTOS_MINIO_SECRET_KEY:-change-me}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - archontos-minio:/data
+
+  # One-shot, idempotent migration runner (schema_migrations + advisory lock). Replaces the old
+  # docker-entrypoint-initdb.d mount, which only ever ran on an EMPTY volume. The app services
+  # start after it exits 0. Volumes created by the old mount: see db/MIGRATION-NOTES.md (--baseline).
+  migrate:
+    build: .
+    command: ["python", "-m", "archontos.db.migrate"]
+    environment:
+      ARCHONTOS_DATABASE_URL: postgresql+asyncpg://archontos:archontos@postgres:5432/archontos
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # One-shot: provision the services' least-privilege login (archontos_svc, member of
+  # archontos_app from migration 012: no superuser, no BYPASSRLS, owns nothing) so row-level
+  # security applies to every service query. Runs as the migrator, after migrations.
+  db-login:
+    build: .
+    command: ["python", "-m", "archontos.db.roles", "ensure-login", "--name", "archontos_svc"]
+    environment:
+      ARCHONTOS_DATABASE_URL: postgresql+asyncpg://archontos:archontos@postgres:5432/archontos
+      ARCHONTOS_APP_DB_PASSWORD: ${ARCHONTOS_APP_DB_PASSWORD:-archontos-svc-dev}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  ingestion:
+    build: .
+    command: ["uvicorn", "apps.ingestion:app", "--host", "0.0.0.0", "--port", "8001"]
+    environment: &app_env
+      # Services use the unprivileged login, never the migrator/superuser.
+      ARCHONTOS_DATABASE_URL: postgresql+asyncpg://archontos_svc:${ARCHONTOS_APP_DB_PASSWORD:-archontos-svc-dev}@postgres:5432/archontos
+      ARCHONTOS_DB_PRIVILEGE_CHECK: enforce
+      # local (default) | minio. With minio, start with --profile s3 and set the same
+      # ARCHONTOS_MINIO_* values in .env (one source of truth with the minio service).
+      ARCHONTOS_ARTIFACT_BACKEND: ${ARCHONTOS_ARTIFACT_BACKEND:-local}
+      ARCHONTOS_ARTIFACT_LOCAL_PATH: /data/artifacts
+      ARCHONTOS_MINIO_ENDPOINT: minio:9000
+      ARCHONTOS_MINIO_ACCESS_KEY: ${ARCHONTOS_MINIO_ACCESS_KEY:-archontos}
+      ARCHONTOS_MINIO_SECRET_KEY: ${ARCHONTOS_MINIO_SECRET_KEY:-change-me}
+      ARCHONTOS_MINIO_BUCKET: ${ARCHONTOS_MINIO_BUCKET:-archontos}
+      ARCHONTOS_MINIO_SECURE: "false"
+      ARCHONTOS_LAWGO_OC: ${ARCHONTOS_LAWGO_OC:-}
+    volumes:
+      - archontos-artifacts:/data/artifacts
+    ports:
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      db-login:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
+        required: false
+
+  normalization:
+    build: .
+    command: ["uvicorn", "apps.normalization:app", "--host", "0.0.0.0", "--port", "8002"]
+    environment: *app_env
+    volumes:
+      - archontos-artifacts:/data/artifacts
+    ports:
+      - "127.0.0.1:8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      db-login:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
+        required: false
+
+  rule-engine:
+    build: .
+    command: ["uvicorn", "apps.rule_engine:app", "--host", "0.0.0.0", "--port", "8003"]
+    environment: *app_env
+    ports:
+      - "127.0.0.1:8003:8003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      db-login:
+        condition: service_completed_successfully
+
+  projection:
+    build: .
+    command: ["uvicorn", "apps.projection:app", "--host", "0.0.0.0", "--port", "8004"]
+    environment: *app_env
+    ports:
+      - "127.0.0.1:8004:8004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      db-login:
+        condition: service_completed_successfully
+
+  action:
+    build: .
+    command: ["uvicorn", "apps.action:app", "--host", "0.0.0.0", "--port", "8005"]
+    environment: *app_env
+    ports:
+      - "127.0.0.1:8005:8005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      db-login:
+        condition: service_completed_successfully
+
+volumes:
+  archontos-postgres:
+  archontos-artifacts:
+  archontos-minio:

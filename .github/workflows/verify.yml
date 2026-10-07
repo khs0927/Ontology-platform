@@ -83,7 +83,8 @@ jobs:
             for migration in \
               migrations/001_core.sql \
               migrations/002_vector.sql \
-              migrations/004_seed_core_types.sql; do
+              migrations/004_seed_core_types.sql \
+              migrations/006_outbox.sql; do
               psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 -f "$migration"
             done
           done
@@ -93,8 +94,8 @@ jobs:
           psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
           DO $$
           BEGIN
-            IF (SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public') <> 10 THEN
-              RAISE EXCEPTION 'expected 10 public tables after migrations';
+            IF (SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public') <> 11 THEN
+              RAISE EXCEPTION 'expected 11 public tables after migrations (9 core + embeddings + outbox_events)';
             END IF;
             IF (SELECT count(*) FROM entity_types) <> 11 THEN
               RAISE EXCEPTION 'expected 11 canonical entity types';
@@ -110,3 +111,41 @@ jobs:
             END IF;
           END $$;
           SQL
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install project with regulation extra
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[regulation,test]"
+
+      - name: Unified migration runner (core public + ArchOntos regulation schema), twice
+        run: |
+          python -m sion_api.migrate --dsn "$SION_TEST_POSTGRES_URL"
+          python -m sion_api.migrate --dsn "$SION_TEST_POSTGRES_URL" | tee second-run.txt
+          grep -q "core: applied 0" second-run.txt
+          grep -q "regulation (regulation): applied 0" second-run.txt
+          python -m sion_api.migrate --dsn "$SION_TEST_POSTGRES_URL" --status
+
+      - name: Verify unified schema layout
+        run: |
+          psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          BEGIN
+            IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'public') <> 12 THEN
+              RAISE EXCEPTION 'expected 12 public tables (11 + sion_schema_migrations)';
+            END IF;
+            IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'regulation') < 29 THEN
+              RAISE EXCEPTION 'ArchOntos tables missing from schema regulation';
+            END IF;
+            IF to_regclass('public.outbox_message') IS NOT NULL OR to_regclass('public.rule') IS NOT NULL THEN
+              RAISE EXCEPTION 'ArchOntos tables leaked into public';
+            END IF;
+          END $$;
+          SQL
+
+      - name: Unified PostgreSQL tests
+        run: python -m pytest -q tests/test_unified_postgres.py
