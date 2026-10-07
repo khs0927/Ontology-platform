@@ -9,6 +9,20 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
+def package_roots() -> list[Path]:
+    """Parent directories of every package mapped in pyproject's [tool.setuptools.package-dir]."""
+    import tomllib
+
+    data = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    mapping = data["tool"]["setuptools"]["package-dir"]
+    roots: list[Path] = []
+    for rel in mapping.values():
+        root = (REPO_ROOT / rel).parent
+        if root not in roots:
+            roots.append(root)
+    return roots
+
+
 def build(dist_dir: Path | None = None, name: str = "sion-agent-bridge"):
     dist_dir = Path(dist_dir) if dist_dir else REPO_ROOT / "bin"
     print(f"[*] Compiling standalone executable: {dist_dir / name}(.exe)...")
@@ -26,12 +40,7 @@ def build(dist_dir: Path | None = None, name: str = "sion-agent-bridge"):
         str(REPO_ROOT / "build" / "pyinstaller"),
         "--specpath",
         str(REPO_ROOT / "build" / "pyinstaller"),
-        "--paths",
-        str(REPO_ROOT / "apps" / "api"),
-        "--paths",
-        str(REPO_ROOT / "packages" / "ingestion"),
-        "--paths",
-        str(REPO_ROOT / "packages" / "drive-store"),
+        *[arg for root in package_roots() for arg in ("--paths", str(root))],
         "--hidden-import",
         "sion_api",
         "--hidden-import",

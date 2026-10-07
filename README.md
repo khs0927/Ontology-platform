@@ -118,15 +118,27 @@ This keeps superseded design facts queryable for permit/construction revisions w
 
 Ingest routes read files on the server. Set `SION_INGEST_ROOTS` (OS path-separator list) to confine them. When `SION_API_AUTH_MODE` is `bearer` or `local-or-bearer` and no roots are set, ingest routes return 403.
 
-### Optional extras
+### Packages and optional extras
+
+See [`packages/README.md`](packages/README.md) for the package map.
 
 | Extra | Library | Without it |
 |---|---|---|
-| `graphrag` | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
-| `dxf` | ezdxf >=1.4.4 | built-in DXF text parser |
-| `ifc` | ifcopenshell >=0.9 | built-in STEP text parser |
+| `cad` (alias `dxf`) | ezdxf >=1.4.4 | built-in DXF text parser |
+| `bim` (alias `ifc`) | ifcopenshell >=0.9 | built-in STEP text parser |
+| `rag` (alias `graphrag`) | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
 | `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works |
 | `all` | all of the above | |
-| `dev` | ruff 0.16.10, build 1.6.1 | |
+| `test` | pytest, httpx | |
+| `dev` | `test` + ruff 0.16.10, build 1.6.1 | |
 
-`pip install -e '.[all,test,dev]' && ruff check . && pytest && python -m build`
+```bash
+pip install -e '.[all,dev]' && ruff check . && pytest && python -m build
+# or, reproducibly from uv.lock
+uv sync --locked --extra all --extra dev && uv run pytest
+```
+
+### Windows agent bridge binary
+
+`sion-agent-bridge.exe` is published on [GitHub Releases](https://github.com/khs0927/Ontology-platform/releases)
+by the `Release agent bridge` workflow; it is no longer committed. See [`bin/README.md`](bin/README.md).
