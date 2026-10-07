@@ -3,7 +3,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 
 

@@ -102,3 +102,31 @@ Relations use half-open validity intervals: `[valid_from, valid_to)`.
 - Temporal comparisons are normalized to UTC; SQLite timestamps read back without tzinfo are interpreted as UTC.
 
 This keeps superseded design facts queryable for permit/construction revisions without treating old facts as currently valid.
+
+## Gap fill
+
+- `POST /api/v1/ingest/documents` `{paths:[...]}` — md/txt/csv, unverified evidence
+- `POST /api/v1/ingest/dxf` `{path}` — TEXT/INSERT/LINE/LWPOLYLINE
+- `GET /map` — graph view over `/api/v1/graph`
+- DeepSeek/Hermes/ZCode local log readers
+- `migrations/005_age_projection.sql` optional AGE graph
+- `sion_drive_store.upload.publish_to_mounted_drive`
+- `POST /api/v1/ingest/ifc` `{path}` — IFC via optional `ifcopenshell` (`pip install -e '.[ifc]'`), dependency-free STEP fallback otherwise; `GET /api/v1/ingest/ifc/status` reports which parser is active
+- `sion_drive_store.upload.upload_with_service_account` — optional Drive API upload (`pip install -e '.[drive]'`, `SION_DRIVE_SERVICE_ACCOUNT=<path to key JSON>`, `SION_DRIVE_FOLDER_ID=<folder shared with the service account>`). Never deletes or overwrites; same-name/different-size files are reported as conflicts.
+
+### Ingestion path confinement
+
+Ingest routes read files on the server. Set `SION_INGEST_ROOTS` (OS path-separator list) to confine them. When `SION_API_AUTH_MODE` is `bearer` or `local-or-bearer` and no roots are set, ingest routes return 403.
+
+### Optional extras
+
+| Extra | Library | Without it |
+|---|---|---|
+| `graphrag` | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
+| `dxf` | ezdxf >=1.4.4 | built-in DXF text parser |
+| `ifc` | ifcopenshell >=0.9 | built-in STEP text parser |
+| `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works |
+| `all` | all of the above | |
+| `dev` | ruff 0.16.10, build 1.6.1 | |
+
+`pip install -e '.[all,test,dev]' && ruff check . && pytest && python -m build`

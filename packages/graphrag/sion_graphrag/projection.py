@@ -7,15 +7,14 @@ back to the row (and its evidence) that produced them.
 
 from __future__ import annotations
 
+import json
 from collections import defaultdict
 from datetime import datetime, timezone
-import json
 from typing import Any
 
+from sion_api import models
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
-
-from sion_api import models
 
 
 def _active_at(at: datetime):

@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 
 from fastapi.testclient import TestClient
-
 from sion_api.auth import AuthPolicy
 from sion_api.main import create_app
 from sion_ingestion.project_contracts import ProjectContractCatalog
