@@ -9,12 +9,11 @@ import hashlib
 import re
 from pathlib import Path
 
+from sion_api import models
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from sion_api import models
 from sion_ingestion.map_import import MapEdge, MapExport, MapNode, import_map_export
-
 
 _HEADING = re.compile(r"^(#{1,3})\s+(.+)$", re.MULTILINE)
 

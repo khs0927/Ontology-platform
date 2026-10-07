@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-
 from sion_api.auth import AuthPolicy
 from sion_api.main import create_app
 from sion_drive_store import DriveUploadUnavailable, upload_with_service_account
@@ -205,7 +204,9 @@ def test_service_account_uploader_non_destructive(tmp_path):
     (tmp_path / "manifests").mkdir()
     (tmp_path / "manifests" / "abc.json").write_text("{}")
     drive = FakeDrive()
-    size = lambda p: p.stat().st_size  # fake media carries size
+    def size(p):  # fake media carries size
+        return p.stat().st_size
+
     first = upload_with_service_account(tmp_path, "root", service=drive, media_factory=size)
     assert first["uploaded"] == 2
     second = upload_with_service_account(tmp_path, "root", service=drive, media_factory=size)

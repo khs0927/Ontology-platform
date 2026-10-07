@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build script to compile the Sion Agent Bridge into a standalone Windows .exe"""
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 

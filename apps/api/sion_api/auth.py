@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hmac
 import ipaddress
 import json
 import os
+from dataclasses import dataclass
 from typing import Callable
 
 from fastapi import HTTPException, Request
-
 
 VALID_MODES = frozenset({"local-only", "bearer", "local-or-bearer"})
 

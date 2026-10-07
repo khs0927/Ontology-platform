@@ -9,8 +9,8 @@ All produced claims are ``unverified``.
 from __future__ import annotations
 
 import hashlib
-from pathlib import Path
 import re
+from pathlib import Path
 
 from sqlalchemy.orm import Session
 
