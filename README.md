@@ -111,3 +111,18 @@ This keeps superseded design facts queryable for permit/construction revisions w
 - DeepSeek/Hermes/ZCode local log readers
 - `migrations/005_age_projection.sql` optional AGE graph
 - `sion_drive_store.upload.publish_to_mounted_drive`
+
+## Optional extras
+
+| Extra | Libraries (license) | Enables |
+| --- | --- | --- |
+| `ingest` | ezdxf (MIT), pypdf (BSD-3-Clause), python-docx (MIT) | Robust DXF parsing, PDF/DOCX document ingest |
+| `validation` | rdflib (BSD-3-Clause), pyshacl (Apache-2.0) | `GET /api/v1/validation/shacl` against `ontology/validation/sion-core.shacl.ttl` |
+| `build` | build (MIT), PyInstaller (GPL-2.0 with bootloader exception) | `python -m build`, `python scripts/build_exe.py` |
+
+```bash
+pip install -e ".[test,ingest,validation]"
+python -m pytest
+```
+
+Without the extras, DXF falls back to a built-in ASCII group-code parser, documents are limited to `.md/.txt/.csv`, and the SHACL endpoint returns 503.

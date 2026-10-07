@@ -14,36 +14,80 @@ from sion_ingestion.document_ingest import attach_document_evidence
 from sion_ingestion.map_import import MapEdge, MapExport, MapNode, import_map_export
 
 
-def _pairs(body: str) -> list[tuple[str, str]]:
-    lines = [line.strip() for line in body.splitlines()]
-    pairs: list[tuple[str, str]] = []
-    index = 0
-    while index + 1 < len(lines):
-        pairs.append((lines[index], lines[index + 1]))
-        index += 2
-    return pairs
+def _entities(text: str) -> list[tuple[str, dict[str, str]]]:
+    """Tokenise ASCII DXF group-code pairs into (entity type, {code: value})."""
+    lines = text.splitlines()
+    pairs = [(lines[i].strip(), lines[i + 1].strip()) for i in range(0, len(lines) - 1, 2)]
+    entities: list[tuple[str, dict[str, str]]] = []
+    current: tuple[str, dict[str, str]] | None = None
+    for code, value in pairs:
+        if code == "0":
+            if current is not None:
+                entities.append(current)
+            current = None if value in {"SECTION", "ENDSEC", "EOF"} else (value, {})
+        elif current is not None:
+            current[1].setdefault(code, value)
+    if current is not None:
+        entities.append(current)
+    return entities
 
 
-def _sections(text: str) -> list[tuple[str, str]]:
-    parts = text.split("\n0\n")
-    sections: list[tuple[str, str]] = []
-    for part in parts:
-        lines = [line.strip() for line in part.splitlines() if line.strip()]
-        if not lines:
-            continue
-        kind = lines[0]
-        if kind in {"SECTION", "ENDSEC", "EOF"}:
-            continue
-        sections.append((kind, "\n".join(lines[1:])))
-    return sections
+def _parse_with_ezdxf(path: Path) -> list[dict] | None:
+    """Parse with ezdxf (MIT) when installed; return None to use the fallback."""
+    try:
+        import ezdxf
+        from ezdxf import recover
+    except ImportError:
+        return None
+    try:
+        doc, auditor = recover.readfile(str(path))
+    except (IOError, ezdxf.DXFStructureError):
+        return None
+    if auditor.has_errors or auditor.has_fixes:
+        # Recovery dropped or fixed entities (e.g. INSERTs of undefined blocks); the
+        # tolerant fallback keeps every annotated item instead.
+        return None
+    items: list[dict] = []
+    for entity in doc.modelspace():
+        kind = entity.dxftype()
+        layer = str(entity.dxf.get("layer", ""))
+        if kind == "TEXT" and entity.dxf.get("text"):
+            items.append({"kind": "annotation", "name": entity.dxf.text, "layer": layer})
+        elif kind == "MTEXT":
+            text = entity.plain_text().strip()
+            if text:
+                items.append({"kind": "annotation", "name": text, "layer": layer})
+        elif kind == "INSERT":
+            items.append({"kind": "block", "name": entity.dxf.name, "layer": layer})
+        elif kind == "LINE":
+            items.append({"kind": "segment", "name": f"line:{layer or '0'}", "layer": layer})
+        elif kind == "LWPOLYLINE":
+            closed = bool(entity.closed)
+            items.append({
+                "kind": "space" if closed else "segment",
+                "name": f"{'space' if closed else 'polyline'}:{layer or '0'}",
+                "layer": layer,
+            })
+    return items
 
 
-def parse_dxf(path: Path) -> list[dict]:
+def parse_dxf(path: Path, *, use_ezdxf: bool = True) -> list[dict]:
+    """Extract annotations, blocks, segments and closed spaces from a DXF file.
+
+    Uses ezdxf when available (handles binary/legacy DXF and recovery); falls back
+    to a minimal ASCII group-code parser otherwise.
+    """
+    if use_ezdxf:
+        parsed = _parse_with_ezdxf(path)
+        if parsed:
+            return parsed
+    return _parse_fallback(path)
+
+
+def _parse_fallback(path: Path) -> list[dict]:
     text = path.read_text(encoding="utf-8", errors="replace")
     items: list[dict] = []
-    for kind, body in _sections(text):
-        pairs = _pairs(body)
-        values = {code: value for code, value in pairs}
+    for kind, values in _entities(text):
         if kind in {"TEXT", "MTEXT"} and values.get("1"):
             items.append({"kind": "annotation", "name": values["1"], "layer": values.get("8", "")})
         elif kind == "INSERT" and values.get("2"):
@@ -51,7 +95,7 @@ def parse_dxf(path: Path) -> list[dict]:
         elif kind == "LINE":
             items.append({"kind": "segment", "name": f"line:{values.get('8', '0')}", "layer": values.get("8", "")})
         elif kind == "LWPOLYLINE":
-            closed = values.get("70") == "1"
+            closed = bool(int(values.get("70", "0") or 0) & 1)
             items.append({
                 "kind": "space" if closed else "segment",
                 "name": f"{'space' if closed else 'polyline'}:{values.get('8', '0')}",

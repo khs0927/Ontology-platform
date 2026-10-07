@@ -24,11 +24,57 @@ def _key(prefix: str, raw: str) -> str:
     return f"{prefix}:{digest}"
 
 
+TEXT_SUFFIXES = {".md", ".txt", ".csv"}
+
+
+def supported_suffixes() -> set[str]:
+    """Suffixes ingestible with the currently installed optional libraries."""
+    suffixes = set(TEXT_SUFFIXES)
+    try:
+        import pypdf  # noqa: F401
+        suffixes.add(".pdf")
+    except ImportError:
+        pass
+    try:
+        import docx  # noqa: F401
+        suffixes.add(".docx")
+    except ImportError:
+        pass
+    return suffixes
+
+
+def extract_text(path: Path) -> str:
+    """Return document text; PDF via pypdf (BSD-3), DOCX via python-docx (MIT).
+
+    DOCX headings are converted to markdown ``#`` headings so claim extraction
+    stays uniform across formats.
+    """
+    suffix = path.suffix.lower()
+    if suffix == ".pdf":
+        from pypdf import PdfReader
+
+        reader = PdfReader(str(path))
+        return "\n".join((page.extract_text() or "") for page in reader.pages)
+    if suffix == ".docx":
+        import docx
+
+        lines: list[str] = []
+        for para in docx.Document(str(path)).paragraphs:
+            text = para.text.strip()
+            if not text:
+                continue
+            style = (para.style.name if para.style is not None else "") or ""
+            match = re.match(r"Heading\s*([1-3])", style)
+            lines.append(f"{'#' * int(match.group(1))} {text}" if match else text)
+        return "\n".join(lines)
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
 def build_document_export(paths: list[Path], source: str = "document-ingest") -> MapExport:
     nodes: list[MapNode] = []
     edges: list[MapEdge] = []
     for path in paths:
-        text = path.read_text(encoding="utf-8", errors="replace")
+        text = extract_text(path)
         doc_key = _key("document", f"{path.resolve()}:{path.stat().st_size}")
         title = path.stem
         headings = [match.group(2).strip() for match in _HEADING.finditer(text)]
@@ -121,7 +167,7 @@ def attach_document_evidence(session: Session, export: MapExport) -> int:
 
 
 def ingest_documents(session: Session, paths: list[Path]) -> dict:
-    files = [path for path in paths if path.is_file() and path.suffix.lower() in {".md", ".txt", ".csv"}]
+    files = [path for path in paths if path.is_file() and path.suffix.lower() in supported_suffixes()]
     export = build_document_export(files)
     result = import_map_export(session, export)
     evidence = attach_document_evidence(session, export)
