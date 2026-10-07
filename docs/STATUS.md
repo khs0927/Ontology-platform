@@ -194,8 +194,8 @@ They have separate runtimes (.NET/AutoCAD, ZWCAD COM, Node), and none of them wa
 
 Still needs the owner's decision:
 1. Purge the two historical `bin/sion-agent-bridge.exe` blobs (~74 MB of the 73.7 MiB pack) from
-   history. This rewrites history and needs a force push, so it was not done.
-2. Archive the merged source repos (ArchOntos, Ontology, GOD-CAD) and CAD-MCP. Not done.
+   history. This rewrites history and needs a force push, so it was not done. **Done later with approval; see the follow-up below.**
+2. Archive the merged source repos (ArchOntos, Ontology, GOD-CAD) and CAD-MCP. Not done. **Done later with approval; see the follow-up below.**
 3. Structured 31-node/43-edge map export. Still not fabricated.
 
 ## Follow-up 2026-10-08 (KST)
