@@ -1,0 +1,95 @@
+{
+  "schema": "drawing-context-policy/1",
+  "execution": {
+    "cad_repository": "khs0927/power-cad-mcp",
+    "cad_version": "2027",
+    "primary": "csharp-net10-inprocess",
+    "native_cpp": "objectarx2027-after-benchmark",
+    "com": "fallback-only",
+    "per_entity_mcp_ingestion": false,
+    "auto_edit": false
+  },
+  "storage": {
+    "canonical_owner": "existing-ontology",
+    "overwrite_canonical": false,
+    "drive": "originals-immutable-artifacts-logical-backups",
+    "live_db_on_drive": false,
+    "default_search_projection": "postgresql-pgvector",
+    "qdrant": "optional-after-visual-retrieval-benchmark"
+  },
+  "ragflow": {
+    "enabled": false,
+    "role": "derived-search-projection",
+    "release_image_digest": null,
+    "requires_compute_inventory": true,
+    "requires_revision_deletion_acl_tests": true,
+    "benchmark": {
+      "phase": "ragflow-first",
+      "live_http_required_before_enable": true,
+      "thresholds": {
+        "provenance_metadata_coverage": 1,
+        "unauthorized_source_leakage": 0,
+        "stale_revision_leakage": 0,
+        "recall_at_5_minimum": 0.8,
+        "mrr_minimum": 0.6
+      },
+      "report_only_initially": [
+        "p50_latency_ms",
+        "p95_latency_ms",
+        "indexing_time",
+        "storage_size"
+      ]
+    },
+    "api_profile": "v0.27.2",
+    "http_contract_enabled": false,
+    "remote_requires_https": true,
+    "binding_registry": "derived-runtime-only",
+    "production_search": "mapped-authorized-current-revision-only",
+    "benchmark_search": "diagnostic-only",
+    "deployment": {
+      "upstream_repository": "https://github.com/infiniflow/ragflow.git",
+      "release": "v0.27.2",
+      "image": "infiniflow/ragflow:v0.27.2",
+      "vendor_compose": false,
+      "preflight_only_by_default": true,
+      "minimum_cpu_cores": 4,
+      "minimum_ram_gb": 16,
+      "minimum_disk_gb": 50,
+      "minimum_docker": "24.0.0",
+      "minimum_compose": "2.26.1",
+      "minimum_vm_max_map_count": 262144
+    }
+  },
+  "ingestion": {
+    "native_processes_initial": 1,
+    "llm_every_entity": false,
+    "skip_unchanged": true,
+    "capture_hash_required": true,
+    "incremental_drive_changes": true,
+    "unsupported_format_policy": "quarantine-not-success"
+  },
+  "models": {
+    "paid_remote_api_enabled": false,
+    "text_candidates": [
+      "BAAI/bge-m3",
+      "Qwen/Qwen3-Embedding-0.6B"
+    ],
+    "silent_model_fallback": false,
+    "model_revision_required": true
+  },
+  "note": "Design policy; this reference package does not launch these services.",
+  "lightrag": {
+    "enabled": false,
+    "role": "comparison-derived-retrieval-only",
+    "release": "v1.5.7",
+    "release_image_digest": null,
+    "query_endpoint": "/query/data",
+    "auth_verify_endpoint": "/auth/verify",
+    "api_key_required": true,
+    "remote_requires_https": true,
+    "binding_registry": "derived-runtime-only",
+    "production_search": "mapped-authorized-current-revision-only",
+    "benchmark_search": "diagnostic-only",
+    "promotion_gate": "reuse-provider-neutral-benchmark"
+  }
+}
