@@ -7,11 +7,12 @@ only when SION_DRIVE_SERVICE_ACCOUNT is set and google-api-python-client exists.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
+
+from sion_ingestion.agent_bridge import detect_google_drive_root
 
 from sion_drive_store.store import DriveLayout
-from sion_ingestion.agent_bridge import detect_google_drive_root
 
 
 def publish_to_mounted_drive(stage_root: Path, drive_root: Path | None = None) -> dict:

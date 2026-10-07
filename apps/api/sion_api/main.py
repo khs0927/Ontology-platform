@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from datetime import datetime
 from pathlib import Path
-import uuid
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
-from sqlalchemy.orm import Session
-
 from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 from sion_ingestion.document_ingest import ingest_documents
@@ -20,6 +18,7 @@ from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
 )
+from sqlalchemy.orm import Session
 
 from . import models, repository, schemas, vector_repository
 from .auth import AuthPolicy, require_scope

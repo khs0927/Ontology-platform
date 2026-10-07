@@ -3,12 +3,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "apps" / "api"))
@@ -138,7 +137,7 @@ def install_automated_task() -> None:
             "/TR", f'"{python_exe}" "{script_path}"',
         ]
         try:
-            res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
             print(f"[+] Successfully installed Windows Scheduled Task: {task_name} (Runs every 15 mins)")
         except Exception as e:
             print(f"[!] Failed to register scheduled task: {e}")
@@ -150,7 +149,7 @@ def install_automated_task() -> None:
             if str(script_path) not in cur_cron:
                 new_cron = cur_cron + cron_line
                 subprocess.run(["crontab", "-"], input=new_cron, text=True, check=True)
-                print(f"[+] Successfully added user cron job (Runs every 15 mins)")
+                print("[+] Successfully added user cron job (Runs every 15 mins)")
             else:
                 print("[*] Cron job is already installed.")
         except Exception as e:
