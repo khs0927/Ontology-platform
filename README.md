@@ -102,3 +102,13 @@ Relations use half-open validity intervals: `[valid_from, valid_to)`.
 - Temporal comparisons are normalized to UTC; SQLite timestamps read back without tzinfo are interpreted as UTC.
 
 This keeps superseded design facts queryable for permit/construction revisions without treating old facts as currently valid.
+
+## Gap fill
+
+- `POST /api/v1/ingest/documents` `{paths:[...]}` — md/txt/csv, unverified evidence
+- `POST /api/v1/ingest/dxf` `{path}` — TEXT/INSERT/LINE/LWPOLYLINE
+- `POST /api/v1/ingest/ifc` `{path}` — IFC products/spatial elements (IfcOpenShell optional, STEP fallback)
+- `GET /map` — graph view over `/api/v1/graph`
+- DeepSeek/Hermes/ZCode local log readers
+- `migrations/005_age_projection.sql` optional AGE graph
+- `sion_drive_store.upload.publish_to_mounted_drive`
