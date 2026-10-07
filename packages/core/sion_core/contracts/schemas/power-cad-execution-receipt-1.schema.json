@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/power-cad-execution-receipt-1.schema.json",
+  "title": "power-cad-execution-receipt/1",
+  "description": "Producer: power-cad-mcp ExecutionReceiptContract.Project (dotnet/PowerCad.Server/ExecutionReceiptContract.cs, pinned f2a8469). A read-only projection of a persisted cad_plan into execution evidence. Sion may store it as evidence only: it never overwrites canonical facts and never triggers a retry.",
+  "type": "object",
+  "required": [
+    "schema",
+    "receipt_status",
+    "plan_state",
+    "plan_terminal",
+    "executor",
+    "plan_id",
+    "document_id",
+    "committed",
+    "rollback_verified",
+    "auto_retry_allowed",
+    "requires_manual_reconciliation",
+    "safe_to_create_replacement_plan",
+    "canonical_mutation",
+    "evidence_only",
+    "reasons",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "power-cad-execution-receipt/1"
+    },
+    "receipt_status": {
+      "enum": [
+        "COMMITTED",
+        "ROLLED_BACK",
+        "REJECTED",
+        "INDETERMINATE"
+      ]
+    },
+    "plan_state": {
+      "enum": [
+        "Executing",
+        "Committed",
+        "Failed",
+        "Indeterminate"
+      ]
+    },
+    "plan_terminal": {
+      "type": "boolean"
+    },
+    "executor": {
+      "const": "power-cad"
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "document_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "committed": {
+      "type": "boolean"
+    },
+    "rollback_verified": {
+      "type": "boolean"
+    },
+    "mutation_started": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "error_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "auto_retry_allowed": {
+      "const": false
+    },
+    "requires_manual_reconciliation": {
+      "type": "boolean"
+    },
+    "safe_to_create_replacement_plan": {
+      "type": "boolean"
+    },
+    "canonical_mutation": {
+      "const": false
+    },
+    "evidence_only": {
+      "const": true
+    },
+    "source_binding_handoff_digest": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_byte_revision_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parser_revision_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "executor_result_digest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "receipt_digest": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "receipt_status": {
+            "const": "INDETERMINATE"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "committed": {
+            "const": false
+          },
+          "requires_manual_reconciliation": {
+            "const": true
+          },
+          "safe_to_create_replacement_plan": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "receipt_status": {
+            "const": "COMMITTED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "plan_state": {
+            "const": "Committed"
+          },
+          "committed": {
+            "const": true
+          },
+          "requires_manual_reconciliation": {
+            "const": false
+          },
+          "safe_to_create_replacement_plan": {
+            "const": false
+          },
+          "reasons": {
+            "maxItems": 0
+          }
+        },
+        "required": [
+          "executor_result_digest"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "receipt_status": {
+            "const": "ROLLED_BACK"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "plan_state": {
+            "const": "Failed"
+          },
+          "committed": {
+            "const": false
+          },
+          "rollback_verified": {
+            "const": true
+          },
+          "requires_manual_reconciliation": {
+            "const": false
+          },
+          "safe_to_create_replacement_plan": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "receipt_status": {
+            "const": "REJECTED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "plan_state": {
+            "const": "Failed"
+          },
+          "committed": {
+            "const": false
+          },
+          "rollback_verified": {
+            "const": false
+          },
+          "mutation_started": {
+            "const": false
+          },
+          "requires_manual_reconciliation": {
+            "const": false
+          },
+          "safe_to_create_replacement_plan": {
+            "const": true
+          }
+        },
+        "required": [
+          "mutation_started"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "plan_state": {
+            "const": "Executing"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "plan_terminal": {
+            "const": false
+          },
+          "receipt_status": {
+            "const": "INDETERMINATE"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "plan_terminal": {
+            "const": true
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

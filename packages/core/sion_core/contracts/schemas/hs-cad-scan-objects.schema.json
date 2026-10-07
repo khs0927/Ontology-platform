@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/hs-cad-scan-objects.schema.json",
+  "title": "HS-CAD ModelSpace scan export",
+  "description": "Producer: HS-CAD 'python -m src.main scan' / export_objects_json (ZWCAD COM scan, pinned 45d16b6); example examples/sample_objects/layer_semantic_sample.json. A list of ModelSpace objects keyed by the native handle. Sion treats it as evidence about one DWG revision, never as a canonical fact source.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["handle", "entity_type", "layer"],
+    "properties": {
+      "handle": {"type": "string", "minLength": 1},
+      "object_name": {"type": "string", "pattern": "^AcDb[A-Za-z0-9]+$"},
+      "entity_type": {"type": "string", "pattern": "^[A-Z0-9_]+$"},
+      "layer": {"type": "string"},
+      "color": {"type": "integer", "minimum": 0, "maximum": 257},
+      "start": {"$ref": "#/$defs/point"},
+      "end": {"$ref": "#/$defs/point"},
+      "insert": {"$ref": "#/$defs/point"},
+      "points": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+      "closed": {"type": "boolean"},
+      "area": {"type": "number", "minimum": 0},
+      "name": {"type": "string"},
+      "effective_name": {"type": "string"},
+      "text": {"type": "string"}
+    },
+    "additionalProperties": true
+  },
+  "$defs": {
+    "point": {"type": "array", "minItems": 2, "maxItems": 3, "items": {"type": "number"}}
+  }
+}

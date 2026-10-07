@@ -61,6 +61,7 @@ all = [
 # Tooling
 test = [
   "httpx==0.28.1",
+  "jsonschema==4.26.0",
   "pytest==9.1.1",
 ]
 dev = [
@@ -89,6 +90,8 @@ addopts = "-q"
 packages = [
   "sion_api",
   "sion_core",
+  "sion_core.contracts",
+  "sion_core.contracts.schemas",
   "sion_ingestion",
   "sion_cad",
   "sion_bim",
@@ -132,6 +135,7 @@ god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
 
 [tool.setuptools.package-data]
+sion_core = ["contracts/schemas/*.json"]
 aec_intelligence = [
   "resources/*.json",
   "resources/*.ttl",

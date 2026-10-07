@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/hs-cad-command.schema.json",
+  "title": "HS-CAD command envelope",
+  "description": "Consumer: HS-CAD 'python -m src.main run-command' (src/ai/command_parser.py + command_validator.py, pinned 45d16b6). Only the listed commands are accepted; mutations need --execute on the CLI and backup/preview safety. Sion does not produce or execute these; the schema exists so Sion-side planners and reviewers can check proposals before a human runs them.",
+  "type": "object",
+  "required": ["command"],
+  "properties": {
+    "command": {
+      "enum": [
+        "scan_all", "scan_layers", "scan_blocks", "scan_texts", "export_objects_json",
+        "move_layer", "move_object_by_handle", "replace_text", "replace_block",
+        "delete_layer_objects", "create_boundary", "create_grid", "place_columns",
+        "place_beams_2d", "generate_quantity_report", "save_as", "load_xicad",
+        "detect_xicad", "build_xicad_catalog", "run_xicad_command", "xicad_workflow",
+        "run_xicad_workflow", "xicad_safe_plan", "xicad_safe_execute", "analyze_architecture",
+        "draft_section_details"
+      ]
+    },
+    "params": {"type": "object"},
+    "safety": {
+      "type": "object",
+      "properties": {
+        "backup_required": {"type": "boolean"},
+        "preview_required": {"type": "boolean"},
+        "allow_interactive": {"type": "boolean"}
+      }
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {"if": {"properties": {"command": {"enum": ["move_layer", "delete_layer_objects"]}}},
+     "then": {"required": ["params"], "properties": {"params": {"required": ["layer"], "properties": {"layer": {"type": "string", "pattern": "\\S"}}}}}},
+    {"if": {"properties": {"command": {"const": "move_object_by_handle"}}},
+     "then": {"required": ["params"], "properties": {"params": {"required": ["handle"], "properties": {"handle": {"type": "string", "pattern": "\\S"}}}}}},
+    {"if": {"properties": {"command": {"const": "replace_text"}}},
+     "then": {"required": ["params"], "properties": {"params": {"required": ["find"], "properties": {"find": {"type": "string", "pattern": "\\S"}}}}}},
+    {"if": {"properties": {"command": {"const": "replace_block"}}},
+     "then": {"required": ["params"], "properties": {"params": {"required": ["target_block", "new_block"], "properties": {"target_block": {"type": "string", "pattern": "\\S"}, "new_block": {"type": "string", "pattern": "\\S"}}}}}},
+    {"if": {"properties": {"command": {"const": "run_xicad_command"}}},
+     "then": {"required": ["params"], "properties": {"params": {"required": ["alias"], "properties": {"alias": {"type": "string", "pattern": "\\S"}}}}}},
+    {"if": {"properties": {"command": {"enum": ["xicad_safe_plan", "xicad_safe_execute"]}}},
+     "then": {"required": ["alias"], "properties": {"alias": {"type": "string", "pattern": "\\S"}}}}
+  ]
+}
