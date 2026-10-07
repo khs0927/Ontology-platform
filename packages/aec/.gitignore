@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+*.egg-info/
+runtime/
+projects/
+
+*.db
+!docker/Dockerfile.db
+*.sqlite3
+.cache/
+.coverage
+
+.env
+
+# Host-side ops logs (scripts/ops/*.ps1 write here; may name private drawing paths)
+logs/

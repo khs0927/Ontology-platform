@@ -4,6 +4,7 @@ import json
 import os
 import shlex
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,11 @@ class AecCairError(RuntimeError):
     """Raised when the optional Ontology/CAIR bridge cannot return trusted context."""
 
 
+def bundled_root() -> Path:
+    """packages/aec inside the Sion monorepo checkout."""
+    return Path(__file__).resolve().parents[2] / "aec"
+
+
 @dataclass(frozen=True)
 class AecCairConfig:
     command: tuple[str, ...]
@@ -33,8 +39,18 @@ class AecCairConfig:
         root = os.getenv("SION_AEC_ONTOLOGY_ROOT")
         if not root:
             return None
-        raw_command = os.getenv("SION_AEC_MCP_COMMAND", "aec-mcp")
-        command = tuple(shlex.split(raw_command, posix=os.name != "nt"))
+        raw_command = os.getenv("SION_AEC_MCP_COMMAND")
+        if root.strip().lower() == "bundled":
+            # khs0927/Ontology now lives in this monorepo (packages/aec). Run its MCP stdio
+            # server with the current interpreter unless a command is given explicitly.
+            root = str(bundled_root())
+            command = (
+                tuple(shlex.split(raw_command, posix=os.name != "nt"))
+                if raw_command
+                else (sys.executable, "-m", "aec_intelligence.mcp_stdio")
+            )
+        else:
+            command = tuple(shlex.split(raw_command or "aec-mcp", posix=os.name != "nt"))
         if not command:
             raise AecCairError("SION_AEC_MCP_COMMAND must not be empty")
         timeout = float(os.getenv("SION_AEC_MCP_TIMEOUT", "20"))

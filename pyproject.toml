@@ -15,10 +15,20 @@ dependencies = [
   "psycopg[binary]==3.3.6",
 ]
 
+[project.scripts]
+sion-migrate = "sion_api.migrate:main"
+god-cad = "god_cad.cli:main"
+aec = "aec_intelligence.cli:main"
+aec-mcp = "aec_intelligence.mcp_stdio:main"
+aec-mcp-http = "aec_intelligence.mcp_http:main"
+
 [project.optional-dependencies]
 # Feature extras (install only what you need; the core install stays light)
 cad = [
   "ezdxf>=1.4.4,<2",
+  # GOD-CAD analysis (packages/cad/god-cad): preview rendering and geometry
+  "Pillow>=11,<13",
+  "numpy>=2,<2.5",
 ]
 bim = [
   "ifcopenshell>=0.9,<0.10",
@@ -99,6 +109,13 @@ packages = [
   "archontos.query",
   "archontos.rules",
   "archontos.storage",
+  # GOD-CAD (git subtree at packages/cad/god-cad)
+  "god_cad",
+  "god_cad.adapters",
+  # khs0927/Ontology AEC/CAIR engine (git subtree at packages/aec)
+  "aec_intelligence",
+  "aec_intelligence.operational",
+  "aec_intelligence.operational.graphrag",
 ]
 
 [tool.setuptools.package-dir]
@@ -111,3 +128,13 @@ sion_cair = "packages/cair/sion_cair"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
 archontos = "packages/regulation/src/archontos"
+god_cad = "packages/cad/god-cad/src/god_cad"
+aec_intelligence = "packages/aec/src/aec_intelligence"
+
+[tool.setuptools.package-data]
+aec_intelligence = [
+  "resources/*.json",
+  "resources/*.ttl",
+  "operational/migrations/*.sql",
+  "operational/web/*.html",
+]
