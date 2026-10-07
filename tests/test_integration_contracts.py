@@ -62,8 +62,7 @@ POWER_CAD_GETS = {
 }
 POWER_CAD_POSTS = {
     "/v1/ask": {"question", "project", "top_k", "generate"},
-    # power-cad also sends "model"; the API ignores unknown body keys (documented drift).
-    "/v1/search": {"query", "top_k", "kind", "storey", "project_id"},
+    "/v1/search": {"query", "top_k", "kind", "storey", "project_id", "model"},
 }
 
 
@@ -92,6 +91,8 @@ def test_aec_operational_api_serves_every_power_cad_request_shape():
     assert ask["question"]["maxLength"] == 2000
     search = schemas["SearchRequest"]["properties"]
     assert (search["top_k"]["minimum"], search["top_k"]["maximum"]) == (1, 100)
+    # power-cad's embedding-model hint is accepted and validated (422 for a different model)
+    assert any(option.get("type") == "string" for option in search["model"]["anyOf"])
 
 
 class _FakeAec:

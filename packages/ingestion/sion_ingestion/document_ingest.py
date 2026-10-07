@@ -1,21 +1,49 @@
 """Local document ingestion into the canonical map-export contract.
 
 Claims stay unverified. No external model is called.
+
+Formats: ``.md``/``.txt``/``.csv`` (always), ``.docx`` (python-docx from the
+``documents`` extra, else a built-in reader of the OOXML ``word/document.xml``),
+``.pdf`` (pypdf from the ``documents`` extra; without it PDFs are reported as
+skipped, never guessed). DOCX "Heading 1-3" paragraphs become markdown headings
+so claim extraction is uniform across formats.
 """
 
 from __future__ import annotations
 
 import hashlib
 import re
+import zipfile
+from dataclasses import dataclass
 from pathlib import Path
+from xml.etree import ElementTree
 
 from sion_api import models
+from sion_core import MissingExtra, require
+from sion_core.optional import is_available
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from sion_ingestion.map_import import MapEdge, MapExport, MapNode, import_map_export
 
 _HEADING = re.compile(r"^(#{1,3})\s+(.+)$", re.MULTILINE)
+_HEADING_STYLE = re.compile(r"^heading\s*([1-3])$", re.IGNORECASE)
+
+TEXT_SUFFIXES = frozenset({".md", ".txt", ".csv"})
+DOCUMENT_SUFFIXES = TEXT_SUFFIXES | {".docx", ".pdf"}
+
+_W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+
+
+class DocumentUnreadable(ValueError):
+    """The file has a supported suffix but its content cannot be read."""
+
+
+@dataclass(frozen=True)
+class ExtractedText:
+    text: str
+    extractor: str
+    page_count: int | None = None
 
 
 def _key(prefix: str, raw: str) -> str:
@@ -23,11 +51,97 @@ def _key(prefix: str, raw: str) -> str:
     return f"{prefix}:{digest}"
 
 
-def build_document_export(paths: list[Path], source: str = "document-ingest") -> MapExport:
+def supported_suffixes() -> set[str]:
+    """Suffixes ingestible with the libraries installed right now."""
+    suffixes = set(TEXT_SUFFIXES) | {".docx"}  # DOCX always has the built-in reader
+    if is_available("pypdf"):
+        suffixes.add(".pdf")
+    return suffixes
+
+
+def _heading_line(text: str, style_name: str) -> str:
+    match = _HEADING_STYLE.match(style_name.strip())
+    return f"{'#' * int(match.group(1))} {text}" if match else text
+
+
+def _docx_with_python_docx(path: Path) -> str:
+    docx = require("docx", extra="documents")
+    lines: list[str] = []
+    for para in docx.Document(str(path)).paragraphs:
+        text = para.text.strip()
+        if text:
+            lines.append(_heading_line(text, (para.style.name if para.style is not None else "") or ""))
+    return "\n".join(lines)
+
+
+def _docx_builtin(path: Path) -> str:
+    """Body-level paragraphs of word/document.xml; heading levels from styles.xml names."""
+    with zipfile.ZipFile(path) as archive:
+        document = ElementTree.fromstring(archive.read("word/document.xml"))
+        style_names: dict[str, str] = {}
+        if "word/styles.xml" in archive.namelist():
+            for style in ElementTree.fromstring(archive.read("word/styles.xml")).iter(f"{_W}style"):
+                name = style.find(f"{_W}name")
+                if name is not None:
+                    style_names[style.get(f"{_W}styleId", "")] = name.get(f"{_W}val", "")
+    body = document.find(f"{_W}body")
+    lines: list[str] = []
+    for para in body.findall(f"{_W}p") if body is not None else []:
+        parts: list[str] = []
+        for node in para.iter():
+            if node.tag == f"{_W}t":
+                parts.append(node.text or "")
+            elif node.tag == f"{_W}tab":
+                parts.append("\t")
+            elif node.tag in {f"{_W}br", f"{_W}cr"}:
+                parts.append("\n")
+        text = "".join(parts).strip()
+        if not text:
+            continue
+        style = para.find(f"{_W}pPr/{_W}pStyle")
+        style_id = style.get(f"{_W}val", "") if style is not None else ""
+        lines.append(_heading_line(text, style_names.get(style_id, style_id)))
+    return "\n".join(lines)
+
+
+def extract_text(path: Path) -> ExtractedText:
+    """Text of one document. Raises :class:`MissingExtra` (PDF without pypdf) or :class:`DocumentUnreadable`."""
+    suffix = path.suffix.lower()
+    if suffix == ".pdf":
+        pypdf = require("pypdf", extra="documents")
+        try:
+            reader = pypdf.PdfReader(str(path))
+            if reader.is_encrypted:
+                raise DocumentUnreadable("encrypted PDF")
+            pages = [page.extract_text() or "" for page in reader.pages]
+        except DocumentUnreadable:
+            raise
+        except Exception as exc:  # pypdf raises several error types for damaged files
+            raise DocumentUnreadable(f"PDF could not be read ({type(exc).__name__}: {exc})") from exc
+        return ExtractedText("\n".join(pages), "pypdf", len(pages))
+    if suffix == ".docx":
+        try:
+            if is_available("docx"):
+                return ExtractedText(_docx_with_python_docx(path), "python-docx")
+            return ExtractedText(_docx_builtin(path), "docx-builtin")
+        except Exception as exc:  # BadZipFile, KeyError, ParseError, python-docx package errors
+            raise DocumentUnreadable(f"DOCX could not be read ({type(exc).__name__}: {exc})") from exc
+    if suffix in TEXT_SUFFIXES:
+        return ExtractedText(path.read_text(encoding="utf-8", errors="replace"), "text")
+    raise DocumentUnreadable(f"unsupported document type: {suffix or '(none)'}")
+
+
+def build_document_export(
+    paths: list[Path],
+    source: str = "document-ingest",
+    *,
+    extracted: dict[Path, ExtractedText] | None = None,
+) -> MapExport:
     nodes: list[MapNode] = []
     edges: list[MapEdge] = []
     for path in paths:
-        text = path.read_text(encoding="utf-8", errors="replace")
+        content = (extracted or {}).get(path) or extract_text(path)
+        text = content.text
         doc_key = _key("document", f"{path.resolve()}:{path.stat().st_size}")
         title = path.stem
         headings = [match.group(2).strip() for match in _HEADING.finditer(text)]
@@ -46,6 +160,8 @@ def build_document_export(paths: list[Path], source: str = "document-ingest") ->
                     "byte_size": path.stat().st_size,
                     "heading_count": len(headings),
                     "excerpt_hash": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+                    "extractor": content.extractor,
+                    **({"page_count": content.page_count} if content.page_count is not None else {}),
                 },
             )
         )
@@ -120,12 +236,34 @@ def attach_document_evidence(session: Session, export: MapExport) -> int:
 
 
 def ingest_documents(session: Session, paths: list[Path]) -> dict:
-    files = [path for path in paths if path.is_file() and path.suffix.lower() in {".md", ".txt", ".csv"}]
-    export = build_document_export(files)
+    """Ingest documents; unreadable or unsupported files are reported in ``skipped`` (never a 500)."""
+    files: list[Path] = []
+    extracted: dict[Path, ExtractedText] = {}
+    skipped: list[dict[str, str]] = []
+    for path in paths:
+        if not path.is_file():
+            skipped.append({"path": str(path), "reason": "not a file"})
+            continue
+        if path.suffix.lower() not in DOCUMENT_SUFFIXES:
+            skipped.append({"path": str(path), "reason": f"unsupported type {path.suffix.lower() or '(none)'}"})
+            continue
+        try:
+            content = extract_text(path)
+        except (MissingExtra, DocumentUnreadable) as exc:
+            skipped.append({"path": str(path), "reason": str(exc)})
+            continue
+        if not content.text.strip():
+            skipped.append({"path": str(path), "reason": "no extractable text (scanned PDF? OCR is not performed)"})
+            continue
+        files.append(path)
+        extracted[path] = content
+    export = build_document_export(files, extracted=extracted)
     result = import_map_export(session, export)
     evidence = attach_document_evidence(session, export)
     return {
         "files": [str(path) for path in files],
+        "extractors": {str(path): extracted[path].extractor for path in files},
+        "skipped": skipped,
         "created_nodes": result.created_nodes,
         "created_edges": result.created_edges,
         "skipped_nodes": result.skipped_nodes,
