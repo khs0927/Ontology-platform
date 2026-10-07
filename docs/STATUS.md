@@ -58,7 +58,7 @@ Updated: 2026-09-23 (Asia/Seoul)
 - generated metadata and caches excluded from Git
 
 ### Verification
-- Python unit/integration suite: 49 passing, 1 skipped (2026-10-08)
+- Python unit/integration suite: 54 passing with all extras (2026-10-08)
 - real HTTP smoke test completed
 - real PostgreSQL migration test completed
 - real PostgreSQL + pgvector vector API round-trip completed
@@ -131,3 +131,25 @@ is added.
 - AGE Cypher builder sanitizes labels and escapes literals (`\`, `'`, `$$`).
 - New tests: IFC fallback scanner, DXF layer-0 regression, ingest routes,
   AGE sanitization, non-destructive mounted-Drive publish.
+
+## OSS integration 2026-10-08
+
+- **ezdxf** (`cad` extra) is used for DXF when installed; ASCII fallback kept and
+  now also parses real ezdxf R2013 output.
+- **IfcOpenShell** (`ifc` extra) is used for IFC when installed; STEP fallback kept.
+- **Google Drive API** (`drive` extra): `upload_with_service_account()` with
+  `SION_DRIVE_SERVICE_ACCOUNT` (path to JSON key) + `SION_DRIVE_ROOT_FOLDER_ID`,
+  `drive.file` scope, append-only (identical MD5 skipped, changed content
+  reported as conflict, never overwritten/deleted). `publish()` prefers the
+  API and falls back to the mounted folder.
+- **Apache AGE**: migration 005 is idempotent; `rebuild_projection()` verified
+  against PostgreSQL 17 + AGE 1.7.0 (2 vertices / 1 edge fixture, rebuilt twice).
+  pgvector cosine search re-verified on PostgreSQL 17 + pgvector 0.8.0.
+- `run_agent_bridge.py --provider` now includes deepseek / hermes / zcode.
+- ruff lint clean; wheel/sdist build and PyInstaller Linux build verified.
+
+### Still blocked
+- Structured 31-node / 43-edge map export (not fabricated).
+- Live Drive upload needs a real service account + shared folder id.
+- Windows `.exe` must be built on Windows (CI builds the Linux binary).
+- `/map` page is served from the source tree only; it is not in the wheel.

@@ -112,3 +112,16 @@ This keeps superseded design facts queryable for permit/construction revisions w
 - DeepSeek/Hermes/ZCode local log readers
 - `migrations/005_age_projection.sql` optional AGE graph
 - `sion_drive_store.upload.publish_to_mounted_drive`
+
+## Optional extras
+
+```bash
+pip install -e '.[test,cad,ifc,drive]'   # ezdxf, IfcOpenShell, Google Drive API
+ruff check .                             # lint
+python -m build                          # sdist + wheel
+python scripts/build_exe.py              # PyInstaller agent bridge (bin/)
+SION_TEST_AGE_URL=postgresql+psycopg://... python scripts/verify_age.py
+```
+
+Drive API upload: set `SION_DRIVE_SERVICE_ACCOUNT` (path to a service-account
+JSON key, never committed) and `SION_DRIVE_ROOT_FOLDER_ID`.
