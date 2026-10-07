@@ -565,12 +565,22 @@ def create_app(
             if row is None:
                 raise HTTPException(status_code=404, detail="entity not found")
             entity_properties = row.properties
-        facts = regulation.merge_facts(entity_properties, payload.facts)
+        land = None
+        if payload.land_parcel is not None:
+            try:
+                land = regulation.land_facts_checked(payload.land_parcel)
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=str(exc)) from exc
+        # precedence: entity properties < land.* facts < explicit request facts
+        facts = regulation.merge_facts(regulation.merge_facts(entity_properties, land), payload.facts)
         try:
             result = regulation.evaluate(payload.rule, facts)
         except regulation.RegulationUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"entity_id": payload.entity_id, "engine": "archontos", "result": result}
+        body = {"entity_id": payload.entity_id, "engine": "archontos", "result": result}
+        if land is not None:
+            body["land"] = land["land"]
+        return body
 
     return app
 

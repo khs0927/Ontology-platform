@@ -236,3 +236,5 @@ class RegulationEvaluate(BaseModel):
     rule: dict[str, Any]
     facts: dict[str, Any] = Field(default_factory=dict)
     entity_id: uuid.UUID | None = None
+    # korean-land-mcp analyze_parcel record (contract korean-land-parcel-analysis/2) -> land.* facts
+    land_parcel: dict[str, Any] | None = None
