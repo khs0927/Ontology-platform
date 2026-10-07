@@ -9,11 +9,12 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
+from sion_bim.ifc import ifcopenshell_available, ingest_ifc
+from sion_cad.dxf import ingest_dxf
+from sion_cair import AecCairAdapter, AecCairConfig, AecCairError
+from sion_core import extras_report
 from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
-from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
 from sion_ingestion.document_ingest import ingest_documents
-from sion_ingestion.dxf_ingest import ingest_dxf
-from sion_ingestion.ifc_ingest import ifcopenshell_available, ingest_ifc
 from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
@@ -112,6 +113,11 @@ def create_app(
             "version": __version__,
             "database": engine.dialect.name,
         }
+
+    @app.get("/api/v1/system/extras", dependencies=[Depends(read_knowledge)])
+    def system_extras():
+        """Installed optional extras (cad, bim, rag, drive). Uses find_spec only."""
+        return {"version": __version__, "extras": extras_report()}
 
     @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse, dependencies=[Depends(read_knowledge)])
     def ontology_schema():
