@@ -163,7 +163,7 @@ def main():
     )
     parser.add_argument(
         "--provider",
-        choices=["antigravity", "codex", "claude", "all"],
+        choices=[*PROVIDER_REGISTRY, "all"],
         default="all",
         help="Target agent provider (default: all)",
     )
@@ -224,7 +224,7 @@ def main():
         install_automated_task()
         return
 
-    providers = ["antigravity", "codex", "claude"] if args.provider == "all" else [args.provider]
+    providers = list(PROVIDER_REGISTRY) if args.provider == "all" else [args.provider]
     limit_val = None if args.limit <= 0 else args.limit
 
     if args.daemon:
