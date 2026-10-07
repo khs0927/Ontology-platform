@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/korean-land-parcel-analysis-2.schema.json",
+  "title": "korean-land-mcp analyze_parcel record (v2.0)",
+  "description": "Producer: korean-land-mcp tool analyze_parcel (src/tools/analyze_parcel.ts, pinned ec25b13), returned as JSON text in the MCP content. TypeScript 'undefined' values are dropped by JSON.stringify, so optional members may be absent. Consumer: sion_api.regulation.facts_from_land_parcel, which turns it into fail-closed 'land.*' rule facts. V-World data has no legal force (see disclaimer).",
+  "type": "object",
+  "required": ["query", "parcel", "zoning", "district_plan", "urban_facility", "other_law_designations", "priority_delegation_hint", "buildings", "next_steps", "layer_errors", "source"],
+  "properties": {
+    "query": {"type": "string", "minLength": 2},
+    "parcel": {
+      "type": "object",
+      "required": ["point_wgs84", "administrative"],
+      "properties": {
+        "pnu": {"type": ["string", "null"], "pattern": "^[0-9]{19}$"},
+        "jibun": {"type": ["string", "null"]},
+        "jimok_code": {"type": ["string", "null"]},
+        "jimok": {"type": ["string", "null"]},
+        "is_mountain_register": {"type": "boolean"},
+        "address": {"type": ["string", "null"]},
+        "point_wgs84": {
+          "type": "object",
+          "required": ["x", "y"],
+          "properties": {"x": {"type": "number", "minimum": -180, "maximum": 180}, "y": {"type": "number", "minimum": -90, "maximum": 90}}
+        },
+        "land_price_won_per_m2": {"type": ["number", "null"]},
+        "land_price_gosi_date": {"type": ["string", "null"]},
+        "administrative": {
+          "type": "object",
+          "properties": {"sido": {"type": "string"}, "sigg": {"type": "string"}, "emd_dong": {"type": "string"}, "emd_dong_code": {"type": "string"}}
+        }
+      }
+    },
+    "zoning": {
+      "type": "object",
+      "required": ["use_zone", "use_district", "use_area", "land_transaction_permit"],
+      "properties": {
+        "use_zone": {"type": "array", "items": {"$ref": "#/$defs/hit"}},
+        "use_district": {"type": "array", "items": {"$ref": "#/$defs/hit"}},
+        "use_area": {"type": "array", "items": {"$ref": "#/$defs/hit"}},
+        "land_transaction_permit": {"type": "array", "items": {"$ref": "#/$defs/hit"}}
+      }
+    },
+    "district_plan": {"type": "array", "items": {"$ref": "#/$defs/hit"}},
+    "urban_facility": {"type": "array", "items": {"$ref": "#/$defs/hit"}},
+    "other_law_designations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "category": {"type": "string"},
+          "name": {"type": "string"},
+          "governing_law": {"type": "string"},
+          "triggers_priority_delegation": {"type": "boolean"},
+          "designation_year": {"type": "string"},
+          "designation_number": {"type": "string"}
+        }
+      }
+    },
+    "priority_delegation_hint": {
+      "type": "object",
+      "required": ["applies"],
+      "properties": {
+        "applies": {"type": "boolean"},
+        "rationale": {"type": "string"},
+        "candidates": {"type": "array", "items": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "governing_law": {"type": "string"}}}}
+      }
+    },
+    "buildings": {
+      "type": "object",
+      "required": ["present", "count"],
+      "properties": {"present": {"type": "boolean"}, "count": {"type": "integer", "minimum": 0}}
+    },
+    "next_steps": {"type": "array", "items": {"type": "string"}},
+    "layer_errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["layer", "error_code"],
+        "properties": {"layer": {"type": "string"}, "layer_label": {"type": "string"}, "error_code": {"type": "string"}, "error_message": {"type": "string"}}
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["precision"],
+      "properties": {
+        "resolved_at": {"type": "string"},
+        "total_layers_queried": {"type": "integer", "minimum": 0},
+        "precision": {"enum": ["polygon", "point"]},
+        "precision_note": {"type": "string"}
+      }
+    },
+    "disclaimer": {"type": "string"}
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "hit": {
+      "type": "object",
+      "required": ["layer", "name"],
+      "properties": {
+        "layer": {"type": "string", "pattern": "^LT_C_[A-Z0-9]+$"},
+        "name": {"type": "string"},
+        "layer_label": {"type": "string"},
+        "category": {"type": "string"},
+        "dyear": {"type": "string"},
+        "dnum": {"type": "string"}
+      }
+    }
+  }
+}

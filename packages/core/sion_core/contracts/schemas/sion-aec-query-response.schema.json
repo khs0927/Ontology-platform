@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/sion-aec-query-response.schema.json",
+  "title": "Sion GET /api/v1/aec/query response",
+  "description": "Provider: Sion API (apps/api/sion_api/main.py). Consumer: power-cad-mcp SionAecClient.QueryGlobalMemoryAsync (cad_context_query), which refuses the body unless canonical is the JSON boolean false and read_only is the JSON boolean true, and then uses only the result object.",
+  "type": "object",
+  "required": ["source", "canonical", "read_only", "result"],
+  "properties": {
+    "source": {"type": "string", "minLength": 1},
+    "canonical": {"const": false},
+    "read_only": {"const": true},
+    "result": {"type": "object"}
+  },
+  "additionalProperties": true
+}

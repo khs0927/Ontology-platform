@@ -1,0 +1,16 @@
+{
+  "command": "replace_block",
+  "params": {
+    "target_block": "D900",
+    "new_block": "D1000",
+    "layer": "A-DOOR",
+    "preserve_rotation": true,
+    "preserve_scale": true,
+    "preserve_layer": true,
+    "delete_original": true
+  },
+  "safety": {
+    "backup_required": true,
+    "preview_required": true
+  }
+}
