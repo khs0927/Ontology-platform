@@ -1,6 +1,8 @@
-"""Minimal DXF semantic ingest. No ezdxf dependency.
+"""DXF semantic ingest.
 
-Extracts TEXT/MTEXT, INSERT, LINE, and closed LWPOLYLINE as unverified claims.
+Uses ``ezdxf`` when installed (binary DXF, encodings, MTEXT formatting) and
+falls back to a dependency-free ASCII group-code scanner otherwise.
+Extracts TEXT/MTEXT, INSERT, LINE, and LWPOLYLINE as unverified claims.
 """
 
 from __future__ import annotations
@@ -16,7 +18,8 @@ from sion_ingestion.map_import import MapEdge, MapExport, MapNode, import_map_ex
 
 def _pairs(text: str) -> list[tuple[str, str]]:
     """Return DXF (group code, value) pairs. Codes and values alternate by line."""
-    lines = text.splitlines()
+    # split on newline only: str.splitlines() also breaks on \x1c-\x1e, \x85, ...
+    lines = text.replace("\r\n", "\n").split("\n")
     pairs: list[tuple[str, str]] = []
     index = 0
     while index + 1 < len(lines):
@@ -45,7 +48,7 @@ def _sections(text: str) -> list[tuple[str, list[tuple[str, str]]]]:
     return entities
 
 
-def parse_dxf(path: Path) -> list[dict]:
+def _parse_fallback(path: Path) -> list[dict]:
     text = path.read_text(encoding="utf-8", errors="replace")
     items: list[dict] = []
     for kind, pairs in _sections(text):
@@ -71,8 +74,58 @@ def parse_dxf(path: Path) -> list[dict]:
     return items
 
 
-def build_dxf_export(path: Path) -> MapExport:
-    items = parse_dxf(path)
+def ezdxf_available() -> bool:
+    try:
+        import ezdxf  # noqa: F401
+    except Exception:
+        return False
+    return True
+
+
+def _parse_with_ezdxf(path: Path) -> list[dict]:
+    import ezdxf
+
+    doc = ezdxf.readfile(str(path))
+    items: list[dict] = []
+    for entity in doc.modelspace():
+        kind = entity.dxftype()
+        layer = entity.dxf.get("layer", "")
+        if kind == "TEXT" and entity.dxf.get("text"):
+            items.append({"kind": "annotation", "name": entity.dxf.text, "layer": layer})
+        elif kind == "MTEXT":
+            text = entity.plain_text()
+            if text:
+                items.append({"kind": "annotation", "name": text, "layer": layer})
+        elif kind == "INSERT":
+            items.append({"kind": "block", "name": entity.dxf.name, "layer": layer})
+        elif kind == "LINE":
+            items.append({"kind": "segment", "name": f"line:{layer or '0'}", "layer": layer})
+        elif kind == "LWPOLYLINE":
+            closed = bool(entity.closed)
+            items.append({
+                "kind": "space" if closed else "segment",
+                "name": f"{'space' if closed else 'polyline'}:{layer or '0'}",
+                "layer": layer,
+            })
+    return items
+
+
+def parse_dxf_with_parser(path: Path, *, prefer_ezdxf: bool = True) -> tuple[list[dict], str]:
+    """Return (items, parser) where parser is 'ezdxf' or 'ascii-fallback'."""
+    if prefer_ezdxf and ezdxf_available():
+        try:
+            return _parse_with_ezdxf(path), "ezdxf"
+        except Exception:
+            pass  # unreadable for ezdxf; use the tolerant scanner
+    return _parse_fallback(path), "ascii-fallback"
+
+
+def parse_dxf(path: Path, *, prefer_ezdxf: bool = True) -> list[dict]:
+    return parse_dxf_with_parser(path, prefer_ezdxf=prefer_ezdxf)[0]
+
+
+def build_dxf_export(path: Path, *, prefer_ezdxf: bool = True) -> MapExport:
+    items, parser = parse_dxf_with_parser(path, prefer_ezdxf=prefer_ezdxf)
     drawing_key = "artifact:" + hashlib.sha256(str(path.resolve()).encode()).hexdigest()[:16]
     nodes = [
         MapNode(
@@ -81,7 +134,7 @@ def build_dxf_export(path: Path) -> MapExport:
             name=path.name,
             category="cad_bim",
             external_uri=f"file:///{path.resolve().as_posix()}",
-            properties={"format": "dxf", "item_count": len(items)},
+            properties={"format": "dxf", "parser": parser, "item_count": len(items)},
         )
     ]
     edges: list[MapEdge] = []
