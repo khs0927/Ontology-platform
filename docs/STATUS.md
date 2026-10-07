@@ -176,3 +176,24 @@ Still blocked (needs the owner's data/credentials):
 3. Doppler — no token on this machine.
 4. Apache AGE / production PostgreSQL host — target not selected.
 5. Public deployment — needs hosting, real tokens, and TLS.
+
+## Monorepo consolidation 2026-10-08 (KST)
+
+| Phase | PR | Merged (KST) |
+|---|---|---|
+| 1. agent-bridge exe moved to GitHub Releases + Windows build workflow, v0.2.0 | #23 | 02:04 |
+| 2. `packages/` layout, extras `cad/bim/rag/drive/all/dev`, lazy imports, `uv.lock` | #24 | 02:16 |
+| 3. ArchOntos → `packages/regulation` (subtree), one PostgreSQL (`public` + `regulation` schemas), outbox, rule evaluator, PostgreSQL CI | #25 | 02:21 |
+| 4. Ontology → `packages/aec`, GOD-CAD → `packages/cad/god-cad` (subtrees; binaries excluded), one DXF reader `sion_cad.reader` | #26 | 02:35 |
+| 5. Integration contracts for the bridged repos (`docs/INTEGRATION_CONTRACTS.md`, `sion_core.contracts`, 58 contract tests), `land.*` regulation facts from korean-land-mcp, `dxf_census` | this PR | |
+
+Release: <https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0>.
+
+Bridged (not merged): power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad, CAD-MCP.
+They have separate runtimes (.NET/AutoCAD, ZWCAD COM, Node), and none of them was modified.
+
+Still needs the owner's decision:
+1. Purge the two historical `bin/sion-agent-bridge.exe` blobs (~74 MB of the 73.7 MiB pack) from
+   history. This rewrites history and needs a force push, so it was not done.
+2. Archive the merged source repos (ArchOntos, Ontology, GOD-CAD) and CAD-MCP. Not done.
+3. Structured 31-node/43-edge map export. Still not fabricated.
