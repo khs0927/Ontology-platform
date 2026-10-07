@@ -28,7 +28,8 @@ def test_ezdxf_parser_matches_fallback(tmp_path):
 
 
 def test_ifcopenshell_parser(tmp_path):
-    ifcopenshell = pytest.importorskip("ifcopenshell")
+    pytest.importorskip("ifcopenshell")
+    import ifcopenshell
     import ifcopenshell.guid
 
     model = ifcopenshell.file(schema="IFC4")

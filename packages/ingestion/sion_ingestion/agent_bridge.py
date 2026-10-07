@@ -13,14 +13,10 @@ import string
 import sys
 from typing import Any
 
-from sqlalchemy.orm import Session
-
 from sion_ingestion.map_import import (
-    ImportResult,
     MapEdge,
     MapExport,
     MapNode,
-    import_map_export,
 )
 
 
@@ -643,7 +639,7 @@ class AgentOntologyBridge:
                 )
 
             # 6. Decision Nodes
-            for idx, dec_text in enumerate(sess.decisions):
+            for _idx, dec_text in enumerate(sess.decisions):
                 dec_hash = hashlib.sha256(dec_text.encode()).hexdigest()[:8]
                 dec_key = f"decision:{sess.session_id[:8]}:{dec_hash}"
                 if dec_key not in nodes:

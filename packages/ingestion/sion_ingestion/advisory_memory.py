@@ -140,7 +140,7 @@ def prepare_advisory_candidates(
         created_at = str(getattr(session, "created_at", "") or "")
         decisions = getattr(session, "decisions", []) or []
 
-        for index, raw in enumerate(decisions):
+        for _index, raw in enumerate(decisions):
             decision = str(raw or "").strip()
             if not decision:
                 skipped_empty += 1
