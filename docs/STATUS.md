@@ -1,6 +1,6 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-09-23 (Asia/Seoul)
+Updated: 2026-10-08 (Asia/Seoul)
 
 ## Completed
 
@@ -98,9 +98,11 @@ hard dependency until the final PostgreSQL hosting target is selected and
 extension support is verified.
 
 ### Public deployment
-The API intentionally remains local-only. POST endpoints do not yet have
-write authentication, so it must not be exposed publicly until an auth layer
-is added.
+Write authentication is in place (see "Completion 2026-10-08"). Default mode is
+still `local-only`; public exposure requires the operator to set
+`SION_API_AUTH_MODE=bearer`, real tokens in `SION_API_TOKENS_JSON` (from a
+secret manager, never committed), `SION_INGEST_ROOTS`, and TLS at the proxy.
+No hosting target has been chosen or deployed.
 
 ## Next milestones
 
@@ -111,3 +113,49 @@ is added.
 5. Add LightRAG-compatible GraphRAG boundary.
 6. Add AEC/CAIR adapter for selected useful parts of `khs0927/Ontology`.
 7. Add CAD DXF semantic parser and IFC/IfcOpenShell ingestion.
+
+## Gap fill 2026-10-07
+
+- DeepSeek / Hermes / ZCode readers scan local JSON/JSONL logs.
+- Document ingest writes unverified EXTRACTED_FROM claims plus evidence.
+- DXF parser ingests TEXT, INSERT, LINE, LWPOLYLINE without ezdxf.
+- AGE projection SQL + Cypher builder added. Extension remains optional.
+- Mounted Drive publish copies staged artifacts. Live API upload still needs a service account.
+- /map serves apps/web/index.html against /api/v1/graph.
+- Structured 31/43 map endpoints are still not fabricated.
+
+## Completion 2026-10-08
+
+Verified in a fresh venv (`pip install -e '.[test]'`, Python 3.13):
+**62 passed, 1 skipped** (the skip is the LightRAG test, which needs the
+`graphrag` extra). With `pip install -e '.[test,graphrag]'`: **63 passed**.
+
+- Write auth: every POST route (entities, relations, invalidate, evidence,
+  artifacts, embeddings, graphrag/project, ingest/*) requires `write:knowledge`;
+  reads require `read:knowledge`/`read:aec`. Modes `local-only` (default),
+  `bearer`, `local-or-bearer`; constant-time token comparison; env validation.
+  Tests cover 401/403 per POST route, remote rejection in local-only, and
+  `local-or-bearer` from a non-loopback client.
+- Ingestion path confinement via `SION_INGEST_ROOTS`; refused in remote-auth
+  modes if unset.
+- Document ingest + evidence: tested through the API (evidence rows,
+  `unverified`, idempotent re-ingest).
+- DXF parser: TEXT/INSERT/LINE/open+closed LWPOLYLINE tested.
+- IFC ingestion: new `sion_ingestion.ifc_ingest`, optional `ifcopenshell`
+  (`.[ifc]` extra) with STEP-text fallback; `POST /api/v1/ingest/ifc`.
+  Only the fallback is exercised by tests; the ifcopenshell path is untested
+  here because no real IFC model was provided.
+- Drive: `upload_with_service_account` (optional `.[drive]` extra), tested with
+  a fake Drive client only. Not run against real Drive (no credential).
+- `/map` served and verified to call `/api/v1/graph`.
+- GraphRAG boundary and AEC/CAIR adapter: existing tests pass (unchanged).
+- CI: GitHub workflows aligned on `actions/checkout@v7.0.1` and
+  `actions/setup-python@v7.0.0`. Not executed on GitHub from here.
+
+Still blocked (needs the owner's data/credentials):
+1. Structured 31-node/43-edge Map export — not fabricated.
+2. Drive live upload — needs a service-account key + shared folder ID, or the
+   one-time Windows Scheduled Task registration.
+3. Doppler — no token on this machine.
+4. Apache AGE / production PostgreSQL host — target not selected.
+5. Public deployment — needs hosting, real tokens, and TLS.
