@@ -1,0 +1,11 @@
+{
+  "command": "capture_screen",
+  "params": {
+    "out": "outputs/zwcad_screen.png",
+    "bbox": null
+  },
+  "safety": {
+    "backup_required": false,
+    "preview_required": false
+  }
+}

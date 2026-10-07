@@ -19,5 +19,14 @@
 - A canonical Drive snapshot may be promoted only from a clean Git working tree.
 
 ## Integration
-- khs0927/Ontology is an optional AEC/CAIR integration source, not a hard dependency of the core platform.
+- This is the main monorepo. ArchOntos (`packages/regulation`), Ontology (`packages/aec`) and GOD-CAD
+  (`packages/cad/god-cad`) are git subtrees: edit them here, keep their own tests and CI green
+  (`.github/workflows/regulation.yml`, `aec.yml`), and do not rebase branches that contain subtree merges.
+- power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad and CAD-MCP are separate repos bridged by
+  the contracts in `docs/INTEGRATION_CONTRACTS.md` / `sion_core.contracts`. Do not change those repos from
+  here. When an upstream contract changes, update the schema, the pinned commit and the contract tests in
+  one PR.
+- Sion never executes CAD mutations. Data from bridged repos is evidence or request-scoped facts, never
+  canonical state.
+- All DXF reading goes through `sion_cad.reader` (ezdxf + built-in fallback).
 - Check licenses and tests before adopting external code.

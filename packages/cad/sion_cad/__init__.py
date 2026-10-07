@@ -17,6 +17,7 @@ _EXPORTS = {
     "ingest_dxf": "sion_cad.dxf",
     "parse_dxf": "sion_cad.dxf",
     "parse_dxf_with_parser": "sion_cad.dxf",
+    "dxf_census": "sion_cad.reader",
     "ezdxf_available": "sion_cad.reader",
     "open_dxf": "sion_cad.reader",
     "read_entities": "sion_cad.reader",

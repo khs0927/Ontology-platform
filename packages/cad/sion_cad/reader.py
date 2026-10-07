@@ -14,6 +14,10 @@ as warnings so they stay auditable.
 
 Without ezdxf, :func:`read_entities` falls back to a small built-in text
 parser (TEXT/MTEXT, INSERT, LINE, LWPOLYLINE in the ENTITIES section).
+
+:func:`dxf_census` produces the All-In-Cad ``DxfEvidence`` shape (model-space
+handle/type/layer census) so the Sion lane and the All-In-Cad headless lane can
+be cross-checked (``docs/INTEGRATION_CONTRACTS.md``).
 """
 
 from __future__ import annotations
@@ -237,7 +241,10 @@ def parse_text_items(path: str | Path) -> list[dict[str, Any]]:
         elif kind == "LINE":
             items.append({"kind": "segment", "name": f"line:{values.get('8', '0')}", "layer": layer, "handle": handle})
         elif kind == "LWPOLYLINE":
-            closed = values.get("70") == "1"
+            try:
+                closed = bool(int(values.get("70", "0")) & 1)
+            except ValueError:
+                closed = False
             items.append({
                 "kind": "space" if closed else "segment",
                 "name": f"{'space' if closed else 'polyline'}:{values.get('8', '0')}",
@@ -263,3 +270,75 @@ def read_entities(path: str | Path, *, prefer_ezdxf: bool = True) -> DxfReadResu
         except Exception as exc:
             warnings = [f"ezdxf failed ({type(exc).__name__}: {exc}); used built-in text parser"]
     return DxfReadResult(parse_text_items(path), "text-fallback", warnings)
+
+
+# --------------------------------------------------------------------------- census
+
+#: Entities that belong to a parent entity and are not model-space members.
+_SUB_ENTITIES = frozenset({"VERTEX", "SEQEND", "ATTRIB"})
+
+
+def _census_from_document(doc: Any) -> tuple[list[dict[str, Any]], bool, list[str]]:
+    # Same audit ezdxf.recover runs (and All-In-Cad relies on). Fixes can remove entities,
+    # e.g. a DIMENSION without its geometry block, so they are reported as warnings.
+    auditor = doc.audit()
+    fixes = [f"audit fix: {fix.message}" for fix in list(auditor.fixes)[:50]]
+    entities = []
+    for entity in doc.modelspace():
+        handle = entity.dxf.get("handle", None)
+        entities.append({
+            "handle": str(handle) if handle is not None else None,
+            "dxftype": entity.dxftype(),
+            "layer": str(entity.dxf.get("layer", "0")),
+        })
+    return entities, bool(auditor.has_errors), fixes
+
+
+def _census_from_text(path: str | Path) -> list[dict[str, Any]]:
+    text = _decode_bytes(Path(path).read_bytes())
+    entities = []
+    for kind, body in _sections(text):
+        if kind in _SUB_ENTITIES:
+            continue
+        values = {code: value for code, value in _pairs(body)}
+        if values.get("67") == "1":  # paper space
+            continue
+        entities.append({"handle": values.get("5") or None, "dxftype": kind, "layer": values.get("8", "0")})
+    return entities
+
+
+def dxf_census(path: str | Path, *, prefer_ezdxf: bool = True) -> dict[str, Any]:
+    """Model-space census in the All-In-Cad ``DxfEvidence`` shape (contract ``all-in-cad-dxf-evidence``).
+
+    With ezdxf the document is opened via :func:`open_dxf` (so CP949 layer names decode) and
+    audited like ``ezdxf.recover``. The built-in parser cannot audit, so it reports
+    ``auditor_has_errors=None`` rather than claiming a clean file.
+    """
+    warnings: list[str] = []
+    entities: list[dict[str, Any]] | None = None
+    has_errors: bool | None = None
+    parser = "text-fallback"
+    if prefer_ezdxf and ezdxf_available():
+        try:
+            doc, warnings = open_dxf(path)
+            entities, has_errors, fixes = _census_from_document(doc)
+            warnings = [*warnings, *fixes]
+            parser = "ezdxf"
+        except IOError:
+            raise
+        except Exception as exc:
+            warnings = [f"ezdxf failed ({type(exc).__name__}: {exc}); used built-in text parser"]
+    if entities is None:
+        entities = _census_from_text(path)
+    layer_counts: dict[str, int] = {}
+    for entity in entities:
+        layer_counts[entity["layer"]] = layer_counts.get(entity["layer"], 0) + 1
+    return {
+        "path": str(path),
+        "entity_count": len(entities),
+        "layer_counts": dict(sorted(layer_counts.items())),
+        "entities": entities,
+        "auditor_has_errors": has_errors,
+        "parser": parser,
+        "warnings": warnings,
+    }
