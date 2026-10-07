@@ -32,10 +32,88 @@ jobs:
       - name: Install project and test dependencies
         run: |
           python -m pip install --upgrade pip
+          python -m pip install -e ".[test,cad,ifc,drive]"
+
+      - name: Run test suite (with ezdxf / IfcOpenShell / Drive client)
+        run: python -m pytest -q
+
+  lint:
+    name: Ruff lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Ruff
+        run: |
+          python -m pip install "ruff>=0.16,<0.17"
+          ruff check .
+
+  fallback-parsers:
+    name: Tests without optional CAD/BIM libraries
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install core + test only
+        run: |
+          python -m pip install --upgrade pip
           python -m pip install -e ".[test]"
 
-      - name: Run test suite
+      - name: Run test suite (dependency-free DXF/IFC fallbacks)
         run: python -m pytest -q
+
+  build:
+    name: Package and executable build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Smoke-test the wheel in a clean venv
+        run: |
+          python -m venv /tmp/wheel-venv
+          /tmp/wheel-venv/bin/pip install dist/*.whl
+          cd /tmp && /tmp/wheel-venv/bin/python -c "import sion_api.main, sion_ingestion.ifc_ingest, sion_drive_store, sion_graphrag.age"
+
+      - name: Build agent bridge executable
+        run: |
+          python -m pip install -e . "pyinstaller>=6,<7"
+          python scripts/build_exe.py --distpath dist/bin --workpath build/pyinstaller
+          dist/bin/sion-agent-bridge --dry-run --limit 1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sion-ontology-platform-dist
+          path: dist/
+          retention-days: 7
 
   postgres-migrations:
     name: PostgreSQL migration verification
@@ -110,3 +188,51 @@ jobs:
             END IF;
           END $$;
           SQL
+
+  age-projection:
+    name: Apache AGE projection verification (optional layer)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: apache/age:latest
+        env:
+          POSTGRES_DB: ontology
+          POSTGRES_USER: ontology
+          POSTGRES_PASSWORD: ontology
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ontology -d ontology"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      PGURL: postgresql://ontology:ontology@127.0.0.1:5432/ontology
+      SION_TEST_AGE_URL: postgresql+psycopg://ontology:ontology@127.0.0.1:5432/ontology
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install PostgreSQL client and project
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+          python -m pip install -e .
+
+      - name: Apply core + AGE migrations twice (idempotency)
+        run: |
+          for replay in 1 2; do
+            for migration in migrations/001_core.sql migrations/004_seed_core_types.sql migrations/005_age_projection.sql; do
+              psql "$PGURL" -X -v ON_ERROR_STOP=1 -f "$migration"
+            done
+          done
+
+      - name: Rebuild and verify projection
+        run: python scripts/verify_age.py
