@@ -8,31 +8,74 @@ from __future__ import annotations
 
 import os
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 
 from sion_ingestion.agent_bridge import detect_google_drive_root
 
 from sion_drive_store.store import DriveLayout
 
+HISTORY_DIR = ".history"
+
+
+def _same_content(a: Path, b: Path, chunk: int = 1 << 20) -> bool:
+    """Byte comparison without ``filecmp``'s stat-keyed cache (unsafe with coarse mtimes)."""
+    if a.stat().st_size != b.stat().st_size:
+        return False
+    with a.open("rb") as fa, b.open("rb") as fb:
+        while True:
+            left, right = fa.read(chunk), fb.read(chunk)
+            if left != right:
+                return False
+            if not left:
+                return True
+
 
 def publish_to_mounted_drive(stage_root: Path, drive_root: Path | None = None) -> dict:
+    """Copy staged files into the mounted Drive project folder, one way, never deleting.
+
+    AGENTS.md: a destination file whose *content* differs is first copied to
+    ``<destination>/.history/<UTC timestamp>/<relative path>``, then replaced. Identical
+    files are skipped (compared byte for byte, not by size). Files that exist only on
+    Drive are left alone.
+    """
     root = drive_root or detect_google_drive_root()
     if root is None:
         return {"published": False, "reason": "google drive root not mounted"}
     layout = DriveLayout()
     destination = root / layout.project_root
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    history_root = destination / HISTORY_DIR / stamp
     copied = 0
-    for path in stage_root.rglob("*"):
+    unchanged = 0
+    archived: list[str] = []
+    for path in sorted(stage_root.rglob("*")):
         if not path.is_file():
             continue
         relative = path.relative_to(stage_root)
+        if relative.parts and relative.parts[0] == HISTORY_DIR:
+            continue  # never publish a history tree over the Drive history
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        if target.exists() and target.stat().st_size == path.stat().st_size:
-            continue
+        if target.is_file():
+            if _same_content(path, target):
+                unchanged += 1
+                continue
+            backup = history_root / relative
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(target, backup)
+            archived.append(relative.as_posix())
         shutil.copy2(path, target)
         copied += 1
-    return {"published": True, "copied": copied, "destination": str(destination)}
+    return {
+        "published": True,
+        "copied": copied,
+        "unchanged": unchanged,
+        "archived": len(archived),
+        "archived_paths": archived,
+        "history": str(history_root) if archived else None,
+        "destination": str(destination),
+    }
 
 
 def service_account_configured() -> bool:

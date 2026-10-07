@@ -140,7 +140,10 @@ See [`packages/README.md`](packages/README.md) for the package map.
 | `cad` (alias `dxf`) | ezdxf >=1.4.4 | built-in DXF text parser |
 | `bim` (alias `ifc`) | ifcopenshell >=0.9 | built-in STEP text parser |
 | `rag` (alias `graphrag`) | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
-| `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works |
+| `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works (changed Drive files are first copied to `.history/<UTC stamp>/`) |
+| `regulation` | pydantic-settings, sqlalchemy[asyncio], asyncpg, … (ArchOntos services) | `/api/v1/regulation/evaluate` returns 503 |
+| `documents` | pypdf >=6.19, python-docx >=1.2 | DOCX via the built-in OOXML reader; PDFs reported as `skipped` |
+| `validation` | rdflib >=7.6, pyshacl >=0.40.1 | `GET /api/v1/validation/shacl` returns 503 |
 | `all` | all of the above | |
 | `test` | pytest, httpx, jsonschema (contract validation) | |
 | `dev` | `test` + ruff 0.16.10, build 1.6.1 | |

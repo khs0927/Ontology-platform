@@ -197,3 +197,14 @@ Still needs the owner's decision:
    history. This rewrites history and needs a force push, so it was not done.
 2. Archive the merged source repos (ArchOntos, Ontology, GOD-CAD) and CAD-MCP. Not done.
 3. Structured 31-node/43-edge map export. Still not fabricated.
+
+## Follow-up 2026-10-08 (KST)
+
+- #19 (API validation matching the PostgreSQL CHECK constraints) was updated with main and merged.
+- From the superseded #21: PDF/DOCX ingest (`documents` extra; DOCX also without it), the SHACL
+  validation endpoint `GET /api/v1/validation/shacl` (`validation` extra, shapes
+  `ontology/validation/sion-core.shacl.ttl` or `SION_SHACL_SHAPES`), and Drive backup-before-replace
+  (`.history/<UTC stamp>/`, byte comparison instead of size, never deletes).
+- aec `POST /v1/search` now accepts power-cad-mcp's `model` hint and rejects a model other than
+  `AEC_EMBEDDING_MODEL` with 422 (previously ignored silently).
+- #20 and #21 were closed as superseded (#22–#27 and the follow-up PR).

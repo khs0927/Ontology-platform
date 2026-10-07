@@ -78,7 +78,7 @@ Configuration on the power-cad side: `POWERCAD_ONTOLOGY_URL`, bearer token, `POW
 | `GET /v1/blocks` `project_id, name_like, limit, cursor` | yes |
 | `GET /v1/drawings` `project_id, category, limit, cursor` | yes |
 | `GET /v1/elements/{object_id}/context?hops` (power-cad clamps 1–2) | yes (`limit` too) |
-| `POST /v1/search` `{query, top_k 1–100, kind?, storey?, project_id?, model?}` | yes; **`model` is ignored** (not a `SearchRequest` field) |
+| `POST /v1/search` `{query, top_k 1–100, kind?, storey?, project_id?, model?}` | yes; `model` (embedding-model hint) must equal the index's `AEC_EMBEDDING_MODEL` (case-insensitive) or the request gets **422** with the expected name; omitting it is unchanged |
 | `POST /v1/ask` `{question 1–2000 chars, project?, top_k 1–30, generate}` | yes; bounds identical to `AskRequest` |
 
 `/v1/ask` returns the GraphRAG object unchanged (answer, route, citations, refusal, warnings). A valid

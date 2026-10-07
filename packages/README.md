@@ -9,13 +9,13 @@ need them (`sion_core.require()` gives an actionable error naming the extra).
 |---|---|---|---|
 | `../apps/api` | `sion_api` | FastAPI canonical API | – |
 | `core/` | `sion_core` | dependency-free helpers (optional-extra registry, lazy import) and `sion_core.contracts`: JSON Schemas for the bridged repos ([docs/INTEGRATION_CONTRACTS.md](../docs/INTEGRATION_CONTRACTS.md)) | – (`jsonschema` from `test` to validate) |
-| `ingestion/` | `sion_ingestion` | map import, documents, agent logs, advisory memory, project contracts | – |
+| `ingestion/` | `sion_ingestion` | map import, documents (md/txt/csv, DOCX, PDF), agent logs, advisory memory, project contracts | `documents` (PDF; DOCX has a built-in reader) |
 | `cad/` | `sion_cad` | **the one DXF reading path** (`sion_cad.reader`: ezdxf strict → recover, CP949 detection, built-in text fallback; `dxf_census` in the All-In-Cad evidence shape), Sion DXF ingestion, GOD-CAD analysis bridge (`sion_cad.analysis`) | `cad` |
 | `cad/god-cad/` | `god_cad` | GOD-CAD evidence-linked DXF analysis: stable entity identities, 2D geometry subset (mm), layer-prior semantic candidates, endpoint topology, edit-plan simulation. Merged with full history via `git subtree` from khs0927/GOD-CAD | `cad` |
 | `bim/` | `sion_bim` | IFC parsing + ingestion (ifcopenshell, builtin STEP fallback) | `bim` |
 | `cair/` | `sion_cair` | read-only AEC/CAIR federation over MCP stdio; `SION_AEC_ONTOLOGY_ROOT=bundled` runs the in-repo `aec_intelligence` | – |
 | `aec/` | `aec_intelligence` | khs0927/Ontology AEC engine: DXF/IFC/PDF/raster adapters, CAIR, classifier, compliance, MCP gateway, operational stack. Merged with full history via `git subtree` (binary blobs excluded) | `cad`, `bim` (+ its own extras, see `packages/aec/pyproject.toml`) |
-| `drive-store/` | `sion_drive_store` | content-addressed artifact lake, Drive publish/upload | `drive` |
+| `drive-store/` | `sion_drive_store` | content-addressed artifact lake, Drive publish (one-way, backup-before-replace into `.history/`) and service-account upload | `drive` |
 | `graphrag/` | `sion_graphrag` | LightRAG GraphRAG projection, Apache AGE projection | `rag` |
 | `regulation/` | `archontos` (+ its own `apps.*` services) | ArchOntos regulation fabric: evidence, assertions + review, rule DSL compiler/evaluator, outbox, RLS. Merged with full history via `git subtree` from khs0927/ArchOntos | `regulation` |
 

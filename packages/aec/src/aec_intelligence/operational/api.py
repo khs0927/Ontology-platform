@@ -43,6 +43,13 @@ class SearchRequest(BaseModel):
     kind: str | None = Field(default=None, description="Optional object kind (e.g. Wall, Door, Window)")
     top_k: int = Field(default=10, ge=1, le=100, description="Max results to return")
     expand_graph: bool = Field(default=True, description="Whether to expand relations via Apache AGE")
+    model: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=200,
+        description="Optional embedding-model hint (power-cad-mcp ontology_search). Must name the model this "
+        "index was embedded with (AEC_EMBEDDING_MODEL); any other value is rejected with 422.",
+    )
 
 
 class AskRequest(BaseModel):
@@ -245,6 +252,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/v1/search")
     def search(req: SearchRequest) -> dict[str, Any]:
+        if req.model is not None and req.model.strip().casefold() != current_settings.embedding_model.casefold():
+            # Vectors from different models are not comparable; refuse instead of silently ignoring the hint.
+            raise HTTPException(
+                status_code=422,
+                detail=f"model {req.model.strip()!r} is not this index's embedding model "
+                f"({current_settings.embedding_model!r}); omit 'model' or pass that name",
+            )
         router = SearchRouter(db, current_settings)
         result = router.search(
             query=req.query,
