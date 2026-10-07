@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aec-intelligence"
+version = "0.1.0"
+description = "Local-first AEC Semantic Design Intelligence prototype"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+cad = ["ezdxf>=1.3"]
+bim = ["ifcopenshell>=0.9"]
+gis = ["shapely>=2", "pyproj>=3", "geopandas>=0.14", "rasterio>=1.3"]
+pdf = ["PyMuPDF>=1.24"]
+# Korean OCR for scanned PDF pages / images (PP-OCR det + korean PP-OCRv5 rec, ONNX on CPU; ~23 MB of models)
+ocr = ["rapidocr>=3.4", "onnxruntime>=1.18"]
+vision = ["Pillow>=10", "PyMuPDF>=1.24", "CairoSVG>=2.7"]
+semantic = ["rdflib>=7", "pyoxigraph>=0.5"]
+shacl = ["rdflib>=7", "pyshacl>=0.40"]
+parquet = ["pyarrow>=15"]
+runtime = ["duckdb>=1", "neo4j>=5"]
+operational = ["psycopg[binary]>=3.1", "fastapi>=0.120", "starlette>=0.49.1", "uvicorn>=0.29", "ezdxf>=1.3", "Pillow>=10", "jsonschema>=4", "PyMuPDF>=1.24"]
+dev = ["pytest>=8", "httpx>=0.27", "jsonschema>=4", "fastapi>=0.120", "starlette>=0.49.1", "psycopg[binary]>=3.1", "pyarrow>=15", "ifcopenshell>=0.9"]
+
+[project.scripts]
+aec = "aec_intelligence.cli:main"
+aec-mcp = "aec_intelligence.mcp_stdio:main"
+aec-mcp-http = "aec_intelligence.mcp_http:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aec_intelligence = ["resources/*.json", "resources/*.ttl", "operational/migrations/*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+# Correctness-only gate (CI): syntax errors, pyflakes, mutable/call defaults, late-binding closures.
+select = ["E9", "F", "B006", "B008", "B023"]
