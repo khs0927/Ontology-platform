@@ -111,3 +111,13 @@ is added.
 5. Add LightRAG-compatible GraphRAG boundary.
 6. Add AEC/CAIR adapter for selected useful parts of `khs0927/Ontology`.
 7. Add CAD DXF semantic parser and IFC/IfcOpenShell ingestion.
+
+## Gap fill 2026-10-07
+
+- DeepSeek / Hermes / ZCode readers scan local JSON/JSONL logs.
+- Document ingest writes unverified EXTRACTED_FROM claims plus evidence.
+- DXF parser ingests TEXT, INSERT, LINE, LWPOLYLINE without ezdxf.
+- AGE projection SQL + Cypher builder added. Extension remains optional.
+- Mounted Drive publish copies staged artifacts. Live API upload still needs a service account.
+- /map serves apps/web/index.html against /api/v1/graph.
+- Structured 31/43 map endpoints are still not fabricated.

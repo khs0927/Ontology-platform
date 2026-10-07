@@ -7,11 +7,13 @@ import uuid
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 
 from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
 from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
+from sion_ingestion.document_ingest import ingest_documents
+from sion_ingestion.dxf_ingest import ingest_dxf
 from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
@@ -441,6 +443,30 @@ def create_app(
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return {"canonical": False, **result}
+
+    @app.get("/map")
+    def ontology_map():
+        page = Path(__file__).resolve().parents[3] / "apps" / "web" / "index.html"
+        if not page.exists():
+            raise HTTPException(status_code=404, detail="map page missing")
+        return FileResponse(page)
+
+    @app.post("/api/v1/ingest/documents", dependencies=[Depends(write_knowledge)])
+    def ingest_document_route(payload: dict, session: Session = Depends(get_session)):
+        paths = [Path(item) for item in payload.get("paths", [])]
+        if not paths:
+            raise HTTPException(status_code=422, detail="paths required")
+        return ingest_documents(session, paths)
+
+    @app.post("/api/v1/ingest/dxf", dependencies=[Depends(write_knowledge)])
+    def ingest_dxf_route(payload: dict, session: Session = Depends(get_session)):
+        raw = payload.get("path")
+        if not raw:
+            raise HTTPException(status_code=422, detail="path required")
+        path = Path(raw)
+        if path.suffix.lower() != ".dxf" or not path.is_file():
+            raise HTTPException(status_code=422, detail="dxf file required")
+        return ingest_dxf(session, path)
 
     return app
 
