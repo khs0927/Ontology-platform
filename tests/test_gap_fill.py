@@ -1,3 +1,4 @@
+from pathlib import Path
 
 from sion_ingestion.agent_bridge import DeepSeekReader, HermesReader, ZCodeReader
 from sion_ingestion.document_ingest import build_document_export
@@ -34,3 +35,14 @@ def test_dxf_parser_reads_text_and_insert(tmp_path):
     path.write_text("0\nSECTION\n2\nENTITIES\n0\nTEXT\n8\nA-NOTE\n1\nDOOR\n0\nINSERT\n8\nA-DOOR\n2\nDOOR_BLOCK\n0\nENDSEC\n0\nEOF\n", encoding="utf-8")
     items = parse_dxf(path)
     assert {item["kind"] for item in items} == {"annotation", "block"}
+
+
+def test_override_excludes_home_defaults(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    (home / ".zcode").mkdir(parents=True)
+    (home / ".zcode" / "real.jsonl").write_text('{"role":"user","content":"private"}\n', encoding="utf-8")
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+    monkeypatch.setenv("SION_ZCODE_ROOT", str(tmp_path / "empty"))
+    assert ZCodeReader().discover() == []
+    monkeypatch.delenv("SION_ZCODE_ROOT")
+    assert len(ZCodeReader().discover()) == 1

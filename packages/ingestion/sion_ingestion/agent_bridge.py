@@ -382,9 +382,11 @@ def _reader_roots(env_key: str, defaults: tuple[str, ...]) -> list[Path]:
     roots: list[Path] = []
     override = os.environ.get(env_key)
     if override:
+        # An explicit override is authoritative: do not also scan home defaults.
         roots.append(Path(override).expanduser())
-    home = Path.home()
-    roots.extend(home / part for part in defaults)
+    else:
+        home = Path.home()
+        roots.extend(home / part for part in defaults)
     seen: set[Path] = set()
     unique: list[Path] = []
     for root in roots:
