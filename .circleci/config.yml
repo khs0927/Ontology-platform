@@ -12,7 +12,7 @@ jobs:
           name: Install package with test and GraphRAG extras
           command: |
             python -m pip install --upgrade pip
-            python -m pip install -e ".[test,graphrag]"
+            python -m pip install -e ".[test,graphrag,ingest,validation]"
       - run:
           name: Run tests
           command: python -m pytest

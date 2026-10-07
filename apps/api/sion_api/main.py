@@ -118,6 +118,26 @@ def create_app(
             raise HTTPException(status_code=503, detail="ontology schema unavailable")
         return path.read_text(encoding="utf-8")
 
+    @app.get("/api/v1/validation/shacl", dependencies=[Depends(read_knowledge)])
+    def shacl_validation(
+        limit: int = Query(default=10000, ge=1, le=100000),
+        session: Session = Depends(get_session),
+    ):
+        from sion_ingestion.shacl_validation import ShaclUnavailable, validate_session
+
+        shapes = settings.ontology_path.parent.parent / "validation" / "sion-core.shacl.ttl"
+        if not shapes.exists():
+            raise HTTPException(status_code=503, detail="SHACL shapes unavailable")
+        try:
+            report = validate_session(session, shapes, limit=limit)
+        except ShaclUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        return {
+            "conforms": report.conforms,
+            "triple_count": report.triple_count,
+            "violations": report.violations[:200],
+        }
+
     @app.get("/api/v1/bootstrap/map-inventory", dependencies=[Depends(read_knowledge)])
     def map_inventory():
         path: Path = settings.map_inventory_path

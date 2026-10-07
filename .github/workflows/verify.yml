@@ -32,7 +32,7 @@ jobs:
       - name: Install project and test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[test]"
+          python -m pip install -e ".[test,ingest,validation]"
 
       - name: Run test suite
         run: python -m pytest -q
@@ -110,3 +110,23 @@ jobs:
             END IF;
           END $$;
           SQL
+
+  package-build:
+    name: Python package build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+          python -m pip install dist/*.whl
+          python -c "import sion_api, sion_ingestion.shacl_validation, sion_ingestion.dxf_ingest"
