@@ -14,6 +14,8 @@ Usage::
     python -m archontos.db.migrate --baseline 007  # adopt a DB created by the old initdb path
 
 DSN: ``ARCHONTOS_DATABASE_URL`` (``postgresql+asyncpg://`` is accepted) or ``--dsn``.
+Schema: ``--schema`` / ``ARCHONTOS_DB_SCHEMA`` creates that schema if needed and migrates into it
+(search_path ``<schema>, public``), so ArchOntos can share a database with other table sets.
 """
 
 from __future__ import annotations
@@ -31,6 +33,7 @@ import asyncpg
 
 MIGRATION_LOCK_KEY = 7_146_221_101
 _SELF_TRANSACTIONAL = re.compile(r"^\s*BEGIN\s*;", re.IGNORECASE)
+_SCHEMA_NAME = re.compile(r"^[a-z_][a-z0-9_]{0,62}$")
 
 
 class MigrationError(RuntimeError):
@@ -75,6 +78,20 @@ def discover(migrations_dir: Path | None = None) -> list[Migration]:
             )
         seen[prefix] = m.version
     return found
+
+
+def validate_schema_name(schema: str) -> str:
+    """Accept only plain lower-case identifiers; they are interpolated into DDL."""
+    if not _SCHEMA_NAME.match(schema):
+        raise MigrationError(f"invalid schema name {schema!r} (use [a-z_][a-z0-9_]*)")
+    return schema
+
+
+async def use_schema(conn: asyncpg.Connection, schema: str) -> None:
+    """Create ``schema`` if needed and make it the first entry of the session search_path."""
+    name = validate_schema_name(schema)
+    await conn.execute(f'CREATE SCHEMA IF NOT EXISTS "{name}"')
+    await conn.execute(f'SET search_path TO "{name}", public')
 
 
 def plain_dsn(dsn: str) -> str:
@@ -205,6 +222,11 @@ async def _main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dir", default=None, type=Path, help="default: ./db/migrations")
     parser.add_argument("--status", action="store_true", help="show applied/pending and exit")
     parser.add_argument(
+        "--schema",
+        default=os.getenv("ARCHONTOS_DB_SCHEMA") or None,
+        help="migrate into this PostgreSQL schema (default: ARCHONTOS_DB_SCHEMA or current)",
+    )
+    parser.add_argument(
         "--baseline", default=None, help="mark migrations up to VERSION as applied (initdb DBs)"
     )
     args = parser.parse_args(argv)
@@ -215,6 +237,8 @@ async def _main(argv: list[str] | None = None) -> int:
         dsn = get_settings().database_url
     conn = await asyncpg.connect(plain_dsn(dsn), timeout=30)
     try:
+        if args.schema:
+            await use_schema(conn, args.schema)
         if args.status:
             print(await status(conn, args.dir))
             return 0
