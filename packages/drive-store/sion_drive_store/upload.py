@@ -64,7 +64,7 @@ def build_service_account_client(credentials_path: str | None = None):
         from googleapiclient.discovery import build
     except ImportError as exc:
         raise DriveUploadUnavailable(
-            "install the optional extra: pip install -e '.[drive]'"
+            "install the optional extra: pip install 'sion-ontology-platform[drive]'"
         ) from exc
     creds = service_account.Credentials.from_service_account_file(path, scopes=_SCOPES)
     return build("drive", "v3", credentials=creds, cache_discovery=False)
