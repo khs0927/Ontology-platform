@@ -10,9 +10,11 @@ need them (`sion_core.require()` gives an actionable error naming the extra).
 | `../apps/api` | `sion_api` | FastAPI canonical API | – |
 | `core/` | `sion_core` | dependency-free helpers (optional-extra registry, lazy import) | – |
 | `ingestion/` | `sion_ingestion` | map import, documents, agent logs, advisory memory, project contracts | – |
-| `cad/` | `sion_cad` | DXF parsing + ingestion (ezdxf, builtin text fallback) | `cad` |
+| `cad/` | `sion_cad` | **the one DXF reading path** (`sion_cad.reader`: ezdxf strict → recover, CP949 detection, built-in text fallback), Sion DXF ingestion, GOD-CAD analysis bridge (`sion_cad.analysis`) | `cad` |
+| `cad/god-cad/` | `god_cad` | GOD-CAD evidence-linked DXF analysis: stable entity identities, 2D geometry subset (mm), layer-prior semantic candidates, endpoint topology, edit-plan simulation. Merged with full history via `git subtree` from khs0927/GOD-CAD | `cad` |
 | `bim/` | `sion_bim` | IFC parsing + ingestion (ifcopenshell, builtin STEP fallback) | `bim` |
-| `cair/` | `sion_cair` | read-only AEC/CAIR federation with khs0927/Ontology via MCP stdio | – |
+| `cair/` | `sion_cair` | read-only AEC/CAIR federation over MCP stdio; `SION_AEC_ONTOLOGY_ROOT=bundled` runs the in-repo `aec_intelligence` | – |
+| `aec/` | `aec_intelligence` | khs0927/Ontology AEC engine: DXF/IFC/PDF/raster adapters, CAIR, classifier, compliance, MCP gateway, operational stack. Merged with full history via `git subtree` (binary blobs excluded) | `cad`, `bim` (+ its own extras, see `packages/aec/pyproject.toml`) |
 | `drive-store/` | `sion_drive_store` | content-addressed artifact lake, Drive publish/upload | `drive` |
 | `graphrag/` | `sion_graphrag` | LightRAG GraphRAG projection, Apache AGE projection | `rag` |
 | `regulation/` | `archontos` (+ its own `apps.*` services) | ArchOntos regulation fabric: evidence, assertions + review, rule DSL compiler/evaluator, outbox, RLS. Merged with full history via `git subtree` from khs0927/ArchOntos | `regulation` |
@@ -49,3 +51,22 @@ and the shared migration runner: [`docs/DATABASE.md`](../docs/DATABASE.md).
 Upstream history is preserved (`git log -- packages/regulation`). To pull later
 upstream commits while khs0927/ArchOntos is still active:
 `git subtree pull --prefix=packages/regulation https://github.com/khs0927/ArchOntos.git main`.
+
+## packages/aec (khs0927/Ontology) and packages/cad/god-cad (khs0927/GOD-CAD)
+
+Both keep their own `pyproject.toml`, tests and docs, and run in
+`.github/workflows/aec.yml`. History is preserved (`git log -- packages/aec`).
+For packages/aec the history was imported from a local `git filter-repo` copy
+without binary blobs (`*.parquet` regenerable exports, the `simple_house.dwg`
+fixture and a `.bin` fixture); DWG tests that need the real file skip. The
+upstream repositories were not modified.
+
+DXF reading is consolidated: `aec_intelligence.dxf.read_dxf`,
+`god_cad.adapters.dxf` and `sion_cad.dxf` all call `sion_cad.reader`. The
+built-in fallback parser matches ezdxf item-for-item on all nine Korean
+drawing fixtures (including the CP949 one). The aec api/worker image is now
+built from the monorepo root:
+`docker build -f packages/aec/docker/Dockerfile.app .` (compose updated).
+
+Entry points installed by the root distribution: `god-cad`, `aec`, `aec-mcp`,
+`aec-mcp-http`, `sion-migrate`.

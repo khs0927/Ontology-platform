@@ -66,8 +66,9 @@ services:
   migrate:
     image: aec-intelligence-app:latest
     build:
-      context: .
-      dockerfile: docker/Dockerfile.app
+      # Sion monorepo root: the image also needs packages/cad/sion_cad (shared DXF reader)
+      context: ../..
+      dockerfile: packages/aec/docker/Dockerfile.app
     container_name: aec-migrate
     command: python -m aec_intelligence.operational.cli init-db
     environment:
@@ -82,8 +83,9 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.app
+      # Sion monorepo root: the image also needs packages/cad/sion_cad (shared DXF reader)
+      context: ../..
+      dockerfile: packages/aec/docker/Dockerfile.app
     image: aec-intelligence-app:latest
     container_name: aec-api
     ports:
