@@ -6,6 +6,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+# Mirrors the verification_state CHECK constraints in migrations/001_core.sql.
+VerificationState = Literal["unverified", "machine_verified", "human_verified", "rejected"]
+
 
 class EntityCreate(BaseModel):
     stable_key: str = Field(min_length=1, max_length=500)
@@ -32,7 +35,7 @@ class RelationCreate(BaseModel):
     target_entity_id: uuid.UUID
     relation_type_id: str = Field(min_length=1, max_length=100)
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
-    verification_state: str = "unverified"
+    verification_state: VerificationState = "unverified"
     source_kind: str | None = None
     ontology_version: str | None = None
     valid_from: datetime | None = None
@@ -47,6 +50,13 @@ class RelationCreate(BaseModel):
         if isinstance(value, datetime):
             return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
         return value
+
+    @model_validator(mode="after")
+    def no_typed_self_loop(self):
+        # Mirrors the relations self-loop CHECK in migrations/001_core.sql.
+        if self.source_entity_id == self.target_entity_id and self.relation_type_id != "RELATED_TO":
+            raise ValueError("self-referencing relations must use RELATED_TO")
+        return self
 
     @model_validator(mode="after")
     def validity_order(self):
@@ -88,7 +98,7 @@ class EvidenceCreate(BaseModel):
     source_locator: str | None = None
     excerpt_hash: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
-    verification_state: str = "unverified"
+    verification_state: VerificationState = "unverified"
     extractor: str | None = None
     model: str | None = None
     properties: dict[str, Any] = Field(default_factory=dict)
