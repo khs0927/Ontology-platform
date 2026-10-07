@@ -9,10 +9,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install package with test and GraphRAG extras
+          name: Install package with test, GraphRAG, CAD/IFC and Drive extras
           command: |
             python -m pip install --upgrade pip
-            python -m pip install -e ".[test,graphrag]"
+            python -m pip install -e ".[test,graphrag,cad,ifc,drive]"
       - run:
           name: Run tests
           command: python -m pytest

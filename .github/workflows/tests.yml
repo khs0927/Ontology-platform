@@ -16,17 +16,17 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.12"
 
-      - name: Install package with test and GraphRAG extras
+      - name: Install package with test, GraphRAG, CAD/IFC and Drive extras
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[test,graphrag]"
+          python -m pip install -e ".[test,graphrag,cad,ifc,drive]"
 
       - name: Run tests
         run: python -m pytest
