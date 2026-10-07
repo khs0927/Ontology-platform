@@ -55,8 +55,18 @@ regulation = [
   "opentelemetry-api>=1.29,<2",
   "opentelemetry-sdk>=1.29,<2",
 ]
+# PDF / DOCX document ingest (without it: DOCX via the built-in OOXML reader, PDF skipped)
+documents = [
+  "pypdf>=6.19,<7",
+  "python-docx>=1.2,<2",
+]
+# SHACL validation endpoint GET /api/v1/validation/shacl (without it: 503)
+validation = [
+  "rdflib>=7.6,<8",
+  "pyshacl>=0.40.1,<1",
+]
 all = [
-  "sion-ontology-platform[cad,bim,rag,drive,regulation]",
+  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,validation]",
 ]
 # Tooling
 test = [
