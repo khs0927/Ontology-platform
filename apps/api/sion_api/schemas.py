@@ -6,7 +6,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-
 # Mirrors the verification_state CHECK constraints in migrations/001_core.sql.
 VerificationState = Literal["unverified", "machine_verified", "human_verified", "rejected"]
 
