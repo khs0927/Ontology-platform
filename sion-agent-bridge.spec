@@ -3,7 +3,7 @@
 
 a = Analysis(
     ['scripts/run_agent_bridge.py'],
-    pathex=['apps/api', 'packages/ingestion', 'packages/drive-store'],
+    pathex=['apps/api', 'packages/core', 'packages/ingestion', 'packages/cad', 'packages/bim', 'packages/cair', 'packages/drive-store'],
     binaries=[],
     datas=[],
     hiddenimports=['sion_api', 'sion_api.db', 'sion_api.models', 'sion_api.repository', 'sion_ingestion', 'sion_ingestion.agent_bridge', 'sion_ingestion.map_import', 'sqlalchemy', 'pydantic'],
