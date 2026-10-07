@@ -20,7 +20,7 @@ from sion_ingestion.project_contracts import (
 )
 from sqlalchemy.orm import Session
 
-from . import models, repository, schemas, vector_repository
+from . import __version__, models, repository, schemas, vector_repository
 from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -69,7 +69,7 @@ def create_app(
 
     app = FastAPI(
         title="Sion Ontology API",
-        version="0.1.0",
+        version=__version__,
         description="Canonical API for Sion ontology, knowledge graph and evidence.",
     )
     app.state.settings = settings
@@ -109,7 +109,7 @@ def create_app(
         return {
             "status": "ok",
             "service": "sion-ontology-api",
-            "version": "0.1.0",
+            "version": __version__,
             "database": engine.dialect.name,
         }
 
