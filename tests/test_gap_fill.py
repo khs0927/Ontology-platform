@@ -1,3 +1,4 @@
+from pathlib import Path
 
 from sion_ingestion.agent_bridge import DeepSeekReader, HermesReader, ZCodeReader
 from sion_ingestion.document_ingest import build_document_export
@@ -14,6 +15,7 @@ def test_local_readers_use_override(tmp_path, monkeypatch):
 
 
 def test_hermes_and_zcode_empty_without_logs(tmp_path, monkeypatch):
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("SION_HERMES_ROOT", str(tmp_path / "missing-h"))
     monkeypatch.setenv("SION_ZCODE_ROOT", str(tmp_path / "missing-z"))
     assert HermesReader().discover() == []
