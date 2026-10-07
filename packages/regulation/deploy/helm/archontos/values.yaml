@@ -1,0 +1,62 @@
+image:
+  repository: ghcr.io/khs0927/archontos
+  tag: latest
+  pullPolicy: IfNotPresent
+
+services:
+  ingestion:
+    enabled: true
+    module: apps.ingestion:app
+    port: 8001
+  normalization:
+    enabled: true
+    module: apps.normalization:app
+    port: 8002
+  rule-engine:
+    enabled: true
+    module: apps.rule_engine:app
+    port: 8003
+  projection:
+    enabled: true
+    module: apps.projection:app
+    port: 8004
+  action:
+    enabled: true
+    module: apps.action:app
+    port: 8005
+
+env:
+  ARCHONTOS_ENV: production
+  ARCHONTOS_OTEL_ENABLED: "true"
+  # Refuse to start if ARCHONTOS_DATABASE_URL logs in as a superuser/BYPASSRLS/owner role.
+  # Provision the login with `python -m archontos.db.roles ensure-login` (member of
+  # archontos_app); run migrations with a separate migrator credential.
+  ARCHONTOS_DB_PRIVILEGE_CHECK: enforce
+
+# Database, object storage and secret values are intentionally externalized.
+# Use External Secrets / Vault / platform secret management in production.
+
+# Per-container resources. CPU requests are required for CPU-based autoscaling.
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# HorizontalPodAutoscaler (autoscaling/v2) per service. A service can override any key under
+# services.<name>.autoscaling. When enabled, the Deployment omits `replicas` so the HPA owns it.
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+  # targetMemoryUtilizationPercentage: 80
+
+networkPolicy:
+  enabled: true
+  # The default policy only allows traffic between ArchOntos pods and DNS. PostgreSQL, object
+  # storage and law.go.kr are outside the release, so list them here, e.g.
+  #   - to: [{ipBlock: {cidr: 10.0.0.10/32}}]
+  #     ports: [{protocol: TCP, port: 5432}]
+  extraEgress: []

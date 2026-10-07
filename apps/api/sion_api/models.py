@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import (
+    JSON,
     BigInteger,
     CheckConstraint,
     DateTime,
@@ -11,7 +12,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
-    JSON,
     String,
     Text,
     UniqueConstraint,
@@ -229,3 +229,34 @@ class Evidence(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, nullable=False
     )
+
+
+class OutboxEvent(Base):
+    """Transactional outbox (pattern adopted from ArchOntos ADR-0001).
+
+    Rows are written by a ``before_flush`` hook in the same transaction as the
+    canonical change, so a projection consumer (GraphRAG, AGE, regulation
+    normalizer, Drive publisher) can never miss or see an uncommitted change.
+    Consumers pull pending rows and acknowledge them; failures get retry metadata.
+    """
+
+    __tablename__ = "outbox_events"
+    __table_args__ = (
+        CheckConstraint("attempts >= 0", name="ck_outbox_attempts"),
+        Index("idx_outbox_pending", "published_at", "next_attempt_at"),
+        Index("idx_outbox_aggregate", "aggregate_type", "aggregate_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    aggregate_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    aggregate_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    next_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    consumer: Mapped[str | None] = mapped_column(String(200), nullable=True)

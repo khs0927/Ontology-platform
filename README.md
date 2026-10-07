@@ -2,7 +2,7 @@
 
 Local-first ontology / knowledge graph / GraphRAG platform with automated multi-agent session ingestion, evidence tracking, and cross-device Google Drive persistence.
 
-Current milestone: safe cross-device persistence & multi-agent real-data ingestion.
+Current milestone: monorepo consolidation (v0.2.0) — regulation, AEC and GOD-CAD merged; bridged repos on versioned contracts.
 
 - **Code history**: Git/GitHub (`khs0927/Ontology-platform`)
 - **Active editing**: Local disk on each computer
@@ -52,21 +52,34 @@ This platform automatically discovers and ingests interaction sessions from mult
 
 ## Integration Policy
 
-The existing `khs0927/Ontology` repository is integrated through adapters only after individual components pass compatibility and license checks. Live runtime databases stay local; Google Drive receives logical dumps, snapshots, and canonical manifests.
+This repository is the **main monorepo**. ArchOntos (`packages/regulation`), Ontology / `aec_intelligence`
+(`packages/aec`) and GOD-CAD (`packages/cad/god-cad`) were merged with full history via `git subtree`
+(see [`packages/README.md`](packages/README.md)). Six repositories stay separate and are **bridged by
+versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad and CAD-MCP.
+See [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md). JSON Schemas ship in
+`sion_core.contracts` and are covered by `tests/test_integration_contracts.py`. Live runtime databases
+stay local; Google Drive receives logical dumps, snapshots, and canonical manifests.
 
 ### AEC/CAIR federation
 
-The ingestion package now includes a read-only `AecCairAdapter` that talks to the public `khs0927/Ontology` repository through its `aec-mcp` stdio boundary. It does not import CAIR rows into Sion automatically and it cannot call mutating Ontology tools.
-
-Configure it only on a machine that has the Ontology checkout and `aec-mcp` available:
+`sion_cair.AecCairAdapter` talks to `aec_intelligence` through its `aec-mcp` stdio boundary, read-only.
+It does not import CAIR rows into Sion automatically and it cannot call mutating tools. Use the bundled
+copy, or an external Ontology checkout:
 
 ```powershell
-$env:SION_AEC_ONTOLOGY_ROOT = "C:\\CODE\\Ontology"
-$env:SION_AEC_MCP_COMMAND = "aec-mcp"
+$env:SION_AEC_ONTOLOGY_ROOT = "bundled"            # in-repo packages/aec (python -m aec_intelligence.mcp_stdio)
+# or: $env:SION_AEC_ONTOLOGY_ROOT = "C:\CODE\Ontology"; $env:SION_AEC_MCP_COMMAND = "aec-mcp"
 ```
 
-Allowed federation calls are limited to `aec.get_object`, `aec.query_global_memory`, `aec.graph_backend_plan`, and the in-memory `aec.graph_hydradb_preview`. Canonical Sion persistence remains independent.
+Allowed federation calls are limited to `aec.get_object`, `aec.query_global_memory`, `aec.graph_backend_plan`,
+and the in-memory `aec.graph_hydradb_preview`. Canonical Sion persistence remains independent.
+`GET /api/v1/aec/query` answers power-cad-mcp's `cad_context_query` with `canonical: false, read_only: true`.
 
+### Regulation facts from korean-land-mcp
+
+`POST /api/v1/regulation/evaluate` accepts `land_parcel` (a korean-land-mcp `analyze_parcel` record) and
+turns it into fail-closed `land.*` facts for the ArchOntos rule evaluator. Overlay absences that cannot
+be verified (point lookup, layer errors) are withheld, so the rule returns REVIEW.
 
 ### API security
 
@@ -102,3 +115,43 @@ Relations use half-open validity intervals: `[valid_from, valid_to)`.
 - Temporal comparisons are normalized to UTC; SQLite timestamps read back without tzinfo are interpreted as UTC.
 
 This keeps superseded design facts queryable for permit/construction revisions without treating old facts as currently valid.
+
+## Gap fill
+
+- `POST /api/v1/ingest/documents` `{paths:[...]}` — md/txt/csv, unverified evidence
+- `POST /api/v1/ingest/dxf` `{path}` — TEXT/INSERT/LINE/LWPOLYLINE
+- `GET /map` — graph view over `/api/v1/graph`
+- DeepSeek/Hermes/ZCode local log readers
+- `migrations/005_age_projection.sql` optional AGE graph
+- `sion_drive_store.upload.publish_to_mounted_drive`
+- `POST /api/v1/ingest/ifc` `{path}` — IFC via optional `ifcopenshell` (`pip install -e '.[ifc]'`), dependency-free STEP fallback otherwise; `GET /api/v1/ingest/ifc/status` reports which parser is active
+- `sion_drive_store.upload.upload_with_service_account` — optional Drive API upload (`pip install -e '.[drive]'`, `SION_DRIVE_SERVICE_ACCOUNT=<path to key JSON>`, `SION_DRIVE_FOLDER_ID=<folder shared with the service account>`). Never deletes or overwrites; same-name/different-size files are reported as conflicts.
+
+### Ingestion path confinement
+
+Ingest routes read files on the server. Set `SION_INGEST_ROOTS` (OS path-separator list) to confine them. When `SION_API_AUTH_MODE` is `bearer` or `local-or-bearer` and no roots are set, ingest routes return 403.
+
+### Packages and optional extras
+
+See [`packages/README.md`](packages/README.md) for the package map.
+
+| Extra | Library | Without it |
+|---|---|---|
+| `cad` (alias `dxf`) | ezdxf >=1.4.4 | built-in DXF text parser |
+| `bim` (alias `ifc`) | ifcopenshell >=0.9 | built-in STEP text parser |
+| `rag` (alias `graphrag`) | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
+| `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works |
+| `all` | all of the above | |
+| `test` | pytest, httpx, jsonschema (contract validation) | |
+| `dev` | `test` + ruff 0.16.10, build 1.6.1 | |
+
+```bash
+pip install -e '.[all,dev]' && ruff check . && pytest && python -m build
+# or, reproducibly from uv.lock
+uv sync --locked --extra all --extra dev && uv run pytest
+```
+
+### Windows agent bridge binary
+
+`sion-agent-bridge.exe` is published on [GitHub Releases](https://github.com/khs0927/Ontology-platform/releases)
+by the `Release agent bridge` workflow; it is no longer committed. See [`bin/README.md`](bin/README.md).

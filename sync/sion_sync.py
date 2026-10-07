@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, hashlib, json, os, re, shutil, subprocess, sys, tempfile
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 

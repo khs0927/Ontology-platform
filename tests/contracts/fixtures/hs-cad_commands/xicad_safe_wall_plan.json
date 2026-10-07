@@ -1,0 +1,15 @@
+{
+  "command": "xicad_safe_plan",
+  "alias": "WAL",
+  "load_first": true,
+  "dry_run": true,
+  "params": {
+    "note": "벽 그리기 명령을 실행하기 전 preview만 생성"
+  },
+  "safety": {
+    "backup_required": true,
+    "preview_required": true,
+    "allow_interactive": false,
+    "allow_high_risk": false
+  }
+}
