@@ -1,0 +1,14 @@
+@prefix aec: <https://example.org/aec#> .
+@prefix bot: <https://w3id.org/bot#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+aec:SpatialElement rdfs:subClassOf bot:Zone .
+aec:Site rdfs:subClassOf bot:Site .
+aec:Building rdfs:subClassOf bot:Building .
+aec:Storey rdfs:subClassOf bot:Storey .
+aec:Space rdfs:subClassOf bot:Space .
+aec:Element rdfs:subClassOf bot:Element .
+aec:hasBuilding rdfs:subPropertyOf bot:hasBuilding .
+aec:hasStorey rdfs:subPropertyOf bot:hasStorey .
+aec:hasSpace rdfs:subPropertyOf bot:hasSpace .
+aec:adjacentTo rdfs:subPropertyOf bot:adjacentZone .
