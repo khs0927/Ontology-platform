@@ -16,17 +16,23 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.12"
 
-      - name: Install package with test and GraphRAG extras
+      - name: Install package with all optional extras
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[test,graphrag]"
+          python -m pip install -e ".[all,test,dev]"
 
-      - name: Run tests
+      - name: Lint
+        run: ruff check .
+
+      - name: Run tests (all extras)
         run: python -m pytest
+
+      - name: Build wheel and sdist
+        run: python -m build

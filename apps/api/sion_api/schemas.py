@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Literal
-import uuid
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from sqlalchemy.exc import IntegrityError
-
 from sion_api import models
 from sion_api.db import Base, build_engine, build_session_factory
+from sqlalchemy.exc import IntegrityError
 
 
 def test_sqlite_foreign_keys_are_enabled_and_reject_invalid_references():

@@ -7,15 +7,14 @@ Hindsight failures never mutate or block Sion canonical persistence.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
 import hashlib
 import ipaddress
 import os
-from pathlib import Path
 import re
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Iterable
 from urllib.parse import urlparse
-
 
 _SECRET_PATTERNS = (
     re.compile(r"\bsk-[A-Za-z0-9_-]{12,}\b"),

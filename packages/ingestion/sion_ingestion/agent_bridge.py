@@ -1,26 +1,22 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import socket
 import string
 import sys
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
-from sqlalchemy.orm import Session
-
 from sion_ingestion.map_import import (
-    ImportResult,
     MapEdge,
     MapExport,
     MapNode,
-    import_map_export,
 )
 
 
@@ -382,22 +378,134 @@ class ClaudeReader(BaseAgentReader):
         return sessions
 
 
-class DeepSeekReader(BaseAgentReader):
+def _reader_roots(env_key: str, defaults: tuple[str, ...]) -> list[Path]:
+    roots: list[Path] = []
+    override = os.environ.get(env_key)
+    if override:
+        # An explicit override is authoritative: do not also scan home defaults.
+        roots.append(Path(override).expanduser())
+    else:
+        home = Path.home()
+        roots.extend(home / part for part in defaults)
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for root in roots:
+        resolved = root.expanduser()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        if resolved.exists() and resolved.is_dir():
+            unique.append(resolved)
+    return unique
+
+
+def _preview(value: Any, limit: int = 160) -> str:
+    text = str(value or "").strip().replace("\n", " ")
+    return text[:limit] or "untitled session"
+
+
+def _collect_from_obj(obj: Any, tools: set[str], artifacts: set[str], decisions: list[str], title: str) -> str:
+    if isinstance(obj, dict):
+        for key in ("title", "name", "summary"):
+            if not title and isinstance(obj.get(key), str):
+                title = _preview(obj[key])
+        role = str(obj.get("role") or obj.get("type") or "")
+        content = obj.get("content") or obj.get("text") or obj.get("message")
+        if role in {"user", "human"} and isinstance(content, str) and title in {"", "untitled session"}:
+            title = _preview(content)
+        tool_name = obj.get("tool_name") or obj.get("name") or obj.get("tool")
+        if role in {"tool_use", "tool", "function"} or obj.get("tool_name"):
+            if isinstance(tool_name, str) and tool_name:
+                tools.add(tool_name)
+        for path_key in ("filePath", "path", "file", "artifact"):
+            raw = obj.get(path_key)
+            if isinstance(raw, str) and raw:
+                artifacts.add(Path(raw).name)
+        if role in {"decision", "assistant"} and isinstance(content, str) and content.lower().startswith("decision"):
+            decisions.append(_preview(content, 240))
+        for value in obj.values():
+            title = _collect_from_obj(value, tools, artifacts, decisions, title)
+    elif isinstance(obj, list):
+        for item in obj:
+            title = _collect_from_obj(item, tools, artifacts, decisions, title)
+    return title
+
+
+class LocalLogReader(BaseAgentReader):
+    """Reads JSON/JSONL agent logs from a provider-specific local directory."""
+
+    env_key = ""
+    default_roots: tuple[str, ...] = ()
+
+    def discover(self, limit: int | None = None) -> list[AgentSession]:
+        sessions: list[AgentSession] = []
+        device_id = get_device_id()
+        files: list[Path] = []
+        for root in _reader_roots(self.env_key, self.default_roots):
+            files.extend(path for path in root.rglob("*") if path.suffix.lower() in {".json", ".jsonl"} and path.is_file())
+        files.sort(key=lambda path: path.stat().st_mtime, reverse=True)
+        if limit is not None:
+            files = files[:limit]
+        for fpath in files:
+            tools: set[str] = set()
+            artifacts: set[str] = set()
+            decisions: list[str] = []
+            title = ""
+            created_at = datetime.fromtimestamp(fpath.stat().st_mtime, timezone.utc).isoformat()
+            try:
+                raw = fpath.read_text(encoding="utf-8", errors="replace")
+                payloads: list[Any] = []
+                if fpath.suffix.lower() == ".jsonl":
+                    for line in raw.splitlines():
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            payloads.append(json.loads(line))
+                        except json.JSONDecodeError:
+                            continue
+                else:
+                    payloads.append(json.loads(raw))
+                for payload in payloads:
+                    title = _collect_from_obj(payload, tools, artifacts, decisions, title)
+                    if isinstance(payload, dict):
+                        created_at = str(payload.get("created_at") or payload.get("timestamp") or created_at)
+            except Exception:
+                continue
+            session_id = hashlib.sha256(f"{self.provider}:{fpath}".encode()).hexdigest()[:16]
+            sessions.append(
+                AgentSession(
+                    session_id=session_id,
+                    provider=self.provider,
+                    device_id=device_id,
+                    title=title or fpath.stem,
+                    cwd=str(fpath.parent),
+                    created_at=created_at,
+                    tools=tools,
+                    artifacts=artifacts,
+                    decisions=decisions,
+                    source_uri=f"file:///{fpath.as_posix()}",
+                )
+            )
+        return sessions
+
+
+class DeepSeekReader(LocalLogReader):
     provider = "deepseek"
-    def discover(self, limit: int | None = None) -> list[AgentSession]:
-        return []
+    env_key = "SION_DEEPSEEK_ROOT"
+    default_roots = (".deepseek", ".config/deepseek", ".ds2api", ".local/share/deepseek")
 
 
-class HermesReader(BaseAgentReader):
+class HermesReader(LocalLogReader):
     provider = "hermes"
-    def discover(self, limit: int | None = None) -> list[AgentSession]:
-        return []
+    env_key = "SION_HERMES_ROOT"
+    default_roots = (".hermes", ".config/hermes", ".local/share/hermes")
 
 
-class ZCodeReader(BaseAgentReader):
+class ZCodeReader(LocalLogReader):
     provider = "zcode"
-    def discover(self, limit: int | None = None) -> list[AgentSession]:
-        return []
+    env_key = "SION_ZCODE_ROOT"
+    default_roots = (".zcode", ".config/zcode", ".zai", ".config/zai")
 
 
 PROVIDER_REGISTRY: dict[str, type[BaseAgentReader]] = {
