@@ -1,0 +1,177 @@
+"""PDF drawing semantics: title block fields, vector-derived candidates, text-less pages without OCR."""
+from collections import Counter
+from pathlib import Path
+
+import pytest
+
+pymupdf = pytest.importorskip("pymupdf")
+
+from aec_intelligence.classifier import _state  # noqa: E402
+from aec_intelligence.operational.config import Settings  # noqa: E402
+from aec_intelligence.operational.parsers import parse_source  # noqa: E402
+
+
+def _drawing_page(doc):
+    page = doc.new_page(width=842, height=595)
+    text = lambda xy, s, size=6: page.insert_text(xy, s, fontsize=size, fontname="korea")
+    # Title block (bottom right): labels with values to their right.
+    page.draw_rect(pymupdf.Rect(640, 500, 830, 585), width=0.5)
+    for y, label, value in ((515, "도면번호", "A-101"), (530, "도면명", "1층 평면도"), (545, "축척", "1/100"),
+                            (560, "날짜", "2026.05"), (575, "설계", "홍길동 건축사")):
+        text((650, y), label)
+        text((700, y), value)
+    # Wall candidate: two 200pt faces 5.67pt apart (200mm at 1/100), isolated from other parallels.
+    page.draw_line((100, 200), (300, 200), width=0.3)
+    page.draw_line((100, 205.67), (300, 205.67), width=0.3)
+    # Hatching ladder (equal spacing) must not become walls.
+    for k in range(6):
+        page.draw_line((100, 300 + 4 * k), (300, 300 + 4 * k), width=0.1)
+    # Dimension: line with a numeric text just above it.
+    page.draw_line((100, 120), (300, 120), width=0.2)
+    text((190, 117), "6000")
+    # Grid bubble "A" with a long grid line ending at the circle.
+    page.draw_circle((60, 450), 8, width=0.3)
+    text((57, 452), "A")
+    page.draw_line((60, 442), (60, 60), width=0.2)
+    text((400, 400), "일반 주석")
+    return page
+
+
+@pytest.fixture()
+def settings(tmp_path: Path):
+    return Settings(dsn="dummy", data_root=tmp_path / "data", import_roots=(tmp_path,))
+
+
+def _parse(tmp_path, settings, build):
+    path = tmp_path / "drawing.pdf"
+    doc = pymupdf.open()
+    build(doc)
+    doc.save(path)
+    return parse_source(path, "doc_pdf", tmp_path / "data" / "out", settings, "A-101 1층 평면도.pdf")
+
+
+def test_pdf_title_block_fields_match_dxf_schema(tmp_path, settings):
+    result = _parse(tmp_path, settings, _drawing_page)
+    blocks = [o for o in result["objects"] if o["type"] == "TitleBlock"]
+    assert len(blocks) == 1
+    props = blocks[0]["properties"]
+    assert props["drawingNumber"] == "A-101"
+    assert props["drawingTitle"] == "1층 평면도"
+    assert props["scale"] == "1/100"
+    assert props["date"] == "2026.05"
+    assert props["designer"].startswith("홍길동")
+    assert props["classification"]["label"] == "TitleBlock"
+    page = next(o for o in result["objects"] if o["type"] == "Page")
+    assert page["properties"]["drawingNumber"] == "A-101"
+    assert page["properties"]["title_block"] == blocks[0]["id"]
+    assert page["properties"]["drawing_category"] != "기타"
+    assert any(r["predicate"] == "hasTitleBlock" and r["subject"] == page["id"] for r in result["relations"])
+    assert page["storey"] == "1F" and page["properties"]["storey_source"] == "title_block"
+    assert {o["storey"] for o in result["objects"] if o["type"] in {"Wall", "Annotation"}} == {"1F"}
+
+
+def test_pdf_vector_candidates(tmp_path, settings):
+    result = _parse(tmp_path, settings, _drawing_page)
+    counts = Counter(o["type"] for o in result["objects"])
+    walls = [o for o in result["objects"] if o["type"] == "Wall"]
+    assert len(walls) == 1, walls
+    wall = walls[0]["properties"]
+    assert wall["thickness_mm"] == pytest.approx(200, abs=2)
+    assert wall["classification"]["confidence"] == pytest.approx(0.6)
+    assert wall["classification"]["state"] == _state(0.6)
+    assert walls[0]["state"] == "AI_INFERRED"
+    dims = [o for o in result["objects"] if o["type"] == "Dimension"]
+    assert [d["properties"]["measurement"] for d in dims] == [6000.0]
+    grids = [o for o in result["objects"] if o["type"] == "Grid"]
+    assert [g["properties"]["grid_label"] for g in grids] == ["A"]
+    assert grids[0]["properties"]["grid_lines"]
+    assert grids[0]["properties"]["classification"]["confidence"] == pytest.approx(0.8)
+    assert result["metrics"]["pdf_walls"] == counts["Wall"] == 1
+    assert counts["Annotation"] >= 1
+
+
+def test_textless_page_warns_instead_of_failing(tmp_path, settings, monkeypatch):
+    import builtins
+    real_import = builtins.__import__
+
+    from aec_intelligence.operational import parsers
+
+    def no_ocr(name, *args, **kwargs):
+        if name in ("paddleocr", "rapidocr"):
+            raise ImportError(f"{name} missing")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", no_ocr)
+    monkeypatch.setattr(parsers, "_OCR_ENGINES", {})
+    monkeypatch.setenv("AEC_OCR_ENGINE", "auto")
+
+    def build(doc):
+        _drawing_page(doc)
+        blank = doc.new_page(width=842, height=595)
+        blank.draw_line((10, 10), (500, 400))
+
+    result = _parse(tmp_path, settings, build)
+    pages = [o for o in result["objects"] if o["type"] == "Page"]
+    assert len(pages) == 2
+    assert pages[1]["properties"]["ocr_required"] is True
+    assert result["metrics"]["pdf_textless_pages"] == 1
+    assert any(w.startswith("OCR_REQUIRED") for w in result["warnings"])
+    assert any(o["type"] == "TitleBlock" for o in result["objects"])
+
+
+def test_scanned_page_takes_its_storey_from_ocr_text(tmp_path, settings, monkeypatch):
+    from aec_intelligence.operational import parsers
+
+    def fake_ocr(source, doc, key, evidence):
+        return [parsers.observation(doc, f"{key}:ocr:0:0", "Annotation", "지하1층 평면도", evidence)]
+
+    monkeypatch.setattr(parsers, "ocr", fake_ocr)
+    path = tmp_path / "scan.pdf"
+    doc = pymupdf.open()
+    doc.new_page(width=842, height=595).draw_line((10, 10), (500, 400))
+    doc.save(path)
+    result = parse_source(path, "doc_scan", tmp_path / "data" / "out", settings, "scan-0001.pdf")
+    page = next(o for o in result["objects"] if o["type"] == "Page")
+    assert page["storey"] == "B1" and page["properties"]["storey_source"] == "ocr_text"
+    assert {o["storey"] for o in result["objects"] if o["type"] == "Annotation"} == {"B1"}
+
+
+def test_rapidocr_engine_maps_boxes_and_is_loaded_once(tmp_path, settings, monkeypatch):
+    import sys
+    import types
+
+    from aec_intelligence.operational import parsers
+
+    created = []
+
+    class FakeRapidOCR:
+        def __init__(self, params):
+            created.append(params)
+
+        def __call__(self, path):
+            return types.SimpleNamespace(boxes=[[[20, 40], [220, 40], [220, 80], [20, 80]]],
+                                         txts=("도면번호 A-101",), scores=(0.97,))
+
+    fake = types.ModuleType("rapidocr")
+    fake.RapidOCR = FakeRapidOCR
+    fake.LangRec = types.SimpleNamespace(KOREAN="korean")
+    fake.ModelType = types.SimpleNamespace(MOBILE="mobile")
+    fake.OCRVersion = types.SimpleNamespace(PPOCRV5="PP-OCRv5")
+    monkeypatch.setitem(sys.modules, "rapidocr", fake)
+    monkeypatch.setattr(parsers, "_OCR_ENGINES", {})
+    monkeypatch.setenv("AEC_OCR_ENGINE", "auto")
+    monkeypatch.setenv("AEC_OCR_MODEL_DIR", str(tmp_path / "ocr-models"))
+
+    path = tmp_path / "scan.pdf"
+    doc = pymupdf.open()
+    for _ in range(2):
+        doc.new_page(width=842, height=595).draw_line((10, 10), (500, 400))
+    doc.save(path)
+    result = parse_source(path, "doc_scan", tmp_path / "data" / "out", settings, "scan-0002.pdf")
+    texts = [o for o in result["objects"] if o["type"] == "Annotation"]
+    assert [o["label"] for o in texts] == ["도면번호 A-101"] * 2
+    assert texts[0]["evidence"]["method"] == "RapidOCR" and texts[0]["evidence"]["ocr_confidence"] == 0.97
+    assert texts[0]["bbox"] == {"min_x": 10.0, "min_y": 20.0, "max_x": 110.0, "max_y": 40.0}  # page render was 2x
+    assert len(created) == 1  # one engine per process, not per page
+    assert created[0]["Rec.lang_type"] == "korean" and created[0]["Global.model_root_dir"] == str(tmp_path / "ocr-models")
+    assert not any(w.startswith("OCR_REQUIRED") for w in result["warnings"])

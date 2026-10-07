@@ -1,0 +1,111 @@
+name: Ontology intelligence safety
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+  push:
+    branches:
+      - master
+      - "feat/mcp-jev-graph-readonly-*"
+      - "feat/code-intelligence-*"
+      - "feat/ragflow-retrieval-benchmark-*"
+      - "feat/lightrag-comparison-*"
+
+permissions:
+  contents: read
+
+jobs:
+  intelligence-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,cad,bim,shacl,semantic,parquet,operational]" pillow
+
+      - name: Lint (ruff, correctness rules from pyproject.toml)
+        run: |
+          python -m pip install "ruff==0.16.10"
+          ruff check src tests extensions
+
+      - name: Compile Python sources
+        run: python -m compileall -q src extensions
+
+      - name: Test core package
+        run: python -m pytest -q tests
+
+      - name: Test MCP intelligence bridge
+        run: python -m pytest -q tests/test_intelligence_bridge.py
+
+      - name: Test intelligence extension
+        env:
+          PYTHONPATH: extensions/intelligence_fabric
+        run: python -m pytest -q extensions/intelligence_fabric/tests/test_intelligence_fabric.py
+
+      - name: Test drawing-context safety contracts
+        env:
+          PYTHONPATH: extensions/drawing_context
+        run: python -m pytest -q extensions/drawing_context/tests
+
+  operational-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and start PostgreSQL (AGE + pgvector + PostGIS)
+        run: |
+          docker build -f docker/Dockerfile.db -t aec-postgres-age:ci docker
+          docker run -d --name aec-db -e POSTGRES_DB=aec -e POSTGRES_USER=aec \
+            -e POSTGRES_PASSWORD=ci -p 55432:5432 aec-postgres-age:ci
+          for i in $(seq 1 60); do docker exec aec-db pg_isready -U aec -d aec && break; sleep 1; done
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,cad,operational]"
+
+      - name: Test operational stack against PostgreSQL
+        env:
+          AEC_TEST_DATABASE_URL: postgresql://aec:ci@localhost:55432/aec
+        run: python -m pytest -q -rs tests/test_operational_*.py tests/test_worker_resilience.py tests/test_phase2_ingest_resilience.py
+
+  app-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build the api/worker image (deps from pyproject extras)
+        run: |
+          # A decoy .env must never reach the image (.dockerignore).
+          echo "AEC_API_TOKEN=ci-decoy-not-a-secret" > .env
+          mkdir -p logs && echo "decoy private log" > logs/decoy.log
+          docker build -f docker/Dockerfile.app -t aec-intelligence-app:ci .
+          rm -r .env logs
+
+      - name: Image hygiene (no .env/.git/.venv/logs, non-root)
+        run: |
+          docker run --rm aec-intelligence-app:ci sh -c 'test ! -e /app/.env && test ! -e /app/.git && test ! -e /app/.venv && test ! -e /app/logs && test "$(id -u)" != 0 && echo hygiene-ok'
+
+      - name: Smoke-test the image
+        run: |
+          docker run --rm aec-intelligence-app:ci python -c "import aec_intelligence.operational.api, ezdxf, fitz, psycopg; print('ok')"
+          docker run --rm aec-intelligence-app:ci python -m aec_intelligence.operational.cli --help
