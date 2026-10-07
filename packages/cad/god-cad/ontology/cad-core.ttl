@@ -1,0 +1,31 @@
+@prefix cad: <https://github.com/khs0927/GOD-CAD/ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://github.com/khs0927/GOD-CAD/ns> a owl:Ontology ;
+    owl:versionInfo "0.1.0-experimental" ;
+    rdfs:comment "A small CAD extension. No automatic imports or inference are enabled." .
+
+cad:DrawingRevision a owl:Class ; rdfs:subClassOf prov:Entity .
+cad:SourceEntity a owl:Class ; rdfs:subClassOf prov:Entity .
+cad:SemanticCandidate a owl:Class .
+cad:EditOperation a owl:Class ; rdfs:subClassOf prov:Activity .
+cad:Evidence a owl:Class .
+cad:ValidationReport a owl:Class ; rdfs:subClassOf prov:Entity .
+
+cad:sourceEntity a owl:ObjectProperty ; rdfs:range cad:SourceEntity .
+cad:inRevision a owl:ObjectProperty ; rdfs:range cad:DrawingRevision .
+cad:proposedClass a owl:ObjectProperty ;
+    rdfs:comment "A hypothesis about a class; this property does not assert rdf:type." .
+cad:hasEvidence a owl:ObjectProperty ; rdfs:range cad:Evidence .
+cad:requiresUpdate a owl:ObjectProperty ;
+    rdfs:comment "Changing the subject requires reevaluating the object. Not a moves-with rule." .
+cad:validatedBy a owl:ObjectProperty ; rdfs:range cad:ValidationReport .
+cad:handle a owl:DatatypeProperty ; rdfs:range xsd:string .
+cad:layer a owl:DatatypeProperty ; rdfs:range xsd:string .
+cad:revisionSha256 a owl:DatatypeProperty ; rdfs:range xsd:string .
+cad:ruleScore a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+cad:method a owl:DatatypeProperty ; rdfs:range xsd:string .
+cad:calibrated a owl:DatatypeProperty ; rdfs:range xsd:boolean .

@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import json
-
 import pytest
 from pydantic import ValidationError
-
 from sion_api.db import Base, build_engine, build_session_factory
 from sion_api.repository import seed_core_types
 from sion_ingestion.map_import import MapExport, import_map_export

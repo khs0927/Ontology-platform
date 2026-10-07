@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Literal
-import uuid
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -216,3 +216,36 @@ class GraphRagQuery(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     mode: Literal["local", "global", "hybrid", "naive", "mix"] = "mix"
     top_k: int = Field(default=20, ge=1, le=200)
+
+
+class OutboxEventRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    aggregate_type: str
+    aggregate_id: uuid.UUID
+    event_type: str
+    payload: dict[str, Any]
+    created_at: datetime
+    attempts: int
+    last_error: str | None = None
+    next_attempt_at: datetime | None = None
+
+
+class OutboxFailure(BaseModel):
+    id: uuid.UUID
+    error: str = Field(min_length=1, max_length=2000)
+
+
+class OutboxAck(BaseModel):
+    published: list[uuid.UUID] = Field(default_factory=list, max_length=1000)
+    failed: list[OutboxFailure] = Field(default_factory=list, max_length=1000)
+    consumer: str | None = Field(default=None, max_length=200)
+
+
+class RegulationEvaluate(BaseModel):
+    rule: dict[str, Any]
+    facts: dict[str, Any] = Field(default_factory=dict)
+    entity_id: uuid.UUID | None = None
+    # korean-land-mcp analyze_parcel record (contract korean-land-parcel-analysis/2) -> land.* facts
+    land_parcel: dict[str, Any] | None = None

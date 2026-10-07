@@ -1,0 +1,73 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "default": "0.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "patch_id": {
+      "minLength": 1,
+      "title": "Patch Id",
+      "type": "string"
+    },
+    "drawing_id": {
+      "minLength": 1,
+      "title": "Drawing Id",
+      "type": "string"
+    },
+    "expected_revision": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Expected Revision",
+      "type": "string"
+    },
+    "operation": {
+      "const": "TRANSLATE_ENTITIES",
+      "title": "Operation",
+      "type": "string"
+    },
+    "target_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Target Ids",
+      "type": "array"
+    },
+    "vector_mm": {
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Vector Mm",
+      "type": "array"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "patch_id",
+    "drawing_id",
+    "expected_revision",
+    "operation",
+    "target_ids",
+    "vector_mm",
+    "reason"
+  ],
+  "title": "Patch",
+  "type": "object"
+}

@@ -1,0 +1,95 @@
+name: Release agent bridge
+
+# Builds bin/sion-agent-bridge.exe on Windows with scripts/build_exe.py.
+# - pull_request / workflow_dispatch: build + smoke test, upload as a workflow artifact.
+# - push of a v* tag: additionally attach the exe (+ .sha256) to the GitHub Release for that tag.
+# The exe is never committed to git (see bin/README.md).
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/build_exe.py"
+      - "scripts/run_agent_bridge.py"
+      - "apps/api/**"
+      - "packages/**"
+      - "pyproject.toml"
+      - ".github/workflows/release-agent-bridge.yml"
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to attach the exe to (leave empty to only build)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-windows-exe:
+    name: Build sion-agent-bridge.exe (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install project and PyInstaller
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . "pyinstaller>=6.22,<7"
+
+      - name: Build exe
+        shell: pwsh
+        run: python scripts/build_exe.py --dist dist-exe
+
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          & .\dist-exe\sion-agent-bridge.exe --help
+          if ($LASTEXITCODE -ne 0) { throw "sion-agent-bridge.exe --help failed ($LASTEXITCODE)" }
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash .\dist-exe\sion-agent-bridge.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  sion-agent-bridge.exe" | Out-File -Encoding ascii .\dist-exe\sion-agent-bridge.exe.sha256
+          Get-Content .\dist-exe\sion-agent-bridge.exe.sha256
+          "{0:N1} MB" -f ((Get-Item .\dist-exe\sion-agent-bridge.exe).Length / 1MB)
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: sion-agent-bridge-windows-x64
+          path: |
+            dist-exe/sion-agent-bridge.exe
+            dist-exe/sion-agent-bridge.exe.sha256
+          retention-days: 14
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.tag != ''
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+        run: |
+          gh release view $env:TAG --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:TAG --repo $env:GITHUB_REPOSITORY --verify-tag --title $env:TAG --generate-notes
+            if ($LASTEXITCODE -ne 0) { throw "release create failed" }
+          }
+          gh release upload $env:TAG dist-exe/sion-agent-bridge.exe dist-exe/sion-agent-bridge.exe.sha256 --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw "release upload failed" }

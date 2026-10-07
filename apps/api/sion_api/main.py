@@ -1,23 +1,27 @@
 from __future__ import annotations
 
 import json
+import os
+import uuid
 from datetime import datetime
 from pathlib import Path
-import uuid
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
-from sqlalchemy.orm import Session
-
+from fastapi.responses import FileResponse, PlainTextResponse
+from sion_bim.ifc import ifcopenshell_available, ingest_ifc
+from sion_cad.dxf import ingest_dxf
+from sion_cair import AecCairAdapter, AecCairConfig, AecCairError
+from sion_core import extras_report
 from sion_graphrag import GraphRagConfig, GraphRagUnavailable, SionGraphRag
-from sion_ingestion.aec_cair import AecCairAdapter, AecCairConfig, AecCairError
+from sion_ingestion.document_ingest import ingest_documents
 from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
 )
+from sqlalchemy.orm import Session
 
-from . import models, repository, schemas, vector_repository
+from . import __version__, models, outbox, regulation, repository, schemas, vector_repository
 from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -31,6 +35,7 @@ def create_app(
     auth_policy: AuthPolicy | None = None,
     graphrag: SionGraphRag | None = None,
     project_contract_catalog: ProjectContractCatalog | None = None,
+    ingest_roots: list[Path] | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -65,7 +70,7 @@ def create_app(
 
     app = FastAPI(
         title="Sion Ontology API",
-        version="0.1.0",
+        version=__version__,
         description="Canonical API for Sion ontology, knowledge graph and evidence.",
     )
     app.state.settings = settings
@@ -105,9 +110,14 @@ def create_app(
         return {
             "status": "ok",
             "service": "sion-ontology-api",
-            "version": "0.1.0",
+            "version": __version__,
             "database": engine.dialect.name,
         }
+
+    @app.get("/api/v1/system/extras", dependencies=[Depends(read_knowledge)])
+    def system_extras():
+        """Installed optional extras (cad, bim, rag, drive). Uses find_spec only."""
+        return {"version": __version__, "extras": extras_report()}
 
     @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse, dependencies=[Depends(read_knowledge)])
     def ontology_schema():
@@ -443,6 +453,136 @@ def create_app(
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return {"canonical": False, **result}
+
+    @app.get("/map")
+    def ontology_map():
+        page = Path(__file__).resolve().parents[3] / "apps" / "web" / "index.html"
+        if not page.exists():
+            raise HTTPException(status_code=404, detail="map page missing")
+        return FileResponse(page)
+
+    if ingest_roots is None:
+        raw_roots = os.getenv("SION_INGEST_ROOTS", "").strip()
+        ingest_roots = [Path(item) for item in raw_roots.split(os.pathsep) if item.strip()]
+    resolved_roots = [root.resolve() for root in ingest_roots]
+    app.state.ingest_roots = resolved_roots
+
+    def resolve_ingest_path(raw: str) -> Path:
+        """Server-side file reads are confined to SION_INGEST_ROOTS.
+
+        Without configured roots, ingestion is only allowed in local-only
+        auth mode (the API is then unreachable remotely anyway).
+        """
+        path = Path(raw).resolve()
+        if not resolved_roots:
+            if auth_policy.mode != "local-only":
+                raise HTTPException(
+                    status_code=403,
+                    detail="file ingestion requires SION_INGEST_ROOTS when remote auth is enabled",
+                )
+            return path
+        for root in resolved_roots:
+            if path == root or root in path.parents:
+                return path
+        raise HTTPException(status_code=403, detail="path outside SION_INGEST_ROOTS")
+
+    def single_file(payload: dict, suffixes: set[str], label: str) -> Path:
+        raw = payload.get("path")
+        if not raw or not isinstance(raw, str):
+            raise HTTPException(status_code=422, detail="path required")
+        path = resolve_ingest_path(raw)
+        if path.suffix.lower() not in suffixes or not path.is_file():
+            raise HTTPException(status_code=422, detail=f"{label} file required")
+        return path
+
+    @app.post("/api/v1/ingest/documents", dependencies=[Depends(write_knowledge)])
+    def ingest_document_route(payload: dict, session: Session = Depends(get_session)):
+        raw_paths = payload.get("paths", [])
+        if not raw_paths or not isinstance(raw_paths, list):
+            raise HTTPException(status_code=422, detail="paths required")
+        paths = [resolve_ingest_path(str(item)) for item in raw_paths]
+        return ingest_documents(session, paths)
+
+    @app.post("/api/v1/ingest/dxf", dependencies=[Depends(write_knowledge)])
+    def ingest_dxf_route(payload: dict, session: Session = Depends(get_session)):
+        return ingest_dxf(session, single_file(payload, {".dxf"}, "dxf"))
+
+    @app.post("/api/v1/analyze/dxf", dependencies=[Depends(read_knowledge)])
+    def analyze_dxf_route(payload: dict):
+        """GOD-CAD evidence-linked analysis (no writes). Path confinement as for ingest."""
+        from sion_cad.analysis import AnalysisUnavailable, analyze_dxf
+
+        path = single_file(payload, {".dxf"}, "dxf")
+        drawing_id = payload.get("drawing_id")
+        units = payload.get("units")
+        if drawing_id is not None and (not isinstance(drawing_id, str) or not drawing_id.strip()):
+            raise HTTPException(status_code=422, detail="drawing_id must be a non-empty string")
+        if units is not None and units not in {"mm", "cm", "m", "in", "ft"}:
+            raise HTTPException(status_code=422, detail="units must be one of mm, cm, m, in, ft")
+        try:
+            return analyze_dxf(path, drawing_id=drawing_id, units=units)
+        except AnalysisUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    @app.get("/api/v1/ingest/ifc/status", dependencies=[Depends(read_knowledge)])
+    def ingest_ifc_status():
+        return {
+            "ifcopenshell": ifcopenshell_available(),
+            "fallback": "step-fallback",
+        }
+
+    @app.post("/api/v1/ingest/ifc", dependencies=[Depends(write_knowledge)])
+    def ingest_ifc_route(payload: dict, session: Session = Depends(get_session)):
+        return ingest_ifc(session, single_file(payload, {".ifc"}, "ifc"))
+
+    # --- transactional outbox (pull consumers) ---------------------------------
+    @app.get("/api/v1/outbox", response_model=list[schemas.OutboxEventRead], dependencies=[Depends(read_knowledge)])
+    def list_outbox(
+        limit: int = Query(default=100, ge=1, le=1000),
+        session: Session = Depends(get_session),
+    ):
+        return outbox.pending(session, limit=limit)
+
+    @app.post("/api/v1/outbox/ack", dependencies=[Depends(write_knowledge)])
+    def ack_outbox(payload: schemas.OutboxAck, session: Session = Depends(get_session)):
+        published = outbox.acknowledge(session, payload.published, consumer=payload.consumer)
+        failed = 0
+        for item in payload.failed:
+            if outbox.fail(session, item.id, item.error) is not None:
+                failed += 1
+        return {"published": published, "failed": failed}
+
+    # --- ArchOntos rule evaluator ----------------------------------------------
+    @app.get("/api/v1/regulation/status", dependencies=[Depends(read_knowledge)])
+    def regulation_status():
+        return regulation.status()
+
+    @app.post("/api/v1/regulation/evaluate", dependencies=[Depends(read_knowledge)])
+    def regulation_evaluate(payload: schemas.RegulationEvaluate, session: Session = Depends(get_session)):
+        entity_properties = None
+        if payload.entity_id is not None:
+            row = session.get(models.Entity, payload.entity_id)
+            if row is None:
+                raise HTTPException(status_code=404, detail="entity not found")
+            entity_properties = row.properties
+        land = None
+        if payload.land_parcel is not None:
+            try:
+                land = regulation.land_facts_checked(payload.land_parcel)
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail=str(exc)) from exc
+        # precedence: entity properties < land.* facts < explicit request facts
+        facts = regulation.merge_facts(regulation.merge_facts(entity_properties, land), payload.facts)
+        try:
+            result = regulation.evaluate(payload.rule, facts)
+        except regulation.RegulationUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        body = {"entity_id": payload.entity_id, "engine": "archontos", "result": result}
+        if land is not None:
+            body["land"] = land["land"]
+        return body
 
     return app
 
