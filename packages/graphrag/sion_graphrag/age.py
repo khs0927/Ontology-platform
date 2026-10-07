@@ -8,12 +8,34 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 
+GRAPH_NAME = "sion_graph"
 CREATE_GRAPH = """
 CREATE EXTENSION IF NOT EXISTS age;
 LOAD 'age';
 SET search_path = ag_catalog, "$user", public;
 SELECT create_graph('sion_graph');
-"""
+"""  # first-time bootstrap; prefer ensure_graph() / migrations/005 (idempotent)
+
+
+def ensure_graph(session: Session) -> None:
+    """Create the AGE extension/graph if missing (idempotent)."""
+    session.execute(text("CREATE EXTENSION IF NOT EXISTS age"))
+    session.execute(text("LOAD 'age'"))
+    session.execute(text('SET search_path = ag_catalog, "$user", public'))
+    exists = session.execute(
+        text("SELECT 1 FROM ag_catalog.ag_graph WHERE name = :name"), {"name": GRAPH_NAME}
+    ).first()
+    if not exists:
+        session.execute(text("SELECT ag_catalog.create_graph(:name)"), {"name": GRAPH_NAME})
+
+
+def rebuild_projection(session: Session) -> int:
+    """Rebuild the AGE graph from canonical tables. Returns statements executed."""
+    statements = projection_cypher(session)
+    ensure_graph(session)
+    for statement in statements:
+        session.connection().exec_driver_sql(statement)
+    return len(statements)
 
 
 _LABEL_SAFE = re.compile(r"[^A-Za-z0-9_]")
