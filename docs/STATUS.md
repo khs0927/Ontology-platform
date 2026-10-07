@@ -58,7 +58,7 @@ Updated: 2026-09-23 (Asia/Seoul)
 - generated metadata and caches excluded from Git
 
 ### Verification
-- Python unit/integration suite: 13 passing
+- Python unit/integration suite: 49 passing, 1 skipped (2026-10-08)
 - real HTTP smoke test completed
 - real PostgreSQL migration test completed
 - real PostgreSQL + pgvector vector API round-trip completed
@@ -111,3 +111,23 @@ is added.
 5. Add LightRAG-compatible GraphRAG boundary.
 6. Add AEC/CAIR adapter for selected useful parts of `khs0927/Ontology`.
 7. Add CAD DXF semantic parser and IFC/IfcOpenShell ingestion.
+
+## Gap fill 2026-10-07
+
+- DeepSeek / Hermes / ZCode readers scan local JSON/JSONL logs.
+- Document ingest writes unverified EXTRACTED_FROM claims plus evidence.
+- DXF parser ingests TEXT, INSERT, LINE, LWPOLYLINE without ezdxf.
+- AGE projection SQL + Cypher builder added. Extension remains optional.
+- Mounted Drive publish copies staged artifacts. Live API upload still needs a service account.
+- /map serves apps/web/index.html against /api/v1/graph.
+- Structured 31/43 map endpoints are still not fabricated.
+
+## Upgrade 2026-10-08
+
+- DXF parser now groups by group code 0 instead of raw text splitting, so
+  layer `0` values no longer break entities; LWPOLYLINE closed flag is read as a bitmask.
+- `POST /api/v1/ingest/ifc` exposes IFC ingestion (IfcOpenShell optional, STEP fallback).
+- `POST /api/v1/ingest/documents` rejects non-list or missing paths with 422.
+- AGE Cypher builder sanitizes labels and escapes literals (`\`, `'`, `$$`).
+- New tests: IFC fallback scanner, DXF layer-0 regression, ingest routes,
+  AGE sanitization, non-destructive mounted-Drive publish.
