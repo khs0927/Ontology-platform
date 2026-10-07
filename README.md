@@ -102,3 +102,18 @@ Relations use half-open validity intervals: `[valid_from, valid_to)`.
 - Temporal comparisons are normalized to UTC; SQLite timestamps read back without tzinfo are interpreted as UTC.
 
 This keeps superseded design facts queryable for permit/construction revisions without treating old facts as currently valid.
+
+## Gap fill
+
+- `POST /api/v1/ingest/documents` `{paths:[...]}` — md/txt/csv, unverified evidence
+- `POST /api/v1/ingest/dxf` `{path}` — TEXT/INSERT/LINE/LWPOLYLINE
+- `GET /map` — graph view over `/api/v1/graph`
+- DeepSeek/Hermes/ZCode local log readers
+- `migrations/005_age_projection.sql` optional AGE graph
+- `sion_drive_store.upload.publish_to_mounted_drive`
+- `POST /api/v1/ingest/ifc` `{path}` — IFC via optional `ifcopenshell` (`pip install -e '.[ifc]'`), dependency-free STEP fallback otherwise; `GET /api/v1/ingest/ifc/status` reports which parser is active
+- `sion_drive_store.upload.upload_with_service_account` — optional Drive API upload (`pip install -e '.[drive]'`, `SION_DRIVE_SERVICE_ACCOUNT=<path to key JSON>`, `SION_DRIVE_FOLDER_ID=<folder shared with the service account>`). Never deletes or overwrites; same-name/different-size files are reported as conflicts.
+
+### Ingestion path confinement
+
+Ingest routes read files on the server. Set `SION_INGEST_ROOTS` (OS path-separator list) to confine them. When `SION_API_AUTH_MODE` is `bearer` or `local-or-bearer` and no roots are set, ingest routes return 403.
