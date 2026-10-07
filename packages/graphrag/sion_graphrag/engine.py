@@ -103,7 +103,7 @@ class SionGraphRag:
             from lightrag import LightRAG
             from lightrag.utils import EmbeddingFunc
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
-            raise GraphRagUnavailable("install the 'graphrag' extra (lightrag-hku)") from exc
+            raise GraphRagUnavailable("install the 'rag' extra: pip install 'sion-ontology-platform[rag]' (lightrag-hku)") from exc
         config = self.config
         embed = self._embedding_func
         if embed is None:

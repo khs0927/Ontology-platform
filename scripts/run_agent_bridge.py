@@ -10,9 +10,9 @@ import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "apps" / "api"))
-sys.path.insert(0, str(REPO_ROOT / "packages" / "ingestion"))
-sys.path.insert(0, str(REPO_ROOT / "packages" / "drive-store"))
+for _rel in ("apps/api", "packages/core", "packages/ingestion", "packages/cad", "packages/bim",
+             "packages/cair", "packages/drive-store"):
+    sys.path.insert(0, str(REPO_ROOT / _rel))
 
 from sion_api.db import build_engine, build_session_factory
 from sion_api.repository import seed_core_types
