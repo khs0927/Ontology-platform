@@ -35,7 +35,9 @@ def publish_to_mounted_drive(stage_root: Path, drive_root: Path | None = None) -
 
 
 def service_account_configured() -> bool:
-    return bool(os.environ.get("SION_DRIVE_SERVICE_ACCOUNT"))
+    return bool(
+        os.environ.get("SION_DRIVE_OAUTH_TOKEN") or os.environ.get("SION_DRIVE_SERVICE_ACCOUNT")
+    )
 
 
 class DriveUploadUnavailable(RuntimeError):
@@ -49,20 +51,44 @@ def _q(value: str) -> str:
     return value.replace("\\", "\\\\").replace("'", "\\'")
 
 
-def build_drive_service(credentials_path: str | None = None):
-    """Build a Drive v3 client from a service-account JSON file.
+USER_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
-    The path comes from ``SION_DRIVE_SERVICE_ACCOUNT``; its contents are never
-    logged or returned.
+
+def build_drive_service(credentials_path: str | None = None):
+    """Build a Drive v3 client.
+
+    Preference order:
+    1. ``SION_DRIVE_OAUTH_TOKEN``: an authorized-user token JSON created by
+       ``scripts/drive_oauth_login.py``. Works on personal Gmail accounts,
+       where service accounts have no storage quota.
+    2. ``SION_DRIVE_SERVICE_ACCOUNT``: a service-account key (needs a shared
+       drive or Workspace delegation to actually store files).
+
+    Credential contents are never logged or returned.
     """
-    path = credentials_path or os.environ.get("SION_DRIVE_SERVICE_ACCOUNT")
-    if not path:
-        raise DriveUploadUnavailable("SION_DRIVE_SERVICE_ACCOUNT is not set")
     try:
-        from google.oauth2 import service_account
         from googleapiclient.discovery import build
     except ImportError as exc:  # pragma: no cover - depends on extras
         raise DriveUploadUnavailable("install the 'drive' extra") from exc
+
+    token_path = os.environ.get("SION_DRIVE_OAUTH_TOKEN")
+    if token_path and not credentials_path:
+        from google.auth.transport.requests import Request
+        from google.oauth2.credentials import Credentials
+
+        creds = Credentials.from_authorized_user_file(token_path, USER_SCOPES)
+        if not creds.valid and creds.refresh_token:
+            creds.refresh(Request())
+            Path(token_path).write_text(creds.to_json(), encoding="utf-8")
+        return build("drive", "v3", credentials=creds, cache_discovery=False)
+
+    path = credentials_path or os.environ.get("SION_DRIVE_SERVICE_ACCOUNT")
+    if not path:
+        raise DriveUploadUnavailable(
+            "set SION_DRIVE_OAUTH_TOKEN or SION_DRIVE_SERVICE_ACCOUNT"
+        )
+    from google.oauth2 import service_account
+
     creds = service_account.Credentials.from_service_account_file(
         path, scopes=["https://www.googleapis.com/auth/drive.file"]
     )
