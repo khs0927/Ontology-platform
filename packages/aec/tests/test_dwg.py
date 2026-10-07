@@ -42,8 +42,6 @@ def test_real_dwg_fixture_matches_known_ground_truth_when_oda_is_available(tmp_p
         pytest.skip("ODA File Converter is not configured")
 
     source = Path(__file__).parents[1] / "fixtures" / "simple_house.dwg"
-    if not source.is_file():
-        pytest.skip("binary DWG fixture not in the monorepo")
     ground_truth = json.loads((source.parent / "known-ground-truth.json").read_text(encoding="utf-8"))["dwg"]
     before_hash = hashlib.sha256(source.read_bytes()).hexdigest().upper()
     result = ODAConverter(executable).convert_to_dxf(source, tmp_path / "converted")
