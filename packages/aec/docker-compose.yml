@@ -1,0 +1,177 @@
+# Optional real embeddings (BAAI/bge-m3, 1024 dims = aec.embeddings vector(1024)):
+#   docker compose --profile embeddings up -d
+# api/worker default AEC_EMBEDDING_URL to http://embeddings:80 (set it to empty in .env for the
+# offline hash model, or to http://host.docker.internal:11434 for Ollama on the host). If the
+# endpoint is down during ingest, objects and graph are still stored and the job result says
+# embeddings_pending=true (AEC_EMBEDDING_STRICT=1 fails the job instead). Search only compares
+# vectors of the same model. Fill pending/old rows with `cli reembed` (see docs/operations-phase2.md).
+services:
+  db:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.db
+    image: aec-postgres-age:16-1.6.0
+    container_name: aec-db
+    # Published on loopback only (scripts/ops/init-env.ps1 generates the password and the API token).
+    # Change the host side of the mapping only in a reviewed deployment with a front door.
+    ports:
+      - "127.0.0.1:55432:5432"
+    environment:
+      POSTGRES_DB: aec
+      POSTGRES_USER: aec
+      POSTGRES_PASSWORD: ${AEC_DB_PASSWORD:-change-me}
+    volumes:
+      # A named volume, not a Windows bind mount: Docker Desktop's file sharing returns EINTR on
+      # WAL writes and Postgres PANICs. Back up with `aec-ops backup` (pg_dump), not by copying files.
+      - aec-pgdata:/var/lib/postgresql/data
+    # Memory/WAL tuning for a small VM on a slow (USB) data disk; override in .env, see
+    # docs/OPERATIONS.ko.md "aec-db 크래시와 복구 시간". shared_buffers is shared memory, so the host's
+    # page-cache reclaim (wsl-reclaim.ps1) cannot evict the hot HNSW/table pages any more.
+    # max_wal_size bounds crash-recovery redo; lz4 shrinks full-page images in the WAL.
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=age
+      - -c
+      - shared_buffers=${AEC_PG_SHARED_BUFFERS:-512MB}
+      - -c
+      - work_mem=${AEC_PG_WORK_MEM:-16MB}
+      - -c
+      - maintenance_work_mem=${AEC_PG_MAINTENANCE_WORK_MEM:-256MB}
+      - -c
+      - effective_cache_size=${AEC_PG_EFFECTIVE_CACHE_SIZE:-2GB}
+      - -c
+      - max_wal_size=${AEC_PG_MAX_WAL_SIZE:-512MB}
+      - -c
+      - checkpoint_timeout=${AEC_PG_CHECKPOINT_TIMEOUT:-5min}
+      - -c
+      - wal_compression=${AEC_PG_WAL_COMPRESSION:-lz4}
+      - -c
+      - log_checkpoints=on
+    # Parallel queries put their shared memory in /dev/shm (Docker default 64 MB was too small:
+    # "could not resize shared memory segment" in pg_restore and parallel scans).
+    shm_size: 256m
+    # A clean shutdown checkpoints first; on the USB disk that takes minutes. Docker's default 10 s
+    # SIGKILLs Postgres and turns every restart into crash recovery.
+    stop_grace_period: 10m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aec -d aec"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # One-shot schema migration (idempotent, advisory-locked): SQL migrations + AGE graph label indexes.
+  # api/worker start only after it exits 0, so a new image never runs against an old schema.
+  migrate:
+    image: aec-intelligence-app:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.app
+    container_name: aec-migrate
+    command: python -m aec_intelligence.operational.cli init-db
+    environment:
+      AEC_DATABASE_URL: postgresql://aec:${AEC_DB_PASSWORD:-change-me}@db:5432/aec
+      AEC_DATA_ROOT: /data
+    volumes:
+      - ${AEC_HOST_DATA_ROOT:-D:/AECData}:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.app
+    image: aec-intelligence-app:latest
+    container_name: aec-api
+    ports:
+      - "127.0.0.1:58000:8000"
+    environment:
+      AEC_DATABASE_URL: postgresql://aec:${AEC_DB_PASSWORD:-change-me}@db:5432/aec
+      AEC_DATA_ROOT: /data
+      # POST /v1/ingestions only accepts paths under these roots (container paths).
+      AEC_IMPORT_ROOTS: ${AEC_CONTAINER_IMPORT_ROOTS:-/data}
+      # Optional: require "Authorization: Bearer <token>" on /v1 (power-cad-mcp: POWERCAD_ONTOLOGY_TOKEN).
+      AEC_API_TOKEN: ${AEC_API_TOKEN:-}
+      AEC_CORS_ORIGINS: ${AEC_CORS_ORIGINS:-}
+      # Unset -> the 'embeddings' profile service; set to empty to force the offline hash model.
+      AEC_EMBEDDING_URL: ${AEC_EMBEDDING_URL-http://embeddings:80}
+      AEC_EMBEDDING_MODEL: ${AEC_EMBEDDING_MODEL:-BAAI/bge-m3}
+      # POST /v1/ask: local LLM only (Ollama on the host). Non-local hosts are refused unless
+      # AEC_LLM_ALLOW_REMOTE=1, so drawing text never leaves the PC by accident.
+      AEC_LLM_URL: ${AEC_CONTAINER_LLM_URL:-http://host.docker.internal:11434}
+      AEC_LLM_MODEL: ${AEC_LLM_MODEL:-qwen3:8b}
+      AEC_LLM_TIMEOUT_SECONDS: ${AEC_LLM_TIMEOUT_SECONDS:-120}
+    volumes:
+      - ${AEC_HOST_DATA_ROOT:-D:/AECData}:/data
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  worker:
+    image: aec-intelligence-app:latest
+    container_name: aec-worker-cad
+    command: python -m aec_intelligence.operational.cli worker --queue cad
+    environment:
+      AEC_DATABASE_URL: postgresql://aec:${AEC_DB_PASSWORD:-change-me}@db:5432/aec
+      AEC_DATA_ROOT: /data
+      # Unset -> the 'embeddings' profile service; set to empty to force the offline hash model.
+      AEC_EMBEDDING_URL: ${AEC_EMBEDDING_URL-http://embeddings:80}
+      AEC_EMBEDDING_MODEL: ${AEC_EMBEDDING_MODEL:-BAAI/bge-m3}
+      AEC_EMBEDDING_STRICT: ${AEC_EMBEDDING_STRICT:-0}
+      AEC_LEASE_SECONDS: ${AEC_LEASE_SECONDS:-300}
+      AEC_MAX_ATTEMPTS: ${AEC_MAX_ATTEMPTS:-3}
+      AEC_INGEST_STATEMENT_TIMEOUT_SECONDS: ${AEC_INGEST_STATEMENT_TIMEOUT_SECONDS:-300}
+    volumes:
+      - ${AEC_HOST_DATA_ROOT:-D:/AECData}:/data
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  ocr-worker:
+    image: aec-intelligence-app:latest
+    container_name: aec-worker-ocr
+    command: python -m aec_intelligence.operational.cli worker --queue ocr
+    environment:
+      AEC_DATABASE_URL: postgresql://aec:${AEC_DB_PASSWORD:-change-me}@db:5432/aec
+      AEC_DATA_ROOT: /data
+    volumes:
+      - ${AEC_HOST_DATA_ROOT:-D:/AECData}:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - ocr
+
+  embeddings:
+    # Hugging Face text-embeddings-inference (CPU). Serves the OpenAI-compatible POST /v1/embeddings
+    # ({"input": [...], "model": ...} -> {"data": [{"embedding": [...], "index": i}]}) and native /embed.
+    image: ${AEC_TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.9}
+    container_name: aec-embeddings
+    command:
+      - --model-id
+      - ${AEC_EMBEDDING_MODEL:-BAAI/bge-m3}
+      - --port
+      - "80"
+    environment:
+      MAX_CLIENT_BATCH_SIZE: "32"
+      AUTO_TRUNCATE: "true"
+    ports:
+      - "127.0.0.1:58080:80"
+    volumes:
+      - ${AEC_HOST_DATA_ROOT:-D:/AECData}/docker/tei-cache:/data
+    restart: unless-stopped
+    profiles:
+      - embeddings
+
+volumes:
+  aec-pgdata:
