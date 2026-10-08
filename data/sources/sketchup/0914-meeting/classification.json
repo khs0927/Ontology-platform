@@ -1,7 +1,7 @@
 {
   "schema": "sion-sketchup-classification/v1",
   "model_dump": "model_dump.json",
-  "model_dump_sha256": "33ebc367f6916e339fc9bc03a75a06403a7f37e4a6b8245e82b5c7e512a61bd6",
+  "model_dump_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
   "method": "덤프(model_dump.json)와 형상 프로브(geometry_probe.json)의 사실(이름·재질·크기·수평 레벨·경사각·인스턴스 수)을 근거로 사람이 읽고 정한 분류. 모든 분류는 추론(source_kind=inferred, verification_state=unverified)이며 basis_ko에 근거 사실을 적는다. 미사용 판정(unused-definition)은 생성기가 루트 도달성으로 계산한다.",
   "author": "grokbot (2026-10-08, 사람 검토 전)",
   "assignments": [

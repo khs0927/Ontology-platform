@@ -25,7 +25,7 @@ from sion_ingestion.sketchup_assets import (
 
 ROOT = Path(__file__).resolve().parents[1]
 PATHS = DEFAULTS["0914-meeting"]
-DUMP_SHA256 = "33ebc367f6916e339fc9bc03a75a06403a7f37e4a6b8245e82b5c7e512a61bd6"
+DUMP_SHA256 = "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d"
 PROBE_SHA256 = "c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8"
 GROUPING_SHA256 = "e623d142271d04e5597d41ac46f4821780ad3732db5a3317c89c74fcecfa5fbb"
 NS = "sketchup:0914-meeting"
