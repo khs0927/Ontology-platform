@@ -1,6 +1,6 @@
 # Sion Ontology Platform — 현재 상태 (한국어 요약)
 
-갱신: 2026-10-08 저녁 (Asia/Seoul)
+갱신: 2026-10-08 22:00 KST (Asia/Seoul)
 
 ## 아키텍처 (요약)
 
@@ -13,6 +13,32 @@
 7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색, AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
 8. **CI**: Tests(Ubuntu+Windows), Verify, AEC/CAD, Regulation, Public security. agent-bridge Windows exe는 Releases.
 
+## 현재 상태 (2026-10-08 22:00 KST 재확인)
+
+기준: `main` `e2bffe3`(#48), 커밋 316개. 열린 PR은 이 PR뿐, 열린 이슈는 #3·#33.
+
+**테스트** (지금 숫자. 아래 예전 절의 숫자는 그 시점 기록)
+
+| 범위 | 설치 | 결과 |
+|---|---|---|
+| 루트 `tests/` | `.[all,test,dev]` | **265 통과, 3 건너뜀** (3개는 `SION_TEST_POSTGRES_URL` 필요) |
+| 루트 `tests/` | 최소 `.[test]` | 239 통과, 29 건너뜀 (선택 라이브러리 없음) |
+| `packages/aec` | | 619 통과, 51 건너뜀 |
+| `packages/regulation` | 로컬, PostgreSQL 없음 | 213 통과, 39 건너뜀 (PostgreSQL 테스트는 CI에서 실행) |
+| `packages/cad/god-cad` | | 27 통과 |
+
+**CI:** `main`의 체크 15개 모두 통과 (GitHub Actions 14개 + CircleCI 1개). 목록은 `docs/STATUS.md` "Current state".
+
+**히스토리 재작성 2회** (둘 다 오너 승인, force push)
+1. **2026-10-08 03:11 KST — exe 제거.** `git filter-repo`로 `bin/sion-agent-bridge.exe`를 모든 히스토리에서 제거(팩 75.7 MiB → 2.6 MiB). exe는 Release v0.2.0에 있음.
+2. **2026-10-08 12:23 KST — 개인정보 정리.** 공개 히스토리의 이메일, Google Drive 파일 ID, 장치명을 가림. `main`과 다른 브랜치 29개(총 30개 ref)를 같은 초(12:23:55)에 force push. 이전 `main` `217ccd3` → 새 `54e1921`("Protect public privacy and local HTTP access"가 맨 위에 추가). 이전 main의 커밋 263개는 제목·작성 시각 그대로 모두 남아 있고, 트리 차이는 가린 파일 9개뿐. 사라진 커밋 없음.
+
+영향:
+- 12:23 이전에 만든 클론은 모두 **예전 히스토리**라 `origin/main`과 갈라져 `git pull --ff-only`가 실패합니다. 백업 후 `git fetch` + `git reset --hard origin/main`, 또는 새로 클론하세요(`docs/ops/MAIN-PC-TODO.ko.md` 1단계). **예전 클론·예전 로컬 브랜치에서는 절대 푸시하지 마세요.** 지운 exe와 가리기 전 정보가 다시 올라갑니다. 새 히스토리인지는 `git merge-base --is-ancestor 54e1921 HEAD`로 확인합니다.
+- 재작성된 커밋은 GitHub "Verified" 서명 표시가 사라졌습니다.
+
+**브랜치 정리 (22:00 KST):** `main`에 완전히 포함된(고유 커밋 0, 열린 PR 없음) 원격 브랜치 13개를 저장소 밖 번들로 백업한 뒤 삭제했습니다. 고유 커밋이 남은 오래된 브랜치 19개는 **그대로 두었습니다**(오너 판단). 목록은 `docs/STATUS.md` "Branch cleanup".
+
 ## 2026-10-08 저녁 스프린트 결과 (20:30 재확인)
 
 **Ontology-platform 병합** (모두 CI 통과 후 병합)
@@ -21,7 +47,7 @@
 - [#39](https://github.com/khs0927/Ontology-platform/pull/39) `switch-to-monorepo.ps1` + 한국어 런북 — 기본 드라이런, `-Apply`로 실행, DB 볼륨이 바뀌면 거부.
 - [#40](https://github.com/khs0927/Ontology-platform/pull/40) netguard가 fake-IP 대역 `198.18.0.0/15`를 로컬로 오인하던 보안 문제 수정.
 - [#41](https://github.com/khs0927/Ontology-platform/pull/41) 상태 문서 + 이 한국어 요약.
-- #34·#35는 #36(Windows pytest)로 대체되어 닫음.
+- #34·#35는 #36(Windows pytest)로 대체되어 19:45에 닫음.
 
 **연결 저장소 병합** (각 저장소에서 진행)
 - power-cad-mcp #42(철골 플레이북), #40(문서 동기화), #43(`cad_hs_*` 자산 도구 10개, 전체 65개, `..` 경로 탈출 수정).
@@ -56,3 +82,5 @@
 4. 전환 후 GraphRAG 재색인(FAILED 커뮤니티 6건 재시도).
 5. 운영 방화벽 스크립트 관리자 실행(18080/22217), DB 덤프를 DB와 다른 디스크로 복사.
 6. SketchUp 덤프 경로(`skp_path`) 보존 여부 결정.
+7. 12:23 이전에 만든 PC의 예전 체크아웃을 새 히스토리로 맞추거나 보관(백업 후 `fetch` + `reset --hard origin/main`). 그 전에는 거기서 푸시 금지.
+8. 고유 커밋이 남은 오래된 원격 브랜치 19개를 남길지 정리할지 결정.
