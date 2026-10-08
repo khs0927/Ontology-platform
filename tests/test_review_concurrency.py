@@ -189,3 +189,61 @@ def test_review_page_refreshes_totals_and_offers_undo(client):
     assert decide.count("await refreshCounts()") == 2
     assert "await refreshCounts()" in bulk
     assert "/reopen" in page and "되돌리기" in page
+
+
+def test_aba_cycle_cannot_let_a_stale_decision_through(client):
+    # PR #50 review: stale reader sees pending; meanwhile approve + reopen make it pending again.
+    rid = import_candidates(client)[0]
+    other, other_bulk = stale_session(client, rid), stale_session(client, rid)
+    try:
+        assert client.post(f"/api/v1/relations/candidates/{rid}/approve", json={"reviewer": "alice"}, headers=AUTH).status_code == 200
+        assert client.post(f"/api/v1/relations/candidates/{rid}/reopen", json={"note": "oops"}, headers=AUTH).status_code == 200
+        with pytest.raises(review.AlreadyReviewed, match="changed concurrently"):
+            review.decide(other, uuid.UUID(rid), approve=False, reviewer="bob")
+        bulk = review.decide_bulk(other_bulk, [rid], approve=False, note="stale", reviewer="bob")
+        assert bulk["results"][0]["result"] == "conflict" and bulk["counts"]["applied"] == 0
+    finally:
+        other.close()
+        other_bulk.close()
+    row = committed(client, rid)
+    assert row.verification_state == "unverified"
+    assert len(row.properties["review_history"]) == 1 and "review" not in row.properties  # history intact
+
+
+def test_aba_cycle_cannot_let_a_stale_reopen_erase_a_newer_decision(client):
+    rid = import_candidates(client)[0]
+    assert client.post(f"/api/v1/relations/candidates/{rid}/approve", json={"reviewer": "alice"}, headers=AUTH).status_code == 200
+    other = client.app.state.session_factory()
+    try:
+        pinned = other.get(models.Relation, uuid.UUID(rid))
+        assert pinned.verification_state == "human_verified"
+        assert client.post(f"/api/v1/relations/candidates/{rid}/reopen", json={"note": "recheck"}, headers=AUTH).status_code == 200
+        assert client.post(f"/api/v1/relations/candidates/{rid}/approve", json={"reviewer": "carol", "note": "confirmed"}, headers=AUTH).status_code == 200
+        with pytest.raises(review.AlreadyReviewed):
+            review.reopen(other, uuid.UUID(rid), note="stale undo")
+    finally:
+        other.close()
+    row = committed(client, rid)
+    assert row.verification_state == "human_verified" and row.properties["review"]["reviewer"] == "carol"
+    assert len(row.properties["review_history"]) == 1
+
+
+def test_reopen_refuses_states_that_are_not_review_decisions(client):
+    rid = import_candidates(client)[0]
+    with client.app.state.session_factory() as s:
+        row = s.get(models.Relation, uuid.UUID(rid))
+        row.verification_state = "machine_verified"
+        s.commit()
+    r = client.post(f"/api/v1/relations/candidates/{rid}/reopen", json={"note": "x"}, headers=AUTH)
+    assert r.status_code == 409 and "approved/rejected" in r.json()["detail"]
+    row = committed(client, rid)
+    assert row.verification_state == "machine_verified" and "review_history" not in row.properties
+
+
+def test_bulk_keeps_caller_order_while_locking_in_sorted_order(client):
+    ids = import_candidates(client)
+    picked = sorted(ids[:5], reverse=True)
+    request = [picked[2], "not-a-uuid", picked[0], picked[2], picked[4], str(uuid.uuid4()), picked[1], picked[3]]
+    body = client.post(BULK, json={"ids": request, "decision": "approve", "note": "order"}, headers=AUTH).json()
+    assert [r["id"] for r in body["results"]] == [picked[2], "not-a-uuid", picked[0], picked[4], request[5], picked[1], picked[3]]
+    assert body["counts"]["applied"] == 5 and body["counts"]["invalid_id"] == 1 and body["counts"]["not_found"] == 1

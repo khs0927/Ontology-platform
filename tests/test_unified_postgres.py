@@ -141,3 +141,61 @@ def test_concurrent_review_decisions_are_atomic_on_postgres():
                             .where(models.OutboxEvent.event_type == "relation.updated")).all()
         assert len(updates) == 1
     engine.dispose()
+
+
+def test_opposite_order_bulk_decisions_do_not_deadlock_on_postgres():
+    """PR #50 review: two bulk requests over the same candidates in opposite orders must not deadlock."""
+    import threading
+    import uuid
+
+    from sion_api import migrate, models, review
+    from sion_api.db import build_engine, build_session_factory
+
+    migrate.apply_core(DSN)
+    engine = build_engine(_psycopg_url(DSN))
+    factory = build_session_factory(engine)
+    tag = uuid.uuid4().hex[:12]
+    with factory() as s:
+        hub = models.Entity(stable_key=f"concept:bulk-hub-{tag}", entity_type_id="Concept", name="hub")
+        s.add(hub)
+        s.flush()
+        ids = []
+        for i in range(12):
+            leaf = models.Entity(stable_key=f"concept:bulk-{tag}-{i}", entity_type_id="Concept", name=f"leaf {i}")
+            s.add(leaf)
+            s.flush()
+            rel = models.Relation(stable_key=f"bulk:{tag}:{i}", source_entity_id=hub.id, target_entity_id=leaf.id,
+                                  relation_type_id="RELATED_TO", verification_state="unverified", source_kind="inferred",
+                                  properties={"candidate": True})
+            s.add(rel)
+            s.flush()
+            ids.append(str(rel.id))
+        s.commit()
+
+    for round_ in range(3):
+        chunk = ids[round_ * 4:(round_ + 1) * 4]
+        barrier = threading.Barrier(2)
+        results: dict[str, dict] = {}
+        errors: list[BaseException] = []
+
+        def run(name: str, order: list[str], approve: bool) -> None:
+            try:
+                with factory() as session:
+                    barrier.wait()
+                    results[name] = review.decide_bulk(session, order, approve=approve, note="deadlock check")
+            except BaseException as exc:  # noqa: BLE001 - surface deadlock/DB errors in the assertion
+                errors.append(exc)
+
+        threads = [threading.Thread(target=run, args=("fwd", chunk, True)),
+                   threading.Thread(target=run, args=("rev", list(reversed(chunk)), False))]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=60)
+        assert errors == []
+        assert [r["id"] for r in results["fwd"]["results"]] == chunk
+        assert [r["id"] for r in results["rev"]["results"]] == list(reversed(chunk))
+        for rid in chunk:
+            outcomes = sorted(r["result"] for name in ("fwd", "rev") for r in results[name]["results"] if r["id"] == rid)
+            assert outcomes == ["applied", "conflict"], (rid, outcomes)
+    engine.dispose()
