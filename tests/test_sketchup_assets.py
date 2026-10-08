@@ -255,3 +255,21 @@ def test_grouping_probe_must_match_dump(tmp_path):
     bad_doc.write_text(text, encoding="utf-8")
     with pytest.raises(SketchUpAssetError):
         _build(grouping_doc=bad_doc)
+
+
+def test_cli_build_check_matches_committed_pack():
+    """CI stand-in for `python -m sion_ingestion.sketchup_assets build --check`.
+
+    The workflow file cannot be updated with the current token (missing workflow scope).
+    """
+    import subprocess
+    import sys
+
+    completed = subprocess.run(
+        [sys.executable, "-m", "sion_ingestion.sketchup_assets", "build", "--check"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+
