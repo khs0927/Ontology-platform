@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 sion-migrate = "sion_api.migrate:main"
+sion-relations = "sion_ingestion.relations_cli:main"
 god-cad = "god_cad.cli:main"
 aec = "aec_intelligence.cli:main"
 aec-mcp = "aec_intelligence.mcp_stdio:main"

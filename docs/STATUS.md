@@ -76,7 +76,9 @@ Updated: 2026-10-08 (Asia/Seoul)
 ### Exact 43-edge migration
 The Sites artifact exposes all 31 labels and the relation count (43), but not
 structured source/target endpoints. Sion will not infer or fabricate them.
-The importer is ready for a structured Map export.
+**Update (relation pipeline, below):** the only structured 31/43 file found is
+`sion-map-production.json` (PR #8). It is imported as 43 *unverified candidates*
+with provenance and is waiting for human review at `/review`.
 
 ### Google Drive automatic scheduler
 The Linux @remote runtime can write the Windows-mounted shared directory but
@@ -216,3 +218,66 @@ Still needs the owner's decision:
   tests are back to their Ontology originals (the "fixture not in the monorepo" guards were removed),
   so `packages/aec` now holds every file of Ontology `master` (d39a56a). ArchOntos, GOD-CAD and
   CAD-MCP are archived read-only; Ontology is archived after this change.
+
+## Relation data + relation-construction pipeline 2026-10-08 (KST)
+
+### Where the 31/43 relation data was found
+Google Drive, the PC (`C:\code` repos, profile folders, the Drive mount) and git history were
+searched. The only file with explicit source/target pairs is `sion-map-production.json`
+(31 nodes / 43 relations). It is in Google Drive and on the PC, and it came from PR #8
+(merged 2026-09-24 02:55 KST, removed from the repo by `3e35521` at 03:09 KST). Its edges were
+written in PR #8; they were not exported from the live Sites page, which needs a login.
+Details are in `data/sources/PROVENANCE.md`.
+
+- `data/sources/sion-map-production.json`: byte-identical copy
+  (sha256 `24f5c468…dd56f`, CRLF kept, `.gitattributes` `-text`).
+- `data/bootstrap/sion-map-export.json`: the faithful `sion-map-export/v1` conversion,
+  31 nodes / 43 edges, with per-edge provenance (file, sha256, source edge id) and
+  `candidate: true`. The test suite regenerates it and compares.
+- Count check against the inventory: 31/43, categories match.
+- **The 43 edges are `unverified`.** No edge was added, removed or retyped. `VALIDATES`
+  (3 edges) is kept as a new 15th canonical relation type (`migrations/007_relation_type_validates.sql`,
+  seed, verify workflow and `scripts/verify-postgres.sh` updated to 15).
+
+### Relation-construction capability
+1. **Graph export extractor** (`sion_ingestion.graph_export`): sion/ontology map exports, D3
+   nodes/links, vis.js (`from`/`to`, `new vis.DataSet`), cytoscape `elements`, mermaid flowcharts,
+   GraphML, and HTML pages (inline JSON/JS literals and mermaid blocks) → `sion-map-export/v1`.
+   Duplicates, typed self-loops and dangling endpoints are reported and dropped, never repaired.
+   A count mismatch fails the conversion.
+2. **Candidate extraction** (`sion_ingestion.relation_extraction`): English/Korean verb rules and
+   sentence co-occurrence (≥2 sentences) between *known* entities in documents (txt/md/pdf/docx),
+   DXF annotations and IFC spatial structure (`IfcRelAggregates`/`Nests`/`ContainedInSpatialStructure`
+   → `PART_OF`). Optional LightRAG knowledge-graph → candidates (`rag` extra). Every proposal is
+   stored `unverified` with evidence rows (file, `line:N:start-end` or `ifc:#id`, excerpt hash and
+   excerpt). Existing verified relations and already-reviewed candidates are never touched.
+3. **Review API** (write routes need `write:knowledge`):
+   - `GET /api/v1/relations/candidates?status=pending|approved|rejected|all`
+   - `GET /api/v1/relations/candidates/{id}`
+   - `POST /api/v1/relations/candidates/{id}/approve` → `human_verified`
+   - `POST /api/v1/relations/candidates/{id}/reject` → `rejected`
+   - `POST /api/v1/extract/relations`
+   - `POST /api/v1/import/graph-export` (supports `dry_run`)
+   - `POST /api/v1/graphrag/extract-relations`
+
+   A decision is stored in `properties.review` (reviewer, note, time, previous state) and copied
+   to the evidence rows. Nothing is deleted. `/api/v1/graph` hides rejected edges unless
+   `include_rejected=true`.
+4. **Review UI**: `/review` (Korean; filter, approve/reject with a note, evidence excerpts).
+   The `/map` edge-drawing bug (it read `source_entity_id`) was fixed; edges are now styled by
+   verification state.
+5. **CLI**: `sion-relations convert|import|extract|candidates`.
+
+### Verification
+- `.[all,test,dev]`, Python 3.13: **193 passed, 3 skipped** (the 3 skips need `SION_TEST_POSTGRES_URL`).
+  Minimal `.[test,dev,documents,validation]`: 172 passed, 24 skipped.
+  New `tests/test_relations_pipeline.py`: 23 tests.
+- PostgreSQL 17 (local): migration runner applies 001–007 and gives 15 relation types; the second run applies 0.
+  `tests/test_unified_postgres.py` 3 passed. CLI import of 31/43 is idempotent, and extract/candidates work.
+- `ruff check .` is clean and `uv lock --check` passes.
+
+### Still needs the owner
+1. Review the 43 imported candidates at `/review`, approving or rejecting each one. They stay
+   `unverified` until a person decides.
+2. If the live Sites map has different edges, save it as HTML or JSON and run
+   `sion-relations convert <file> --expect-nodes 31 --expect-edges 43`.
