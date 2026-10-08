@@ -1,7 +1,7 @@
 """Contract tests for the bridged repositories (docs/INTEGRATION_CONTRACTS.md).
 
-Pinned producer/consumer commits: power-cad-mcp f2a8469, hs-steel-cad 233a4a4,
-korean-land-mcp ec25b13, HS-CAD 45d16b6, All-In-Cad 329f9ad, CAD-MCP 50ae134.
+Pinned producer/consumer commits: power-cad-mcp 086ee35, hs-steel-cad 4958a11,
+korean-land-mcp 3110809, HS-CAD 76e870d, All-In-Cad 329f9ad, CAD-MCP 50ae134.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def sha(text: str) -> str:
 
 
 def test_every_contract_schema_is_valid_draft_2020_12_and_packaged():
-    assert len(contracts.names()) == 7
+    assert len(contracts.names()) == 9
     for name in contracts.names():
         schema = contracts.load(name)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -51,7 +51,7 @@ def test_every_contract_schema_is_valid_draft_2020_12_and_packaged():
 
 # --------------------------------------------------------------------------- power-cad-mcp <-> Sion API
 
-# What power-cad-mcp sends (dotnet/PowerCad.Server/OntologyRestTools.cs + OntologyContext.cs @ f2a8469).
+# What power-cad-mcp sends (dotnet/PowerCad.Server/OntologyRestTools.cs + OntologyContext.cs @ 086ee35; unchanged since f2a8469).
 POWER_CAD_GETS = {
     "/v1/catalog": {"project_id"},
     "/v1/elements": {"kind", "project_id", "storey", "text", "drawing_category", "layer", "block_name", "bbox",
@@ -126,7 +126,7 @@ def test_sion_aec_query_satisfies_power_cad_refusal_rules():
 
 
 def _receipt(status: str, **overrides):
-    """Shape example following ExecutionReceiptContract.Project (power-cad-mcp @ f2a8469)."""
+    """Shape example following ExecutionReceiptContract.Project (power-cad-mcp @ 086ee35; unchanged since f2a8469)."""
     base = {
         "schema": "power-cad-execution-receipt/1",
         "receipt_status": status,
@@ -206,7 +206,7 @@ def _canonical(node) -> str:
 
 
 def _draw_plan():
-    """The payload of hs-steel-cad PowerCadHandoffTests.Sample() (tests/HsSteel.Tests @ 233a4a4)."""
+    """The payload of hs-steel-cad PowerCadHandoffTests.Sample() (tests/HsSteel.Tests @ 4958a11; unchanged since 233a4a4)."""
     payload = {
         "schema": "hs-steel-draw-plan/1",
         "producer": "khs0927/hs-steel-cad",
@@ -250,6 +250,141 @@ def test_hs_steel_draw_plan_rejects_authorizing_or_mixed_payloads(mutate):
     plan = copy.deepcopy(_draw_plan())
     mutate(plan)
     assert contracts.errors("hs-steel-draw-plan/1", plan)
+
+
+def test_hs_steel_draw_plan_accepts_current_styled_text_and_dimension_specs():
+    """Since 4958a11 DrawPlan text/dimension specs carry style=HS-KOR (power-cad cad_create_many creates the style)."""
+    plan = _draw_plan()
+    del plan["contract_digest"]
+    plan["entities"] += [
+        {"spec": {"type": "text", "layer": "HS-TEXT", "text": "B1", "position": [0, 100], "height": 3, "justify": "left",
+                  "rotation": 0, "style": "HS-KOR"}, "tag": None},
+        {"spec": {"type": "dimension", "layer": "HS-DIM", "kind": "rotated", "p1": [0, 0], "p2": [1000, 0],
+                  "line_point": [0, -200], "rotation": 0, "style": "HS-KOR"}, "tag": None},
+    ]
+    plan["contract_digest"] = sha(_canonical(plan))
+    assert contracts.errors("hs-steel-draw-plan/1", plan) == []
+
+
+# --------------------------------------------------------------------------- hs-steel-cad section catalog -> Sion aec
+
+
+def _section_catalog(**overrides):
+    """Shape of SectionCatalogHandoff.Build (src/HsSteel.Assets/SectionCatalogHandoff.cs @ 4958a11); synthetic rows."""
+    rows = [
+        {"spec": "H100x50x5x7", "shape": "H", "dimensions_mm": [100, 50, 5, 7, 8, 0], "unit_weight_kg_m": 9.3,
+         "paint_area_m2_m": 0.4, "aci_color": 1, "family": "H-BEAM"},
+        {"spec": "H300x150x6.5x9", "shape": "H", "dimensions_mm": [300, 150, 6.5, 9, 13, 0], "unit_weight_kg_m": 36.7,
+         "paint_area_m2_m": 1.16, "aci_color": 1, "family": "H-BEAM"},
+    ]
+    payload = {
+        "schema": "hs-steel-section-catalog/1",
+        "producer": "khs0927/hs-steel-cad",
+        "family": "H-BEAM",
+        "source_file": "H-BEAM.dat",
+        "source_sha256": sha("synthetic section table"),
+        "encoding": "euc-kr",
+        "validation_status": "PASS",
+        "capability_scope": "single_family_file",
+        "global_legacy_catalog_verified": False,
+        "read_rows": 2,
+        "accepted_rows": 2,
+        "quarantined_rows": 0,
+        "query": None,
+        "returned_rows": len(rows),
+        "rows": rows,
+        "execution_authorized": False,
+        "may_execute_mutation": False,
+    }
+    payload.update(overrides)
+    payload["contract_digest"] = sha(_canonical(payload))
+    return payload
+
+
+def test_hs_steel_section_catalog_validates_and_feeds_aec_loader(tmp_path):
+    payload = _section_catalog()
+    assert contracts.errors("hs-steel-section-catalog/1", payload) == []
+    unsigned = {k: v for k, v in payload.items() if k != "contract_digest"}
+    assert sha(_canonical(unsigned)) == payload["contract_digest"]
+    try:
+        from aec_intelligence.operational.graphrag.integrations import SECTION_HANDOFF_SCHEMA, load_section_handoffs
+    except ImportError as exc:
+        pytest.skip(f"aec graphrag integrations not importable: {exc}")
+    assert SECTION_HANDOFF_SCHEMA == "hs-steel-section-catalog/1"
+    (tmp_path / "h.json").write_text(json.dumps(payload), encoding="utf-8")
+    # what the loader drops must also fail the contract
+    (tmp_path / "review.json").write_text(json.dumps(_section_catalog(validation_status="REVIEW")), encoding="utf-8")
+    (tmp_path / "nohash.json").write_text(json.dumps(_section_catalog(source_sha256="ABC")), encoding="utf-8")
+    catalog = load_section_handoffs(tmp_path)
+    assert set(catalog) == {"H-100x50x5x7", "H-300x150x6.5x9"}
+    entry = catalog["H-100x50x5x7"]
+    assert entry["contract"] == "hs-steel-section-catalog/1" and entry["source_sha256"] == payload["source_sha256"]
+    assert entry["contract_digest"] == payload["contract_digest"] and entry["dims_mm"] == [100, 50, 5, 7, 8, 0]
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"validation_status": "REVIEW"},
+        {"source_sha256": "ABC"},
+        {"global_legacy_catalog_verified": True},
+        {"capability_scope": "global"},
+        {"quarantined_rows": 1},
+        {"execution_authorized": True},
+        {"may_execute_mutation": True},
+        {"producer": "someone/else"},
+        {"rows": [{"spec": "H100x50x5x7", "shape": "H", "family": "H-BEAM", "dimensions_mm": [100, 50, 5, 7],
+                   "unit_weight_kg_m": 9.3, "paint_area_m2_m": 0.4}]},  # power-cad requires six dimensions
+        {"rows": [{"spec": " ", "shape": "H", "family": "H-BEAM", "dimensions_mm": [1, 1, 1, 1, 1, 1],
+                   "unit_weight_kg_m": 1, "paint_area_m2_m": 1}]},
+        {"rows": [{"spec": "H1", "shape": "H", "family": "H-BEAM", "dimensions_mm": [1, 1, 1, 1, 1, -1],
+                   "unit_weight_kg_m": 1, "paint_area_m2_m": 1}]},
+    ],
+)
+def test_hs_steel_section_catalog_rejects_unverified_or_authorizing_payloads(overrides):
+    assert contracts.errors("hs-steel-section-catalog/1", _section_catalog(**overrides))
+
+
+# --------------------------------------------------------------------------- hs-steel-cad asset registry (provenance)
+
+REGISTRY_FIXTURE = FIX / "hs-steel_asset-registry_subset.json"
+
+
+def test_hs_steel_asset_registry_subset_validates_against_upstream_schema():
+    registry = json.loads(REGISTRY_FIXTURE.read_text(encoding="utf-8"))
+    assert contracts.errors("hs-steel-asset-registry/1", registry) == []
+    assert registry["counts"]["total"] == 819  # upstream header kept; assets[] trimmed (PROVENANCE.md)
+    categories = {c["id"] for c in registry["categories"]}
+    assert {a["category"] for a in registry["assets"]} == categories  # one row per category at least
+    options = {p["name"] for a in registry["assets"] if a["id"] == "standard-option/project-options"
+               for p in a["parameters"]}
+    assert {"bolt_length_table", "hole_rule", "mark_scheme", "mark_format", "mark_digits"} <= options
+    # Sion never treats registry rows as a way to run CAD: loaders are references, not grants
+    assert all(not any(k in a for k in ("execution_authorized", "may_execute_mutation")) for a in registry["assets"])
+
+
+def _registry_asset(registry, category, root):
+    return next(a for a in registry["assets"] if a["category"] == category and a["source"]["root"] == root)
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda r: r.update(schema="hs-steel-asset-registry/2"),
+        lambda r: _registry_asset(r, "block", "legacy").update(disposition="code"),
+        lambda r: _registry_asset(r, "layer", "repo").update(disposition="ingest"),
+        lambda r: _registry_asset(r, "block", "legacy")["props"].pop("blockCategory"),
+        lambda r: _registry_asset(r, "block", "legacy").update(insertion=None),
+        lambda r: _registry_asset(r, "block", "legacy")["source"].update(path="HSSTEEL\\block\\x.dwg"),
+        lambda r: _registry_asset(r, "block", "legacy")["insertion"].update(units="inch"),
+        lambda r: r["roots"]["legacy"].update(env="OTHER"),
+        lambda r: r["assets"][0].update(unknown=True),
+    ],
+)
+def test_hs_steel_asset_registry_rejects_drift(mutate):
+    registry = json.loads(REGISTRY_FIXTURE.read_text(encoding="utf-8"))
+    mutate(registry)
+    assert contracts.errors("hs-steel-asset-registry/1", registry)
 
 
 # --------------------------------------------------------------------------- All-In-Cad / CAD-MCP DXF census

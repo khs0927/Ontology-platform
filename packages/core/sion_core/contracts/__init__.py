@@ -25,6 +25,8 @@ CONTRACTS: dict[str, tuple[str, str, str]] = {
     "sion-aec-query-response": ("sion-aec-query-response.schema.json", "Sion API", "power-cad-mcp cad_context_query"),
     "power-cad-execution-receipt/1": ("power-cad-execution-receipt-1.schema.json", "power-cad-mcp", "Sion evidence (evidence-only)"),
     "hs-steel-draw-plan/1": ("hs-steel-draw-plan-1.schema.json", "hs-steel-cad", "power-cad-mcp (Sion: provenance only)"),
+    "hs-steel-section-catalog/1": ("hs-steel-section-catalog-1.schema.json", "hs-steel-cad SectionCatalogHandoff", "power-cad-mcp cad_hs_steel_catalog_prepare; Sion aec section evidence (read-only)"),
+    "hs-steel-asset-registry/1": ("hs-steel-asset-registry-1.schema.json", "hs-steel-cad tools/AssetRegistry", "power-cad-mcp cad_hs_* (Sion: provenance only, upstream schema verbatim)"),
     "korean-land-parcel-analysis/2": ("korean-land-parcel-analysis-2.schema.json", "korean-land-mcp analyze_parcel", "Sion regulation facts"),
     "all-in-cad-dxf-evidence": ("all-in-cad-dxf-evidence.schema.json", "Sion sion_cad.reader.dxf_census / All-In-Cad inspect_dxf", "cross-lane DXF verification"),
     "hs-cad-scan-objects": ("hs-cad-scan-objects.schema.json", "HS-CAD export_objects_json", "Sion evidence"),
