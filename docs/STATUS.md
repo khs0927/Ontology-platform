@@ -34,7 +34,7 @@ Final state re-checked 20:50 KST. Window: merged on/after 14:35 KST (`merged:>=2
   - HS-CAD [#158](https://github.com/khs0927/HS-CAD/pull/158) Pillow >= 12.3; `opencode.json` now reads `{env:GOOGLE_GENERATIVE_AI_API_KEY}` instead of a committed key.
   - power-cad-mcp [#44](https://github.com/khs0927/power-cad-mcp/pull/44) deterministic `OntologyAskTests` via `FakeTimeProvider` (fixes the flaky Windows timing test).
 - Open at 20:50 KST: power-cad-mcp #45 (HS-STEEL skills), #46 (CAD-less asset pipeline + Graph RAG index), #47 (headless DXF recover/ATTRIB/paper space), #48 (`cad_hs_search` / `cad_hs_index_status`). Archived Ontology #88 headless-test port: check open PRs before redoing.
-- HS-CAD has ~28 stale PRs (May–July) to triage.
+- HS-CAD PR triage done: 32 closed (already on main), none merged, 34 open with Korean comments; owner decisions listed in `docs/ops/MAIN-PC-TODO.ko.md` (HS-CAD section). xiCAD `mcp==1.28.1` pin breaks on Python 3.13.
 
 ### New docs
 - [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) — ordered checklist for the main PC (switch to `packages/aec`, verification, firewall, backups, crash follow-up, `/review`, power-cad-mcp / hs-steel-cad update, Sion local, cleanup), each with command, success criterion and rollback.
@@ -42,6 +42,7 @@ Final state re-checked 20:50 KST. Window: merged on/after 14:35 KST (`merged:>=2
 
 ### Remaining owner actions
 0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
+0b. HS-CAD PR decisions: close the two analysis chains (#23/#25/#27/#29/#32/#34/#35 and #24/#26/#28/#30/#31/#33/#37) once main is confirmed to cover them; port only needed modules of #1/#4/#5/#7 in fresh PRs; rewrite #12 against current `main.py`; live runs need a Windows + ZWCAD PC.
 1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issue #33).
 2. When the **main PC** is online: run `docs/ops/MAIN-PC-TODO.ko.md` — switch the live AEC runtime from the archived Ontology checkout to `packages/aec` with `switch-to-monorepo.ps1` (dry-run, then `-Apply`).
 3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
