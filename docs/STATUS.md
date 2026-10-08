@@ -81,14 +81,11 @@ structured source/target endpoints. Sion will not infer or fabricate them.
 with provenance and is waiting for human review at `/review`.
 
 ### Google Drive automatic scheduler
-The Linux @remote runtime can write the Windows-mounted shared directory but
-cannot currently invoke Windows PowerShell/CMD. The revised Windows installer
-is ready but its Scheduled Task cannot be registered autonomously through the
-current connector.
-
-The content-addressed Drive layout and staging layer are implemented. The
-remaining step is an authenticated Drive uploader or the one-time Windows
-scheduler registration.
+Superseded by export-on-write (see "Google Drive storage root 2026-10-08" below
+and `docs/STORAGE.md`). The live database stays on a local disk. Each committed
+write exports a consistent snapshot and the graph to `SION_STORAGE_ROOT`
+(Google Drive for desktop folder, or `SION_DRIVE_ROOT`). A Windows Scheduled
+Task that copies the live DB is not the current design and should stay disabled.
 
 ### Doppler
 Doppler CLI is installed in the current remote container, but the container

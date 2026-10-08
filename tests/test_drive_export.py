@@ -118,7 +118,7 @@ def test_api_exports_on_write_and_reports_status(tmp_path, monkeypatch):
     monkeypatch.setenv("SION_STORAGE_ROOT", str(tmp_path / "drive"))
     monkeypatch.setenv("SION_DRIVE_EXPORT_DEBOUNCE_S", "3600")
     app = create_app(database_url=f"sqlite:///{(tmp_path / 'api.db').as_posix()}", auto_create_schema=True)
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as client:
         assert client.get("/api/v1/storage/status").json()["status"] == "ok"
         created = client.post(
             "/api/v1/entities", json={"stable_key": "api:x", "entity_type_id": "Concept", "name": "X"}
@@ -134,7 +134,7 @@ def test_api_exports_on_write_and_reports_status(tmp_path, monkeypatch):
 def test_storage_disabled_without_root(monkeypatch):
     for key in ("SION_STORAGE_ROOT", "SION_DRIVE_ROOT", "GOOGLE_DRIVE_ROOT"):
         monkeypatch.delenv(key, raising=False)
-    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True)) as client:
+    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000)) as client:
         assert client.get("/api/v1/storage/status").json()["status"] == "disabled"
         assert client.post("/api/v1/storage/export").status_code == 503
 
