@@ -18,6 +18,7 @@
     button:disabled { opacity: .5; cursor: default; }
     button.approve { border-color: #2ea043; }
     button.reject { border-color: #da3633; }
+    button.reopen { border-color: #8b949e; margin-left: 8px; }
     main { padding: 12px 16px; display: grid; gap: 8px; }
     .group { margin-top: 10px; font-weight: 600; color: #d29922; display: flex; gap: 8px; align-items: center; }
     .card { border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; background: #161b22; display: grid; grid-template-columns: 22px 1fr; gap: 0 8px; }
@@ -113,6 +114,17 @@
     function flash(text, error) { $("msg").textContent = error ? text : ""; $("ok").textContent = error ? "" : text; }
     function replaceItem(updated) { const i = items.findIndex((x) => x.id === updated.id); if (i >= 0) items[i] = { ...items[i], ...updated }; }
 
+    // ---- header totals: always re-read from the server after any decision (also covers 409 races) ----
+    function showCounts(counts) {
+      if (counts) $("counts").textContent = `대기 ${counts.pending} · 승인 ${counts.approved} · 거절 ${counts.rejected}`;
+    }
+    async function refreshCounts() {
+      try {
+        const response = await fetch(`${api}/api/v1/relations/candidates?status=pending&limit=1`, { headers: headers(false) });
+        if (response.ok) showCounts((await response.json()).counts);
+      } catch (err) { /* keep the previous totals; the next decision or reload refreshes them */ }
+    }
+
     // ---- decisions: always for ids a person picked (the 추천 badge is display-only) ----
     async function decide(id, action, note) {
       flash("");
@@ -120,10 +132,26 @@
         method: "POST", headers: headers(true),
         body: JSON.stringify({ reviewer: $("reviewer").value || null, note: note || null }),
       });
-      if (!response.ok) { flash(`${response.status}: ${(await response.json()).detail || ""}`, true); return; }
+      if (!response.ok) { flash(`${response.status}: ${(await response.json()).detail || ""}`, true); await refreshCounts(); return; }
       replaceItem(await response.json());
       selected.delete(id);
       render();
+      await refreshCounts();
+    }
+    // Undo a mistaken decision: back to pending with a required note; the old decision stays in review_history.
+    async function reopen(id) {
+      const note = (prompt("판정을 되돌리는 이유(필수):") || "").trim();
+      if (!note) { flash("되돌리기에는 이유 메모가 필요합니다.", true); return; }
+      flash("");
+      const response = await fetch(`${api}/api/v1/relations/candidates/${id}/reopen`, {
+        method: "POST", headers: headers(true),
+        body: JSON.stringify({ reviewer: $("reviewer").value || null, note }),
+      });
+      if (!response.ok) { flash(`${response.status}: ${(await response.json()).detail || ""}`, true); await refreshCounts(); return; }
+      replaceItem({ ...(await response.json()), review: null });
+      flash("대기 상태로 되돌렸습니다.");
+      render();
+      await refreshCounts();
     }
     async function bulk(decision) {
       const ids = visible.filter((c) => selected.has(c.id) && c.status === "pending").map((c) => c.id);
@@ -147,6 +175,7 @@
       const c = body.counts;
       flash(`${word} ${c.applied}건 기록 · 이미 처리 ${c.unchanged} · 충돌 ${c.conflict} · 없음 ${c.not_found + c.not_candidate + c.invalid_id}`);
       render();
+      await refreshCounts();
     }
 
     // ---- display-only hint from evidence strength ----
@@ -198,7 +227,8 @@
           el("button", { class: "approve", onclick: () => decide(c.id, "approve", note.value) }, "승인"),
           el("button", { class: "reject", onclick: () => decide(c.id, "reject", note.value) }, "거절"));
       } else if (c.review) {
-        actions.append(el("span", { class: "meta" }, `${c.review.decision} · ${c.review.reviewer} · ${c.review.decided_at}${c.review.note ? " · " + c.review.note : ""}`));
+        actions.append(el("span", { class: "meta" }, `${c.review.decision} · ${c.review.reviewer} · ${c.review.decided_at}${c.review.note ? " · " + c.review.note : ""}`),
+          el("button", { class: "reopen", title: "잘못 판정한 경우 대기 상태로 되돌립니다(이유 필수, 이력은 남음)", onclick: () => reopen(c.id) }, "되돌리기"));
       }
       const box = el("input", { type: "checkbox", checked: selected.has(c.id), onchange: (ev) => { ev.target.checked ? selected.add(c.id) : selected.delete(c.id); updateBar(); node.classList.toggle("selected", ev.target.checked); } });
       if (c.status !== "pending") box.disabled = true;
@@ -282,7 +312,7 @@
           body = await response.json();
           loaded.push(...body.candidates);
         } while (body.candidates.length && loaded.length < body.total);
-        $("counts").textContent = `대기 ${body.counts.pending} · 승인 ${body.counts.approved} · 거절 ${body.counts.rejected}`;
+        showCounts(body.counts);
         items = loaded;
         selected.clear();
         cursor = 0;

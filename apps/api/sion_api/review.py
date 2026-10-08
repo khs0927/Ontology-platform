@@ -14,6 +14,16 @@ evidence rows; the original extractor, rules and evidence are left untouched.
 ``decide_bulk`` applies one human decision to many explicitly listed ids. Each
 candidate gets exactly the same per-item audit record (plus a shared
 ``batch_id``); nothing is ever approved without an id the reviewer selected.
+
+Every state change is a compare-and-set: ``UPDATE relations ... WHERE id = :id AND
+verification_state = :expected``. The affected-row count decides whether the decision was
+applied, so two reviewers deciding the same pending candidate concurrently can never both
+"win" (PostgreSQL re-checks the predicate after the row lock is released; SQLite serializes
+writers). The loser gets ``AlreadyReviewed`` (per item) or ``conflict``/``unchanged`` (bulk).
+
+``reopen`` is the supported way to undo a mistaken decision: it moves an approved/rejected
+candidate back to pending, with a required note, and keeps the reverted decision in
+``properties.review_history`` (nothing is deleted).
 """
 
 from __future__ import annotations
@@ -22,7 +32,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from . import models
@@ -152,6 +162,34 @@ def get_candidate(session: Session, relation_id: uuid.UUID) -> models.Relation:
     return row
 
 
+def _compare_and_set(
+    session: Session, row: models.Relation, *, expected_state: str, new_state: str, properties: dict[str, Any]
+) -> bool:
+    """Atomically move ``row`` from ``expected_state`` to ``new_state``; True only if this call did it."""
+    result = session.execute(
+        update(models.Relation)
+        .where(models.Relation.id == row.id)
+        .where(models.Relation.verification_state == expected_state)
+        .values(verification_state=new_state, properties=properties)
+        .execution_options(synchronize_session=False)
+    )
+    if result.rowcount != 1:
+        return False
+    # Mirror the committed-to-be values onto the ORM row: the flush then rewrites the same values
+    # (we already hold the row's write lock) and the outbox before_flush hook emits relation.updated
+    # exactly as it did for the previous ORM-only path.
+    row.verification_state = new_state
+    row.properties = properties
+    return True
+
+
+def _current_state(session: Session, relation_id: uuid.UUID) -> str | None:
+    """Fresh committed state from the database (bypasses the session's identity map)."""
+    return session.execute(
+        select(models.Relation.verification_state).where(models.Relation.id == relation_id)
+    ).scalar_one_or_none()
+
+
 def _apply_decision(
     session: Session,
     row: models.Relation,
@@ -160,8 +198,12 @@ def _apply_decision(
     reviewer: str | None,
     note: str | None,
     batch_id: str | None = None,
-) -> None:
-    """Record one decision on ``row`` and its evidence rows (no commit)."""
+) -> bool:
+    """Record one decision on ``row`` and its evidence rows (no commit).
+
+    Returns False (and writes nothing) when the candidate is no longer pending in the database,
+    e.g. because a concurrent reviewer decided it first.
+    """
     state = "human_verified" if approve else "rejected"
     decided_at = datetime.now(timezone.utc).isoformat()
     properties = dict(row.properties or {})
@@ -170,13 +212,13 @@ def _apply_decision(
         "reviewer": reviewer or "anonymous",
         "note": note,
         "decided_at": decided_at,
-        "previous_state": row.verification_state,
+        "previous_state": "unverified",
         "previous_confidence": row.confidence,
     }
     if batch_id is not None:
         properties["review"]["batch_id"] = batch_id
-    row.properties = properties
-    row.verification_state = state
+    if not _compare_and_set(session, row, expected_state="unverified", new_state=state, properties=properties):
+        return False
     for evidence in session.scalars(select(models.Evidence).where(models.Evidence.relation_id == row.id)):
         evidence.verification_state = state
         evidence_props = dict(evidence.properties or {})
@@ -184,6 +226,11 @@ def _apply_decision(
         if batch_id is not None:
             evidence_props["review"]["batch_id"] = batch_id
         evidence.properties = evidence_props
+    return True
+
+
+def _already(state: str | None) -> str:
+    return f"candidate already {STATE_TO_STATUS.get(state, state)}"
 
 
 def decide(
@@ -196,8 +243,52 @@ def decide(
 ) -> models.Relation:
     row = get_candidate(session, relation_id)
     if row.verification_state != "unverified":
-        raise AlreadyReviewed(f"candidate already {STATE_TO_STATUS.get(row.verification_state, row.verification_state)}")
-    _apply_decision(session, row, approve=approve, reviewer=reviewer, note=note)
+        raise AlreadyReviewed(_already(row.verification_state))
+    if not _apply_decision(session, row, approve=approve, reviewer=reviewer, note=note):
+        session.rollback()
+        raise AlreadyReviewed(_already(_current_state(session, relation_id)))
+    session.commit()
+    session.refresh(row)
+    return row
+
+
+class NotReviewed(ReviewError):
+    pass
+
+
+def reopen(session: Session, relation_id: uuid.UUID, *, note: str, reviewer: str | None = None) -> models.Relation:
+    """Undo a decision: approved/rejected -> pending, atomically, keeping the reverted decision on record."""
+    if not (note or "").strip():
+        raise ReviewError("note is required to reopen a decision")
+    row = get_candidate(session, relation_id)
+    expected = row.verification_state
+    if expected == "unverified":
+        raise NotReviewed("candidate is already pending")
+    reopened_at = datetime.now(timezone.utc).isoformat()
+    properties = dict(row.properties or {})
+    reverted = dict(properties.pop("review", None) or {})
+    reverted.update(
+        {
+            "reverted_state": expected,
+            "reopened_at": reopened_at,
+            "reopened_by": reviewer or "anonymous",
+            "reopen_note": note.strip(),
+        }
+    )
+    properties["review_history"] = [*(properties.get("review_history") or []), reverted]
+    if not _compare_and_set(session, row, expected_state=expected, new_state="unverified", properties=properties):
+        session.rollback()
+        raise AlreadyReviewed(f"candidate changed concurrently (now {STATE_TO_STATUS.get(_current_state(session, relation_id))})")
+    for evidence in session.scalars(select(models.Evidence).where(models.Evidence.relation_id == row.id)):
+        evidence.verification_state = "unverified"
+        evidence_props = dict(evidence.properties or {})
+        previous = evidence_props.pop("review", None)
+        if previous is not None:
+            evidence_props["review_history"] = [
+                *(evidence_props.get("review_history") or []),
+                {**previous, "reopened_at": reopened_at},
+            ]
+        evidence.properties = evidence_props
     session.commit()
     session.refresh(row)
     return row
@@ -250,7 +341,13 @@ def decide_bulk(
         if row.verification_state != "unverified":
             results.append({"id": str(relation_id), "result": "conflict", "status": status, "detail": f"candidate already {status}"})
             continue
-        _apply_decision(session, row, approve=approve, reviewer=reviewer, note=note, batch_id=batch_id)
+        if not _apply_decision(session, row, approve=approve, reviewer=reviewer, note=note, batch_id=batch_id):
+            # Lost a race: someone decided it between our read and our conditional update.
+            now = _current_state(session, relation_id)
+            status = STATE_TO_STATUS.get(now, now)
+            result = "unchanged" if now == target_state else "conflict"
+            results.append({"id": str(relation_id), "result": result, "status": status, "detail": f"candidate already {status}"})
+            continue
         results.append({"id": str(relation_id), "result": "applied", "status": decision})
     applied = sum(1 for r in results if r["result"] == "applied")
     if applied:
