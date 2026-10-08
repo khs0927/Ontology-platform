@@ -173,10 +173,9 @@ def test_export_on_write_can_be_disabled(tmp_path, value):
 
 
 def test_local_embeddings_endpoint_speaks_openai_format():
+    import array
     import base64
     import importlib.util
-
-    import numpy as np
 
     spec = importlib.util.spec_from_file_location(
         "local_embeddings", Path(__file__).resolve().parents[1] / "scripts" / "local_embeddings.py"
@@ -186,11 +185,13 @@ def test_local_embeddings_endpoint_speaks_openai_format():
 
     class Fake:
         def embed(self, texts):
-            return [np.full(3, len(t), dtype=np.float32) for t in texts]
+            return [[float(len(t))] * 3 for t in texts]
 
     client = TestClient(module.create_app("fake", embedder=Fake()))
     plain = client.post("/v1/embeddings", json={"input": ["ab", "그룹화"], "model": "fake"}).json()
     assert [d["embedding"] for d in plain["data"]] == [[2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]
     packed = client.post("/v1/embeddings", json={"input": "ab", "encoding_format": "base64"}).json()
-    assert np.frombuffer(base64.b64decode(packed["data"][0]["embedding"]), dtype=np.float32).tolist() == [2.0] * 3
+    decoded = array.array("f")
+    decoded.frombytes(base64.b64decode(packed["data"][0]["embedding"]))
+    assert decoded.tolist() == [2.0, 2.0, 2.0]
     assert client.post("/v1/embeddings", json={"input": "ab", "dimensions": 5}).status_code == 422

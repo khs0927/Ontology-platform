@@ -16,6 +16,7 @@ Binds to 127.0.0.1 only. Answers both ``encoding_format`` ``float`` and ``base64
 from __future__ import annotations
 
 import argparse
+import array
 import base64
 import os
 from typing import Any
@@ -32,8 +33,19 @@ class EmbeddingRequest(BaseModel):
     dimensions: int | None = None
 
 
+def _f32(vector: Any):
+    """float32 sequence without requiring the cad extra's numpy."""
+    if hasattr(vector, "astype"):
+        return vector.astype("float32")
+    return array.array("f", (float(x) for x in vector))
+
+
+def _dim(vector: Any) -> int:
+    shape = getattr(vector, "shape", None)
+    return int(shape[0]) if shape is not None else len(vector)
+
+
 def create_app(model_name: str = DEFAULT_MODEL, *, cache_dir: str | None = None, embedder: Any = None):
-    import numpy as np
     from fastapi import FastAPI, HTTPException
 
     if embedder is None:
@@ -52,9 +64,9 @@ def create_app(model_name: str = DEFAULT_MODEL, *, cache_dir: str | None = None,
         texts = [request.input] if isinstance(request.input, str) else list(request.input)
         if not texts:
             raise HTTPException(status_code=422, detail="input is empty")
-        vectors = [np.asarray(v, dtype=np.float32) for v in embedder.embed(texts)]
-        if request.dimensions is not None and vectors and request.dimensions != vectors[0].shape[0]:
-            raise HTTPException(status_code=422, detail=f"model dimension is {vectors[0].shape[0]}")
+        vectors = [_f32(v) for v in embedder.embed(texts)]
+        if request.dimensions is not None and vectors and request.dimensions != _dim(vectors[0]):
+            raise HTTPException(status_code=422, detail=f"model dimension is {_dim(vectors[0])}")
         as_base64 = request.encoding_format == "base64"
         data = [
             {
