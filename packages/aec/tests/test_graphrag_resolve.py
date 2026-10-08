@@ -87,7 +87,8 @@ def test_sheet_number_is_not_a_storey_or_section():
     assert linked.sheet_numbers == [] and linked.storeys == ["B1"]
 
 
-def test_llm_refuses_remote_endpoints_without_opt_in():
+def test_llm_refuses_remote_endpoints_without_opt_in(monkeypatch):
+    _public_dns(monkeypatch)
     assert is_local_endpoint("http://127.0.0.1:11434") and is_local_endpoint("http://host.docker.internal:11434")
     with pytest.raises(LLMError):
         LocalLLM(LLMConfig(url="https://api.example.com"))
@@ -224,3 +225,10 @@ def test_summarize_stops_after_two_endpoint_failures():
 
     out = communities.summarize(DB(), NoLoad())
     assert out["pending"] == 5 and out["summarized"] == 0 and "load failed" in out["aborted"]
+
+
+def _public_dns(monkeypatch):
+    """Resolve names to a public address so the test is independent of the host's DNS (fake-IP proxies etc.)."""
+    from aec_intelligence.operational import netguard
+
+    monkeypatch.setattr(netguard, "_getaddrinfo", lambda host: [(2, 1, 6, "", ("93.184.216.34", 0))])
