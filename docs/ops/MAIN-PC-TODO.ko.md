@@ -16,6 +16,22 @@
 
 ---
 
+## ★ 최우선 (메인 PC와 무관, 어느 PC에서든 바로)
+
+- [ ] **HS-CAD에 커밋됐던 Google AI Studio API 키 교체(rotate)**
+  - **왜:** HS-CAD의 `opencode.json`에 키가 들어간 채 2026-05-21부터 **공개 히스토리**에 남아 있습니다. 현재 main은
+    HS-CAD #158 이후 `{env:GOOGLE_GENERATIVE_AI_API_KEY}` 환경변수를 읽지만, 히스토리의 옛 키는 이미 노출된 것으로 봐야 합니다.
+  - **방법:** Google AI Studio의 API 키 화면에서 해당 키를 **삭제(폐기)** → 새 키 발급 → 쓰는 PC마다 사용자 환경변수
+    `GOOGLE_GENERATIVE_AI_API_KEY` 로만 설정(파일·저장소·채팅에 붙여 넣지 않음).
+    ```powershell
+    [Environment]::SetEnvironmentVariable('GOOGLE_GENERATIVE_AI_API_KEY', (Read-Host -AsSecureString '새 키' | ConvertFrom-SecureString -AsPlainText), 'User')
+    ```
+  - **그다음:** HS-CAD 저장소 → Security → Secret scanning → **알림 #1** 을 "Revoked"로 닫기.
+  - **성공 기준:** 옛 키로 호출하면 인증 실패, 새 키는 환경변수로만 동작, 알림 #1 닫힘.
+  - **롤백:** 없음(폐기한 키는 되살리지 않음). 새 키에 문제가 있으면 새로 하나 더 발급.
+- [ ] (선택) power-cad-mcp, hs-steel-cad, All-In-Cad 저장소에 **Dependabot alerts + Secret scanning** 켜기
+  (Settings → Code security). 끄면 원래대로 돌아갑니다.
+
 ## 0. 사전 점검 (2분)
 
 - [ ] **왜:** 전환 중 Docker/WSL이 꺼져 있거나 디스크가 부족하면 중간에 멈춥니다.

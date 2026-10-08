@@ -5,7 +5,7 @@ Updated: 2026-10-08 evening (Asia/Seoul)
 
 ## Sprint 2026-10-08 evening (KST)
 
-Final state re-checked 20:45 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
+Final state re-checked 20:50 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
 
 ### Merged
 **Ontology-platform** (all CI green before merge)
@@ -29,8 +29,11 @@ Final state re-checked 20:45 KST. Window: merged on/after 14:35 KST (`merged:>=2
 - Follow-up sprint (sprint2/), merged:
   - [#42](https://github.com/khs0927/Ontology-platform/pull/42) contracts re-pinned to the 2026-10-08 evening heads of the bridged repos; contract tests 58 → 81; new `hs-steel-section-catalog/1` schema (+ asset registry schema).
   - [#44](https://github.com/khs0927/Ontology-platform/pull/44) bulk review API `POST /api/v1/relations/candidates/bulk` + Korean `/review` bulk UI (filters, keyboard shortcuts, display-only 추천 hint; no auto-approve).
+  - [#45](https://github.com/khs0927/Ontology-platform/pull/45) test deps: httpx2 for Starlette TestClient; `uv.lock` has no known vulnerabilities.
+  - korean-land-mcp [#2](https://github.com/khs0927/korean-land-mcp/pull/2) npm audit findings 20 → 2.
+  - HS-CAD [#158](https://github.com/khs0927/HS-CAD/pull/158) Pillow >= 12.3; `opencode.json` now reads `{env:GOOGLE_GENERATIVE_AI_API_KEY}` instead of a committed key.
   - power-cad-mcp [#44](https://github.com/khs0927/power-cad-mcp/pull/44) deterministic `OntologyAskTests` via `FakeTimeProvider` (fixes the flaky Windows timing test).
-- Open at 20:45 KST: Ontology-platform #45 (httpx2 for TestClient); power-cad-mcp #45 (HS-STEEL skills), #46 (CAD-less asset pipeline + Graph RAG index), #47 (headless DXF recover/ATTRIB/paper space), #48 (`cad_hs_search` / `cad_hs_index_status`). Archived Ontology #88 headless-test port and the dependency audit: check open PRs before redoing.
+- Open at 20:50 KST: power-cad-mcp #45 (HS-STEEL skills), #46 (CAD-less asset pipeline + Graph RAG index), #47 (headless DXF recover/ATTRIB/paper space), #48 (`cad_hs_search` / `cad_hs_index_status`). Archived Ontology #88 headless-test port: check open PRs before redoing.
 - HS-CAD has ~28 stale PRs (May–July) to triage.
 
 ### New docs
@@ -38,6 +41,7 @@ Final state re-checked 20:45 KST. Window: merged on/after 14:35 KST (`merged:>=2
 - [`docs/guidelines/AGENT-WORKFLOW.ko.md`](guidelines/AGENT-WORKFLOW.ko.md) — agent rules distilled from this week (monorepo vs bridged repos, subtree, porting archived PRs, parallel sprint protocol, public-repo privacy, security defaults, PC ops).
 
 ### Remaining owner actions
+0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
 1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issue #33).
 2. When the **main PC** is online: run `docs/ops/MAIN-PC-TODO.ko.md` — switch the live AEC runtime from the archived Ontology checkout to `packages/aec` with `switch-to-monorepo.ps1` (dry-run, then `-Apply`).
 3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
