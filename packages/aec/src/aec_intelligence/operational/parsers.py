@@ -35,6 +35,70 @@ SECTION_TAG_RE = re.compile(r'SIZE|SECTION|PROFILE|MEMBER|규격|부재|단면',
 SHEET_NUMBER_RE = re.compile(r'([A-Z]{1,3}-?\d{2,4}(?:-\d{1,3})?)(?![A-Z0-9])')
 _ORDER_PREFIX_RE = re.compile(r'^(?:\d{1,3}[_.]\s*|\d{1,3}\s+-\s+(?=[A-Za-z]{1,3}-?\d))')
 
+# A sheet number written as plain title-block text, as Korean sheets usually draw it: "A-101", "C - 010",
+# "MC-008", "S- 101", "A-101-1", "건축-01". The whole text must be the number.
+SHEET_TEXT_RE = re.compile(r'^\s*([A-Z]{1,3}|[가-힣]{1,4})\s*(-)?\s*(\d{1,4})(?:\s*-\s*(\d{1,3}))?\s*$')
+# A title-block field label, optionally followed by its value in the same text ("DWG NO. A-101").
+SHEET_LABEL_RE = re.compile(
+    r'^\s*(?:도\s*면\s*번\s*호|도\s*번|시\s*트\s*번\s*호|DWG\.?\s*NO|DRAWING\s*(?:NO|NUMBER)|SHEET\s*(?:NO|NUMBER))'
+    r'\s*\.?\s*[:：]?\s*(.*)$', re.IGNORECASE)
+# Layers that title-block / sheet-frame text is drawn on ("SH", "A-TITLE", "시트지-t", "x. 출력", "M-SheetNumberText").
+SHEET_LAYER_RE = re.compile(r'SHEET|TITLE|^SH$|^TB|도곽|표제|시트|도면|출력|BORDER|FRAME', re.IGNORECASE)
+
+
+def sheet_number_text(text):
+    """(normalised number, written with a dash) when ``text`` is entirely a sheet number, else None.
+
+    Latin prefixes may omit the dash ("A101") but then only count next to a label; Korean prefixes need it.
+    """
+    match = SHEET_TEXT_RE.match(str(text or '').upper())
+    if not match:
+        return None
+    prefix, dash, number, sub = match.groups()
+    korean = not prefix.isascii()
+    if korean and not dash:
+        return None
+    if not korean and len(number) < 2:
+        return None
+    value = f'{prefix}-{number}' + (f'-{sub}' if sub else '')
+    return value, bool(dash)
+
+
+def pick_sheet_number(candidates, labels):
+    """Choose the sheet number among plain-text candidates using title-block evidence.
+
+    ``candidates``: dicts with value, dash, height, center, layer. ``labels``: dicts with center, height.
+    A candidate scores 4 next to a "도면번호/DWG NO" label, 2 on a sheet/title layer and 1 for a dashed
+    form; at least 3 is required, so a lone door or grid mark on an ordinary layer is never taken.
+    Returns (number, method, all top-scoring values) or None.
+    """
+    scored = []
+    for cand in candidates:
+        score, method = 0, []
+        cx, cy = cand['center'] or (None, None)
+        if cx is not None:
+            for label in labels:
+                if label['center'] is None:
+                    continue
+                reach = 20.0 * max(float(label['height'] or 0), float(cand['height'] or 0), 1e-9)
+                if math.dist((cx, cy), label['center']) <= reach:
+                    score += 4
+                    method.append('label_proximity')
+                    break
+        if SHEET_LAYER_RE.search(str(cand['layer'] or '')):
+            score += 2
+            method.append('sheet_layer')
+        if cand['dash']:
+            score += 1
+        if score >= 3:
+            scored.append((score, float(cand['height'] or 0), cand['value'], '+'.join(method) or 'dashed'))
+    if not scored:
+        return None
+    top = max(row[0] for row in scored)
+    best = sorted((row for row in scored if row[0] == top), key=lambda row: (-row[1], row[2]))
+    values = list(dict.fromkeys(row[2] for row in best))
+    return best[0][2], best[0][3], values
+
 
 def filename_sheet_fields(name):
     """(sheet number, title) read from a drawing file name, the last-resort source when no title block names them.
@@ -215,6 +279,7 @@ class _DXFSemantics:
         self.is_paper = not sheet.is_modelspace
         self.title_blocks, self.title_texts, self.members, self.sections = [], [], [], []
         self.area_texts, self.text_spaces = [], []
+        self.sheet_number_texts, self.sheet_labels = [], []
         self.layout_objects = []
         self.layout_drawn = 0  # entities other than the paper-space VIEWPORT itself
 
@@ -259,6 +324,7 @@ class _DXFSemantics:
         text = str(props.get('text') or '').strip()
         if not text:
             return
+        self._collect_sheet_number_text(obj, normalized, text)
         mark = element_mark(text)
         if mark:
             obj['properties'].update(mark)
@@ -278,6 +344,22 @@ class _DXFSemantics:
                 self._detail_view(obj, detail, evidence)
         if len(text) <= 40 and drawing_category(('text', text))['drawing_category'] != '기타':
             self.title_texts.append((float(props.get('height') or 0.0), text))
+
+    def _collect_sheet_number_text(self, obj, normalized, text):
+        height = float(normalized.properties.get('height') or 0.0)
+        center = self._bbox_center(obj.get('bbox') or {})
+        if label := SHEET_LABEL_RE.match(text):
+            self.sheet_labels.append({'center': center, 'height': height})
+            text = label.group(1)
+            found = sheet_number_text(text) if text else None
+            if found:  # "DWG NO. A-101": the label vouches for its own value
+                self.sheet_number_texts.append({'value': found[0], 'dash': True, 'height': height,
+                                                'center': center, 'layer': 'SHEET-LABEL'})
+            return
+        found = sheet_number_text(text)
+        if found:
+            self.sheet_number_texts.append({'value': found[0], 'dash': found[1], 'height': height,
+                                            'center': center, 'layer': normalized.layer})
 
     def _insert_attributes(self, obj, attributes, evidence):
         room, number, area = None, None, None
@@ -475,6 +557,14 @@ class _DXFSemantics:
                                        if k in fields})
             view['properties']['title_block'] = title['id']
             self.relate(view['id'], 'hasTitleBlock', title['id'], 'AI_INFERRED', method='title_block_attributes')
+        if not view['properties'].get('drawingNumber') and not sheet_regions:
+            picked = pick_sheet_number(self.sheet_number_texts, self.sheet_labels)
+            if picked:
+                number, method, values = picked
+                view['properties'].update({'drawingNumber': number, 'drawingNumber_source': 'title_block_text',
+                                           'drawingNumber_method': method})
+                if len(values) > 1:
+                    view['properties']['drawingNumber_candidates'] = values
         view['search_text'] = f"{view['search_text']} {view['properties']['drawing_category']} {fields.get('drawingTitle', '')}"
         category = view['properties']['drawing_category']
         storey = storey_from(*candidates)
