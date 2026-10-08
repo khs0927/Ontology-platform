@@ -60,7 +60,9 @@ switch ($Action) {
         foreach ($n in 'embeddings', 'api') { Write-Host ("{0,-11} {1}" -f $n, $(if (Get-Pid $n) { "running (pid $(Get-Pid $n))" } else { 'stopped' })) }
         try {
             Invoke-RestMethod "$base/health" -TimeoutSec 3 | ConvertTo-Json -Compress | Write-Host
-            $s = Invoke-RestMethod "$base/api/v1/storage/status" -TimeoutSec 5
+            # Windows PowerShell 5.1 decodes JSON without a charset as Latin-1; decode UTF-8 explicitly.
+            $raw = Invoke-WebRequest -UseBasicParsing "$base/api/v1/storage/status" -TimeoutSec 5
+            $s = [Text.Encoding]::UTF8.GetString($raw.RawContentStream.ToArray()) | ConvertFrom-Json
             Write-Host "storage root: $($s.layout.root)"
             if ($s.last_export) { Write-Host "last export:  $($s.last_export.stamp) $($s.last_export.counts | ConvertTo-Json -Compress)" }
             if ($s.last_error) { Write-Warning "last export error: $($s.last_error)" }

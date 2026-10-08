@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -189,8 +190,8 @@ def main():
     )
     parser.add_argument(
         "--db-url",
-        default="sqlite:///runtime/sion.db",
-        help="Database URL (default: sqlite:///runtime/sion.db)",
+        default=os.environ.get("SION_DATABASE_URL", "sqlite:///runtime/sion.db"),
+        help="Database URL (default: $SION_DATABASE_URL, else sqlite:///runtime/sion.db)",
     )
     parser.add_argument(
         "--dry-run",

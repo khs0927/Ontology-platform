@@ -16,7 +16,7 @@ G:\내 드라이브\AEC-INTELLIGENCE\01_PROJECTS\SION-ONTOLOGY\   <- SION_STORAG
   02_EXPORTS\graph\          sion-graph-latest.json (whole graph, sion-map-export/v1, re-importable)
                              sion-evidence-latest.jsonl (every evidence row)
   02_EXPORTS\bootstrap\      generated graph packs (e.g. sketchup-0914-meeting.json)
-  02_EXPORTS\agent-bridge\   agent-session export written by scripts/run_agent_bridge.py
+  02_EXPORTS\agent-bridge\   agent-session export written by scripts/run_agent_bridge.py (uses $SION_DATABASE_URL)
   03_DOCS\                   knowledge documents (guidelines, workflows, architecture notes)
   09_AGENT_MEMORY\           agent memory exports
   storage-manifest.json      layout, last export (counts + SHA-256 per file), last asset placement
