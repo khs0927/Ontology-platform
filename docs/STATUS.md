@@ -5,7 +5,7 @@ Updated: 2026-10-08 evening (Asia/Seoul)
 
 ## Sprint 2026-10-08 evening (KST)
 
-Final state re-checked 20:55 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
+Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
 
 ### Merged
 **Ontology-platform** (all CI green before merge)
@@ -36,7 +36,7 @@ Final state re-checked 20:55 KST. Window: merged on/after 14:35 KST (`merged:>=2
   - korean-land-mcp [#2](https://github.com/khs0927/korean-land-mcp/pull/2) npm audit findings 20 → 2.
   - HS-CAD [#158](https://github.com/khs0927/HS-CAD/pull/158) Pillow >= 12.3; `opencode.json` now reads `{env:GOOGLE_GENERATIVE_AI_API_KEY}` instead of a committed key.
   - power-cad-mcp [#44](https://github.com/khs0927/power-cad-mcp/pull/44) deterministic `OntologyAskTests` via `FakeTimeProvider` (fixes the flaky Windows timing test).
-- Open at 20:55 KST: power-cad-mcp #45 (HS-STEEL skills), #46 (CAD-less asset pipeline + Graph RAG index), #47 (headless DXF recover/ATTRIB/paper space), #48 (`cad_hs_search` / `cad_hs_index_status`).
+- Open at 20:30 KST: power-cad-mcp #45 (HS-STEEL skills), #49, #46 (CAD-less asset pipeline + Graph RAG index), #47 (headless DXF recover/ATTRIB/paper space), #48 (`cad_hs_search` / `cad_hs_index_status`).
 - HS-CAD PR triage done: 32 closed (already on main), none merged, 34 open with Korean comments; owner decisions listed in `docs/ops/MAIN-PC-TODO.ko.md` (HS-CAD section). xiCAD `mcp==1.28.1` pin breaks on Python 3.13.
 
 ### New docs

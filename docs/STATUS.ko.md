@@ -13,7 +13,7 @@
 7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색, AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
 8. **CI**: Tests(Ubuntu+Windows), Verify, AEC/CAD, Regulation, Public security. agent-bridge Windows exe는 Releases.
 
-## 2026-10-08 저녁 스프린트 결과 (20:55 재확인)
+## 2026-10-08 저녁 스프린트 결과 (20:30 재확인)
 
 **Ontology-platform 병합** (모두 CI 통과 후 병합)
 - [#37](https://github.com/khs0927/Ontology-platform/pull/37) 보관된 Ontology #86/#90/#91 이식 — 읽기 전용 브리지 fail-closed 계약 + 근거 수명주기.
@@ -38,7 +38,7 @@
 - korean-land-mcp #2 npm audit 20 → 2건. HS-CAD #158 Pillow ≥ 12.3, `opencode.json`은 커밋된 키 대신 `{env:GOOGLE_GENERATIVE_AI_API_KEY}` 사용.
 - power-cad-mcp #44 `FakeTimeProvider`로 `OntologyAskTests` 결정적 테스트화(Windows 타이밍 간헐 실패 해결).
 
-**20:55 기준 열림:** power-cad-mcp #45(HS-STEEL 스킬)·#46(CAD 없는 자산 수집 + Graph RAG 인덱스)·#47(headless DXF)·#48(`cad_hs_search`/`cad_hs_index_status`).
+**20:30 기준 열림:** power-cad-mcp #45(HS-STEEL 스킬)·#49·#46(CAD 없는 자산 수집 + Graph RAG 인덱스)·#47(headless DXF)·#48(`cad_hs_search`/`cad_hs_index_status`).
 보관된 Ontology #88 headless 테스트 이식은 다시 하기 전에 열린 PR 확인. HS-CAD PR 분류 완료: 32개 닫음(이미 main에 포함), 병합 0, 34개 열림(한국어 코멘트). xiCAD `mcp==1.28.1` 고정은 Python 3.13에서 깨짐.
 
 **새 문서**
