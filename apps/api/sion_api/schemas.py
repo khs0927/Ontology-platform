@@ -255,6 +255,23 @@ class CandidateDecision(BaseModel):
     note: str | None = Field(default=None, max_length=2000)
 
 
+class BulkCandidateDecision(BaseModel):
+    """One human decision for an explicit list of candidate ids (no filters, no auto-selection)."""
+
+    ids: list[str] = Field(min_length=1, max_length=1000)
+    decision: Literal["approve", "reject"]
+    note: str = Field(min_length=1, max_length=2000)
+    reviewer: str | None = Field(default=None, max_length=200)
+
+    @field_validator("note")
+    @classmethod
+    def _note_not_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("note is required for bulk decisions")
+        return value
+
+
 class RelationExtractionRequest(BaseModel):
     paths: list[str] = Field(min_length=1, max_length=500)
     min_cooccurrence: int = Field(default=2, ge=1, le=100)

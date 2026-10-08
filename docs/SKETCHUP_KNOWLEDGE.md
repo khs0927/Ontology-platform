@@ -86,6 +86,20 @@ the converter treats every edge as an unverified candidate and replaces `propert
 Candidates (`properties.candidate = true`: the 214 classifications and the guideline links) show
 up at `/review` and stay `unverified` until a person approves them.
 
+### Reviewing them quickly (`/review`)
+
+- Filter by relation type, source file, minimum evidence count / confidence, `추천` hint or text,
+  group by type / source / hint, then tick rows (or a group, or `필터 결과 전체 선택`).
+- Keyboard: `j`/`k` move, `x` select, `a` approve, `r` reject (per-item routes, optional note).
+- `선택 일괄 승인/거절` calls `POST /api/v1/relations/candidates/bulk`
+  `{"ids": [...], "decision": "approve"|"reject", "note": "<required>", "reviewer": "..."}`
+  (`write:knowledge`). Only the listed ids are touched; each gets the same `properties.review`
+  record and evidence-row copy as the per-item route plus a shared `batch_id`. The response has a
+  per-id `result` (`applied`, `unchanged` on repeat, `conflict` if the opposite decision exists,
+  `not_found`, `not_candidate`, `invalid_id`), so retries are safe.
+- The `추천` badge (evidence count, confidence, co-occurrence-only rules) is display-only and is
+  never applied automatically.
+
 ## How an agent should use it
 
 1. Map the request to a class (`sketchup:class:retaining-wall`, …).

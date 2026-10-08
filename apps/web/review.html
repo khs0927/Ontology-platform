@@ -7,56 +7,93 @@
   <style>
     :root { color-scheme: dark; }
     body { margin: 0; font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3; }
-    header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid #30363d; }
+    header { position: sticky; top: 0; z-index: 2; background: #0d1117; border-bottom: 1px solid #30363d; padding: 10px 16px; display: grid; gap: 8px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     header h1 { font-size: 16px; margin: 0 12px 0 0; }
     header a { color: #58a6ff; }
+    label { font-size: 13px; color: #8b949e; }
     select, input, button { background: #161b22; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 5px 8px; }
+    input[type=checkbox] { width: 16px; height: 16px; padding: 0; vertical-align: middle; }
     button { cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
     button.approve { border-color: #2ea043; }
     button.reject { border-color: #da3633; }
-    main { padding: 12px 16px; display: grid; gap: 10px; }
-    .card { border: 1px solid #30363d; border-radius: 8px; padding: 10px 12px; background: #161b22; }
+    main { padding: 12px 16px; display: grid; gap: 8px; }
+    .group { margin-top: 10px; font-weight: 600; color: #d29922; display: flex; gap: 8px; align-items: center; }
+    .card { border: 1px solid #30363d; border-radius: 8px; padding: 8px 12px; background: #161b22; display: grid; grid-template-columns: 22px 1fr; gap: 0 8px; }
+    .card.cursor { outline: 2px solid #58a6ff; }
+    .card.selected { background: #1c2a3a; }
     .triple { font-size: 15px; }
     .type { color: #d29922; font-weight: 600; margin: 0 6px; }
-    .meta { color: #8b949e; font-size: 12px; margin-top: 4px; }
-    .evidence { margin: 8px 0 0; padding-left: 16px; font-size: 13px; }
-    .evidence li { margin-bottom: 4px; }
+    .meta { color: #8b949e; font-size: 12px; margin-top: 3px; }
+    .hint { font-size: 12px; border-radius: 10px; padding: 1px 8px; margin-left: 8px; border: 1px dashed; }
+    .hint-approve { color: #3fb950; } .hint-reject { color: #f85149; } .hint-check { color: #d29922; }
+    .evidence { margin: 6px 0 0; padding-left: 16px; font-size: 13px; }
+    .evidence li { margin-bottom: 3px; }
     .loc { color: #8b949e; font-family: ui-monospace, monospace; font-size: 11px; word-break: break-all; }
-    .actions { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+    .actions { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
     .actions input { flex: 1; }
     .status-approved { border-left: 4px solid #2ea043; }
     .status-rejected { border-left: 4px solid #da3633; opacity: .75; }
     .status-pending { border-left: 4px solid #d29922; }
-    #msg { color: #f85149; }
+    kbd { border: 1px solid #30363d; border-radius: 4px; padding: 0 4px; font-size: 11px; }
+    #msg { color: #f85149; } #ok { color: #3fb950; }
+    .note { color: #8b949e; font-size: 12px; }
   </style>
 </head>
 <body>
   <header>
-    <h1>관계 후보 검토</h1>
-    <label>상태
-      <select id="status">
-        <option value="pending">대기</option>
-        <option value="approved">승인</option>
-        <option value="rejected">거절</option>
-        <option value="all">전체</option>
-      </select>
-    </label>
-    <span id="counts"></span>
-    <input id="reviewer" placeholder="검토자 이름" size="12">
-    <input id="token" type="password" placeholder="Bearer 토큰 (원격일 때만)" size="22">
-    <a href="map">그래프 보기</a>
-    <span id="msg"></span>
+    <div class="row">
+      <h1>관계 후보 검토</h1>
+      <label>상태
+        <select id="status">
+          <option value="pending">대기</option>
+          <option value="approved">승인</option>
+          <option value="rejected">거절</option>
+          <option value="all">전체</option>
+        </select>
+      </label>
+      <span id="counts"></span>
+      <input id="reviewer" placeholder="검토자 이름" size="12">
+      <input id="token" type="password" placeholder="Bearer 토큰 (원격일 때만)" size="22">
+      <a href="map">그래프 보기</a>
+      <span id="msg"></span><span id="ok"></span>
+    </div>
+    <div class="row">
+      <label>관계 유형 <select id="ftype"><option value="">전체</option></select></label>
+      <label>출처 파일 <select id="fsource"><option value="">전체</option></select></label>
+      <label>근거 ≥ <input id="fev" type="number" min="0" value="0" style="width:4em"></label>
+      <label>신뢰도 ≥ <input id="fconf" type="number" min="0" max="1" step="0.05" value="0" style="width:5em"></label>
+      <label>추천 <select id="fhint"><option value="">전체</option><option value="approve">승인 추천</option><option value="check">직접 확인</option><option value="reject">거절 검토</option></select></label>
+      <label>검색 <input id="fq" placeholder="이름·유형·파일" size="14"></label>
+      <label>묶기 <select id="group"><option value="">없음</option><option value="type">관계 유형</option><option value="source">출처 파일</option><option value="hint">추천</option></select></label>
+    </div>
+    <div class="row">
+      <label><input id="selectAll" type="checkbox"> 필터 결과 전체 선택 (<span id="visibleCount">0</span>건)</label>
+      <span id="selCount">선택 0건</span>
+      <input id="bulkNote" placeholder="일괄 메모 (필수: 판단 근거)" size="28">
+      <button class="approve" id="bulkApprove" disabled>선택 일괄 승인</button>
+      <button class="reject" id="bulkReject" disabled>선택 일괄 거절</button>
+      <span class="note">단축키: <kbd data-key="j">j</kbd>/<kbd data-key="k">k</kbd> 이동 · <kbd data-key="x">x</kbd> 선택 · <kbd data-key="a">a</kbd> 승인 · <kbd data-key="r">r</kbd> 거절</span>
+    </div>
+    <div class="note">'추천'은 근거 수·신뢰도·추출 규칙으로 계산한 참고 표시일 뿐이며 자동 적용되지 않습니다. 승인·거절은 사람이 고른 항목에만 기록됩니다.</div>
   </header>
   <main id="list"><p>불러오는 중…</p></main>
   <script>
     const params = new URLSearchParams(location.search);
     const api = params.get("api") || (location.protocol.startsWith("http") ? location.origin : "http://127.0.0.1:8000");
     const $ = (id) => document.getElementById(id);
+    let items = [];          // every candidate loaded for the chosen status
+    let visible = [];        // after filters (render order)
+    const selected = new Set();
+    let cursor = 0;
+
     $("token").value = sessionStorage.getItem("sionToken") || "";
     $("reviewer").value = localStorage.getItem("sionReviewer") || "";
     $("token").addEventListener("change", () => sessionStorage.setItem("sionToken", $("token").value));
     $("reviewer").addEventListener("change", () => localStorage.setItem("sionReviewer", $("reviewer").value));
     $("status").addEventListener("change", load);
+    for (const id of ["ftype", "fsource", "fev", "fconf", "fhint", "fq", "group"]) $(id).addEventListener("input", () => { cursor = 0; render(); });
 
     function headers(json) {
       const h = json ? { "Content-Type": "application/json" } : {};
@@ -67,57 +104,191 @@
     function el(tag, attrs, ...children) {
       const node = document.createElement(tag);
       for (const [k, v] of Object.entries(attrs || {})) {
-        if (k === "class") node.className = v; else if (k.startsWith("on")) node.addEventListener(k.slice(2), v); else node.setAttribute(k, v);
+        if (k === "class") node.className = v; else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+        else if (k === "checked") node.checked = v; else node.setAttribute(k, v);
       }
       for (const child of children) node.append(child instanceof Node ? child : document.createTextNode(child ?? ""));
       return node;
     }
+    function flash(text, error) { $("msg").textContent = error ? text : ""; $("ok").textContent = error ? "" : text; }
+    function replaceItem(updated) { const i = items.findIndex((x) => x.id === updated.id); if (i >= 0) items[i] = { ...items[i], ...updated }; }
+
+    // ---- decisions: always for ids a person picked (the 추천 badge is display-only) ----
     async function decide(id, action, note) {
-      $("msg").textContent = "";
+      flash("");
       const response = await fetch(`${api}/api/v1/relations/candidates/${id}/${action}`, {
-        method: "POST",
-        headers: headers(true),
+        method: "POST", headers: headers(true),
         body: JSON.stringify({ reviewer: $("reviewer").value || null, note: note || null }),
       });
-      if (!response.ok) { $("msg").textContent = `${response.status}: ${(await response.json()).detail || ""}`; return; }
-      load();
+      if (!response.ok) { flash(`${response.status}: ${(await response.json()).detail || ""}`, true); return; }
+      replaceItem(await response.json());
+      selected.delete(id);
+      render();
     }
-    function card(c) {
+    async function bulk(decision) {
+      const ids = visible.filter((c) => selected.has(c.id) && c.status === "pending").map((c) => c.id);
+      const note = $("bulkNote").value.trim();
+      if (!ids.length) { flash("선택한 대기 항목이 없습니다.", true); return; }
+      if (!note) { flash("일괄 처리에는 메모(판단 근거)가 필요합니다.", true); $("bulkNote").focus(); return; }
+      const word = decision === "approve" ? "승인" : "거절";
+      if (!confirm(`선택한 ${ids.length}건을 ${word}할까요?\n메모: ${note}`)) return;
+      flash("");
+      const response = await fetch(`${api}/api/v1/relations/candidates/bulk`, {
+        method: "POST", headers: headers(true),
+        body: JSON.stringify({ ids, decision, note, reviewer: $("reviewer").value || null }),
+      });
+      const body = await response.json();
+      if (!response.ok) { flash(`${response.status}: ${typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail)}`, true); return; }
+      const review = { decision: body.decision, reviewer: $("reviewer").value || "anonymous", note, batch_id: body.batch_id, decided_at: new Date().toISOString() };
+      for (const r of body.results) {
+        if (r.result === "applied") replaceItem({ id: r.id, status: body.decision, review });
+        selected.delete(r.id);
+      }
+      const c = body.counts;
+      flash(`${word} ${c.applied}건 기록 · 이미 처리 ${c.unchanged} · 충돌 ${c.conflict} · 없음 ${c.not_found + c.not_candidate + c.invalid_id}`);
+      render();
+    }
+
+    // ---- display-only hint from evidence strength ----
+    function recommend(c) {
+      const ev = c.evidence_count || 0;
+      const conf = c.confidence;
+      const rules = c.rules || [];
+      const weak = rules.length > 0 && rules.every((r) => /co-?occurrence/i.test(r));
+      if (ev === 0) return { kind: "reject", label: "거절 검토", why: "근거 없음" };
+      if (weak && ev < 3) return { kind: "reject", label: "거절 검토", why: "같은 문장 동시출현 근거만 있음" };
+      if (conf != null && conf < 0.5) return { kind: "reject", label: "거절 검토", why: `신뢰도 ${conf} 낮음` };
+      if ((conf != null && conf >= 0.9 && !weak) || (conf != null && conf >= 0.75 && ev >= 3)) return { kind: "approve", label: "승인 추천", why: `신뢰도 ${conf} · 근거 ${ev}건` };
+      return { kind: "check", label: "직접 확인", why: conf == null ? `신뢰도 미기재 · 근거 ${ev}건` : `신뢰도 ${conf} · 근거 ${ev}건` };
+    }
+    const sourceOf = (c) => c.source_file || "(출처 미기재)";
+    const groupKey = (c, g) => g === "type" ? c.relation_type_id : g === "source" ? sourceOf(c) : g === "hint" ? recommend(c).label : "";
+
+    function fillOptions(select, values) {
+      const keep = select.value;
+      const counts = {};
+      for (const v of values) counts[v] = (counts[v] || 0) + 1;
+      select.replaceChildren(el("option", { value: "" }, "전체"), ...Object.keys(counts).sort().map((v) => el("option", { value: v }, `${v} (${counts[v]})`)));
+      select.value = counts[keep] ? keep : "";
+    }
+    function applyFilters() {
+      const status = $("status").value, type = $("ftype").value, source = $("fsource").value, hint = $("fhint").value;
+      const minEv = Number($("fev").value) || 0, minConf = Number($("fconf").value) || 0, q = $("fq").value.trim().toLowerCase();
+      const g = $("group").value;
+      const out = items.filter((c) =>
+        (status === "all" || c.status === status) &&
+        (!type || c.relation_type_id === type) && (!source || sourceOf(c) === source) &&
+        (c.evidence_count || 0) >= minEv && (minConf === 0 || (c.confidence ?? 0) >= minConf) &&
+        (!hint || recommend(c).kind === hint) &&
+        (!q || `${c.source?.name} ${c.relation_type_id} ${c.target?.name} ${sourceOf(c)}`.toLowerCase().includes(q)));
+      if (g) out.sort((a, b) => groupKey(a, g).localeCompare(groupKey(b, g)));
+      return out;
+    }
+    function card(c, index) {
       const note = el("input", { placeholder: "메모 (선택)" });
+      const hint = recommend(c);
       const evidence = el("ul", { class: "evidence" });
-      for (const e of c.evidence) {
+      for (const e of c.evidence || []) {
         evidence.append(el("li", {}, e.excerpt || "(발췌 없음)", el("div", { class: "loc" }, `${e.source_uri || ""} @ ${e.source_locator || ""}`)));
       }
-      if (c.evidence_count > c.evidence.length) evidence.append(el("li", {}, `… 외 ${c.evidence_count - c.evidence.length}건`));
+      if (c.evidence_count > (c.evidence || []).length) evidence.append(el("li", {}, `… 외 ${c.evidence_count - (c.evidence || []).length}건`));
       const actions = el("div", { class: "actions" });
       if (c.status === "pending") {
-        actions.append(
-          note,
+        actions.append(note,
           el("button", { class: "approve", onclick: () => decide(c.id, "approve", note.value) }, "승인"),
-          el("button", { class: "reject", onclick: () => decide(c.id, "reject", note.value) }, "거절"),
-        );
+          el("button", { class: "reject", onclick: () => decide(c.id, "reject", note.value) }, "거절"));
       } else if (c.review) {
         actions.append(el("span", { class: "meta" }, `${c.review.decision} · ${c.review.reviewer} · ${c.review.decided_at}${c.review.note ? " · " + c.review.note : ""}`));
       }
-      const prov = c.provenance ? ` · 출처 ${c.provenance.source_file || ""} ${c.provenance.locator || ""}` : "";
-      return el("div", { class: `card status-${c.status}` },
-        el("div", { class: "triple" }, c.source?.name || "?", el("span", { class: "type" }, c.relation_type_id), c.target?.name || "?"),
-        el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "-"} · 근거 ${c.evidence_count}건 · ${c.extractor || ""} · ${(c.rules || []).join(", ")}${prov}`),
-        evidence,
-        actions,
-      );
+      const box = el("input", { type: "checkbox", checked: selected.has(c.id), onchange: (ev) => { ev.target.checked ? selected.add(c.id) : selected.delete(c.id); updateBar(); node.classList.toggle("selected", ev.target.checked); } });
+      if (c.status !== "pending") box.disabled = true;
+      const node = el("div", { class: `card status-${c.status}${selected.has(c.id) ? " selected" : ""}${index === cursor ? " cursor" : ""}`, "data-id": c.id, onclick: () => { cursor = index; markCursor(); } },
+        box,
+        el("div", {},
+          el("div", { class: "triple" }, c.source?.name || "?", el("span", { class: "type" }, c.relation_type_id), c.target?.name || "?",
+            el("span", { class: `hint hint-${hint.kind}`, title: `${hint.why} (참고용, 자동 적용되지 않음)` }, `추천: ${hint.label}`)),
+          el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "-"} · 근거 ${c.evidence_count}건 · ${c.extractor || ""} · ${(c.rules || []).join(", ")} · 출처 ${sourceOf(c)}${c.provenance?.locator ? " " + c.provenance.locator : ""}`),
+          evidence, actions));
+      node._note = note;
+      return node;
     }
+    function updateBar() {
+      const pendingVisible = visible.filter((c) => c.status === "pending");
+      const n = pendingVisible.filter((c) => selected.has(c.id)).length;
+      $("visibleCount").textContent = pendingVisible.length;
+      $("selCount").textContent = `선택 ${n}건`;
+      $("selectAll").checked = n > 0 && n === pendingVisible.length;
+      $("selectAll").indeterminate = n > 0 && n < pendingVisible.length;
+      $("bulkApprove").disabled = $("bulkReject").disabled = n === 0;
+    }
+    function render() {
+      fillOptions($("ftype"), items.map((c) => c.relation_type_id));
+      fillOptions($("fsource"), items.map(sourceOf));
+      visible = applyFilters();
+      // selection never reaches outside what is on screen
+      const shown = new Set(visible.map((c) => c.id));
+      for (const id of [...selected]) if (!shown.has(id)) selected.delete(id);
+      cursor = Math.max(0, Math.min(cursor, visible.length - 1));
+      const g = $("group").value;
+      const nodes = [];
+      let last = null;
+      visible.forEach((c, i) => {
+        const key = groupKey(c, g);
+        if (g && key !== last) {
+          last = key;
+          const members = visible.filter((x) => groupKey(x, g) === key && x.status === "pending");
+          const gbox = el("input", { type: "checkbox", checked: members.length > 0 && members.every((x) => selected.has(x.id)),
+            onchange: (ev) => { for (const x of members) ev.target.checked ? selected.add(x.id) : selected.delete(x.id); render(); } });
+          nodes.push(el("div", { class: "group" }, gbox, `${key} · ${visible.filter((x) => groupKey(x, g) === key).length}건 (대기 ${members.length})`));
+        }
+        nodes.push(card(c, i));
+      });
+      $("list").replaceChildren(...(nodes.length ? nodes : [el("p", {}, "조건에 맞는 후보가 없습니다.")]));
+      updateBar();
+      markCursor(false);
+    }
+    function cards() { return [...$("list").querySelectorAll(".card")]; }
+    function markCursor(scroll = true) {
+      cards().forEach((n, i) => n.classList.toggle("cursor", i === cursor));
+      const cur = cards()[cursor];
+      if (cur && scroll) cur.scrollIntoView({ block: "nearest" });
+    }
+    $("selectAll").addEventListener("change", (ev) => {
+      for (const c of visible) if (c.status === "pending") ev.target.checked ? selected.add(c.id) : selected.delete(c.id);
+      render();
+    });
+    $("bulkApprove").addEventListener("click", () => bulk("approve"));
+    $("bulkReject").addEventListener("click", () => bulk("reject"));
+    document.addEventListener("keydown", (ev) => {
+      const tag = (ev.target.tagName || "").toLowerCase();
+      if (tag === "input" && ev.target.type !== "checkbox" || tag === "select" || tag === "textarea" || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      const c = visible[cursor];
+      if (ev.key === "j") { cursor = Math.min(cursor + 1, visible.length - 1); markCursor(); }
+      else if (ev.key === "k") { cursor = Math.max(cursor - 1, 0); markCursor(); }
+      else if (ev.key === "x" && c && c.status === "pending") { selected.has(c.id) ? selected.delete(c.id) : selected.add(c.id); render(); }
+      else if ((ev.key === "a" || ev.key === "r") && c && c.status === "pending") { decide(c.id, ev.key === "a" ? "approve" : "reject", cards()[cursor]?._note?.value); }
+      else return;
+      ev.preventDefault();
+    });
+
     async function load() {
-      const list = $("list");
-      list.replaceChildren(el("p", {}, "불러오는 중…"));
+      $("list").replaceChildren(el("p", {}, "불러오는 중…"));
       try {
-        const response = await fetch(`${api}/api/v1/relations/candidates?status=${$("status").value}&limit=500`, { headers: headers(false) });
-        if (!response.ok) throw new Error(`${response.status} ${(await response.json()).detail || ""}`);
-        const body = await response.json();
+        const loaded = [];
+        let body;
+        do {
+          const response = await fetch(`${api}/api/v1/relations/candidates?status=${$("status").value}&limit=1000&offset=${loaded.length}`, { headers: headers(false) });
+          if (!response.ok) throw new Error(`${response.status} ${(await response.json()).detail || ""}`);
+          body = await response.json();
+          loaded.push(...body.candidates);
+        } while (body.candidates.length && loaded.length < body.total);
         $("counts").textContent = `대기 ${body.counts.pending} · 승인 ${body.counts.approved} · 거절 ${body.counts.rejected}`;
-        list.replaceChildren(...(body.candidates.length ? body.candidates.map(card) : [el("p", {}, "후보가 없습니다.")]));
+        items = loaded;
+        selected.clear();
+        cursor = 0;
+        render();
       } catch (err) {
-        list.replaceChildren(el("p", {}, "불러오기 실패: " + err.message));
+        $("list").replaceChildren(el("p", {}, "불러오기 실패: " + err.message));
       }
     }
     load();
