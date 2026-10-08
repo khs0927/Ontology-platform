@@ -106,7 +106,7 @@ No hosting target has been chosen or deployed.
 ## Next milestones
 
 1. Add document ingestion + evidence extraction.
-2. Add authenticated Drive uploader/scheduler when a usable credential path exists.
+2. Drive copy is export-on-write to `SION_STORAGE_ROOT` (see storage-root section). Do not add a live-DB scheduler.
 3. Obtain structured 31-node/43-edge map export and import it.
 4. Point the frontend graph layer to `/api/v1/graph`.
 5. Add LightRAG-compatible GraphRAG boundary.
@@ -170,8 +170,8 @@ Follow-up (same day): dependency upgrades and optional OSS parsers
 
 Still blocked (needs the owner's data/credentials):
 1. Structured 31-node/43-edge Map export — not fabricated.
-2. Drive live upload — needs a service-account key + shared folder ID, or the
-   one-time Windows Scheduled Task registration.
+2. Drive live upload — superseded. Export-on-write to `SION_STORAGE_ROOT` is the
+   current path; do not register a Scheduled Task that copies the live DB.
 3. Doppler — no token on this machine.
 4. Apache AGE / production PostgreSQL host — target not selected.
 5. Public deployment — needs hosting, real tokens, and TLS.
