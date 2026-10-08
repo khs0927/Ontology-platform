@@ -16,20 +16,33 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 
+@contextmanager
 def _session(database_url: str):
+    """Session for one CLI command. When a storage root is configured (``SION_STORAGE_ROOT`` /
+    ``SION_DRIVE_ROOT``), a command that wrote anything ends with one Drive export."""
     from sion_api import repository
     from sion_api.db import Base, build_engine, build_session_factory
+    from sion_api.drive_export import DriveExporter, install_export_on_write
 
     engine = build_engine(database_url)
     if database_url.startswith("sqlite"):
         Base.metadata.create_all(engine)
     factory = build_session_factory(engine)
-    session = factory()
-    repository.seed_core_types(session)
-    return session
+    exporter = DriveExporter.from_env(engine)
+    if exporter is not None:
+        exporter.debounce_s = 3600.0  # export once at the end, not in the middle of an import
+        install_export_on_write(factory, exporter)
+    with factory() as session:
+        repository.seed_core_types(session)
+        yield session
+    if exporter is not None:
+        exporter.flush()
+        if exporter.last_result:
+            print(f"[drive] exported to {exporter.layout.root}", file=sys.stderr)
 
 
 def _inventory(path: str | None) -> dict | None:

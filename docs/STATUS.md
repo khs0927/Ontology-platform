@@ -81,14 +81,11 @@ structured source/target endpoints. Sion will not infer or fabricate them.
 with provenance and is waiting for human review at `/review`.
 
 ### Google Drive automatic scheduler
-The Linux @remote runtime can write the Windows-mounted shared directory but
-cannot currently invoke Windows PowerShell/CMD. The revised Windows installer
-is ready but its Scheduled Task cannot be registered autonomously through the
-current connector.
-
-The content-addressed Drive layout and staging layer are implemented. The
-remaining step is an authenticated Drive uploader or the one-time Windows
-scheduler registration.
+Superseded by export-on-write (see "Google Drive storage root 2026-10-08" below
+and `docs/STORAGE.md`). The live database stays on a local disk. Each committed
+write exports a consistent snapshot and the graph to `SION_STORAGE_ROOT`
+(Google Drive for desktop folder, or `SION_DRIVE_ROOT`). A Windows Scheduled
+Task that copies the live DB is not the current design and should stay disabled.
 
 ### Doppler
 Doppler CLI is installed in the current remote container, but the container
@@ -109,7 +106,7 @@ No hosting target has been chosen or deployed.
 ## Next milestones
 
 1. Add document ingestion + evidence extraction.
-2. Add authenticated Drive uploader/scheduler when a usable credential path exists.
+2. Drive copy is export-on-write to `SION_STORAGE_ROOT` (see storage-root section). Do not add a live-DB scheduler.
 3. Obtain structured 31-node/43-edge map export and import it.
 4. Point the frontend graph layer to `/api/v1/graph`.
 5. Add LightRAG-compatible GraphRAG boundary.
@@ -173,8 +170,8 @@ Follow-up (same day): dependency upgrades and optional OSS parsers
 
 Still blocked (needs the owner's data/credentials):
 1. Structured 31-node/43-edge Map export — not fabricated.
-2. Drive live upload — needs a service-account key + shared folder ID, or the
-   one-time Windows Scheduled Task registration.
+2. Drive live upload — superseded. Export-on-write to `SION_STORAGE_ROOT` is the
+   current path; do not register a Scheduled Task that copies the live DB.
 3. Doppler — no token on this machine.
 4. Apache AGE / production PostgreSQL host — target not selected.
 5. Public deployment — needs hosting, real tokens, and TLS.
@@ -218,6 +215,21 @@ Still needs the owner's decision:
   tests are back to their Ontology originals (the "fixture not in the monorepo" guards were removed),
   so `packages/aec` now holds every file of Ontology `master` (d39a56a). ArchOntos, GOD-CAD and
   CAD-MCP are archived read-only; Ontology is archived after this change.
+
+## Google Drive storage root 2026-10-08 (KST)
+
+- `sion_api.drive_export`: storage layout under `SION_STORAGE_ROOT` (or `SION_DRIVE_ROOT` +
+  `AEC-INTELLIGENCE/01_PROJECTS/SION-ONTOLOGY`), export-on-write hook (debounced `after_commit`).
+  Each export writes a consistent SQLite backup (or `pg_dump`), the whole graph as
+  `sion-map-export/v1`, evidence JSONL and `storage-manifest.json`. Also
+  `GET /api/v1/storage/status`, `POST /api/v1/storage/export`, and the CLI
+  `python -m sion_api.drive_export layout|snapshot|publish-assets`.
+- Import CLIs (`sion-relations`, and anything else that uses `relations_cli._session`) export once at the end.
+  `scripts/run_agent_bridge.py` writes into the storage root and no longer copies the live DB file.
+- `scripts/local_embeddings.py`: a local OpenAI-compatible embeddings endpoint (fastembed), so
+  GraphRAG works on SQLite + local LightRAG storage without PostgreSQL or a cloud key.
+- The live DB stays on a local disk on purpose. Details: `docs/STORAGE.md`.
+- `tests/test_drive_export.py` (11 tests).
 
 ## Relation data + relation-construction pipeline 2026-10-08 (KST)
 
