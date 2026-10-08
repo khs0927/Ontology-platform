@@ -5,36 +5,53 @@ Updated: 2026-10-08 evening (Asia/Seoul)
 
 ## Sprint 2026-10-08 evening (KST)
 
-Snapshot taken 19:50 KST. Cutoff for “after 14:35 KST” is `merged:>=2026-10-08T05:35:00Z` (14:35 KST).
+Final state re-checked 20:55 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
 
-### Merged after 14:35 KST
-- **Ontology-platform:** [#37](https://github.com/khs0927/Ontology-platform/pull/37) feat(aec): port read-only bridge fail-closed contract + evidence lifecycle (Ontology #86/#90/#91) — merged 19:48 KST.
-- **power-cad-mcp:** [#42](https://github.com/khs0927/power-cad-mcp/pull/42) docs(hs-steel): 철골 도면 작성 플레이북·표준 JSON·AGENTS.md — merged 19:45 KST.
-- **hs-steel-cad:** none at snapshot time.
+### Merged
+**Ontology-platform** (all CI green before merge)
+- [#37](https://github.com/khs0927/Ontology-platform/pull/37) feat(aec): port read-only bridge fail-closed contract + evidence lifecycle (archived Ontology #86/#90/#91; #86 already contained in #90) — 19:48 KST.
+- [#38](https://github.com/khs0927/Ontology-platform/pull/38) feat(aec): port bulk scheduling recovery & ingestion metrics (archived Ontology #80) — workers wait/retry on low RAM or missing source roots; rate/ETA fixed — 19:52 KST.
+- [#39](https://github.com/khs0927/Ontology-platform/pull/39) feat(aec/ops): `switch-to-monorepo.ps1` + Korean runbook `packages/aec/docs/SWITCH-TO-MONOREPO.ko.md` — dry-run by default, `-Apply` to change, refuses if the DB volume would change — 19:54 KST.
+- [#40](https://github.com/khs0927/Ontology-platform/pull/40) fix(aec): netguard treats fake-IP DNS range `198.18.0.0/15` as non-local (drawing text could reach a remote LLM behind Clash-style proxies); hermetic egress tests — 19:55 KST.
+- [#41](https://github.com/khs0927/Ontology-platform/pull/41) docs: evening status + `docs/STATUS.ko.md` — 19:57 KST.
 
-### Closed (not merged) after 14:35 KST
-- [#34](https://github.com/khs0927/Ontology-platform/pull/34) docs: CI OS matrix for pytest — closed 19:45 KST; superseded by #36 Windows pytest — Ubuntu-only premise obsolete.
-- [#35](https://github.com/khs0927/Ontology-platform/pull/35) test: lock pytest OS coverage — closed 19:45 KST; same; would fail against current matrix.
+**Bridged repos** (changed in their own repos, not from here)
+- power-cad-mcp [#42](https://github.com/khs0927/power-cad-mcp/pull/42) HS steel drafting playbook / standard JSON (19:45), [#40](https://github.com/khs0927/power-cad-mcp/pull/40) README / playbook / install-guide sync (19:53), [#43](https://github.com/khs0927/power-cad-mcp/pull/43) `cad_hs_*` asset tools (10 tools, 65 total; `..` path escape fixed) (20:01).
+- hs-steel-cad [#7](https://github.com/khs0927/hs-steel-cad/pull/7) asset registry `hs-steel-asset-registry/1` (819 assets; CRLF hash mismatch on Windows fixed) — 19:57 KST.
+- korean-land-mcp [#1](https://github.com/khs0927/korean-land-mcp/pull/1) CI added (typecheck + vitest, 29 tests) — 19:48 KST.
+- HS-CAD [#157](https://github.com/khs0927/HS-CAD/pull/157) report PyRx import separately from native readiness — 19:45 KST.
+- All-In-Cad: no merge; 96 tests pass; draft #15 (conflicting) commented only.
 
-### Open sprint work still in flight (not yet on main)
-**Ontology-platform:**
-- #38 feat(aec): port bulk scheduling recovery & ingestion metrics (archived Ontology#80)
-- #39 feat(aec/ops): switch-to-monorepo.ps1 — PC stack → packages/aec
-- #40 fix(aec): netguard rejects fake-IP DNS range; hermetic egress tests
+### Closed (not merged)
+- [#34](https://github.com/khs0927/Ontology-platform/pull/34), [#35](https://github.com/khs0927/Ontology-platform/pull/35) — superseded by #36 (Windows pytest); the Ubuntu-only premise is obsolete.
 
-**power-cad-mcp:**
-- #43 feat(hs-steel): asset-control tools (cad_hs_*)
-- #40 docs: sync README, operating playbook and install guide
+### Known follow-ups (non-blocking)
+- Follow-up sprint (sprint2/), merged:
+  - [#42](https://github.com/khs0927/Ontology-platform/pull/42) contracts re-pinned to the 2026-10-08 evening heads of the bridged repos; contract tests 58 → 81; new `hs-steel-section-catalog/1` schema (+ asset registry schema).
+  - [#44](https://github.com/khs0927/Ontology-platform/pull/44) bulk review API `POST /api/v1/relations/candidates/bulk` + Korean `/review` bulk UI (filters, keyboard shortcuts, display-only 추천 hint; no auto-approve).
+  - [#45](https://github.com/khs0927/Ontology-platform/pull/45) test deps: httpx2 for Starlette TestClient; `uv.lock` has no known vulnerabilities.
+  - [#46](https://github.com/khs0927/Ontology-platform/pull/46) port of archived Ontology #88 headless drawing-context tests (separator-independent asserts; new workflow `aec-drawing-context-headless.yml` on ubuntu/macos/windows). Ontology #89 became `packages/aec/docs/verification-boundary.md`; #83/#84/#87 skipped (archive-state only).
+  - [#47](https://github.com/khs0927/Ontology-platform/pull/47) backup/restore smoke test in `verify.yml` (pg_dump/restore on PG17 + pgvector; row counts, extension versions, no pending migrations); closes issue #1 (`scripts/verify-postgres.sh` covers the check; the `verify_postgres.py` named in the issue never existed).
+  - Issue #2 closed as superseded by export-on-write (`docs/STORAGE.md`, `drive_export.py`); `AutoSync_Code_To_GDrive` tracked in #33. Open issues now: #3 (waits on owner `/review` of 31 nodes + 43 relations) and #33.
+  - korean-land-mcp [#2](https://github.com/khs0927/korean-land-mcp/pull/2) npm audit findings 20 → 2.
+  - HS-CAD [#158](https://github.com/khs0927/HS-CAD/pull/158) Pillow >= 12.3; `opencode.json` now reads `{env:GOOGLE_GENERATIVE_AI_API_KEY}` instead of a committed key.
+  - power-cad-mcp [#44](https://github.com/khs0927/power-cad-mcp/pull/44) deterministic `OntologyAskTests` via `FakeTimeProvider` (fixes the flaky Windows timing test).
+- Open at 20:55 KST: power-cad-mcp #45 (HS-STEEL skills), #46 (CAD-less asset pipeline + Graph RAG index), #47 (headless DXF recover/ATTRIB/paper space), #48 (`cad_hs_search` / `cad_hs_index_status`).
+- HS-CAD PR triage done: 32 closed (already on main), none merged, 34 open with Korean comments; owner decisions listed in `docs/ops/MAIN-PC-TODO.ko.md` (HS-CAD section). xiCAD `mcp==1.28.1` pin breaks on Python 3.13.
 
-**hs-steel-cad:**
-- #7 feat(assets): hs-steel-asset-registry/1
+### New docs
+- [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) — ordered checklist for the main PC (switch to `packages/aec`, verification, firewall, backups, crash follow-up, `/review`, power-cad-mcp / hs-steel-cad update, Sion local, cleanup), each with command, success criterion and rollback.
+- [`docs/guidelines/AGENT-WORKFLOW.ko.md`](guidelines/AGENT-WORKFLOW.ko.md) — agent rules distilled from this week (monorepo vs bridged repos, subtree, porting archived PRs, parallel sprint protocol, public-repo privacy, security defaults, PC ops).
 
 ### Remaining owner actions
-1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issue #33).
-2. When **DESKTOP-KTQHS1I** is online: switch the live AEC runtime from the archived `C:\CODE\Ontology` checkout to this monorepo’s `packages/aec` (and point any scheduled ingest/KG jobs at it).
+0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
+0b. HS-CAD PR decisions: close the two analysis chains (#23/#25/#27/#29/#32/#34/#35 and #24/#26/#28/#30/#31/#33/#37) once main is confirmed to cover them; port only needed modules of #1/#4/#5/#7 in fresh PRs; rewrite #12 against current `main.py`; live runs need a Windows + ZWCAD PC.
+1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issues #3, #33).
+2. When the **main PC** is online: run `docs/ops/MAIN-PC-TODO.ko.md` — switch the live AEC runtime from the archived Ontology checkout to `packages/aec` with `switch-to-monorepo.ps1` (dry-run, then `-Apply`).
 3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
-4. After the runtime switch: re-index GraphRAG against the current graph / embeddings.
-5. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
+4. After the runtime switch: GraphRAG refresh (retries the 6 FAILED communities).
+5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
+6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
 
 ## Completed
 
