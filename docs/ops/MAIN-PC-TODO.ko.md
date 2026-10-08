@@ -76,6 +76,7 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
   그 전에 만든 체크아웃은 `origin/main`과 **갈라져** 있어서 `git pull --ff-only`가 실패합니다. 백업한 뒤 `origin/main`으로 맞춥니다.
 - **명령** (작업 체크아웃은 `C:\code` 아래, Google Drive 동기화 폴더 **밖**). 아래 블록을 **한 번에** 붙여 넣습니다.
   백업·검사 중 하나라도 실패하면 `throw`로 블록 전체가 멈추고 `reset --hard`까지 가지 않습니다.
+  백업(번들)은 `fetch`보다 **먼저** 만듭니다. `fetch --prune`이 예전 원격 추적 ref를 바꾸거나 지우기 전에 보관하기 위해서입니다.
   ```powershell
   $SION = 'C:\code\Ontology-platform'
   $BK   = "$env:USERPROFILE\sion-bundles"        # 저장소 밖 백업 폴더
@@ -84,25 +85,30 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
     git clone https://github.com/khs0927/Ontology-platform.git $SION; Must 'clone'
   } else {
     git -C $SION status --short --branch            # 로컬 변경·현재 브랜치 확인
-    git -C $SION fetch origin --prune; Must 'fetch'
-    git -C $SION merge-base --is-ancestor HEAD origin/main; "HEAD가 origin/main에 포함됨(0=예): $LASTEXITCODE"
     $ts  = Get-Date -Format yyyyMMdd-HHmmss
     $pre = "$BK\Ontology-platform-pre-reset-$ts"
     New-Item -ItemType Directory -Force $BK -ErrorAction Stop | Out-Null
-    # 1) 이전 HEAD 기록
+    # 1) 되돌릴 위치 기록: 이전 HEAD, 이전 브랜치(분리 HEAD면 빈 값), 이전 로컬 main(없으면 빈 값)
     $old = git -C $SION rev-parse HEAD; Must 'rev-parse HEAD'
-    $old | Set-Content -ErrorAction Stop "$pre.head.txt"
+    $oldBranch = git -C $SION branch --show-current; Must 'branch --show-current'
+    $oldMain = git -C $SION rev-parse --verify -q refs/heads/main
+    "old=$old", "branch=$oldBranch", "main=$oldMain" | Set-Content -ErrorAction Stop "$pre.head.txt"
     # 2) 커밋 안 한 변경 + 추적되지 않는 파일(.gitignore 제외분)을 stash로 보관 (변경이 없으면 stash를 만들지 않음)
     git -C $SION stash push --include-untracked -m "pre-reset-$ts"; Must 'stash push'
-    # 3) stash를 포함한 모든 로컬 ref를 번들로 + 검증
+    # 3) fetch 전에: stash와 예전 원격 추적 ref까지 포함한 모든 ref를 번들로 + 검증
     git -C $SION bundle create "$pre.bundle" --all; Must 'bundle create'
     git -C $SION bundle verify "$pre.bundle"; Must 'bundle verify'
-    # 4) .gitignore로 무시된 파일이 main의 추적 경로를 막으면 중단 (reset --hard가 지울 수 있음)
-    $tracked = [Collections.Generic.HashSet[string]]::new([string[]]@(git -C $SION ls-tree -r --name-only origin/main)); Must 'ls-tree'
-    $dirs = [Collections.Generic.HashSet[string]]::new()
-    foreach ($t in $tracked) { $d = $t; while (($i = $d.LastIndexOf('/')) -gt 0) { $d = $d.Substring(0, $i); [void]$dirs.Add($d) } }
-    $clash = @(git -C $SION ls-files --others --ignored --exclude-standard --directory | ForEach-Object { $_.TrimEnd('/') } |
-               Where-Object { $tracked.Contains($_) -or $dirs.Contains($_) })
+    # 4) 이제 새 히스토리를 받음
+    git -C $SION fetch origin --prune; Must 'fetch'
+    git -C $SION merge-base --is-ancestor HEAD origin/main; "HEAD가 origin/main에 포함됨(0=예): $LASTEXITCODE"
+    # 5) .gitignore로 무시된 파일이 main의 추적 경로를 막으면 중단 (Windows라 대소문자 무시 비교)
+    $cmp = [StringComparer]::OrdinalIgnoreCase
+    $tree = @(git -C $SION ls-tree -r --name-only origin/main); Must 'ls-tree'
+    $tracked = [Collections.Generic.HashSet[string]]::new([string[]]$tree, $cmp)
+    $dirs = [Collections.Generic.HashSet[string]]::new($cmp)
+    foreach ($t in $tree) { $d = $t; while (($i = $d.LastIndexOf('/')) -gt 0) { $d = $d.Substring(0, $i); [void]$dirs.Add($d) } }
+    $ignored = @(git -C $SION ls-files --others --ignored --exclude-standard --directory); Must 'ls-files (ignored)'
+    $clash = @($ignored | ForEach-Object { $_.TrimEnd('/') } | Where-Object { $tracked.Contains($_) -or $dirs.Contains($_) })
     if ($clash.Count) { $clash; throw "중단: 위 무시된 경로가 main의 추적 경로와 겹침. 저장소 밖으로 옮긴 뒤 다시 실행." }
     # 백업과 검사가 모두 끝난 뒤에만: main을 새 히스토리로 맞춤
     git -C $SION switch -f main; Must 'switch -f main'   # 다른 worktree가 main을 쓰고 있으면 여기서 멈춤
@@ -118,9 +124,14 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
   `중단:` 메시지가 나왔다면 `reset`은 실행되지 않았습니다. 원인을 해결하고 다시 실행합니다(이미 만든 stash는 `git stash list`에 남아 있음).
 - **주의:** 12:23 이전 히스토리의 로컬 브랜치·폴더(예: 예전 작업용 클론)에서는 **절대 푸시하지 않습니다.** 지운 exe와 가리기 전
   개인정보가 다시 올라갑니다. 필요한 변경은 새 클론의 새 브랜치로 옮기세요(`git cherry-pick` 또는 `git stash apply`). 다른 예전 체크아웃도 같은 방식으로 맞추거나 보관합니다.
-- **롤백:** `git -C $SION reset --hard $old` (`$old`는 `<백업>.head.txt`에도 있음, 이전 커밋은 로컬 객체와 번들에 남아 있음) →
-  `git -C $SION stash pop` 으로 커밋 안 한 변경과 미추적 파일을 되살립니다. 폴더가 망가졌다면 번들에서 복구:
-  `git clone <백업>.bundle <새 폴더>` 후 `git -C <새 폴더> fetch <백업>.bundle refs/stash:refs/stash`.
+- **롤백:** 같은 PowerShell 창이면 `$old`·`$oldBranch`·`$oldMain`이 남아 있고, 아니면 `<백업>.head.txt`의 세 값을 넣습니다.
+  ```powershell
+  git -C $SION switch -f --detach $old                                   # 이전 커밋으로
+  if ($oldMain) { git -C $SION branch -f main $oldMain } else { git -C $SION branch -D main }   # 로컬 main 원래대로
+  if ($oldBranch) { git -C $SION switch -f $oldBranch }                  # 원래 브랜치로 (분리 HEAD였으면 그대로)
+  git -C $SION stash pop                                                 # 커밋 안 한 변경·미추적 파일 복원
+  ```
+  폴더가 망가졌다면 번들에서 복구: `git clone <백업>.bundle <새 폴더>` 후 `git -C <새 폴더> fetch <백업>.bundle refs/stash:refs/stash`.
   새 클론이었다면 폴더만 지우면 됩니다(아직 운영에 연결되지 않음).
 
 ## 2. 런타임을 `packages/aec`로 전환 (20–40분)
