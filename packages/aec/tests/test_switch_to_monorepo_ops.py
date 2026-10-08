@@ -110,3 +110,34 @@ def test_switch_side_files_are_git_ignored_so_retries_pass_the_clean_tree_check(
         pytest.skip("needs a git checkout of the monorepo")
     result = subprocess.run([git, "-C", str(root), "check-ignore", "-q", "--no-index", path], capture_output=True)
     assert result.returncode == 0, f"{path} would dirty the worktree"
+
+
+def test_docker_templates_survive_windows_powershell_quote_stripping():
+    # Live PS 5.1 dry-run: '{{ index .Config.Labels "com.docker.compose.project" }}' lost its inner quotes
+    # ("function com not defined"), so the project/volume checks were silently skipped.
+    text = SCRIPT.read_text(encoding="utf-8")
+    code = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+    templates = re.findall(r"--format',?\s*'([^']*)'|--format\s+'([^']*)'", code)
+    templates = [a or b for a, b in templates]
+    assert templates and all('"' not in t for t in templates), templates
+    assert "{{json .Config.Labels}}" in code and "{{json .Mounts}}" in code
+    assert "com.docker.compose.project" in code and "ConvertFrom-Json" in code
+    # the post-switch volume check uses the same parser
+    stack = _section(text, "# --- 7. docker stack", "# --- 8. host venv")
+    assert "(Get-AecDbInfo).Volume" in stack and "docker inspect" not in stack
+
+
+def test_health_url_follows_aec_api_host_port():
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "[string]$ApiUrl = ''," in text
+    assert "Get-DotEnvValue $LegacyEnv 'AEC_API_HOST_PORT'" in text and "$apiPort = 58000" in text
+
+
+def test_compose_project_inference_order():
+    text = SCRIPT.read_text(encoding="utf-8")
+    section = _section(text, "# --- 3. compose project / volume", "# --- 4. backups")
+    order = ["'-ComposeProject'", "COMPOSE_PROJECT_NAME'", "'aec-db compose label'", "aec-db volume $dbVolume",
+             "only existing volume", "legacy folder name (compose default)"]
+    positions = [section.index(marker) for marker in order]
+    assert positions == sorted(positions)
+    assert "several *_aec-pgdata volumes exist" in section and "ConvertTo-ComposeProjectName" in section
