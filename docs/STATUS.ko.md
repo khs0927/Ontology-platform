@@ -13,7 +13,7 @@
 7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색, AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
 8. **CI**: Tests(Ubuntu+Windows), Verify, AEC/CAD, Regulation, Public security. agent-bridge Windows exe는 Releases.
 
-## 2026-10-08 저녁 스프린트 결과 (20:50 재확인)
+## 2026-10-08 저녁 스프린트 결과 (20:55 재확인)
 
 **Ontology-platform 병합** (모두 CI 통과 후 병합)
 - [#37](https://github.com/khs0927/Ontology-platform/pull/37) 보관된 Ontology #86/#90/#91 이식 — 읽기 전용 브리지 fail-closed 계약 + 근거 수명주기.
@@ -32,10 +32,13 @@
 - [#42](https://github.com/khs0927/Ontology-platform/pull/42) 연결 저장소 계약을 10/8 저녁 최신 커밋으로 재고정, 계약 테스트 58 → 81개, `hs-steel-section-catalog/1` 스키마 추가.
 - [#44](https://github.com/khs0927/Ontology-platform/pull/44) 일괄 판정 API `POST /api/v1/relations/candidates/bulk` + 한국어 `/review` 일괄 화면(필터·단축키·표시 전용 추천 힌트, 자동 승인 없음).
 - [#45](https://github.com/khs0927/Ontology-platform/pull/45) 테스트 의존성 httpx2, `uv.lock` 알려진 취약점 0.
+- [#46](https://github.com/khs0927/Ontology-platform/pull/46) 보관된 Ontology #88 headless 도면 컨텍스트 테스트 이식(경로 구분자 무관 검사, ubuntu/macos/windows 워크플로 `aec-drawing-context-headless.yml`). #89는 `packages/aec/docs/verification-boundary.md`로, #83/#84/#87은 보관 상태 전용이라 제외.
+- [#47](https://github.com/khs0927/Ontology-platform/pull/47) `verify.yml`에 백업/복원 스모크 테스트(PG17 + pgvector, 행 수·확장 버전·미적용 마이그레이션 없음) — 이슈 #1 닫음(`scripts/verify-postgres.sh`가 담당).
+- 이슈 #2는 export-on-write(`docs/STORAGE.md`, `drive_export.py`)로 대체되어 닫음. 열린 이슈는 #3(31노드·43관계 오너 검토 대기)과 #33뿐.
 - korean-land-mcp #2 npm audit 20 → 2건. HS-CAD #158 Pillow ≥ 12.3, `opencode.json`은 커밋된 키 대신 `{env:GOOGLE_GENERATIVE_AI_API_KEY}` 사용.
 - power-cad-mcp #44 `FakeTimeProvider`로 `OntologyAskTests` 결정적 테스트화(Windows 타이밍 간헐 실패 해결).
 
-**20:50 기준 열림:** power-cad-mcp #45(HS-STEEL 스킬)·#46(CAD 없는 자산 수집 + Graph RAG 인덱스)·#47(headless DXF)·#48(`cad_hs_search`/`cad_hs_index_status`).
+**20:55 기준 열림:** power-cad-mcp #45(HS-STEEL 스킬)·#46(CAD 없는 자산 수집 + Graph RAG 인덱스)·#47(headless DXF)·#48(`cad_hs_search`/`cad_hs_index_status`).
 보관된 Ontology #88 headless 테스트 이식은 다시 하기 전에 열린 PR 확인. HS-CAD PR 분류 완료: 32개 닫음(이미 main에 포함), 병합 0, 34개 열림(한국어 코멘트). xiCAD `mcp==1.28.1` 고정은 Python 3.13에서 깨짐.
 
 **새 문서**
@@ -46,7 +49,7 @@
 
 0. **최우선(어느 PC든):** HS-CAD `opencode.json`에 커밋됐던 Google AI Studio API 키 교체(2026-05-21부터 공개 히스토리, main은 #158로 환경변수 사용) → HS-CAD 비밀 스캔 알림 #1을 "Revoked"로 닫기. 선택: power-cad-mcp·hs-steel-cad·All-In-Cad에 Dependabot + 비밀 스캔 켜기. 자세한 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 맨 위.
 0b. HS-CAD PR 판단: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.
-1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #33).
+1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33).
 2. 메인 PC 온라인 시 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 실행 — 보관된 Ontology 체크아웃 → `packages/aec` 전환(`switch-to-monorepo.ps1` 드라이런 후 `-Apply`).
 3. `AutoSync_Code_To_GDrive` 예약작업 비활성화 확인 (라이브 DB 복사 금지).
 4. 전환 후 GraphRAG 재색인(FAILED 커뮤니티 6건 재시도).
