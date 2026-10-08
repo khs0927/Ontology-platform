@@ -168,13 +168,14 @@
   .\scripts\sion-local.ps1 start
   Start-Process "http://127.0.0.1:8010/review"
   ```
-  일괄 승인·반려/필터 기능(PR #44)이 main에 병합돼 있으면 필터(종류·신뢰도)로 묶어서 처리합니다. 없으면 한 건씩 처리.
+  일괄 승인·반려(PR #44, 병합됨): 필터로 묶은 뒤 일괄 처리하거나 단축키로 빠르게 판정합니다. 화면의 "추천" 표시는
+  참고용일 뿐 자동으로 반영되지 않습니다. API로는 `POST /api/v1/relations/candidates/bulk`(쓰기 권한 필요, 로컬 전용).
 - **성공 기준:** `/review` 의 대기 후보 수가 0(또는 의도적으로 보류한 것만 남음). 이슈 #33 체크리스트 갱신.
 - **롤백:** 판정은 이력으로 남습니다. 잘못 판정한 건은 `/review` 에서 다시 반대로 판정(삭제 엔드포인트 없음).
 
 ## 9. power-cad-mcp 최신화 (20분)
 
-- [ ] **왜:** main에 #40(문서 동기화), #42(철골 플레이북), #43(`cad_hs_*` 자산 도구 10개, 총 도구 65개)이 병합됐습니다.
+- [ ] **왜:** main에 #40(문서 동기화), #42(철골 플레이북), #43(`cad_hs_*` 자산 도구 10개, 총 도구 65개), #44(Ask 테스트 결정화)가 병합됐습니다. #45–#48(스킬·자산 파이프라인·headless DXF·`cad_hs_search`)은 20:45 기준 열림 — 병합 여부 확인.
   **오너의 기존 기능 브랜치와 로컬 수정은 그대로 둡니다** → 별도 worktree에서 main을 씁니다.
 - **명령**
   ```powershell
@@ -184,11 +185,17 @@
   git -C $PCAD worktree add "$PCAD-main" origin/main
   cd "$PCAD-main"
   powershell -ExecutionPolicy Bypass -File scripts\install_autocad_plugin.ps1   # 빌드 + 플러그인/서버 등록
-  [Environment]::SetEnvironmentVariable('HS_STEEL_ASSET_ROOT', '<HS-STEEL 자산 루트>', 'User')
-  [Environment]::SetEnvironmentVariable('POWER_CAD_HS_REGISTRY', '<hs-steel-cad>\assets\registry\asset-registry.json', 'User')
+  # 메인 PC의 HS-STEEL 원본 자산 루트는 C:\HS-STEEL (보조 PC는 다를 수 있음, 예: C:\cad\HSSTEEL)
+  # 정본 CAD 자산 DB = 오너 Google Drive 의 PowerCad-Assets 폴더 (하위: hs-steel, hs-steel-blocks, _index)
+  $GD = '<GoogleDrive>'   # 이 PC에서 Google Drive 데스크톱 폴더가 마운트된 경로
+  [Environment]::SetEnvironmentVariable('HS_STEEL_ASSET_ROOT', 'C:\HS-STEEL', 'User')
+  [Environment]::SetEnvironmentVariable('POWER_CAD_HS_REGISTRY', '<hs-steel-cad 체크아웃>\assets\registry\asset-registry.json', 'User')
+  [Environment]::SetEnvironmentVariable('POWERCAD_ASSET_DB', "$GD\PowerCad-Assets", 'User')
+  Test-Path 'C:\HS-STEEL', "$GD\PowerCad-Assets\hs-steel", "$GD\PowerCad-Assets\hs-steel-blocks", "$GD\PowerCad-Assets\_index"
   ```
   MCP 클라이언트를 재시작한 뒤 도구 목록을 확인합니다.
-- **성공 기준:** 도구 65개, `cad_hs_` 로 시작하는 도구 10개. `cad_hs_assets {"category":"block","query":"일반사항"}` 결과가 나오고,
+- **성공 기준:** `Test-Path` 4개 모두 `True`. 도구 65개, `cad_hs_` 로 시작하는 도구 10개
+  (power-cad-mcp #48 `cad_hs_search`/`cad_hs_index_status` 가 병합돼 있으면 그만큼 늘어남). `cad_hs_assets {"category":"block","query":"일반사항"}` 결과가 나오고,
   `cad_hs_block_place ... "dry_run": true` 결과의 `path_exists` 가 `true`.
 - **롤백:** `git -C $PCAD worktree remove "$PCAD-main"`; 환경변수 삭제; 이전 릴리스 zip으로 `install_autocad_plugin.ps1 -SkipBuild` 재실행.
   기존 브랜치는 처음부터 손대지 않았으므로 그대로입니다.

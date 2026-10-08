@@ -13,7 +13,7 @@
 7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색, AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
 8. **CI**: Tests(Ubuntu+Windows), Verify, AEC/CAD, Regulation, Public security. agent-bridge Windows exe는 Releases.
 
-## 2026-10-08 저녁 스프린트 결과 (20:40 재확인)
+## 2026-10-08 저녁 스프린트 결과 (20:45 재확인)
 
 **Ontology-platform 병합** (모두 CI 통과 후 병합)
 - [#37](https://github.com/khs0927/Ontology-platform/pull/37) 보관된 Ontology #86/#90/#91 이식 — 읽기 전용 브리지 fail-closed 계약 + 근거 수명주기.
@@ -28,9 +28,13 @@
 - hs-steel-cad #7 자산 레지스트리(819개, Windows 줄바꿈 해시 문제 수정).
 - korean-land-mcp #1 CI 추가(테스트 29개). HS-CAD #157. All-In-Cad 테스트 96개 통과(병합 없음).
 
-**후속 스프린트(sprint2/):** [#42](https://github.com/khs0927/Ontology-platform/pull/42) 병합 — 연결 저장소 계약을 10/8 저녁 최신 커밋으로 고정(+ hs-steel 단면 카탈로그·자산 레지스트리 스키마).
-[#44](https://github.com/khs0927/Ontology-platform/pull/44) `/review` 일괄 판정 API + 빠른 화면(자동 승인 없음) — 20:40 기준 열림. 보관된 Ontology #88 headless 테스트 이식·의존성 점검은
-다시 하기 전에 열린 PR 확인. power-cad-mcp Windows 타이밍 테스트 간헐 실패는 power-cad-mcp #44(열림)에서 수정 중, HS-STEEL 스킬은 #45(열림). HS-CAD 오래된 PR 약 28개 정리 필요.
+**후속 스프린트(sprint2/) 병합**
+- [#42](https://github.com/khs0927/Ontology-platform/pull/42) 연결 저장소 계약을 10/8 저녁 최신 커밋으로 재고정, 계약 테스트 58 → 81개, `hs-steel-section-catalog/1` 스키마 추가.
+- [#44](https://github.com/khs0927/Ontology-platform/pull/44) 일괄 판정 API `POST /api/v1/relations/candidates/bulk` + 한국어 `/review` 일괄 화면(필터·단축키·표시 전용 추천 힌트, 자동 승인 없음).
+- power-cad-mcp #44 `FakeTimeProvider`로 `OntologyAskTests` 결정적 테스트화(Windows 타이밍 간헐 실패 해결).
+
+**20:45 기준 열림:** Ontology-platform #45(TestClient httpx2), power-cad-mcp #45(HS-STEEL 스킬)·#46(CAD 없는 자산 수집 + Graph RAG 인덱스)·#47(headless DXF)·#48(`cad_hs_search`/`cad_hs_index_status`).
+보관된 Ontology #88 headless 테스트 이식·의존성 점검은 다시 하기 전에 열린 PR 확인. HS-CAD 오래된 PR 약 28개 정리 필요.
 
 **새 문서**
 - [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) — 메인 PC 복귀 시 순서대로 실행할 체크리스트(명령·성공 기준·롤백).
