@@ -34,6 +34,14 @@ G:\내 드라이브\AEC-INTELLIGENCE\01_PROJECTS\SION-ONTOLOGY\   <- SION_STORAG
 | `SION_DATABASE_URL` | the live DB, **on a local disk** (default `sqlite:///<repo>/runtime/sion.db`) |
 | `SION_SU_EXPORT_DIR` | where the SketchUp Ruby scripts write; point it at `00_SOURCES\sketchup\<model>` |
 
+## Running it on Windows
+
+```powershell
+.\scripts\sion-local.ps1 start    # local embeddings (if configured) + API on 127.0.0.1:8010
+.\scripts\sion-local.ps1 status   # health, storage root, last export
+.\scripts\sion-local.ps1 stop     # writes a final export to the storage root, then stops
+```
+
 ## How the export works
 
 `sion_api.drive_export` installs `before_flush` / `after_commit` hooks on the session factory.

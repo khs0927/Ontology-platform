@@ -103,6 +103,7 @@ def _replace_into(source: Path, destination: Path) -> None:
     temp = Path(temp_name)
     try:
         shutil.copyfile(source, temp)
+        os.chmod(temp, 0o644)
         os.replace(temp, destination)
     finally:
         temp.unlink(missing_ok=True)
@@ -114,6 +115,7 @@ def _write_text(destination: Path, text: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
             stream.write(text)
+        os.chmod(temp_name, 0o644)
         os.replace(temp_name, destination)
     finally:
         Path(temp_name).unlink(missing_ok=True)
