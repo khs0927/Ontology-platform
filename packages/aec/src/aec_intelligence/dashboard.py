@@ -72,7 +72,8 @@ def build_dashboard_data(repository_root: str | Path) -> dict[str, Any]:
 
 
 def render_dashboard_html(data: dict[str, Any]) -> str:
-    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    payload = (json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+               .replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e"))
     title = "AEC semantic repository status"
     return f'''<!doctype html>
 <html lang="en">
@@ -107,16 +108,17 @@ table {{ width:100%; border-collapse:collapse; font-size:13px; }} th,td {{ text-
 <div class="source" id="source"></div>
 <script>
 const data = {payload};
+function esc(value) {{ return String(value ?? '').replace(/[&<>"']/g, ch => ({{'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}}[ch])); }}
 const projectSelect = document.getElementById('project');
 for (const project of data.projects) {{ const option=document.createElement('option'); option.value=project.project_id; option.textContent=project.name + ' (' + project.project_id + ')'; projectSelect.appendChild(option); }}
 function render() {{
   const selected=projectSelect.value;
   const rows=selected==='all'?data.projects:data.projects.filter(row=>row.project_id===selected);
   const metrics=selected==='all'?data.metrics:{{project_count:rows.length, artifact_count:rows.reduce((sum,row)=>sum+row.artifact_count,0), object_count:rows.reduce((sum,row)=>sum+row.object_count,0), validated_project_count:rows.filter(row=>row.validation_status==='SUCCESS').length, average_classification_confidence:null}};
-  document.getElementById('kpis').innerHTML=[['Projects',metrics.project_count],['Artifacts',metrics.artifact_count],['Objects',metrics.object_count],['Validated projects',metrics.validated_project_count],['Average classification confidence',metrics.average_classification_confidence===null?'—':(metrics.average_classification_confidence*100).toFixed(1)+'%']].map(([label,value])=>`<div class="card"><div class="label">${{label}}</div><div class="value">${{value}}</div></div>`).join('');
-  const counts={{}}; for(const row of rows) for(const [type,count] of Object.entries(row.type_counts)) counts[type]=(counts[type]||0)+count; const max=Math.max(...Object.values(counts),1);
-  document.getElementById('types').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([type,count])=>`<div class="bar-row"><span>${{type}}</span><span class="track"><span class="fill" style="width:${{(count/max)*100}}%"></span></span><span class="numeric">${{count}}</span></div>`).join('')||'<span>No reviewed objects</span>';
-  document.getElementById('projects').innerHTML=rows.map(row=>`<tr><td>${{row.name}}<br><small>${{row.project_id}}</small></td><td class="status">${{row.status}}</td><td class="numeric">${{row.object_count}}</td><td class="numeric">${{row.artifact_count}}</td><td>${{row.validation_status}}</td></tr>`).join('');
+  document.getElementById('kpis').innerHTML=[['Projects',metrics.project_count],['Artifacts',metrics.artifact_count],['Objects',metrics.object_count],['Validated projects',metrics.validated_project_count],['Average classification confidence',metrics.average_classification_confidence===null?'—':(metrics.average_classification_confidence*100).toFixed(1)+'%']].map(([label,value])=>`<div class="card"><div class="label">${{esc(label)}}</div><div class="value">${{esc(value)}}</div></div>`).join('');
+  const counts=Object.create(null); for(const row of rows) for(const [type,count] of Object.entries(row.type_counts)) {{ const n=Number(count); if(Number.isFinite(n) && n>=0) counts[type]=(counts[type]||0)+n; }} const max=Math.max(...Object.values(counts),1);
+  document.getElementById('types').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([type,count])=>`<div class="bar-row"><span>${{esc(type)}}</span><span class="track"><span class="fill" style="width:${{(count/max)*100}}%"></span></span><span class="numeric">${{esc(count)}}</span></div>`).join('')||'<span>No reviewed objects</span>';
+  document.getElementById('projects').innerHTML=rows.map(row=>`<tr><td>${{esc(row.name)}}<br><small>${{esc(row.project_id)}}</small></td><td class="status">${{esc(row.status)}}</td><td class="numeric">${{esc(row.object_count)}}</td><td class="numeric">${{esc(row.artifact_count)}}</td><td>${{esc(row.validation_status)}}</td></tr>`).join('');
 }}
 projectSelect.addEventListener('change',render); document.getElementById('source').textContent='Source-backed artifact. Generated '+data.generated_at+'. Sources: '+data.sources.join(', ')+'.'; render();
 </script>

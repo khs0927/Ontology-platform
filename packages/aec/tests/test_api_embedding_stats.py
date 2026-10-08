@@ -49,7 +49,7 @@ def test_pending_embedding_stats_use_active_model_and_current_revision(tmp_path,
     monkeypatch.delenv("AEC_API_TOKEN", raising=False)
     monkeypatch.delenv("AEC_CORS_ORIGINS", raising=False)
     settings = Settings(dsn="unused", data_root=tmp_path, import_roots=(tmp_path,))
-    with TestClient(api.create_app(settings)) as client:
+    with TestClient(api.create_app(settings), base_url="http://localhost", client=("127.0.0.1", 50000)) as client:
         response = client.get("/v1/stats")
         assert response.status_code == 200
         assert response.json()["embeddings_pending"] == 3

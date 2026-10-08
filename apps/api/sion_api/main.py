@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
@@ -25,6 +26,7 @@ from . import __version__, models, outbox, regulation, repository, review, schem
 from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
+from .drive_export import DriveExporter, install_export_on_write
 
 
 def create_app(
@@ -77,7 +79,16 @@ def create_app(
     app.state.engine = engine
     app.state.session_factory = factory
 
+    # Assets live under the storage root (Google Drive); the live DB stays local and every
+    # committed write schedules a debounced snapshot + graph export there (sion_api.drive_export).
+    drive_exporter = DriveExporter.from_env(engine)
+    if drive_exporter is not None:
+        install_export_on_write(factory, drive_exporter)
+        app.router.on_shutdown.append(drive_exporter.flush)
+    app.state.drive_exporter = drive_exporter
+
     auth_policy = auth_policy or AuthPolicy.from_env()
+    auth_policy = replace(auth_policy, trusted_origins=settings.cors_origins)
     app.state.auth_policy = auth_policy
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")
@@ -468,6 +479,21 @@ def create_app(
         if graphrag is None:
             raise HTTPException(status_code=503, detail="GraphRAG layer is not configured")
         return graphrag
+
+    @app.get("/api/v1/storage/status", dependencies=[Depends(read_knowledge)])
+    def storage_status():
+        if drive_exporter is None:
+            return {"status": "disabled", "detail": "set SION_STORAGE_ROOT or SION_DRIVE_ROOT"}
+        return {"status": "ok", **drive_exporter.status()}
+
+    @app.post("/api/v1/storage/export", dependencies=[Depends(write_knowledge)])
+    def storage_export():
+        if drive_exporter is None:
+            raise HTTPException(status_code=503, detail="storage root not configured")
+        result = drive_exporter.run("api")
+        if result is None:
+            raise HTTPException(status_code=500, detail=drive_exporter.last_error or "export failed")
+        return result
 
     @app.get("/api/v1/graphrag/status", dependencies=[Depends(read_knowledge)])
     def graphrag_status():

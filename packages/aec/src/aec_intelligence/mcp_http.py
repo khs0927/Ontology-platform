@@ -35,7 +35,10 @@ class MCPRequestHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
     def _origin_allowed(self) -> bool:
-        origin = self.headers.get("Origin")
+        origins = self.headers.get_all("Origin", [])
+        if len(origins) > 1:
+            return False
+        origin = origins[0] if origins else None
         if not origin:
             return True
         allowed = self.server.allowed_origins
@@ -44,9 +47,28 @@ class MCPRequestHandler(BaseHTTPRequestHandler):
             allowed = {f"http://127.0.0.1:{port}", f"http://localhost:{port}"}
         return origin in allowed
 
+    def _host_allowed(self) -> bool:
+        hosts = self.headers.get_all("Host", [])
+        port = self.server.server_address[1]
+        return len(hosts) == 1 and hosts[0].lower() in {
+            f"127.0.0.1:{port}", f"localhost:{port}", f"[::1]:{port}",
+        }
+
+    def _check_boundary(self) -> bool:
+        if not self._host_allowed():
+            self._send_json(HTTPStatus.FORBIDDEN, self._rpc_error(None, -32000, "Invalid Host"))
+            return False
+        if not self._origin_allowed():
+            self._send_json(HTTPStatus.FORBIDDEN, self._rpc_error(None, -32000, "Invalid Origin"))
+            return False
+        return True
+
     def _send_json(self, status: int, payload: dict[str, Any] | None = None) -> None:
         body = b"" if payload is None else json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         self.send_response(status)
+        # Never reuse a connection with an unread or rejected request body.
+        self.close_connection = True
+        self.send_header("Connection", "close")
         if payload is not None:
             self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
@@ -59,8 +81,7 @@ class MCPRequestHandler(BaseHTTPRequestHandler):
         return {"jsonrpc": "2.0", "id": request_id, "error": {"code": code, "message": message}}
 
     def do_OPTIONS(self) -> None:
-        if not self._origin_allowed():
-            self._send_json(HTTPStatus.FORBIDDEN, self._rpc_error(None, -32000, "Invalid Origin"))
+        if not self._check_boundary():
             return
         self.send_response(HTTPStatus.NO_CONTENT)
         self.send_header("Allow", "POST, OPTIONS")
@@ -70,15 +91,13 @@ class MCPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self) -> None:
-        if not self._origin_allowed():
-            self._send_json(HTTPStatus.FORBIDDEN, self._rpc_error(None, -32000, "Invalid Origin"))
+        if not self._check_boundary():
             return
         self._send_json(HTTPStatus.METHOD_NOT_ALLOWED)
         self.close_connection = True
 
     def do_POST(self) -> None:
-        if not self._origin_allowed():
-            self._send_json(HTTPStatus.FORBIDDEN, self._rpc_error(None, -32000, "Invalid Origin"))
+        if not self._check_boundary():
             return
         if self.path != "/mcp":
             self._send_json(HTTPStatus.NOT_FOUND, self._rpc_error(None, -32601, "MCP endpoint not found"))

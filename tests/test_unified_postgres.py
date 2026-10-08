@@ -62,7 +62,7 @@ def test_api_on_postgres_writes_outbox_atomically():
     migrate.apply_core(DSN)
     app = create_app(database_url=_psycopg_url(DSN), auto_create_schema=False)
     key = f"concept:pg-outbox-{os.getpid()}"
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         created = c.post("/api/v1/entities", json={"stable_key": key, "entity_type_id": "Concept", "name": key})
         assert created.status_code == 201, created.text
         events = [e for e in c.get("/api/v1/outbox?limit=1000").json() if e["payload"].get("stable_key") == key]

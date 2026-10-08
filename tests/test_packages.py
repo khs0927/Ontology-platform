@@ -64,7 +64,7 @@ def test_extras_endpoint(tmp_path):
     from sion_api.main import create_app
 
     app = create_app(database_url=f"sqlite:///{tmp_path / 'x.db'}")
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as client:
         body = client.get("/api/v1/system/extras").json()
     assert set(body["extras"]) == {"cad", "bim", "rag", "drive", "regulation", "documents", "validation"}
     assert body["version"]

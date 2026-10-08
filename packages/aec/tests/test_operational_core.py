@@ -165,7 +165,7 @@ def test_fastapi_app_endpoints(tmp_path: Path):
         import_roots=(tmp_path,),
     )
     app = create_app(settings)
-    client = TestClient(app)
+    client = TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000))
 
     # Health check: liveness plus the embedding stage's own state (no embedding endpoint here)
     res = client.get("/healthz")

@@ -50,7 +50,7 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     FakeRouter.calls = []
     settings = Settings(dsn="dummy", data_root=tmp_path / "data", import_roots=(tmp_path.resolve(),))
     assert settings.embedding_model
-    return TestClient(api_module.create_app(settings), raise_server_exceptions=False), settings
+    return TestClient(api_module.create_app(settings), raise_server_exceptions=False, base_url="http://localhost", client=("127.0.0.1", 50000)), settings
 
 
 def test_search_without_model_is_unchanged(client):

@@ -25,6 +25,7 @@ source data and remain separate operational checks.
 | Hindsight advisory memory | `hindsight-advisory.yml` | PR touching advisory memory | advisory memory tests |
 | Release agent bridge | `release-agent-bridge.yml` | PR touching bridge sources, `v*` tag, manual | Windows PyInstaller build of `sion-agent-bridge.exe`, `--help` smoke test; on tags attaches exe + sha256 to the GitHub Release |
 | CircleCI | `.circleci/config.yml` | every push | mirror of `tests.yml` |
+| Public repository security | `security.yml` | PR / push / manual | personal information check and audit of all locked optional dependencies |
 
 ### Releasing the Windows agent bridge
 

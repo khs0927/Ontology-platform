@@ -51,7 +51,7 @@ def _seed(c: TestClient) -> None:
 
 def test_custom_kg_carries_stable_keys_and_evidence():
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         _seed(c)
         with app.state.session_factory() as session:
             kg = build_custom_kg(session)
@@ -78,7 +78,7 @@ def test_config_requires_embedding_model(monkeypatch):
 def test_graphrag_endpoints_report_unconfigured(monkeypatch):
     monkeypatch.delenv("SION_GRAPHRAG_EMBED_MODEL", raising=False)
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         assert c.get("/api/v1/graphrag/status").json()["configured"] is False
         assert c.post("/api/v1/graphrag/query", json={"question": "door"}).status_code == 503
 
@@ -104,7 +104,7 @@ def test_lightrag_round_trip_on_local_storage(tmp_path: Path):
         return vectors / np.maximum(np.linalg.norm(vectors, axis=1, keepdims=True), 1e-9)
 
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         _seed(c)
 
     config = GraphRagConfig(

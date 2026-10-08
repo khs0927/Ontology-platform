@@ -6,6 +6,7 @@ import json
 import os
 from dataclasses import dataclass
 from typing import Callable
+from urllib.parse import urlsplit
 
 from fastapi import HTTPException, Request
 
@@ -22,6 +23,7 @@ class AuthPolicy:
 
     mode: str
     token_scopes: tuple[tuple[str, frozenset[str]], ...] = ()
+    trusted_origins: tuple[str, ...] = ()
 
     @classmethod
     def from_env(cls) -> "AuthPolicy":
@@ -60,12 +62,33 @@ class AuthPolicy:
         if request.client is None:
             return False
         host = request.client.host
-        if host == "testclient":
-            return True
         try:
             return ipaddress.ip_address(host).is_loopback
         except ValueError:
-            return host.lower() == "localhost"
+            return False
+
+    def _trusted_local_request(self, request: Request) -> bool:
+        """A loopback peer alone does not establish browser request authority."""
+        if not self._is_local(request):
+            return False
+        hosts = request.headers.getlist("host")
+        origins = request.headers.getlist("origin")
+        if len(hosts) != 1 or len(origins) > 1:
+            return False
+        try:
+            host = urlsplit("//" + hosts[0])
+            if host.username or host.password or host.path or host.query or host.fragment:
+                return False
+            # Force port validation too; malformed ports must fail closed.
+            host.port
+            if host.hostname not in {"localhost", "127.0.0.1", "::1"}:
+                return False
+        except ValueError:
+            return False
+        if not origins:
+            return request.headers.get("sec-fetch-site") != "cross-site"
+        same_origin = f"{request.url.scheme}://{hosts[0]}"
+        return origins[0] == same_origin or origins[0] in self.trusted_origins
 
     def _scopes_for_authorization(self, authorization: str | None) -> frozenset[str] | None:
         if not authorization:
@@ -74,12 +97,12 @@ class AuthPolicy:
         if separator != " " or scheme.lower() != "bearer" or not token:
             return None
         for expected, scopes in self.token_scopes:
-            if hmac.compare_digest(token, expected):
+            if hmac.compare_digest(token.encode("utf-8"), expected.encode("utf-8")):
                 return scopes
         return None
 
     def authorize(self, request: Request, scope: str) -> None:
-        is_local = self._is_local(request)
+        is_local = self._trusted_local_request(request)
         if self.mode == "local-only":
             if is_local:
                 return

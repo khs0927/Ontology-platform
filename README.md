@@ -57,8 +57,9 @@ This repository is the **main monorepo**. ArchOntos (`packages/regulation`), Ont
 (see [`packages/README.md`](packages/README.md)). Six repositories stay separate and are **bridged by
 versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad and CAD-MCP.
 See [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md). JSON Schemas ship in
-`sion_core.contracts` and are covered by `tests/test_integration_contracts.py`. Live runtime databases
-stay local; Google Drive receives logical dumps, snapshots, and canonical manifests.
+`sion_core.contracts` and are covered by `tests/test_integration_contracts.py`. Assets live directly under
+the Google Drive storage root (`SION_STORAGE_ROOT`, see [`docs/STORAGE.md`](docs/STORAGE.md)). The live
+database stays on a local disk, and every committed write exports a DB snapshot plus the whole graph there.
 
 ### AEC/CAIR federation
 
@@ -83,7 +84,9 @@ be verified (point lookup, layer errors) are withheld, so the rule returns REVIE
 
 ### API security
 
-Sion is local-only by default. Requests to `/api/v1/*` from loopback clients work without a token, while remote clients are rejected.
+Sion is local-only by default. Token-free API access requires a loopback client, a local request address,
+and a trusted browser origin. Remote clients require bearer authentication.
+Allow additional browser clients explicitly with `SION_CORS_ORIGINS`; see [security and privacy](SECURITY.md).
 
 For remote access, configure scoped bearer authentication:
 

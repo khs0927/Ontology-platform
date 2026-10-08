@@ -37,7 +37,6 @@ def load_settings() -> Settings:
                 [
                     "http://localhost:3000",
                     "http://127.0.0.1:3000",
-                    "https://sion-ontology-map.changebytwoman.chatgpt.site",
                 ]
             ),
         ).split(",")

@@ -40,7 +40,7 @@ def _client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, token: str | None, 
     else:
         monkeypatch.setenv("AEC_CORS_ORIGINS", cors)
     settings = Settings(dsn="dummy", data_root=tmp_path / "data", import_roots=(tmp_path.resolve(),))
-    return TestClient(api_module.create_app(settings), raise_server_exceptions=False)
+    return TestClient(api_module.create_app(settings), raise_server_exceptions=False, base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 def test_without_token_env_api_stays_open(tmp_path, monkeypatch):
@@ -53,6 +53,31 @@ def test_without_token_env_api_stays_open(tmp_path, monkeypatch):
 def test_blank_token_env_is_treated_as_unset(tmp_path, monkeypatch):
     client = _client(tmp_path, monkeypatch, "   ")
     assert client.get("/v1/stats").status_code == 500
+
+
+def test_token_free_api_rejects_remote_peer(tmp_path, monkeypatch):
+    client = _client(tmp_path, monkeypatch, None)
+    with TestClient(client.app, base_url="http://localhost", client=("203.0.113.7", 50000)) as remote:
+        assert remote.get("/v1/stats").status_code == 403
+        assert remote.post("/v1/ingestions", json={"path": "x"}).status_code == 403
+
+
+@pytest.mark.parametrize("headers", [
+    {"Host": "attacker.example"}, {"Origin": "https://attacker.example"}, {"Origin": "null"},
+    {"Host": "localhost:bad"}, {"Sec-Fetch-Site": "cross-site"},
+    [("Host", "localhost"), ("Host", "attacker.example")],
+    [("Origin", "http://localhost"), ("Origin", "https://attacker.example")],
+])
+def test_token_free_api_rejects_untrusted_browser_requests(tmp_path, monkeypatch, headers):
+    client = _client(tmp_path, monkeypatch, None)
+    assert client.get("/v1/stats", headers=headers).status_code == 403
+    assert client.post("/v1/ingestions", headers=headers, json={"path": "x"}).status_code == 403
+
+
+def test_token_free_api_allows_same_origin_and_explicit_cors_origin(tmp_path, monkeypatch):
+    client = _client(tmp_path, monkeypatch, None, cors="http://localhost:5173")
+    for origin in ("http://localhost", "http://localhost:5173"):
+        assert client.get("/v1/stats", headers={"Origin": origin}).status_code == 500
 
 
 @pytest.mark.parametrize(

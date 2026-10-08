@@ -1,0 +1,33 @@
+name: Public repository security
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  privacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Check public files for personal information
+        run: python scripts/check_public_privacy.py
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: '3.12'
+      - name: Audit all locked extras
+        run: |
+          uv export --locked --all-extras --no-emit-project --no-hashes --format requirements-txt --output-file audit-requirements.txt
+          uvx pip-audit --requirement audit-requirements.txt

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,7 @@ for _rel in ("apps/api", "packages/core", "packages/ingestion", "packages/cad", 
     sys.path.insert(0, str(REPO_ROOT / _rel))
 
 from sion_api.db import build_engine, build_session_factory
+from sion_api.drive_export import StorageLayout, export_snapshot
 from sion_api.repository import seed_core_types
 from sion_ingestion.agent_bridge import (
     PROVIDER_REGISTRY,
@@ -83,7 +85,21 @@ def sync_cycle(args, providers: list[str], limit_val: int | None) -> None:
         result = import_map_export(db_session, export)
         print(f"  [+] Local DB: {result.created_nodes} created, {result.skipped_nodes} skipped (existing)")
 
-    # 5. Sync to Google Drive (Zero-config dynamic auto-detection)
+    # 5a. Storage root configured (SION_STORAGE_ROOT / SION_DRIVE_ROOT): write straight into it.
+    #     The live DB file is never copied; a consistent snapshot + graph export is written instead.
+    layout = StorageLayout.from_env()
+    if layout is not None:
+        layout.ensure()
+        bridge_dir = layout.root / "02_EXPORTS" / "agent-bridge"
+        bridge_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(out_json_path, bridge_dir / "sion_knowledge_graph.json")
+        shutil.copyfile(out_pg_path, bridge_dir / "sion_pg_knowledge_graph.sql")
+        shutil.copyfile(out_graph_path, layout.agent_memory / "agent_knowledge_graph.md")
+        export_snapshot(engine, layout, reason="agent-bridge")
+        print(f"  [+] Storage root updated: {layout.root}")
+        return
+
+    # 5b. Legacy: copy outputs to a detected Google Drive (no storage root configured)
     drive_root = detect_google_drive_root()
     if drive_root and drive_root.exists():
         print(f"  [*] Detected Google Drive at: {drive_root}")
@@ -174,8 +190,8 @@ def main():
     )
     parser.add_argument(
         "--db-url",
-        default="sqlite:///runtime/sion.db",
-        help="Database URL (default: sqlite:///runtime/sion.db)",
+        default=os.environ.get("SION_DATABASE_URL", "sqlite:///runtime/sion.db"),
+        help="Database URL (default: $SION_DATABASE_URL, else sqlite:///runtime/sion.db)",
     )
     parser.add_argument(
         "--dry-run",

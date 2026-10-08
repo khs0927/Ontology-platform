@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 
 
 def _client() -> TestClient:
-    return TestClient(create_app(database_url="sqlite://", auto_create_schema=True))
+    return TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 def _entity(c: TestClient, key: str) -> str:
@@ -72,7 +72,7 @@ def test_ingestion_paths_also_emit_events(tmp_path):
     doc = tmp_path / "note.md"
     doc.write_text("# Stair rule\nTwo direct stairs required.\n", encoding="utf-8")
     app = create_app(database_url="sqlite://", auto_create_schema=True, ingest_roots=[tmp_path])
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         response = c.post("/api/v1/ingest/documents", json={"paths": [str(doc)]})
         assert response.status_code == 200, response.text
         types = {e["event_type"] for e in c.get("/api/v1/outbox?limit=1000").json()}
@@ -81,7 +81,7 @@ def test_ingestion_paths_also_emit_events(tmp_path):
 
 def test_drain_and_backoff():
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         _entity(c, "concept:one")
         _entity(c, "concept:two")
     factory = app.state.session_factory

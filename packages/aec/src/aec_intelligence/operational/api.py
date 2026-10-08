@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from ..classifier import normalize_storey
 from . import catalog
-from .auth import BearerTokenMiddleware, api_token_from_env
+from .auth import BearerTokenMiddleware, LocalOnlyMiddleware, api_token_from_env
 from .config import Settings
 from .db import Database
 from .embeddings import EmbeddingService, endpoint_health
@@ -126,10 +126,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Added before CORS so CORS stays the outermost layer and can still answer preflights and
     # decorate 401 responses for allowed origins.
     token = api_token_from_env()
+    origins = cors_origins_from_env()
     if token:
         app.add_middleware(BearerTokenMiddleware, token=token)
+    else:
+        app.add_middleware(LocalOnlyMiddleware, allowed_origins=origins)
 
-    origins = cors_origins_from_env()
     if origins:
         app.add_middleware(
             CORSMiddleware,
