@@ -18,6 +18,12 @@ Weights are `1 + confidence` (LightRAG floors a weight at its evidence count).
 Projection is an idempotent upsert; to drop stale rows, project into a new
 `SION_GRAPHRAG_WORKSPACE`.
 
+### Domain packs
+
+- SketchUp modelling knowledge (`data/bootstrap/sketchup-0914-meeting.json`, Korean guideline
+  chunks linked to object classes and to real model objects): see `docs/SKETCHUP_KNOWLEDGE.md`.
+  Import with `python -m sion_ingestion.sketchup_assets import --database-url ...`, then project.
+
 ## Storage
 
 `SION_GRAPHRAG_STORAGE=postgres` (default) keeps KV, vectors (pgvector), graph

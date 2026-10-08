@@ -42,3 +42,23 @@ in `migrations/007_relation_type_validates.sql`.
 - `git log --all -S` across the git repos in `C:\code`: map labels appear only in PR #8 (`c840863`),
   `3e35521`/`ed98e0c` (which remove it) and `3a48725` (label list only).
 - No browser cache, cookies or credential stores were read.
+
+## sketchup/0914-meeting/
+
+| File | SHA-256 | Notes |
+|---|---|---|
+| `model_dump.json` | `33ebc367f6916e339fc9bc03a75a06403a7f37e4a6b8245e82b5c7e512a61bd6` (1,228,497 bytes, CRLF, byte-identical) | `scripts/sketchup/dump_model.rb` output, `_meta.dumped_at` 2026-10-08 10:39:38 KST |
+| `geometry_probe.json` | `c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8` (byte-identical) | `scripts/sketchup/geom_probe.rb` output (written as `geom_probe.json`), 95 definitions |
+| `classification.json` | (authored) | Definition → class overlay. Every assignment is an inference from names, sizes, materials, levels and the probe; pinned to the dump sha256 above |
+| `../object-classes.json` | (authored) | 30 object classes |
+
+- Source model: `0914_담당미팅.skp` (`C:\Users\USER\Documents\카카오톡 받은 파일\`), open in
+  SketchUp 25.0.634 on the user's Windows PC with **unsaved changes** (`modified=true`). The dump
+  reflects the in-memory state at dump time, not the file on disk.
+- Captured through the PC MCP bridge with `claude:hueflow-sketchup` `execute_ruby` (`load` of the
+  scripts). The scripts are read-only: no geometry, tag, material, page or style was created,
+  changed or deleted, nothing was saved, undone or purged. `render_views.rb` changed only the view
+  camera to render PNGs and restored it.
+- `.gitattributes` keeps `data/sources/**` byte-identical (`-text`).
+- Not captured: the `.skp` file itself, texture images, plugin settings, anything inside definitions
+  deeper than 8 levels (none were truncated: 619 hierarchy nodes, `truncated` 0).
