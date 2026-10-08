@@ -8,7 +8,7 @@ import os
 import threading
 import time
 import uuid
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from .config import Settings
@@ -19,6 +19,25 @@ from .census import _fs as long_path
 
 
 logger = logging.getLogger(__name__)
+
+
+class SourceUnavailableError(FileNotFoundError):
+    """A configured source root is temporarily unavailable; do not consume a job attempt."""
+
+
+def unavailable_import_roots(settings) -> list[str]:
+    missing = []
+    for root in getattr(settings, "import_roots", ()):
+        # Host-only Windows roots cannot be probed from a Linux API/container worker.
+        if os.name != "nt" and PureWindowsPath(str(root)).drive:
+            continue
+        try:
+            ready = Path(long_path(str(root))).is_dir()
+        except OSError:
+            ready = False
+        if not ready:
+            missing.append(str(root))
+    return missing
 
 
 class _OncePerMessage(logging.Filter):
@@ -126,6 +145,9 @@ class IngestionWorker:
 
     def run_once(self) -> bool:
         """Attempts to claim and process a single queued job. Returns True if a job was processed."""
+        missing_roots = unavailable_import_roots(self.settings)
+        if missing_roots:
+            raise SourceUnavailableError(f"Import roots unavailable; no job claimed: {missing_roots}")
         job = self.db.claim(
             owner=self.worker_id,
             lease_seconds=self.settings.lease_seconds,
@@ -170,6 +192,12 @@ class IngestionWorker:
                 return True
             logger.info(f"Job {job_id} succeeded")
             return True
+        except SourceUnavailableError as exc:
+            heartbeat_stop.set()
+            heartbeat_thread.join(timeout=2)
+            deferred = self.db.defer_unavailable_source(job_id, self.worker_id)
+            logger.warning("Job %s source unavailable; deferred=%s: %s", job_id, deferred, exc)
+            return False
         except Exception as exc:
             heartbeat_stop.set()
             heartbeat_thread.join(timeout=2)
@@ -183,8 +211,18 @@ class IngestionWorker:
     def run_forever(self, poll_interval: float = 2.0) -> None:
         """Continuously polls for and executes jobs until stop() is called."""
         logger.info(f"Starting worker loop for {self.worker_id} on queue {self.queue}")
+        last_unavailable = None
         while not self._stop_event.is_set():
-            processed = self.run_once()
+            try:
+                processed = self.run_once()
+            except SourceUnavailableError as exc:
+                # A missing import root (unmounted drive/share) pauses claiming; it must not end the loop.
+                if str(exc) != last_unavailable:
+                    logger.warning("Worker %s paused: %s", self.worker_id, exc)
+                last_unavailable = str(exc)
+                self._stop_event.wait(max(poll_interval, 1.0))
+                continue
+            last_unavailable = None
             if not processed:
                 time.sleep(poll_interval)
 
@@ -200,6 +238,9 @@ class IngestionWorker:
         resolved_path = Path(source_path_str).resolve()
         source_path = Path(long_path(str(resolved_path)))
         if not source_path.is_file():
+            missing_roots = unavailable_import_roots(self.settings)
+            if missing_roots:
+                raise SourceUnavailableError(f"Source roots unavailable: {missing_roots}")
             raise FileNotFoundError(f"Source file does not exist: {source_path}")
 
         project_id = str(payload.get("project_id", "default_project"))
