@@ -169,6 +169,31 @@ class SionGraphRag:
             await self._rag.ainsert_custom_kg(custom_kg, full_doc_id=f"sion-canonical-{self.config.workspace}")
         return {key: len(value) for key, value in custom_kg.items()}
 
+    async def extract_relation_candidates(
+        self, session_factory: sessionmaker[Session], *, max_nodes: int = 1000
+    ) -> dict[str, Any]:
+        """Store LightRAG-extracted edges between known Sion entities as unverified candidates.
+
+        LightRAG builds its graph from inserted documents with the configured LLM; this
+        only reads that graph back. Nothing is promoted without a reviewer.
+        """
+        from sion_ingestion.relation_extraction import (
+            build_gazetteer,
+            lightrag_knowledge_graph,
+            proposals_from_lightrag,
+            store_proposals,
+        )
+
+        await self.start()
+        kg = await lightrag_knowledge_graph(self._rag, max_nodes=max_nodes)
+        with session_factory() as session:
+            gazetteer = build_gazetteer(session)
+            proposals, notes = proposals_from_lightrag(
+                kg, gazetteer, workspace=self.config.workspace, model=self.config.llm_model
+            )
+            stored = store_proposals(session, proposals, extractor="sion-lightrag-extractor/v1")
+        return {"canonical": False, "proposals": len(proposals), "notes": notes, **stored}
+
     async def query(self, question: str, *, mode: str = "mix", top_k: int = 20) -> dict[str, Any]:
         """Answer with the LLM when configured; otherwise return retrieved context only.
 

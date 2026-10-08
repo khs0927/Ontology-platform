@@ -59,6 +59,7 @@ def seed_core_types(session: Session) -> None:
         ("EVIDENCED_BY", "Evidenced by"),
         ("SUPERSEDES", "Supersedes"),
         ("VERSION_OF", "Version of"),
+        ("VALIDATES", "Validates"),
     ]
     for type_id, label in entity_types:
         if session.get(models.EntityType, type_id) is None:

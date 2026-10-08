@@ -1,0 +1,1588 @@
+{
+  "schema": "sion-map-export/v1",
+  "source": "graph-export:ontology-map-export:sion-map-production.json#sha256=24f5c46825e8dc22",
+  "expected_node_count": 31,
+  "expected_edge_count": 43,
+  "nodes": [
+    {
+      "stable_key": "map:sion-production:core-gpo",
+      "entity_type_id": "Concept",
+      "name": "Global Project Ontology",
+      "category": "core",
+      "description": "Central ontology definition and cross-domain knowledge model",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[0]",
+          "source_node_id": "core-gpo"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:core-workflow",
+      "entity_type_id": "Workflow",
+      "name": "Project Workflow",
+      "category": "core",
+      "description": "End-to-end execution flow from conception to delivery",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[1]",
+          "source_node_id": "core-workflow"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:core-decision",
+      "entity_type_id": "Decision",
+      "name": "Decision Memory",
+      "category": "core",
+      "description": "Architectural and project decisions tracking with rationales",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[2]",
+          "source_node_id": "core-decision"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:core-deliverables",
+      "entity_type_id": "Deliverable",
+      "name": "Deliverables",
+      "category": "core",
+      "description": "Final work products, models, code, drawings, and reports",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[3]",
+          "source_node_id": "core-deliverables"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:core-dashboard",
+      "entity_type_id": "SystemComponent",
+      "name": "Sites Dashboard",
+      "category": "core",
+      "description": "Public and operational web dashboard and visual explorer",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[4]",
+          "source_node_id": "core-dashboard"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:core-mobile",
+      "entity_type_id": "SystemComponent",
+      "name": "Mobile Command",
+      "category": "core",
+      "description": "Remote monitoring, command dispatch, and approval interface",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[5]",
+          "source_node_id": "core-mobile"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:arch-project",
+      "entity_type_id": "Project",
+      "name": "건축 프로젝트",
+      "category": "architecture_site",
+      "description": "Architectural project container and building design entity",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[6]",
+          "source_node_id": "arch-project"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:arch-site-pack",
+      "entity_type_id": "Dataset",
+      "name": "대지맥락 팩",
+      "category": "architecture_site",
+      "description": "Site context, topography, climatic, legal, and urban data pack",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[7]",
+          "source_node_id": "arch-site-pack"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:arch-dubai",
+      "entity_type_id": "Concept",
+      "name": "Dubai Concept",
+      "category": "architecture_site",
+      "description": "Flagship concept design project and case study",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[8]",
+          "source_node_id": "arch-dubai"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:arch-permit",
+      "entity_type_id": "Concept",
+      "name": "인허가 지식",
+      "category": "architecture_site",
+      "description": "Building codes, zoning regulations, and compliance knowledge",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[9]",
+          "source_node_id": "arch-permit"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:cad-graph",
+      "entity_type_id": "SystemComponent",
+      "name": "CAD Semantic Graph",
+      "category": "cad_bim",
+      "description": "Graph representation of CAD geometry, layers, and blocks",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[10]",
+          "source_node_id": "cad-graph"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:cad-dwg",
+      "entity_type_id": "Artifact",
+      "name": "DWG / DXF",
+      "category": "cad_bim",
+      "description": "2D drawing formats and CAD file interchange assets",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[11]",
+          "source_node_id": "cad-dwg"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:cad-bridge",
+      "entity_type_id": "Tool",
+      "name": "CAD Bridge",
+      "category": "cad_bim",
+      "description": "Integration middleware connecting CAD engines with ontology",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[12]",
+          "source_node_id": "cad-bridge"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:cad-rhino",
+      "entity_type_id": "Tool",
+      "name": "Rhino / Grasshopper",
+      "category": "cad_bim",
+      "description": "Algorithmic 3D modeling and computational geometry tool",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[13]",
+          "source_node_id": "cad-rhino"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:cad-bim",
+      "entity_type_id": "Artifact",
+      "name": "BIM / 3D Model",
+      "category": "cad_bim",
+      "description": "3D building information models and IFC geometric assets",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[14]",
+          "source_node_id": "cad-bim"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:ai-orchestrator",
+      "entity_type_id": "SystemComponent",
+      "name": "Agent Orchestrator",
+      "category": "ai_automation",
+      "description": "Multi-agent runtime and workflow orchestration engine",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[15]",
+          "source_node_id": "ai-orchestrator"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:ai-deepseek",
+      "entity_type_id": "Tool",
+      "name": "DeepSeek Planner",
+      "category": "ai_automation",
+      "description": "Reasoning and high-level architectural planning model",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[16]",
+          "source_node_id": "ai-deepseek"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:ai-gpt",
+      "entity_type_id": "Tool",
+      "name": "GPT Executor",
+      "category": "ai_automation",
+      "description": "Code generation, API execution, and operational task model",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[17]",
+          "source_node_id": "ai-gpt"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:ai-browser",
+      "entity_type_id": "Tool",
+      "name": "Browser Control",
+      "category": "ai_automation",
+      "description": "Automated browser interaction and web verification tool",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[18]",
+          "source_node_id": "ai-browser"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:ai-mcp",
+      "entity_type_id": "SystemComponent",
+      "name": "MCP Mesh",
+      "category": "ai_automation",
+      "description": "Model Context Protocol mesh interconnecting tools and storage",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[19]",
+          "source_node_id": "ai-mcp"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:ai-safety",
+      "entity_type_id": "Workflow",
+      "name": "Safety & Approval",
+      "category": "ai_automation",
+      "description": "Human-in-the-loop review, safety boundaries, and execution gates",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[20]",
+          "source_node_id": "ai-safety"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:asset-bible",
+      "entity_type_id": "Document",
+      "name": "Zion Bible",
+      "category": "content_assets",
+      "description": "Comprehensive knowledge base and project guidelines",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[21]",
+          "source_node_id": "asset-bible"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:asset-zeta",
+      "entity_type_id": "Concept",
+      "name": "Zeta Universe",
+      "category": "content_assets",
+      "description": "Creative universe, brand assets, and narrative concepts",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[22]",
+          "source_node_id": "asset-zeta"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:asset-figma",
+      "entity_type_id": "Tool",
+      "name": "Figma Asset System",
+      "category": "content_assets",
+      "description": "UI components, design tokens, and interface library",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[23]",
+          "source_node_id": "asset-figma"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:asset-media",
+      "entity_type_id": "Dataset",
+      "name": "Visual & Media Pack",
+      "category": "content_assets",
+      "description": "Renderings, marketing visuals, diagrams, and media packages",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[24]",
+          "source_node_id": "asset-media"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:data-drawing-index",
+      "entity_type_id": "Dataset",
+      "name": "Drawing Index",
+      "category": "data_validation",
+      "description": "Searchable catalog of drawings, sheets, and revisions",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[25]",
+          "source_node_id": "data-drawing-index"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:data-ontology-store",
+      "entity_type_id": "SystemComponent",
+      "name": "Ontology Store",
+      "category": "data_validation",
+      "description": "Canonical PostgreSQL knowledge graph and schema store",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[26]",
+          "source_node_id": "data-ontology-store"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:data-supabase-postgres",
+      "entity_type_id": "SystemComponent",
+      "name": "Supabase / Postgres",
+      "category": "data_validation",
+      "description": "Relational database and pgvector vector projection runtime",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[27]",
+          "source_node_id": "data-supabase-postgres"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:data-validation",
+      "entity_type_id": "Workflow",
+      "name": "Cross Validation",
+      "category": "data_validation",
+      "description": "Rule-based SHACL and semantic consistency validation",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[28]",
+          "source_node_id": "data-validation"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:data-evidence",
+      "entity_type_id": "SystemComponent",
+      "name": "Evidence Ledger",
+      "category": "data_validation",
+      "description": "Audit log, provenance, and verification state records",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[29]",
+          "source_node_id": "data-evidence"
+        }
+      },
+      "ontology_version": null
+    },
+    {
+      "stable_key": "map:sion-production:data-drive-mirror",
+      "entity_type_id": "SystemComponent",
+      "name": "Drive Mirror",
+      "category": "data_validation",
+      "description": "Google Drive artifact lake mirror and backup sync engine",
+      "external_uri": null,
+      "properties": {
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.nodes[30]",
+          "source_node_id": "data-drive-mirror"
+        }
+      },
+      "ontology_version": null
+    }
+  ],
+  "edges": [
+    {
+      "stable_key": "map:sion-production:core-workflow:USES:map:sion-production:core-gpo",
+      "source_stable_key": "map:sion-production:core-workflow",
+      "target_stable_key": "map:sion-production:core-gpo",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "ontology-grounding",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[0]",
+          "source_edge_id": "rel-01"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-workflow:PRODUCES:map:sion-production:core-deliverables",
+      "source_stable_key": "map:sion-production:core-workflow",
+      "target_stable_key": "map:sion-production:core-deliverables",
+      "relation_type_id": "PRODUCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "workflow-output",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[1]",
+          "source_edge_id": "rel-02"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-workflow:REFERENCES:map:sion-production:core-decision",
+      "source_stable_key": "map:sion-production:core-workflow",
+      "target_stable_key": "map:sion-production:core-decision",
+      "relation_type_id": "REFERENCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "decision-recording",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[2]",
+          "source_edge_id": "rel-03"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-dashboard:SUPPORTS:map:sion-production:core-workflow",
+      "source_stable_key": "map:sion-production:core-dashboard",
+      "target_stable_key": "map:sion-production:core-workflow",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "workflow-visualization",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[3]",
+          "source_edge_id": "rel-04"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-mobile:SUPPORTS:map:sion-production:core-workflow",
+      "source_stable_key": "map:sion-production:core-mobile",
+      "target_stable_key": "map:sion-production:core-workflow",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "mobile-dispatch",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[4]",
+          "source_edge_id": "rel-05"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-mobile:DEPENDS_ON:map:sion-production:core-dashboard",
+      "source_stable_key": "map:sion-production:core-mobile",
+      "target_stable_key": "map:sion-production:core-dashboard",
+      "relation_type_id": "DEPENDS_ON",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "dashboard-api",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[5]",
+          "source_edge_id": "rel-06"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-decision:PART_OF:map:sion-production:core-gpo",
+      "source_stable_key": "map:sion-production:core-decision",
+      "target_stable_key": "map:sion-production:core-gpo",
+      "relation_type_id": "PART_OF",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "ontology-structuring",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[6]",
+          "source_edge_id": "rel-07"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:arch-project:IMPLEMENTS:map:sion-production:core-gpo",
+      "source_stable_key": "map:sion-production:arch-project",
+      "target_stable_key": "map:sion-production:core-gpo",
+      "relation_type_id": "IMPLEMENTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "project-conformance",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[7]",
+          "source_edge_id": "rel-08"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:arch-project:USES:map:sion-production:arch-site-pack",
+      "source_stable_key": "map:sion-production:arch-project",
+      "target_stable_key": "map:sion-production:arch-site-pack",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "site-context",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[8]",
+          "source_edge_id": "rel-09"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:arch-project:REFERENCES:map:sion-production:arch-permit",
+      "source_stable_key": "map:sion-production:arch-project",
+      "target_stable_key": "map:sion-production:arch-permit",
+      "relation_type_id": "REFERENCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "regulatory-reference",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[9]",
+          "source_edge_id": "rel-10"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:arch-dubai:PART_OF:map:sion-production:arch-project",
+      "source_stable_key": "map:sion-production:arch-dubai",
+      "target_stable_key": "map:sion-production:arch-project",
+      "relation_type_id": "PART_OF",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "concept-instantiation",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[10]",
+          "source_edge_id": "rel-11"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:arch-dubai:USES:map:sion-production:arch-site-pack",
+      "source_stable_key": "map:sion-production:arch-dubai",
+      "target_stable_key": "map:sion-production:arch-site-pack",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "site-analysis",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[11]",
+          "source_edge_id": "rel-12"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:core-workflow:SUPPORTS:map:sion-production:arch-project",
+      "source_stable_key": "map:sion-production:core-workflow",
+      "target_stable_key": "map:sion-production:arch-project",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "project-execution",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[12]",
+          "source_edge_id": "rel-13"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:arch-permit:VALIDATES:map:sion-production:arch-project",
+      "source_stable_key": "map:sion-production:arch-permit",
+      "target_stable_key": "map:sion-production:arch-project",
+      "relation_type_id": "VALIDATES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "code-compliance",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[13]",
+          "source_edge_id": "rel-14"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-bridge:USES:map:sion-production:cad-dwg",
+      "source_stable_key": "map:sion-production:cad-bridge",
+      "target_stable_key": "map:sion-production:cad-dwg",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "drawing-ingestion",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[14]",
+          "source_edge_id": "rel-15"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-bridge:PRODUCES:map:sion-production:cad-graph",
+      "source_stable_key": "map:sion-production:cad-bridge",
+      "target_stable_key": "map:sion-production:cad-graph",
+      "relation_type_id": "PRODUCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "semantic-conversion",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[15]",
+          "source_edge_id": "rel-16"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-graph:IMPLEMENTS:map:sion-production:core-gpo",
+      "source_stable_key": "map:sion-production:cad-graph",
+      "target_stable_key": "map:sion-production:core-gpo",
+      "relation_type_id": "IMPLEMENTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "cad-ontology-mapping",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[16]",
+          "source_edge_id": "rel-17"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-rhino:PRODUCES:map:sion-production:cad-bim",
+      "source_stable_key": "map:sion-production:cad-rhino",
+      "target_stable_key": "map:sion-production:cad-bim",
+      "relation_type_id": "PRODUCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "computational-generation",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[17]",
+          "source_edge_id": "rel-18"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-bim:DERIVED_FROM:map:sion-production:cad-dwg",
+      "source_stable_key": "map:sion-production:cad-bim",
+      "target_stable_key": "map:sion-production:cad-dwg",
+      "relation_type_id": "DERIVED_FROM",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "2d-to-3d-derivation",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[18]",
+          "source_edge_id": "rel-19"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-bim:PART_OF:map:sion-production:arch-project",
+      "source_stable_key": "map:sion-production:cad-bim",
+      "target_stable_key": "map:sion-production:arch-project",
+      "relation_type_id": "PART_OF",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "project-model",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[19]",
+          "source_edge_id": "rel-20"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-graph:REFERENCES:map:sion-production:cad-bim",
+      "source_stable_key": "map:sion-production:cad-graph",
+      "target_stable_key": "map:sion-production:cad-bim",
+      "relation_type_id": "REFERENCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "bim-cross-reference",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[20]",
+          "source_edge_id": "rel-21"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:cad-bridge:SUPPORTS:map:sion-production:data-drawing-index",
+      "source_stable_key": "map:sion-production:cad-bridge",
+      "target_stable_key": "map:sion-production:data-drawing-index",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "sheet-indexing",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[21]",
+          "source_edge_id": "rel-22"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-orchestrator:USES:map:sion-production:ai-deepseek",
+      "source_stable_key": "map:sion-production:ai-orchestrator",
+      "target_stable_key": "map:sion-production:ai-deepseek",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "planning-engine",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[22]",
+          "source_edge_id": "rel-23"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-orchestrator:USES:map:sion-production:ai-gpt",
+      "source_stable_key": "map:sion-production:ai-orchestrator",
+      "target_stable_key": "map:sion-production:ai-gpt",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "task-executor",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[23]",
+          "source_edge_id": "rel-24"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-orchestrator:DEPENDS_ON:map:sion-production:ai-mcp",
+      "source_stable_key": "map:sion-production:ai-orchestrator",
+      "target_stable_key": "map:sion-production:ai-mcp",
+      "relation_type_id": "DEPENDS_ON",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "mesh-connectivity",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[24]",
+          "source_edge_id": "rel-25"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-mcp:USES:map:sion-production:ai-browser",
+      "source_stable_key": "map:sion-production:ai-mcp",
+      "target_stable_key": "map:sion-production:ai-browser",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "web-tool",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[25]",
+          "source_edge_id": "rel-26"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-mcp:USES:map:sion-production:cad-bridge",
+      "source_stable_key": "map:sion-production:ai-mcp",
+      "target_stable_key": "map:sion-production:cad-bridge",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "cad-tool",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[26]",
+          "source_edge_id": "rel-27"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-orchestrator:DEPENDS_ON:map:sion-production:ai-safety",
+      "source_stable_key": "map:sion-production:ai-orchestrator",
+      "target_stable_key": "map:sion-production:ai-safety",
+      "relation_type_id": "DEPENDS_ON",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "safety-gate",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[27]",
+          "source_edge_id": "rel-28"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-safety:VALIDATES:map:sion-production:core-workflow",
+      "source_stable_key": "map:sion-production:ai-safety",
+      "target_stable_key": "map:sion-production:core-workflow",
+      "relation_type_id": "VALIDATES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "approval-check",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[28]",
+          "source_edge_id": "rel-29"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:ai-orchestrator:SUPPORTS:map:sion-production:core-workflow",
+      "source_stable_key": "map:sion-production:ai-orchestrator",
+      "target_stable_key": "map:sion-production:core-workflow",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "workflow-automation",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[29]",
+          "source_edge_id": "rel-30"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:asset-bible:REFERENCES:map:sion-production:core-gpo",
+      "source_stable_key": "map:sion-production:asset-bible",
+      "target_stable_key": "map:sion-production:core-gpo",
+      "relation_type_id": "REFERENCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "canonical-specification",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[30]",
+          "source_edge_id": "rel-31"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:asset-zeta:DERIVED_FROM:map:sion-production:asset-bible",
+      "source_stable_key": "map:sion-production:asset-zeta",
+      "target_stable_key": "map:sion-production:asset-bible",
+      "relation_type_id": "DERIVED_FROM",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "lore-derivation",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[31]",
+          "source_edge_id": "rel-32"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:asset-figma:PRODUCES:map:sion-production:asset-media",
+      "source_stable_key": "map:sion-production:asset-figma",
+      "target_stable_key": "map:sion-production:asset-media",
+      "relation_type_id": "PRODUCES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "asset-export",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[32]",
+          "source_edge_id": "rel-33"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:asset-media:PART_OF:map:sion-production:core-deliverables",
+      "source_stable_key": "map:sion-production:asset-media",
+      "target_stable_key": "map:sion-production:core-deliverables",
+      "relation_type_id": "PART_OF",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "deliverable-asset",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[33]",
+          "source_edge_id": "rel-34"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:asset-zeta:SUPPORTS:map:sion-production:arch-dubai",
+      "source_stable_key": "map:sion-production:asset-zeta",
+      "target_stable_key": "map:sion-production:arch-dubai",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "narrative-concept",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[34]",
+          "source_edge_id": "rel-35"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:asset-figma:SUPPORTS:map:sion-production:core-dashboard",
+      "source_stable_key": "map:sion-production:asset-figma",
+      "target_stable_key": "map:sion-production:core-dashboard",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "ui-library",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[35]",
+          "source_edge_id": "rel-36"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-ontology-store:DEPENDS_ON:map:sion-production:data-supabase-postgres",
+      "source_stable_key": "map:sion-production:data-ontology-store",
+      "target_stable_key": "map:sion-production:data-supabase-postgres",
+      "relation_type_id": "DEPENDS_ON",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "storage-engine",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[36]",
+          "source_edge_id": "rel-37"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-ontology-store:SUPPORTS:map:sion-production:core-gpo",
+      "source_stable_key": "map:sion-production:data-ontology-store",
+      "target_stable_key": "map:sion-production:core-gpo",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "ontology-persistence",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[37]",
+          "source_edge_id": "rel-38"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-validation:VALIDATES:map:sion-production:data-ontology-store",
+      "source_stable_key": "map:sion-production:data-validation",
+      "target_stable_key": "map:sion-production:data-ontology-store",
+      "relation_type_id": "VALIDATES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "schema-shacl-check",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[38]",
+          "source_edge_id": "rel-39"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-evidence:SUPPORTS:map:sion-production:data-ontology-store",
+      "source_stable_key": "map:sion-production:data-evidence",
+      "target_stable_key": "map:sion-production:data-ontology-store",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "provenance-tracking",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[39]",
+          "source_edge_id": "rel-40"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-drive-mirror:SUPPORTS:map:sion-production:data-supabase-postgres",
+      "source_stable_key": "map:sion-production:data-drive-mirror",
+      "target_stable_key": "map:sion-production:data-supabase-postgres",
+      "relation_type_id": "SUPPORTS",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "snapshot-backup",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[40]",
+          "source_edge_id": "rel-41"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-drive-mirror:USES:map:sion-production:cad-dwg",
+      "source_stable_key": "map:sion-production:data-drive-mirror",
+      "target_stable_key": "map:sion-production:cad-dwg",
+      "relation_type_id": "USES",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "artifact-mirroring",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[41]",
+          "source_edge_id": "rel-42"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    },
+    {
+      "stable_key": "map:sion-production:data-drawing-index:PART_OF:map:sion-production:data-ontology-store",
+      "source_stable_key": "map:sion-production:data-drawing-index",
+      "target_stable_key": "map:sion-production:data-ontology-store",
+      "relation_type_id": "PART_OF",
+      "confidence": null,
+      "verification_state": "unverified",
+      "source_kind": "imported",
+      "ontology_version": null,
+      "properties": {
+        "role": "catalog-indexing",
+        "provenance": {
+          "source_file": "sion-map-production.json",
+          "source_sha256": "24f5c46825e8dc223577297cb457d43468bf3a0e6d8a11a6d8050f5fe31dd56f",
+          "declared_source_uri": "sion://ontology-map/production/v1",
+          "format": "ontology-map-export",
+          "locator": "$.relations[42]",
+          "source_edge_id": "rel-43"
+        },
+        "candidate": true,
+        "extractor": "sion-graph-export/v1"
+      }
+    }
+  ]
+}

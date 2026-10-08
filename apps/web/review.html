@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sion · 관계 후보 검토</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3; }
+    header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid #30363d; }
+    header h1 { font-size: 16px; margin: 0 12px 0 0; }
+    header a { color: #58a6ff; }
+    select, input, button { background: #161b22; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 5px 8px; }
+    button { cursor: pointer; }
+    button.approve { border-color: #2ea043; }
+    button.reject { border-color: #da3633; }
+    main { padding: 12px 16px; display: grid; gap: 10px; }
+    .card { border: 1px solid #30363d; border-radius: 8px; padding: 10px 12px; background: #161b22; }
+    .triple { font-size: 15px; }
+    .type { color: #d29922; font-weight: 600; margin: 0 6px; }
+    .meta { color: #8b949e; font-size: 12px; margin-top: 4px; }
+    .evidence { margin: 8px 0 0; padding-left: 16px; font-size: 13px; }
+    .evidence li { margin-bottom: 4px; }
+    .loc { color: #8b949e; font-family: ui-monospace, monospace; font-size: 11px; word-break: break-all; }
+    .actions { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+    .actions input { flex: 1; }
+    .status-approved { border-left: 4px solid #2ea043; }
+    .status-rejected { border-left: 4px solid #da3633; opacity: .75; }
+    .status-pending { border-left: 4px solid #d29922; }
+    #msg { color: #f85149; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>관계 후보 검토</h1>
+    <label>상태
+      <select id="status">
+        <option value="pending">대기</option>
+        <option value="approved">승인</option>
+        <option value="rejected">거절</option>
+        <option value="all">전체</option>
+      </select>
+    </label>
+    <span id="counts"></span>
+    <input id="reviewer" placeholder="검토자 이름" size="12">
+    <input id="token" type="password" placeholder="Bearer 토큰 (원격일 때만)" size="22">
+    <a href="map">그래프 보기</a>
+    <span id="msg"></span>
+  </header>
+  <main id="list"><p>불러오는 중…</p></main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const api = params.get("api") || (location.protocol.startsWith("http") ? location.origin : "http://127.0.0.1:8000");
+    const $ = (id) => document.getElementById(id);
+    $("token").value = sessionStorage.getItem("sionToken") || "";
+    $("reviewer").value = localStorage.getItem("sionReviewer") || "";
+    $("token").addEventListener("change", () => sessionStorage.setItem("sionToken", $("token").value));
+    $("reviewer").addEventListener("change", () => localStorage.setItem("sionReviewer", $("reviewer").value));
+    $("status").addEventListener("change", load);
+
+    function headers(json) {
+      const h = json ? { "Content-Type": "application/json" } : {};
+      const token = $("token").value.trim();
+      if (token) h["Authorization"] = "Bearer " + token;
+      return h;
+    }
+    function el(tag, attrs, ...children) {
+      const node = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs || {})) {
+        if (k === "class") node.className = v; else if (k.startsWith("on")) node.addEventListener(k.slice(2), v); else node.setAttribute(k, v);
+      }
+      for (const child of children) node.append(child instanceof Node ? child : document.createTextNode(child ?? ""));
+      return node;
+    }
+    async function decide(id, action, note) {
+      $("msg").textContent = "";
+      const response = await fetch(`${api}/api/v1/relations/candidates/${id}/${action}`, {
+        method: "POST",
+        headers: headers(true),
+        body: JSON.stringify({ reviewer: $("reviewer").value || null, note: note || null }),
+      });
+      if (!response.ok) { $("msg").textContent = `${response.status}: ${(await response.json()).detail || ""}`; return; }
+      load();
+    }
+    function card(c) {
+      const note = el("input", { placeholder: "메모 (선택)" });
+      const evidence = el("ul", { class: "evidence" });
+      for (const e of c.evidence) {
+        evidence.append(el("li", {}, e.excerpt || "(발췌 없음)", el("div", { class: "loc" }, `${e.source_uri || ""} @ ${e.source_locator || ""}`)));
+      }
+      if (c.evidence_count > c.evidence.length) evidence.append(el("li", {}, `… 외 ${c.evidence_count - c.evidence.length}건`));
+      const actions = el("div", { class: "actions" });
+      if (c.status === "pending") {
+        actions.append(
+          note,
+          el("button", { class: "approve", onclick: () => decide(c.id, "approve", note.value) }, "승인"),
+          el("button", { class: "reject", onclick: () => decide(c.id, "reject", note.value) }, "거절"),
+        );
+      } else if (c.review) {
+        actions.append(el("span", { class: "meta" }, `${c.review.decision} · ${c.review.reviewer} · ${c.review.decided_at}${c.review.note ? " · " + c.review.note : ""}`));
+      }
+      const prov = c.provenance ? ` · 출처 ${c.provenance.source_file || ""} ${c.provenance.locator || ""}` : "";
+      return el("div", { class: `card status-${c.status}` },
+        el("div", { class: "triple" }, c.source?.name || "?", el("span", { class: "type" }, c.relation_type_id), c.target?.name || "?"),
+        el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "-"} · 근거 ${c.evidence_count}건 · ${c.extractor || ""} · ${(c.rules || []).join(", ")}${prov}`),
+        evidence,
+        actions,
+      );
+    }
+    async function load() {
+      const list = $("list");
+      list.replaceChildren(el("p", {}, "불러오는 중…"));
+      try {
+        const response = await fetch(`${api}/api/v1/relations/candidates?status=${$("status").value}&limit=500`, { headers: headers(false) });
+        if (!response.ok) throw new Error(`${response.status} ${(await response.json()).detail || ""}`);
+        const body = await response.json();
+        $("counts").textContent = `대기 ${body.counts.pending} · 승인 ${body.counts.approved} · 거절 ${body.counts.rejected}`;
+        list.replaceChildren(...(body.candidates.length ? body.candidates.map(card) : [el("p", {}, "후보가 없습니다.")]));
+      } catch (err) {
+        list.replaceChildren(el("p", {}, "불러오기 실패: " + err.message));
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

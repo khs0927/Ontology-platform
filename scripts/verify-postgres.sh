@@ -32,7 +32,7 @@ runuser -u postgres -- "$PG_BIN/pg_ctl"   -D "$PGDATA"   -l /tmp/sion-postgres-v
 
 "$PG_BIN/createdb" -h "$PGSOCK" -p "$PGPORT" -U postgres "$DB"
 
-for migration in   "$ROOT/migrations/001_core.sql"   "$ROOT/migrations/004_seed_core_types.sql"; do
+for migration in   "$ROOT/migrations/001_core.sql"   "$ROOT/migrations/004_seed_core_types.sql"   "$ROOT/migrations/007_relation_type_validates.sql"; do
   "$PG_BIN/psql" -v ON_ERROR_STOP=1     -h "$PGSOCK" -p "$PGPORT" -U postgres -d "$DB"     -f "$migration" >/dev/null
 done
 
@@ -46,8 +46,8 @@ SELECT extversion FROM pg_extension WHERE extname='pgcrypto';
 mapfile -t lines <<<"$result"
 [[ "${lines[0]}" == "9" ]]
 [[ "${lines[1]}" == "11" ]]
-[[ "${lines[2]}" == "14" ]]
+[[ "${lines[2]}" == "15" ]]
 [[ -n "${lines[3]}" ]]
 
 echo "[PASS] PostgreSQL core migrations"
-echo "       tables=9 entity_types=11 relation_types=14 pgcrypto=${lines[3]}"
+echo "       tables=9 entity_types=11 relation_types=15 pgcrypto=${lines[3]}"

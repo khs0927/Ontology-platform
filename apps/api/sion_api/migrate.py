@@ -38,7 +38,7 @@ from .config import PROJECT_ROOT
 
 CORE_DIR = PROJECT_ROOT / "migrations"
 REGULATION_DIR = PROJECT_ROOT / "packages" / "regulation" / "db" / "migrations"
-CORE_SEQUENCE = ("001_core", "002_vector", "004_seed_core_types", "006_outbox")
+CORE_SEQUENCE = ("001_core", "002_vector", "004_seed_core_types", "006_outbox", "007_relation_type_validates")
 OPTIONAL_AGE = "005_age_projection"
 LOCK_KEY = 7_146_221_202  # distinct from ArchOntos' 7_146_221_101
 _SELF_TRANSACTIONAL = re.compile(r"^\s*(--[^\n]*\n|\s)*BEGIN\s*;", re.IGNORECASE)
