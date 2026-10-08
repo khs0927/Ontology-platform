@@ -180,7 +180,8 @@ $MinPython = [version]'3.12'
 function Get-PythonVersion([string]$Exe) {
     $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
-        $out = (& $Exe -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>$null | Select-Object -Last 1)
+        # No double quotes in the -c code: Windows PowerShell 5.1 strips them from native arguments.
+        $out = (& $Exe -c 'import sys; print(*sys.version_info[:2], sep=chr(46))' 2>$null | Select-Object -Last 1)
         if ($LASTEXITCODE -eq 0 -and "$out" -match '^\d+\.\d+$') { return [version]"$out" }
     } catch { } finally { $ErrorActionPreference = $prev }
     return $null
