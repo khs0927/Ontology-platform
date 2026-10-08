@@ -53,7 +53,7 @@ in `migrations/007_relation_type_validates.sql`.
 | `classification.json` | (authored) | Definition → class overlay. Every assignment is an inference from names, sizes, materials, levels and the probe; pinned to the dump sha256 above |
 | `../object-classes.json` | (authored) | 30 object classes |
 
-- Source model: `0914_담당미팅.skp` (`C:\Users\USER\Documents\카카오톡 받은 파일\`), open in
+- Source model: `0914_담당미팅.skp` (`<USER_HOME>\Documents\카카오톡 받은 파일\`), open in
   SketchUp 25.0.634 on the user's Windows PC with **unsaved changes** (`modified=true`). The dump
   reflects the in-memory state at dump time, not the file on disk.
 - Captured through the PC MCP bridge with `claude:hueflow-sketchup` `execute_ruby` (`load` of the

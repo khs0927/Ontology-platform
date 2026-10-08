@@ -19,7 +19,7 @@ Output directory: `$SION_SU_EXPORT_DIR`, else `%USERPROFILE%\grokbot-mcp-bridge\
 ```powershell
 [Console]::OutputEncoding=[Text.Encoding]::UTF8; cd "$env:USERPROFILE\grokbot-mcp-bridge"
 # copy dump_model.rb into .\export\ first, then:
-'{"code":"load ''C:/Users/<user>/grokbot-mcp-bridge/export/dump_model.rb''"}' | Set-Content -Encoding utf8 args_dump.json
+'{"code":"load ''<USER_HOME>/grokbot-mcp-bridge/export/dump_model.rb''"}' | Set-Content -Encoding utf8 args_dump.json
 & "C:\Program Files\nodejs\node.exe" mcp-call.mjs call claude:hueflow-sketchup execute_ruby --args-file args_dump.json --timeout 280000   # milliseconds
 ```
 

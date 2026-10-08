@@ -480,7 +480,7 @@ SketchUp 3D 쪽은 태그 대신 **그룹 계층으로 정리**했다. `옹벽` 
 <!-- sion-guide id="mcp-execution" order="30" kind="mcp" after="qa" applies_to="wall,floor-slab,column,furniture,tree,building,terrain,curtain-wall" tools="sketchup-mcp2.get_model_info,sketchup-mcp2.list_components,sketchup-mcp2.find_components,sketchup-mcp2.get_component_info,sketchup-mcp2.create_component,sketchup-mcp2.transform_component,sketchup-mcp2.set_material,sketchup-mcp2.create_layer,sketchup-mcp2.export_scene,sketchup-mcp2.eval_ruby,sketchup-mcp2.undo,hueflow.execute_ruby,hueflow.create_box,hueflow.create_group,hueflow.place_component,hueflow.list_materials" evidence="model:" -->
 
 **서버**: `sketchup-mcp2`(도구 22개, 모든 좌표·치수 mm로 명시, 브리지 호출 시 기동에 약 60초)와 `Hueflow`(`claude:hueflow-sketchup`, 도구 21개, 기동 빠름).
-브리지: `C:\Users\USER\grokbot-mcp-bridge\mcp-call.mjs`(`tools`/`call`, 인자는 `--args-file`로).
+브리지: `<USER_HOME>\grokbot-mcp-bridge\mcp-call.mjs`(`tools`/`call`, 인자는 `--args-file`로).
 
 **1. 읽기(항상 먼저, 모델 변경 없음)**
 - `get_model_info`(두 서버 모두) → 단위·범위·수량.
