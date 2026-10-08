@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/hs-steel-section-catalog-1.schema.json",
+  "title": "hs-steel-section-catalog/1",
+  "description": "Producer: hs-steel-cad SectionCatalogHandoff.Build (src/HsSteel.Assets/SectionCatalogHandoff.cs, pinned 4958a11). Consumers: power-cad-mcp cad_hs_steel_catalog_prepare (HsSteelTools.PrepareCatalog) and Sion packages/aec aec_intelligence.operational.graphrag.integrations.load_section_handoffs (read-only steel section evidence for the knowledge graph). A source-hashed, non-authorizing extract of ONE section family file; it never claims the whole legacy catalog is verified. contract_digest = lowercase hex SHA-256 of the payload without contract_digest, serialized as canonical JSON (object keys sorted ordinally, no whitespace). Row-count consistency (returned_rows == len(rows), accepted_rows <= read_rows) is checked by the consumers, not by this schema.",
+  "type": "object",
+  "required": [
+    "schema",
+    "producer",
+    "family",
+    "source_sha256",
+    "validation_status",
+    "capability_scope",
+    "global_legacy_catalog_verified",
+    "read_rows",
+    "accepted_rows",
+    "quarantined_rows",
+    "returned_rows",
+    "rows",
+    "execution_authorized",
+    "may_execute_mutation",
+    "contract_digest"
+  ],
+  "properties": {
+    "schema": {"const": "hs-steel-section-catalog/1"},
+    "producer": {"const": "khs0927/hs-steel-cad"},
+    "family": {"type": "string", "minLength": 1},
+    "source_file": {"type": ["string", "null"]},
+    "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "encoding": {"type": "string"},
+    "validation_status": {"const": "PASS"},
+    "capability_scope": {"const": "single_family_file"},
+    "global_legacy_catalog_verified": {"const": false},
+    "read_rows": {"type": "integer", "minimum": 1},
+    "accepted_rows": {"type": "integer", "minimum": 1},
+    "quarantined_rows": {"const": 0},
+    "query": {"type": ["string", "null"]},
+    "returned_rows": {"type": "integer", "minimum": 0, "maximum": 500},
+    "rows": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "required": ["spec", "shape", "family", "dimensions_mm", "unit_weight_kg_m", "paint_area_m2_m"],
+        "properties": {
+          "spec": {"type": "string", "pattern": "\\S"},
+          "shape": {"type": "string", "pattern": "\\S"},
+          "family": {"type": "string", "pattern": "\\S"},
+          "dimensions_mm": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": {"type": "number", "minimum": 0}
+          },
+          "unit_weight_kg_m": {"type": "number"},
+          "paint_area_m2_m": {"type": "number"},
+          "aci_color": {"type": "integer"}
+        }
+      }
+    },
+    "execution_authorized": {"const": false},
+    "may_execute_mutation": {"const": false},
+    "contract_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}
