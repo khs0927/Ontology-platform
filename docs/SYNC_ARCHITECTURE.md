@@ -47,3 +47,7 @@ Mobile reads Drive artifacts/manifests and GitHub history. Mobile ChatGPT can in
 ## Runtime databases
 
 PostgreSQL/AGE/pgvector stay local. Drive receives logical dumps, migrations, canonical JSONL/JSON-LD/GraphML/Parquet exports, and checksummed snapshots. Live database files are never placed in a synced folder.
+
+Platform assets use the Drive storage root directly (`SION_STORAGE_ROOT`). The API and import CLIs
+export a DB snapshot and the whole graph there after each committed write (`sion_api.drive_export`),
+so no scheduled copy job is needed. See `docs/STORAGE.md`.

@@ -219,6 +219,21 @@ Still needs the owner's decision:
   so `packages/aec` now holds every file of Ontology `master` (d39a56a). ArchOntos, GOD-CAD and
   CAD-MCP are archived read-only; Ontology is archived after this change.
 
+## Google Drive storage root 2026-10-08 (KST)
+
+- `sion_api.drive_export`: storage layout under `SION_STORAGE_ROOT` (or `SION_DRIVE_ROOT` +
+  `AEC-INTELLIGENCE/01_PROJECTS/SION-ONTOLOGY`), export-on-write hook (debounced `after_commit`).
+  Each export writes a consistent SQLite backup (or `pg_dump`), the whole graph as
+  `sion-map-export/v1`, evidence JSONL and `storage-manifest.json`. Also
+  `GET /api/v1/storage/status`, `POST /api/v1/storage/export`, and the CLI
+  `python -m sion_api.drive_export layout|snapshot|publish-assets`.
+- Import CLIs (`sion-relations`, and anything else that uses `relations_cli._session`) export once at the end.
+  `scripts/run_agent_bridge.py` writes into the storage root and no longer copies the live DB file.
+- `scripts/local_embeddings.py`: a local OpenAI-compatible embeddings endpoint (fastembed), so
+  GraphRAG works on SQLite + local LightRAG storage without PostgreSQL or a cloud key.
+- The live DB stays on a local disk on purpose. Details: `docs/STORAGE.md`.
+- `tests/test_drive_export.py` (11 tests).
+
 ## Relation data + relation-construction pipeline 2026-10-08 (KST)
 
 ### Where the 31/43 relation data was found

@@ -60,6 +60,11 @@ AGE.
 
 ## Models
 
+No cloud key is needed for embeddings: `scripts/local_embeddings.py` serves an
+OpenAI-compatible `/v1/embeddings` on `127.0.0.1` with a multilingual ONNX model (`fastembed`,
+`paraphrase-multilingual-MiniLM-L12-v2`, dim 384). Use it with `SION_GRAPHRAG_STORAGE=local`
+when PostgreSQL is not running.
+
 Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 
 | Variable | Required | Meaning |
