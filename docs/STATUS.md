@@ -5,7 +5,7 @@ Updated: 2026-10-08 evening (Asia/Seoul)
 
 ## Sprint 2026-10-08 evening (KST)
 
-Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
+Final state re-checked 20:40 KST. Window: merged on/after 14:35 KST (`merged:>=2026-10-08T05:35:00Z`).
 
 ### Merged
 **Ontology-platform** (all CI green before merge)
@@ -26,8 +26,8 @@ Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2
 - [#34](https://github.com/khs0927/Ontology-platform/pull/34), [#35](https://github.com/khs0927/Ontology-platform/pull/35) — superseded by #36 (Windows pytest); the Ubuntu-only premise is obsolete.
 
 ### Known follow-ups (non-blocking)
-- Archived Ontology #88 (headless tests) port, `/review` bulk actions, contract-pin refresh and dependency audit were started in a follow-up sprint; check open PRs before redoing them.
-- power-cad-mcp has an intermittently flaky Windows timing test; HS-CAD has ~28 stale PRs (May–July) to triage.
+- Follow-up sprint (sprint2/): [#42](https://github.com/khs0927/Ontology-platform/pull/42) **merged** — contracts pinned to the 2026-10-08 evening heads of the bridged repos (+ hs-steel section catalog / asset registry schemas). [#44](https://github.com/khs0927/Ontology-platform/pull/44) `/review` bulk decision API + faster UI (no auto-approve) — **open** at 20:40 KST. Archived Ontology #88 headless-test port and the dependency audit: check open PRs before redoing.
+- power-cad-mcp has an intermittently flaky Windows timing test (fix in power-cad-mcp [#44](https://github.com/khs0927/power-cad-mcp/pull/44), open; HS-STEEL skills in #45, open); HS-CAD has ~28 stale PRs (May–July) to triage.
 
 ### New docs
 - [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) — ordered checklist for the main PC (switch to `packages/aec`, verification, firewall, backups, crash follow-up, `/review`, power-cad-mcp / hs-steel-cad update, Sion local, cleanup), each with command, success criterion and rollback.
