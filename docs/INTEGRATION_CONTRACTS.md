@@ -9,7 +9,7 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | Repository | Language / host | Relationship | Contract(s) |
 |---|---|---|---|
 | [power-cad-mcp](https://github.com/khs0927/power-cad-mcp) | C# .NET, AutoCAD 2027 plug-in + MCP server | **calls** the AEC REST API and the Sion API, read-only; produces execution receipts | `aec-operational-rest` (OpenAPI), `sion-aec-query-response`, `power-cad-execution-receipt/1` |
-| [hs-steel-cad](https://github.com/khs0927/hs-steel-cad) | C# .NET, MCP | hands steel draw plans to power-cad (Sion is not a party) | `hs-steel-draw-plan/1` |
+| [hs-steel-cad](https://github.com/khs0927/hs-steel-cad) | C# .NET, MCP | hands steel draw plans, section catalogs and its asset registry to power-cad; section catalogs are also read by Sion's AEC knowledge graph | `hs-steel-draw-plan/1`, `hs-steel-section-catalog/1`, `hs-steel-asset-registry/1` |
 | [korean-land-mcp](https://github.com/khs0927/korean-land-mcp) | TypeScript, MCP (V-World) | parcel/zoning records feed regulation facts | `korean-land-parcel-analysis/2` |
 | [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
@@ -20,12 +20,12 @@ Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 
 ```python
 from sion_core import contracts
-contracts.names()                      # the 7 contract names
+contracts.names()                      # the 9 contract names
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
 ```
 
-Contract tests: `tests/test_integration_contracts.py` (58 tests). Upstream files used as fixtures are
+Contract tests: `tests/test_integration_contracts.py` (81 tests). Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
 
@@ -35,15 +35,25 @@ The contracts were derived from these commits (read-only clones; no upstream rep
 
 | Repository | Commit | Date (KST) |
 |---|---|---|
-| power-cad-mcp | `f2a8469` | 2026-10-08 02:25 |
-| hs-steel-cad | `233a4a4` | 2026-10-08 02:24 |
-| korean-land-mcp | `ec25b13` | 2026-10-06 14:12 |
-| HS-CAD | `45d16b6` | 2026-10-03 19:55 |
+| power-cad-mcp | `086ee35` (PR #43) | 2026-10-08 20:01 |
+| hs-steel-cad | `4958a11` (PR #7) | 2026-10-08 19:57 |
+| korean-land-mcp | `3110809` (PR #1, CI only) | 2026-10-08 19:48 |
+| HS-CAD | `76e870d` (PR #157) | 2026-10-08 19:45 |
 | All-In-Cad | `329f9ad` | 2026-10-03 20:39 |
 | CAD-MCP | `50ae134` | 2026-10-03 20:15 |
 
 When an upstream changes one of the files named below, update the schema and the pin in this table
 and the test module docstring in the same PR.
+
+### Upstream changes reviewed at the 2026-10-08 evening pin
+
+| Repository | Change since the previous pin | Contract effect |
+|---|---|---|
+| power-cad-mcp | `cad_create_many` (≤5000 entities, one verified transaction) with `layers`, `text_styles`, `dim_styles` (`based_on, text_style, text_height, arrow_size, scale, decimals, text_gap`) and `blocks` (`{name, path?}`, defined from DWG when missing); XData write via per-entity `hs` tags, `cad_xdata_get` and the `cad_query` `xdata` filter; stable `document_id` keyed by the database `FingerprintGuid` (`f2a8469`); PR #43: 10 asset tools `cad_hs_registry_status`, `cad_hs_assets`, `cad_hs_asset_get`, `cad_hs_section_info`, `cad_hs_styles_apply`, `cad_hs_block_place`, `cad_hs_section_draw`, `cad_hs_grid`, `cad_hs_members_place`, `cad_hs_member_list` (65 MCP tools in total) | None on §1–§3: `OntologyRestTools.cs`, `OntologyContext.cs`, `OntologyLocate.cs`, `OntologyBlockCandidates.cs` and `ExecutionReceiptContract.cs` are unchanged. The new tools are host-side mutations or host-side reads; Sion calls none of them. `cad_hs_steel_prepare` now reports `xdata_write_supported=true` (path `cad_create_many`) |
+| hs-steel-cad | Project standard options `boltLengthTable`, `holeRule`, `markScheme`, `markFormat`, bolt add length by bolt type, 3-digit marks (`markDigits`), embed head `EB`; `DrawPlan` text/dimension specs carry `style: "HS-KOR"`; PR #7: asset registry `hs-steel-asset-registry/1` (819 assets, JSON Schema, generator `tools/AssetRegistry`) | `hs-steel-draw-plan/1` unchanged (specs stay open objects, so `style` validates). New: `hs-steel-section-catalog/1` (§4a, already read by `packages/aec`) and `hs-steel-asset-registry/1` (§4b) |
+| korean-land-mcp | CI workflow (typecheck + vitest) | none (`analyze_parcel.ts` unchanged) |
+| HS-CAD | PyRx placeholder readiness report (`pyrx_adapter.py`) | none (scan export and `command_validator.py` unchanged) |
+| All-In-Cad, CAD-MCP | no new commits | none |
 
 ## Shared rules
 
@@ -113,7 +123,7 @@ Test: `test_sion_aec_query_satisfies_power_cad_refusal_rules`.
 
 Producer: `ExecutionReceiptContract.Project(plan)` (`ExecutionReceiptContract.cs`, documented in
 `docs/framework/EXECUTION_RECEIPT_CONTRACT.md`). At `f2a8469` the projector exists but no MCP tool exposes
-it yet. Schema: `power-cad-execution-receipt-1.schema.json`.
+it yet (still true at `086ee35`). Schema: `power-cad-execution-receipt-1.schema.json`.
 
 | Status | Meaning | Constraints the schema enforces |
 |---|---|---|
@@ -126,6 +136,10 @@ Always: `executor="power-cad"`, `auto_retry_allowed=false`, `canonical_mutation=
 `evidence_only=true`, `plan_terminal = (plan_state != "Executing")`. Source binding fields
 (`source_binding_handoff_digest`, `source_id`, `source_byte_revision_id`, `parser_revision_id`) are copied
 from the plan's `source_binding`.
+
+`document_id` is opaque. Since `f2a8469` the plug-in keys it by the drawing database's `FingerprintGuid`, so
+it stays the same for one open drawing across calls within a plug-in session; it is not a cross-session or
+cross-machine file identity, and Sion must not join receipts on it beyond that.
 
 Sion handling: store as evidence only. Never retry a plan based on a receipt, never promote a receipt to
 canonical CAD state, and treat `receipt_digest` as an opaque identifier.
@@ -149,8 +163,38 @@ exchange; the schema is kept here so Sion can store a handoff as provenance and 
   integral numbers. Byte equality with the .NET output for non-ASCII text has not been checked;
   `System.Text.Json` escapes non-ASCII characters.
 
-The related `hs-steel-section-catalog/1` handoff (validated by power-cad `cad_hs_steel_catalog_prepare`:
-`validation_status=PASS`, ≤500 rows, six `dimensions_mm`) is not consumed by Sion and has no schema here.
+## 4a. hs-steel-cad section catalog → power-cad-mcp and Sion AEC (`hs-steel-section-catalog/1`)
+
+Producer: `SectionCatalogHandoff.Build` (`src/HsSteel.Assets/SectionCatalogHandoff.cs`). Consumers:
+power-cad `cad_hs_steel_catalog_prepare` (`HsSteelTools.PrepareCatalog`) and Sion
+`aec_intelligence.operational.graphrag.integrations.load_section_handoffs` (`packages/aec`), which turns
+rows into read-only steel section evidence keyed by `canonical_section`. Schema:
+`hs-steel-section-catalog-1.schema.json`.
+
+- `validation_status="PASS"`, `capability_scope="single_family_file"`, `global_legacy_catalog_verified=false`,
+  `quarantined_rows=0`, `execution_authorized=false`, `may_execute_mutation=false`
+- `source_sha256` (lowercase hex SHA-256 of the family file) is required; the Sion loader ignores files
+  without it or without PASS, and the schema rejects the same payloads
+- `rows[]` (≤500): `spec`, `shape`, `family` non-blank, `dimensions_mm` exactly six non-negative numbers,
+  `unit_weight_kg_m`, `paint_area_m2_m`, `aci_color`
+- `contract_digest`: same canonical-JSON SHA-256 rule as §4. Row-count consistency
+  (`returned_rows == len(rows)`, `accepted_rows ≤ read_rows`) is checked by power-cad, not by the schema.
+
+Tests: a valid synthetic handoff goes through the real AEC loader; 11 tampered payloads fail.
+
+## 4b. hs-steel-cad asset registry (`hs-steel-asset-registry/1`)
+
+Producer: `tools/AssetRegistry` → `assets/registry/asset-registry.json` (819 assets: 761 licensed legacy
+files referenced by path and hash, 58 code-defined standards such as layers, HS-KOR text/dim styles and the
+project standard options). Consumer: power-cad `HsSteelRegistry` and the `cad_hs_*` tools
+(`HS_STEEL_ASSET_ROOT`). The schema is the upstream `asset-registry.schema.json`, copied verbatim
+(`hs-steel-asset-registry-1.schema.json`, sha256 recorded in PROVENANCE.md).
+
+**Sion does not ingest the registry.** As with §4, the schema is kept so a registry snapshot can be stored
+as provenance for a steel drawing and checked. `loadedBy` entries name host tools; they are references,
+never grants, and Sion does not call them. The legacy files themselves are licensed and never enter this
+repo. Tests validate a trimmed copy of the real registry (one asset per category plus both
+`standard-option` rows) and 9 drift cases.
 
 ## 5. korean-land-mcp → regulation facts (`korean-land-parcel-analysis/2`)
 

@@ -1,0 +1,2129 @@
+{
+  "$schema": "./asset-registry.schema.json",
+  "schema": "hs-steel-asset-registry/1",
+  "generator": "tools/AssetRegistry",
+  "regenerate": "dotnet run --project tools/AssetRegistry",
+  "check": "dotnet run --project tools/AssetRegistry -- --check",
+  "roots": {
+    "repo": {
+      "description": "hs-steel-cad repository root; source.path is relative to it"
+    },
+    "legacy": {
+      "description": "Licensed HS-STEEL install tree (not in git); source.path is relative to it, same as assets/manifest.json relPath",
+      "env": "HS_STEEL_LEGACY",
+      "envDefault": "C:\\HS-STEEL\\HSSTEEL",
+      "rule": "legacy root = parent directory of HS_STEEL_LEGACY (default C:\\HS-STEEL)"
+    }
+  },
+  "sourceManifest": {
+    "path": "assets/manifest.json",
+    "schema": "hs-steel-manifest/1",
+    "sha256": "300181e4fd534efedbaceb705fc43680f48ba92c3f5639dcc6a0de9681cc6b2e",
+    "fileCount": 1801
+  },
+  "categories": [
+    {
+      "id": "block",
+      "description": "Legacy HS-STEEL detail block DWGs (HSSTEEL/block/*.dwg): frames, tables, notes, marks, anchors, lugs...",
+      "count": 114
+    },
+    {
+      "id": "section-table",
+      "description": "Legacy section/plate/deck/grating tables (HSSTEEL/attributes/*.dat)",
+      "count": 19
+    },
+    {
+      "id": "connection-table",
+      "description": "Legacy SCSS bolted splice tables (HSSTEEL/attributes/SCSS-*.dat)",
+      "count": 6
+    },
+    {
+      "id": "project-defaults",
+      "description": "Legacy Project.dat default fabrication settings",
+      "count": 1
+    },
+    {
+      "id": "project-template",
+      "description": "Legacy new-project set (HSSTEEL/새공사-설치용): dat, template dwg, BOM workbook, plot style, scripts",
+      "count": 15
+    },
+    {
+      "id": "linetype",
+      "description": "Legacy linetype / multiline style files (*.lin, *.mln)",
+      "count": 2
+    },
+    {
+      "id": "font-map",
+      "description": "Legacy font mapping (*.fmp)",
+      "count": 1
+    },
+    {
+      "id": "command-alias",
+      "description": "Legacy command alias file (*.pgp)",
+      "count": 1
+    },
+    {
+      "id": "dialog",
+      "description": "Legacy dialog definitions (*.DCL, *.xpg)",
+      "count": 3
+    },
+    {
+      "id": "tool-palette",
+      "description": "Legacy tool palette definitions (*.atc, *.xtp)",
+      "count": 44
+    },
+    {
+      "id": "quantity-workbook",
+      "description": "Legacy quantity/estimate workbooks (*.xlsx, *.xlsm)",
+      "count": 2
+    },
+    {
+      "id": "slide",
+      "description": "Legacy section/detail preview slides (*.sld)",
+      "count": 416
+    },
+    {
+      "id": "icon-set",
+      "description": "Legacy ribbon/toolbar/palette icons, one asset per folder (props.members lists the files)",
+      "count": 14
+    },
+    {
+      "id": "command-catalog",
+      "description": "Legacy menus/ribbons and compiled plugins (reference only: command catalog)",
+      "count": 10
+    },
+    {
+      "id": "plot-spec",
+      "description": "Legacy plot styles and batch-plot tool (reference only)",
+      "count": 31
+    },
+    {
+      "id": "reference-doc",
+      "description": "Legacy manuals and memos (reference only)",
+      "count": 7
+    },
+    {
+      "id": "golden-reference",
+      "description": "Real legacy project sets used as regression oracles (reference only)",
+      "count": 75
+    },
+    {
+      "id": "layer",
+      "description": "Layer standard of generated shop drawings (HsSteel.Drafting.Layers)",
+      "count": 15
+    },
+    {
+      "id": "text-style",
+      "description": "Text style definitions created in the target drawing when missing (HsSteel.Drafting.TextStyles)",
+      "count": 1
+    },
+    {
+      "id": "dim-style",
+      "description": "Dimension style definitions created in the target drawing when missing (HsSteel.Drafting.TextStyles)",
+      "count": 1
+    },
+    {
+      "id": "title-block",
+      "description": "Sheet frame (도곽) model (HsSteel.Drafting.SheetFrame); the company frame replaces it via hs_frame_set",
+      "count": 1
+    },
+    {
+      "id": "drawing-generator",
+      "description": "Shop-drawing sheet generators (HsSteel.Drafting) and the drawing set composer",
+      "count": 8
+    },
+    {
+      "id": "annotation-standard",
+      "description": "Callouts, weld symbols, bolt notes and dimension helpers (HsSteel.Drafting)",
+      "count": 4
+    },
+    {
+      "id": "data-table",
+      "description": "Code data tables: scales, weld/bolt tables, assembly mark heads, paper constants",
+      "count": 7
+    },
+    {
+      "id": "standard-option",
+      "description": "Project standard options and fabrication detail rules (HsSteel.Domain)",
+      "count": 2
+    },
+    {
+      "id": "rules-catalog",
+      "description": "Evidence-backed detailing rules catalog (rules.json / docs/RULES_CATALOG.md)",
+      "count": 1
+    },
+    {
+      "id": "profile-family",
+      "description": "Cross-section shape kinds supported by the drawing engine (HsSteel.Domain.ShapeKind)",
+      "count": 12
+    },
+    {
+      "id": "connection-detail",
+      "description": "Connection kinds of the project model (HsSteel.Modeling ConnectionDef subtypes)",
+      "count": 5
+    },
+    {
+      "id": "model-template",
+      "description": "Parametric project model templates (HsSteel.Modeling.ProjectTemplates)",
+      "count": 1
+    }
+  ],
+  "counts": {
+    "total": 819,
+    "byCategory": {
+      "block": 114,
+      "section-table": 19,
+      "connection-table": 6,
+      "project-defaults": 1,
+      "project-template": 15,
+      "linetype": 2,
+      "font-map": 1,
+      "command-alias": 1,
+      "dialog": 3,
+      "tool-palette": 44,
+      "quantity-workbook": 2,
+      "slide": 416,
+      "icon-set": 14,
+      "command-catalog": 10,
+      "plot-spec": 31,
+      "reference-doc": 7,
+      "golden-reference": 75,
+      "layer": 15,
+      "text-style": 1,
+      "dim-style": 1,
+      "title-block": 1,
+      "drawing-generator": 8,
+      "annotation-standard": 4,
+      "data-table": 7,
+      "standard-option": 2,
+      "rules-catalog": 1,
+      "profile-family": 12,
+      "connection-detail": 5,
+      "model-template": 1
+    }
+  },
+  "assets": [
+    {
+      "id": "annotation-standard/HS_WELD_FILLET",
+      "category": "annotation-standard",
+      "name": "HS_WELD_FILLET",
+      "description": "Fillet weld symbol block name used by the generators (placeholder a backend may swap for the legacy HS-STEEL blocks)",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Drafting/Callouts.cs",
+        "symbol": "HsSteel.Drafting.Callouts.FilletBlock",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": {
+        "basePoint": null,
+        "basePointSource": "unknown",
+        "units": "mm",
+        "scaleRule": "paper"
+      },
+      "parameters": [
+        {
+          "name": "size",
+          "type": "number",
+          "unit": "mm",
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": "Weld leg size"
+        },
+        {
+          "name": "mark",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": null
+        }
+      ],
+      "layer": "HS-WELD",
+      "tags": [
+        "weld",
+        "symbol",
+        "fillet"
+      ],
+      "drawingTypes": [
+        "assembly"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Drafting.Callouts.Weld",
+          "note": null
+        }
+      ],
+      "props": {
+        "weldKind": "Fillet",
+        "placeholder": true
+      }
+    },
+    {
+      "id": "block/1@10",
+      "category": "block",
+      "name": "1@10.dwg",
+      "description": "detail block library",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/block/1@10.dwg",
+        "symbol": null,
+        "sha256": "9e4b26802b78c7b8d65b8d347f189cd8a00b07c9896e80f0384c172ca69a27f0",
+        "size": 74558
+      },
+      "format": "dwg",
+      "disposition": "ingest",
+      "insertion": {
+        "basePoint": null,
+        "basePointSource": "unknown",
+        "units": "mm",
+        "scaleRule": null
+      },
+      "parameters": [
+        {
+          "name": "position",
+          "type": "point2d",
+          "unit": "mm",
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": "Insertion point in model space"
+        },
+        {
+          "name": "rotation",
+          "type": "number",
+          "unit": "deg",
+          "default": 0,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "scale",
+          "type": "number",
+          "unit": "ratio",
+          "default": 1,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "attributes",
+          "type": "object",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": "{TAG: value}; tags are checked against the block definition by hs_block_insert_plan"
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "block",
+        "misc"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Blocks.BlockCatalog",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "block",
+          "note": "with block_attribute, block_layer"
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_asset_get",
+          "note": "kind=block"
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_block_insert_plan",
+          "note": null
+        },
+        {
+          "kind": "power-cad",
+          "ref": "cad_import_block",
+          "note": "import {name, path=<legacy root>/<source.path>}"
+        },
+        {
+          "kind": "power-cad",
+          "ref": "cad_create",
+          "note": "type=insert"
+        }
+      ],
+      "props": {
+        "manifestTarget": "blocks",
+        "manifestReason": "detail block library",
+        "blockCategory": "misc",
+        "blockCategorySource": "filename-rule",
+        "blockName": "1@10",
+        "metadataAtRuntime": "base point, extents, attribute tags and layers: hs_asset_get kind=block key=<blockName> (hs_assets.db)"
+      }
+    },
+    {
+      "id": "command-alias/hssteel",
+      "category": "command-alias",
+      "name": "hssteel.pgp",
+      "description": "command aliases",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/support/hssteel.pgp",
+        "symbol": null,
+        "sha256": "c5fff70ea67405facb6afb9dd1512458af0c7e6a23c6135154244d363a3f26ff",
+        "size": 1228
+      },
+      "format": "pgp",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "command"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Support.SupportCatalog",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "command_alias",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "command-aliases",
+        "manifestReason": "command aliases"
+      }
+    },
+    {
+      "id": "command-catalog/CSHSSTEELNET40",
+      "category": "command-catalog",
+      "name": "CSHSSTEELNET40.dll",
+      "description": "compiled program/plugin: symbol & command catalog only",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/CSHSSTEELNET40.dll",
+        "symbol": null,
+        "sha256": "ca066a5ff90ddc0f9af49dfbde22d2c9a42f54407546dbdc721635f73cfa53cd",
+        "size": 284672
+      },
+      "format": "dll",
+      "disposition": "reference",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "command",
+        "reference"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [],
+      "props": {
+        "manifestTarget": "fas-catalog",
+        "manifestReason": "compiled program/plugin: symbol & command catalog only"
+      }
+    },
+    {
+      "id": "connection-detail/base_plate",
+      "category": "connection-detail",
+      "name": "base_plate",
+      "description": "BasePlateDef: project connection kind \"base_plate\"",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Modeling/Project.cs",
+        "symbol": "HsSteel.Modeling.BasePlateDef",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "column",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "thickness",
+          "type": "number",
+          "unit": "mm",
+          "default": 25,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "margin",
+          "type": "number",
+          "unit": "mm",
+          "default": 100,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "anchor_dia",
+          "type": "number",
+          "unit": "mm",
+          "default": 27,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "anchor_edge",
+          "type": "number",
+          "unit": "mm",
+          "default": 50,
+          "required": false,
+          "enum": null,
+          "description": null
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "connection",
+        "base_plate"
+      ],
+      "drawingTypes": [
+        "assembly",
+        "part",
+        "plate",
+        "bom"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_connection_add",
+          "note": "{\"kind\":\"base_plate\", ...}"
+        },
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Modeling.ModelBuilder",
+          "note": null
+        }
+      ],
+      "props": {
+        "discriminator": "base_plate",
+        "type": "HsSteel.Modeling.BasePlateDef"
+      }
+    },
+    {
+      "id": "connection-table/SCSS-C16",
+      "category": "connection-table",
+      "name": "SCSS-C16.dat",
+      "description": "connection (splice) table",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/attributes/SCSS-C16.dat",
+        "symbol": null,
+        "sha256": "be353f1c14cb9df03e09a32a5aac5862b3963e555436ea6a9b618fc0cc675f98",
+        "size": 2305
+      },
+      "format": "dat",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [
+        {
+          "name": "section",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": "H section, e.g. H400x200x8x13"
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "connection",
+        "splice",
+        "bolt",
+        "SCSS"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Domain.SpliceStandards",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "bolt",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_splice_standard",
+          "note": "column=true, boltSize=16"
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_connection_add",
+          "note": "kind=splice"
+        }
+      ],
+      "props": {
+        "manifestTarget": "connections",
+        "manifestReason": "connection (splice) table",
+        "splice": "column",
+        "boltSize": 16
+      }
+    },
+    {
+      "id": "data-table/assembly-types",
+      "category": "data-table",
+      "name": "AssemblyTypes",
+      "description": "Assembly types and mark heads (legacy Numbering.dat defaults; alt scheme; Numbering.dat override keys)",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Domain/Model.cs",
+        "symbol": "HsSteel.Domain.AssemblyTypes",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "mark",
+        "numbering",
+        "assembly"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_member_add",
+          "note": "type"
+        }
+      ],
+      "props": {
+        "types": {
+          "column": {
+            "prefix": "C",
+            "altPrefix": "C",
+            "numberingKey": "M83-COLUMN-HD-BOX"
+          },
+          "sub_column": {
+            "prefix": "C",
+            "altPrefix": "C",
+            "numberingKey": "M83-SUBCOL-HD-BOX"
+          },
+          "post": {
+            "prefix": "C",
+            "altPrefix": "C",
+            "numberingKey": "M83-POST---HD-BOX"
+          },
+          "girder": {
+            "prefix": "G",
+            "altPrefix": "G",
+            "numberingKey": "M83-GIRDER-HD-BOX"
+          },
+          "beam": {
+            "prefix": "B",
+            "altPrefix": "B",
+            "numberingKey": "M83-BEAM---HD-BOX"
+          },
+          "crane_girder": {
+            "prefix": "G",
+            "altPrefix": "G",
+            "numberingKey": "M83-CRANEG-HD-BOX"
+          },
+          "brace": {
+            "prefix": "R",
+            "altPrefix": "V",
+            "numberingKey": "M83-BRACE--HD-BOX"
+          },
+          "purlin": {
+            "prefix": "PU",
+            "altPrefix": "PU",
+            "numberingKey": "M83-PURLIN-HD-BOX"
+          },
+          "girth": {
+            "prefix": "GT",
+            "altPrefix": "GT",
+            "numberingKey": "M83-GIRTH--HD-BOX"
+          },
+          "rafter": {
+            "prefix": "G",
+            "altPrefix": "G",
+            "numberingKey": "M83-RAFTER-HD-BOX"
+          },
+          "truss": {
+            "prefix": "G",
+            "altPrefix": "T",
+            "numberingKey": "M83-TRUSS--HD-BOX"
+          },
+          "stair": {
+            "prefix": "S",
+            "altPrefix": "ST",
+            "numberingKey": "M83-STAIR--HD-BOX"
+          },
+          "hand_rail": {
+            "prefix": "H",
+            "altPrefix": "HR",
+            "numberingKey": "M83-HANDRL-HD-BOX"
+          },
+          "embed": {
+            "prefix": "EB",
+            "altPrefix": "AB",
+            "numberingKey": "M83-EMBED--HD-BOX"
+          },
+          "other": {
+            "prefix": "X",
+            "altPrefix": "X",
+            "numberingKey": "M83-NGNGNG-HD-BOX"
+          }
+        },
+        "defaultMarkDigits": 3
+      }
+    },
+    {
+      "id": "dialog/DIM_EDIT",
+      "category": "dialog",
+      "name": "DIM_EDIT.DCL",
+      "description": "dialog definition / misc support",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/support/DIM_EDIT.DCL",
+        "symbol": null,
+        "sha256": "fcb6e65873ae008190deed67a3d0a73278e5e2ac0a1b62ea387d1125d62eba3e",
+        "size": 253
+      },
+      "format": "dcl",
+      "disposition": "reference",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "dialog",
+        "ui"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Dialogs.DclParser",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "dialog",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "dialogs",
+        "manifestReason": "dialog definition / misc support"
+      }
+    },
+    {
+      "id": "dim-style/HS-KOR",
+      "category": "dim-style",
+      "name": "HS-KOR",
+      "description": "Dimension style based on Standard with text style HS-KOR; template dimension text height on paper is DetailRules.TemplateDimText",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Drafting/TextStyles.cs",
+        "symbol": "HsSteel.Drafting.TextStyles.DimStyleDefs",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": "HS-DIM",
+      "tags": [
+        "dimension",
+        "style"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_drawings_to_powercad",
+          "note": "payload dim_styles[]"
+        },
+        {
+          "kind": "power-cad",
+          "ref": "cad_create_many",
+          "note": "dim_styles"
+        }
+      ],
+      "props": {
+        "name": "HS-KOR",
+        "based_on": "Standard",
+        "text_style": "HS-KOR",
+        "templateDimTextHeight": 3.4
+      }
+    },
+    {
+      "id": "drawing-generator/assembly-detail",
+      "category": "drawing-generator",
+      "name": "AssemblyDetail",
+      "description": "Assembly drawing (조립도)",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Drafting/DetailGenerators.cs",
+        "symbol": "HsSteel.Drafting.AssemblyDetail",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "generator",
+        "assembly"
+      ],
+      "drawingTypes": [
+        "assembly"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Drafting.DrawingSet.Generate",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_drawings_generate",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_drawings_to_powercad",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_draw_plan_handoff",
+          "note": null
+        }
+      ],
+      "props": {
+        "kindFlag": "Assembly",
+        "sheetPrefix": "A",
+        "sheetTitle": "ASSY DWG"
+      }
+    },
+    {
+      "id": "font-map/acad",
+      "category": "font-map",
+      "name": "acad.fmp",
+      "description": "font mapping",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/support/acad.fmp",
+        "symbol": null,
+        "sha256": "1b042e562c9fe20456708292554a67ba4e591e160b98469bb76adfd09ed799a1",
+        "size": 706
+      },
+      "format": "fmp",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "font",
+        "style"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Support.SupportCatalog",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "font_map",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "fonts",
+        "manifestReason": "font mapping"
+      }
+    },
+    {
+      "id": "golden-reference/AutoSave-First",
+      "category": "golden-reference",
+      "name": "AutoSave-First.M435",
+      "description": "golden: project member data (.Mxx), never ingested",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/새공사-하눌쏘/attributes/AutoSave-First.M435",
+        "symbol": null,
+        "sha256": "bc849ce4ab1c15f4a63242ad940f1960dd67afb7e77d5126f22b4142b83e5e76",
+        "size": 333
+      },
+      "format": "m435",
+      "disposition": "reference",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "golden",
+        "reference"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [],
+      "props": {
+        "manifestTarget": "golden/HSSTEEL/새공사-하눌쏘/attributes",
+        "manifestReason": "golden: project member data (.Mxx), never ingested",
+        "projectSet": "HSSTEEL/새공사-하눌쏘/attributes"
+      }
+    },
+    {
+      "id": "icon-set/Icons",
+      "category": "icon-set",
+      "name": "Icons",
+      "description": "dialog icon",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/Icons",
+        "symbol": null,
+        "sha256": null,
+        "size": 28191
+      },
+      "format": "bmp",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "icon",
+        "ui"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Knowledge.Ingest.IconCodec",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "icon",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "icons",
+        "count": 55,
+        "members": [
+          "2p_thk_cl.BMP",
+          "3dorbitctr.BMP",
+          "4p_thk_cl.BMP",
+          "Chk-Plate-hole.BMP",
+          "Cnv-3DIst-2D-HiddenLine.BMP",
+          "HJH-IST3D-LINEBOLT.BMP",
+          "HJH-IST3D-SOLID-BOLT.BMP",
+          "HJH-REV-BLOCK.BMP",
+          "Hs-DanMark-Chk-Line.bmp",
+          "Hs-DanMark-Rep.bmp",
+          "Hs-Erase-For-Macro35.bmp",
+          "Hs-Text-Explode-Space.bmp",
+          "MACRO04.BMP",
+          "MACRO05.BMP",
+          "MACRO06.BMP",
+          "MACRO55.BMP",
+          "MD-DET-COLUMN-SECT.BMP",
+          "MD-DET-GIRDER-SECT.BMP",
+          "Macro03.BMP",
+          "Macro275.bmp",
+          "Macro276.bmp",
+          "Macro28.BMP",
+          "Macro319.bmp",
+          "Macro332.bmp",
+          "Macro435.bmp",
+          "Macro469.bmp",
+          "Macro58.BMP",
+          "Macro643.bmp",
+          "Macro668.bmp",
+          "Macro68.bmp",
+          "Macro73.bmp",
+          "Macro76.BMP",
+          "Macro77.BMP",
+          "Macro78.BMP",
+          "Macro80.bmp",
+          "Shp-Plt-Gb-Chk.BMP",
+          "WORKFRAME.bmp",
+          "chk-xdata-PolyShp-t.bmp",
+          "chk-xdata-stt-t.bmp",
+          "chk-xdata-stt.bmp",
+          "cnv-lwpline-line.BMP",
+          "copy_ssget_text.bmp",
+          "hjh-xdata-PolyShp-auto-jon.bmp",
+          "hjh-xdata-PolyShp-bun.bmp",
+          "hjh-xdata-PolyShp-jon.bmp",
+          "hjh-xdata-stt-auto-jon.bmp",
+          "hjh-xdata-stt-bun.bmp",
+          "hjh-xdata-stt-jon.bmp",
+          "macro013.BMP",
+          "mlbss3d-2d.bmp",
+          "plate-properties.BMP",
+          "plsec-tc.BMP",
+          "plsec-zc.BMP",
+          "sclfree.bmp",
+          "txt-bom-sum.bmp"
+        ]
+      }
+    },
+    {
+      "id": "layer/HS-BREAK",
+      "category": "layer",
+      "name": "HS-BREAK",
+      "description": null,
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Drafting/Layers.cs",
+        "symbol": "HsSteel.Drafting.Layers.Break",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": "HS-BREAK",
+      "tags": [
+        "layer",
+        "style"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Drafting.Layers.All",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_drawings_to_powercad",
+          "note": "payload layers[] (created when missing)"
+        },
+        {
+          "kind": "power-cad",
+          "ref": "cad_create_many",
+          "note": "layers"
+        }
+      ],
+      "props": {
+        "color": 6,
+        "colorSystem": "ACI",
+        "linetype": "Continuous"
+      }
+    },
+    {
+      "id": "linetype/Hssteel",
+      "category": "linetype",
+      "name": "Hssteel.lin",
+      "description": "linetype/multiline style",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/support/Hssteel.lin",
+        "symbol": null,
+        "sha256": "741a9671a2ef6c8f510b8467f18106f2361def4781d23ae9ad76b3c36a521639",
+        "size": 220
+      },
+      "format": "lin",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "linetype",
+        "style"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Support.SupportCatalog",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "linetype",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "linetypes",
+        "manifestReason": "linetype/multiline style"
+      }
+    },
+    {
+      "id": "model-template/frame",
+      "category": "model-template",
+      "name": "ProjectTemplates.Frame",
+      "description": "Complete multi-storey frame from bay sizes: grids, levels, columns (base/caps/optional splices), girders (shear tab or end plate), secondary beams",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Modeling/ProjectTemplates.cs",
+        "symbol": "HsSteel.Modeling.ProjectTemplates.Frame",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [
+        {
+          "name": "spans_x",
+          "type": "array",
+          "unit": "mm",
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "spans_y",
+          "type": "array",
+          "unit": "mm",
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "storey_heights",
+          "type": "array",
+          "unit": "mm",
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "column",
+          "type": "string",
+          "unit": null,
+          "default": "H300x300x10x15",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "girder_x",
+          "type": "string",
+          "unit": null,
+          "default": "H400x200x8x13",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "girder_y",
+          "type": "string",
+          "unit": null,
+          "default": "H400x200x8x13",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "max_column_piece",
+          "type": "number",
+          "unit": "mm",
+          "default": 0,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "sub_beams",
+          "type": "integer",
+          "unit": null,
+          "default": 0,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "sub_beam",
+          "type": "string",
+          "unit": null,
+          "default": "H300x150x6.5x9",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "beam_connection",
+          "type": "enum",
+          "unit": null,
+          "default": "shear_tab",
+          "required": false,
+          "enum": [
+            "shear_tab",
+            "end_plate"
+          ],
+          "description": null
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "template",
+        "frame",
+        "model"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_project_frame",
+          "note": null
+        }
+      ],
+      "props": {}
+    },
+    {
+      "id": "plot-spec/ALL_01mm",
+      "category": "plot-spec",
+      "name": "ALL_01mm.ctb",
+      "description": "plot asset (v0.3: reference only)",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/Plot Styles/ALL_01mm.ctb",
+        "symbol": null,
+        "sha256": "a315b39bce5e7e4acbc04a9801f2778542169a7bcdd9c5700b0ea154fd435a09",
+        "size": 2933
+      },
+      "format": "ctb",
+      "disposition": "reference",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "plot",
+        "reference"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [],
+      "props": {
+        "manifestTarget": "plot-spec",
+        "manifestReason": "plot asset (v0.3: reference only)"
+      }
+    },
+    {
+      "id": "profile-family/Block",
+      "category": "profile-family",
+      "name": "Block",
+      "description": "Grating, deck plate, concrete, user shapes: drawn as a bounding rectangle. Dims: h, b.",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Domain/Profile.cs",
+        "symbol": "HsSteel.Domain.ShapeKind.Block",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "section",
+        "profile"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Domain.Profile",
+          "note": null
+        },
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Drafting.MemberViews",
+          "note": null
+        }
+      ],
+      "props": {}
+    },
+    {
+      "id": "project-defaults/Project",
+      "category": "project-defaults",
+      "name": "Project.dat",
+      "description": "project default settings",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/attributes/Project.dat",
+        "symbol": null,
+        "sha256": "8cfc7424b4eb7bbe58ff05e888a1b7e9ebc3b0f0840b7249480ae53d3e0184ca",
+        "size": 1176
+      },
+      "format": "dat",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "settings",
+        "rules"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.ProjectSettings",
+          "note": null
+        },
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Domain.DetailRules.From",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "project_default",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "project-defaults",
+        "manifestReason": "project default settings"
+      }
+    },
+    {
+      "id": "project-template/Allplot_set",
+      "category": "project-template",
+      "name": "Allplot_set.dat",
+      "description": "new-project default set",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/새공사-설치용/Allplot_set.dat",
+        "symbol": null,
+        "sha256": "fabd1759cb0ca5afc3c1a5a99a0d41d2b9494ab2629edce391cab8b6579901bb",
+        "size": 1386
+      },
+      "format": "dat",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "template",
+        "new-project"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Templates.DatFiles",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "template_dat_row",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "templates/new-project",
+        "manifestReason": "new-project default set"
+      }
+    },
+    {
+      "id": "quantity-workbook/단중",
+      "category": "quantity-workbook",
+      "name": "단중.xlsx",
+      "description": "quantity/estimate workbook (prices, surcharges, forms; formulas as oracle)",
+      "source": {
+        "root": "legacy",
+        "path": "HS03/Excel/XLSTART/단중.xlsx",
+        "symbol": null,
+        "sha256": "ecfd9763d09bd013ff5499cf8a68943b104ac6a85d266512bb81277605afc64e",
+        "size": 281221
+      },
+      "format": "xlsx",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "bom",
+        "quantity",
+        "estimate"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Templates.XlsxStructure",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "workbook",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "quantities",
+        "manifestReason": "quantity/estimate workbook (prices, surcharges, forms; formulas as oracle)"
+      }
+    },
+    {
+      "id": "reference-doc/도움말/Cad2017사용자설명서.pdf",
+      "category": "reference-doc",
+      "name": "Cad2017사용자설명서.pdf",
+      "description": "manual/example: feature spec, glossary, drafting rules source",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/도움말/Cad2017사용자설명서.pdf",
+        "symbol": null,
+        "sha256": "c93d6fff5aa53614043df468928b3172f0839b2317f8dacf172241ba9ba4fc16",
+        "size": 712415
+      },
+      "format": "pdf",
+      "disposition": "reference",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "doc",
+        "reference"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "knowledge-db",
+          "ref": "doc_chunk",
+          "note": "via tools/docs_chunker where supported"
+        }
+      ],
+      "props": {
+        "manifestTarget": "docs",
+        "manifestReason": "manual/example: feature spec, glossary, drafting rules source"
+      }
+    },
+    {
+      "id": "rules-catalog/rules",
+      "category": "rules-catalog",
+      "name": "RULES_CATALOG",
+      "description": "Evidence-backed detailing rules (trust graded) used by hs_rules_search / hs_explain / hs_graph_rag",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Knowledge/Rules/rules.json",
+        "symbol": "HsSteel.Knowledge.Rules.RulesCatalog",
+        "sha256": null,
+        "size": null
+      },
+      "format": "json",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "rules"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_rules_search",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_explain",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_graph_rag",
+          "note": null
+        }
+      ],
+      "props": {
+        "schema": "hs-steel-rules/2",
+        "count": 135,
+        "byCategory": {
+          "architecture": 5,
+          "assets": 1,
+          "bolting": 28,
+          "bom": 9,
+          "commands": 1,
+          "connections": 26,
+          "detailing": 1,
+          "drafting": 14,
+          "fabrication": 13,
+          "finishing": 3,
+          "materials": 6,
+          "numbering": 19,
+          "sections": 2,
+          "welding": 7
+        },
+        "doc": "docs/RULES_CATALOG.md"
+      }
+    },
+    {
+      "id": "section-table/ANGLE",
+      "category": "section-table",
+      "name": "ANGLE.dat",
+      "description": "section table",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/attributes/ANGLE.dat",
+        "symbol": null,
+        "sha256": "2cd215267376fccc0c3c5b0384d21ba30a0822046f4b1ff54c86e0aa14140873",
+        "size": 5912
+      },
+      "format": "dat",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [
+        {
+          "name": "spec",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": "Section designation within the family, e.g. H400x200x8x13"
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "section",
+        "ANGLE"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.SectionTable",
+          "note": null
+        },
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Domain.SectionCatalog",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "section",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_section_search",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_section_catalog_handoff",
+          "note": "family=ANGLE"
+        },
+        {
+          "kind": "mcp-resource",
+          "ref": "hs://sections/ANGLE",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "sections",
+        "manifestReason": "section table",
+        "family": "ANGLE"
+      }
+    },
+    {
+      "id": "slide/BRACE1",
+      "category": "slide",
+      "name": "BRACE1.sld",
+      "description": "slide preview (SLD->SVG)",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/Icons/BRACE1.sld",
+        "symbol": null,
+        "sha256": "7e5ed63584470fdfea3e20745a075c94026206e46a90071e366153fd00f28b28",
+        "size": 5551
+      },
+      "format": "sld",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "slide",
+        "preview"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Slides.SlideReader",
+          "note": "SLD → SVG"
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "slide",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "slides",
+        "manifestReason": "slide preview (SLD->SVG)"
+      }
+    },
+    {
+      "id": "standard-option/detail-rules",
+      "category": "standard-option",
+      "name": "DetailRules",
+      "description": "Fabrication detail rules of a project (Project.dat keys SCALLOP/ENDGAGE/SHOLE/WDGAP/SWS, Numbering.dat heads); JSON names as in the project file",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Domain/Model.cs",
+        "symbol": "HsSteel.Domain.DetailRules",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [
+        {
+          "name": "scallop",
+          "type": "number",
+          "unit": "mm",
+          "default": 30,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "end_gauge",
+          "type": "number",
+          "unit": "mm",
+          "default": 40,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "hole_dia",
+          "type": "number",
+          "unit": "mm",
+          "default": 22,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "weld_gap",
+          "type": "number",
+          "unit": "mm",
+          "default": 5,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "material",
+          "type": "string",
+          "unit": null,
+          "default": "SS275",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "text_height",
+          "type": "number",
+          "unit": "mm",
+          "default": 2.5,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "dim_gap",
+          "type": "number",
+          "unit": "mm",
+          "default": 7,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "connection_gap",
+          "type": "number",
+          "unit": "mm",
+          "default": 10,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "dim_text_height",
+          "type": "number",
+          "unit": "mm",
+          "default": 3.4,
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "bolt_length_table",
+          "type": "string",
+          "unit": null,
+          "default": "by_bolt_set",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "hole_rule",
+          "type": "string",
+          "unit": null,
+          "default": "standard",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "mark_scheme",
+          "type": "string",
+          "unit": null,
+          "default": "legacy",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "mark_format",
+          "type": "string",
+          "unit": null,
+          "default": "plain",
+          "required": false,
+          "enum": null,
+          "description": null
+        },
+        {
+          "name": "mark_digits",
+          "type": "integer",
+          "unit": null,
+          "default": 3,
+          "required": false,
+          "enum": null,
+          "description": null
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "rules",
+        "settings"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_project_rules",
+          "note": null
+        },
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Domain.DetailRules.From",
+          "note": "from legacy Project.dat"
+        }
+      ],
+      "props": {}
+    },
+    {
+      "id": "standard-option/project-options",
+      "category": "standard-option",
+      "name": "StandardOptions",
+      "description": "Project standard options stored in the project JSON (bolt length table, hole rule, mark scheme/format/digits)",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Domain/StandardOptions.cs",
+        "symbol": "HsSteel.Domain.StandardOptions",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [
+        {
+          "name": "bolt_length_table",
+          "type": "enum",
+          "unit": null,
+          "default": "by_bolt_set",
+          "required": false,
+          "enum": [
+            "kcs",
+            "ts_one_washer",
+            "by_bolt_set"
+          ],
+          "description": null
+        },
+        {
+          "name": "hole_rule",
+          "type": "enum",
+          "unit": null,
+          "default": "standard",
+          "required": false,
+          "enum": [
+            "standard",
+            "oversize",
+            "legacy"
+          ],
+          "description": null
+        },
+        {
+          "name": "mark_scheme",
+          "type": "enum",
+          "unit": null,
+          "default": "legacy",
+          "required": false,
+          "enum": [
+            "legacy",
+            "alt"
+          ],
+          "description": null
+        },
+        {
+          "name": "mark_format",
+          "type": "enum",
+          "unit": null,
+          "default": "plain",
+          "required": false,
+          "enum": [
+            "plain",
+            "floor_prefix"
+          ],
+          "description": null
+        },
+        {
+          "name": "mark_digits",
+          "type": "integer",
+          "unit": null,
+          "default": 3,
+          "required": false,
+          "enum": null,
+          "description": "1..6"
+        }
+      ],
+      "layer": null,
+      "tags": [
+        "options",
+        "bolt",
+        "hole",
+        "mark"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_project_options",
+          "note": "camelCase names boltLengthTable/holeRule/markScheme/markFormat/markDigits"
+        }
+      ],
+      "props": {}
+    },
+    {
+      "id": "text-style/HS-KOR",
+      "category": "text-style",
+      "name": "HS-KOR",
+      "description": "Korean text style: txt.shx + big font whgtxt.shx (same pair as the legacy template's Standard/GHS styles)",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Drafting/TextStyles.cs",
+        "symbol": "HsSteel.Drafting.TextStyles.TextStyleDefs",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "text",
+        "style",
+        "korean"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_drawings_to_powercad",
+          "note": "payload text_styles[] (created when missing; existing styles never changed)"
+        },
+        {
+          "kind": "power-cad",
+          "ref": "cad_create_many",
+          "note": "text_styles"
+        }
+      ],
+      "props": {
+        "name": "HS-KOR",
+        "font": "txt.shx",
+        "big_font": "whgtxt.shx",
+        "width_factor": 0.85
+      }
+    },
+    {
+      "id": "title-block/HS_FRAME_A3",
+      "category": "title-block",
+      "name": "HS_FRAME_A3",
+      "description": "Placeholder A3 frame (420x297, 10 mm border, 70 mm title strip). Replace with the company frame block via hs_frame_set.",
+      "source": {
+        "root": "repo",
+        "path": "src/HsSteel.Drafting/SheetFrame.cs",
+        "symbol": "HsSteel.Drafting.SheetFrame.A3Default",
+        "sha256": null,
+        "size": null
+      },
+      "format": "csharp",
+      "disposition": "code",
+      "insertion": {
+        "basePoint": [
+          0,
+          0,
+          0
+        ],
+        "basePointSource": "code",
+        "units": "mm",
+        "scaleRule": "sheet-scale"
+      },
+      "parameters": [
+        {
+          "name": "position",
+          "type": "point2d",
+          "unit": "mm",
+          "default": null,
+          "required": true,
+          "enum": null,
+          "description": "Sheet origin in model space"
+        },
+        {
+          "name": "sheet_scale",
+          "type": "number",
+          "unit": "ratio",
+          "default": 1,
+          "required": true,
+          "enum": null,
+          "description": "Drawing scale denominator; the frame is modelled 1:1 and inserted × sheet scale"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": "Title-block field (block attribute when the frame has it, else text at the slot)"
+        },
+        {
+          "name": "dwg_no",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": "Title-block field (block attribute when the frame has it, else text at the slot)"
+        },
+        {
+          "name": "project",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": "Title-block field (block attribute when the frame has it, else text at the slot)"
+        },
+        {
+          "name": "scale",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": "Title-block field (block attribute when the frame has it, else text at the slot)"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "unit": null,
+          "default": null,
+          "required": false,
+          "enum": null,
+          "description": "Title-block field (block attribute when the frame has it, else text at the slot)"
+        }
+      ],
+      "layer": "HS-FRAME",
+      "tags": [
+        "frame",
+        "title-block",
+        "도곽",
+        "A3"
+      ],
+      "drawingTypes": [
+        "any"
+      ],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Drafting.SheetComposer",
+          "note": null
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_frame_set",
+          "note": "replaces this frame for all drawings"
+        },
+        {
+          "kind": "mcp-tool",
+          "ref": "hs_drawings_to_powercad",
+          "note": "listed in blocks_needed"
+        }
+      ],
+      "props": {
+        "width": 420,
+        "height": 297,
+        "area": {
+          "x": 15,
+          "y": 15,
+          "w": 320,
+          "h": 267
+        },
+        "textSlots": {
+          "date": {
+            "x": 347,
+            "y": 35,
+            "height": 3,
+            "justify": "middle_left"
+          },
+          "dwg_no": {
+            "x": 347,
+            "y": 70,
+            "height": 4,
+            "justify": "middle_left"
+          },
+          "project": {
+            "x": 347,
+            "y": 120,
+            "height": 3.5,
+            "justify": "middle_left"
+          },
+          "scale": {
+            "x": 347,
+            "y": 50,
+            "height": 3,
+            "justify": "middle_left"
+          },
+          "title": {
+            "x": 347,
+            "y": 95,
+            "height": 4,
+            "justify": "middle_left"
+          }
+        },
+        "placeholder": true
+      }
+    },
+    {
+      "id": "tool-palette/1시작",
+      "category": "tool-palette",
+      "name": "1시작.xtp",
+      "description": "tool palette definition",
+      "source": {
+        "root": "legacy",
+        "path": "HSSTEEL/support/ToolPalette/HS메뉴/1시작.xtp",
+        "symbol": null,
+        "sha256": "9bd961b8e770c3aff619c140220afe7b4db62e54dbe47264fd9db4460813e881",
+        "size": 43790
+      },
+      "format": "xtp",
+      "disposition": "ingest",
+      "insertion": null,
+      "parameters": [],
+      "layer": null,
+      "tags": [
+        "palette",
+        "ui"
+      ],
+      "drawingTypes": [],
+      "loadedBy": [
+        {
+          "kind": "csharp",
+          "ref": "HsSteel.Assets.Support.SupportCatalog",
+          "note": null
+        },
+        {
+          "kind": "knowledge-db",
+          "ref": "palette_item",
+          "note": null
+        }
+      ],
+      "props": {
+        "manifestTarget": "palette",
+        "manifestReason": "tool palette definition"
+      }
+    }
+  ]
+}
