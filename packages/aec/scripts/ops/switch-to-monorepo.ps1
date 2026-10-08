@@ -1,0 +1,363 @@
+<#
+.SYNOPSIS
+  One-command switch of the live AEC host stack from the archived standalone checkout
+  (khs0927/Ontology, e.g. C:\CODE\Ontology) to the Sion monorepo (packages\aec).
+  Dry-run by default: nothing is changed unless -Apply is given.
+.DESCRIPTION
+  Steps (each mutating step is logged; with no -Apply it only prints "[DRY-RUN] would ..."):
+    1. preflight   monorepo checkout is clean and on main (warns when behind origin/main), legacy .env exists
+    2. inventory   lists \AEC\ tasks (marks actions still pointing at -LegacyRoot) and AutoSync_Code_To_GDrive
+    3. compose     detects the compose project + DB volume of the running aec-db container, so the same
+                   named volume (<project>_aec-pgdata) is reused: no re-init, no data loss
+    4. backup      exports every touched task to XML (rollback: Register-ScheduledTask -Xml), saves the
+                   legacy pip freeze, optional pg_dump through the legacy backup.ps1
+    5. drain       legacy stop-workers.ps1 -Drain (stop file; workers finish their job), stops re-embed /
+                   GraphRAG refresh, disables the \AEC\ tasks while switching
+    6. env         copies .env (and docker-compose.override.yml) to packages\aec; values are never printed;
+                   pins COMPOSE_PROJECT_NAME to the detected project
+    7. stack       docker compose -p <project>: build api, up -d db, run --rm migrate (init-db), up -d api
+    8. venv        packages\aec\.venv (an old one is renamed, never deleted); pip install -e
+                   ".[<Extras>]" plus the monorepo root (--no-deps, shared sion_cad reader)
+    9. tasks       register-bulk-tasks.ps1 + register-host-tasks.ps1 from packages\aec\scripts\ops;
+                   removes the one-shot AEC-Ops-FinalWrap / AEC-Ops-FinalCheck tasks
+   10. autosync    AutoSync_Code_To_GDrive must be disabled (disabled here when present and enabled)
+   11. health      GET /healthz and /v1/kg/stats (Bearer token read from .env, never printed)
+   12. graphrag    starts \AEC\AEC-GraphRAG-Refresh (incremental kg-build + kg-summarize = re-index)
+   13. resume      new stop-workers.ps1 -Resume (unless -NoResume)
+  The legacy checkout is left untouched (rollback = re-import the XML backups, see the runbook
+  packages\aec\docs\SWITCH-TO-MONOREPO.ko.md).
+.EXAMPLE
+  # dry run (default): prints the plan and checks preconditions
+  powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-monorepo.ps1 -LegacyRoot C:\CODE\Ontology
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-monorepo.ps1 -LegacyRoot C:\CODE\Ontology -Apply
+#>
+[CmdletBinding()]
+param(
+    [string]$MonorepoRoot = '',
+    [string]$LegacyRoot = 'C:\CODE\Ontology',
+    [switch]$Apply,
+    [string]$ComposeProject = '',
+    [string]$DataRoot = '',
+    [string]$LogDir = '',
+    [string]$Config = '',
+    [int]$Workers = 2,
+    [string]$OllamaHome = '',
+    [string]$Extras = 'operational,pdf,bim,ocr,cad',
+    [string]$Python = '',
+    [int]$DrainTimeoutMin = 30,
+    [string[]]$StaleTasks = @('AEC-Ops-FinalWrap', 'AEC-Ops-FinalCheck'),
+    [string]$AutoSyncTask = 'AutoSync_Code_To_GDrive',
+    [string]$ApiUrl = 'http://127.0.0.1:58000',
+    [switch]$SkipBackup,
+    [switch]$SkipVenv,
+    [switch]$SkipCompose,
+    [switch]$SkipGraphRag,
+    [switch]$NoResume,
+    [switch]$AllowNotMain
+)
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$DryRun = -not $Apply
+$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$ps = if ($env:SystemRoot) { Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe' } else { 'pwsh' }
+
+if (-not $MonorepoRoot) { $MonorepoRoot = Join-Path $PSScriptRoot '..\..\..\..' }
+$MonorepoRoot = (Resolve-Path -LiteralPath $MonorepoRoot).Path
+$AecRoot = Join-Path $MonorepoRoot 'packages\aec'
+$NewOps = Join-Path $AecRoot 'scripts\ops'
+$LegacyOps = Join-Path $LegacyRoot 'scripts\ops'
+$LegacyEnv = Join-Path $LegacyRoot '.env'
+$NewEnv = Join-Path $AecRoot '.env'
+
+# --- .env helpers: read single keys, never echo values -------------------------------------------
+function Get-DotEnvValue([string]$Path, [string]$Key) {
+    if (-not (Test-Path -LiteralPath $Path)) { return '' }
+    foreach ($line in [System.IO.File]::ReadAllLines($Path, [System.Text.Encoding]::UTF8)) {
+        $t = $line.Trim()
+        if (-not $t -or $t.StartsWith('#') -or -not $t.Contains('=')) { continue }
+        $k, $v = $t.Split('=', 2)
+        if ($k.Trim() -eq $Key) { return $v.Trim().Trim('"').Trim("'") }
+    }
+    return ''
+}
+
+function Set-DotEnvValue([string]$Path, [string]$Key, [string]$Value) {
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    $lines = New-Object System.Collections.Generic.List[string]
+    if (Test-Path -LiteralPath $Path) { $lines.AddRange([string[]][System.IO.File]::ReadAllLines($Path, $utf8)) }
+    $done = $false
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match "^\s*$([regex]::Escape($Key))\s*=") { $lines[$i] = "$Key=$Value"; $done = $true }
+    }
+    if (-not $done) { $lines.Add("$Key=$Value") }
+    [System.IO.File]::WriteAllLines($Path, $lines.ToArray(), $utf8)
+}
+
+if (-not $DataRoot) {
+    $DataRoot = Get-DotEnvValue $LegacyEnv 'AEC_DATA_ROOT'
+    if (-not $DataRoot -or $DataRoot.StartsWith('/')) { $DataRoot = 'D:\AECData' }  # container value -> host default
+}
+if (-not $LogDir) { $LogDir = Join-Path $DataRoot 'bulk\logs' }
+if (-not $Config) { $Config = Join-Path $DataRoot 'bulk\sources.json' }
+$BackupDir = Join-Path $DataRoot "switch-backup\$stamp"
+New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
+$LogFile = Join-Path $LogDir "switch-to-monorepo-$stamp.log"
+$script:Warnings = New-Object System.Collections.Generic.List[string]
+
+function Write-Log([string]$Message, [string]$Level = 'INFO') {
+    $line = "$(Get-Date -Format s) [$Level] $Message"
+    Add-Content -LiteralPath $LogFile -Value $line -Encoding UTF8
+    if ($Level -eq 'WARN') { $script:Warnings.Add($Message); Write-Warning $Message }
+    elseif ($Level -eq 'ERROR') { Write-Host $line -ForegroundColor Red }
+    else { Write-Host $line }
+}
+
+function Invoke-Change([string]$What, [scriptblock]$Action) {
+    if ($DryRun) { Write-Log "[DRY-RUN] would $What"; return }
+    Write-Log "-> $What"
+    & $Action
+}
+
+function Invoke-Native([string]$Exe, [string[]]$Arguments, [string]$WorkDir = '') {
+    $old = Get-Location
+    if ($WorkDir) { Set-Location -LiteralPath $WorkDir }
+    try {
+        $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        & $Exe @Arguments 2>&1 | ForEach-Object { Add-Content -LiteralPath $LogFile -Value "    $_" -Encoding UTF8; Write-Host "    $_" }
+        $code = $LASTEXITCODE
+        $ErrorActionPreference = $prev
+        if ($code -ne 0) { throw "$Exe $($Arguments -join ' ') failed ($code)" }
+    } finally { Set-Location $old }
+}
+
+function Invoke-OpsScript([string]$Script, [string[]]$Arguments) {
+    Invoke-Native $ps (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $Script) + $Arguments)
+}
+
+function Get-AecTasks { @(Get-ScheduledTask -TaskPath '\AEC\' -ErrorAction SilentlyContinue) }
+
+function Export-TaskXml($Task) {
+    if ($DryRun) { Write-Log "[DRY-RUN] would back up $($Task.TaskPath)$($Task.TaskName) to XML"; return }
+    New-Item -ItemType Directory -Force -Path $BackupDir | Out-Null
+    $file = Join-Path $BackupDir (($Task.TaskPath.Trim('\') -replace '\\', '_') + '_' + $Task.TaskName + '.xml')
+    Export-ScheduledTask -TaskPath $Task.TaskPath -TaskName $Task.TaskName | Set-Content -LiteralPath $file -Encoding Unicode
+    Write-Log "backed up $($Task.TaskPath)$($Task.TaskName) -> $file"
+}
+
+Write-Log "switch-to-monorepo ($(if ($DryRun) { 'DRY-RUN, add -Apply to execute' } else { 'APPLY' }))"
+Write-Log "monorepo=$MonorepoRoot legacy=$LegacyRoot data=$DataRoot log=$LogFile"
+
+# --- 1. preflight ----------------------------------------------------------------------------------
+foreach ($p in @($AecRoot, (Join-Path $AecRoot 'docker-compose.yml'), (Join-Path $NewOps 'register-host-tasks.ps1'),
+        (Join-Path $NewOps 'register-bulk-tasks.ps1'), (Join-Path $NewOps 'stop-workers.ps1'))) {
+    if (-not (Test-Path -LiteralPath $p)) { throw "monorepo file missing: $p" }
+}
+if (-not (Test-Path -LiteralPath $LegacyEnv)) { throw "legacy .env not found: $LegacyEnv (nothing to migrate?)" }
+$dirty = @(& git -C $MonorepoRoot status --porcelain)
+if ($LASTEXITCODE -ne 0) { throw "git status failed in $MonorepoRoot" }
+if ($dirty.Count) { throw "monorepo checkout is not clean ($($dirty.Count) change(s)); commit or stash first" }
+$branch = (& git -C $MonorepoRoot rev-parse --abbrev-ref HEAD).Trim()
+if ($branch -ne 'main' -and -not $AllowNotMain) { throw "monorepo checkout is on '$branch', expected main" }
+$head = (& git -C $MonorepoRoot rev-parse --short HEAD).Trim()
+Write-Log "monorepo clean, branch=$branch head=$head"
+$prevEap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+& git -C $MonorepoRoot fetch --quiet origin main 2>$null
+if ($LASTEXITCODE -eq 0) {
+    $behind = (& git -C $MonorepoRoot rev-list --count 'HEAD..origin/main' 2>$null)
+    if ($behind -and [int]$behind -gt 0) { Write-Log "monorepo is $behind commit(s) behind origin/main (git pull first?)" 'WARN' }
+} else { Write-Log 'git fetch failed (offline?); skipping the behind-origin check' 'WARN' }
+$ErrorActionPreference = $prevEap
+
+# --- 2. inventory ----------------------------------------------------------------------------------
+$tasks = Get-AecTasks
+foreach ($t in $tasks) {
+    $args0 = ($t.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments) [$($_.WorkingDirectory)]" }) -join ' | '
+    $legacy = $args0 -like "*$LegacyRoot*"
+    Write-Log ("task {0}{1} state={2} legacy={3}" -f $t.TaskPath, $t.TaskName, $t.State, $legacy)
+}
+$autoSync = @(Get-ScheduledTask -TaskName $AutoSyncTask -ErrorAction SilentlyContinue)
+if ($autoSync.Count) { foreach ($a in $autoSync) { Write-Log "task $($a.TaskPath)$($a.TaskName) state=$($a.State)" } }
+else { Write-Log "$AutoSyncTask not registered (ok)" }
+
+# --- 3. compose project / volume -------------------------------------------------------------------
+$docker = Get-Command docker -ErrorAction SilentlyContinue
+if (-not $ComposeProject) { $ComposeProject = Get-DotEnvValue $LegacyEnv 'COMPOSE_PROJECT_NAME' }
+$dbVolume = ''
+if ($docker) {
+    $ErrorActionPreference = 'Continue'
+    $label = (& docker inspect aec-db --format '{{ index .Config.Labels "com.docker.compose.project" }}' 2>$null)
+    $mount = (& docker inspect aec-db --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Name}}{{end}}{{end}}' 2>$null)
+    $ErrorActionPreference = $prevEap
+    if ($label) { $label = "$label".Trim() }
+    if ($mount) { $dbVolume = "$mount".Trim() }
+    if ($label -and $ComposeProject -and $label -ne $ComposeProject) {
+        throw "aec-db belongs to compose project '$label' but -ComposeProject/.env says '$ComposeProject'"
+    }
+    if ($label) { $ComposeProject = $label }
+}
+if (-not $ComposeProject) {
+    # docker compose default project name = lower-cased folder name of the legacy checkout
+    $ComposeProject = ((Split-Path -Leaf $LegacyRoot).ToLowerInvariant() -replace '[^a-z0-9_-]', '')
+    Write-Log "aec-db not found; assuming compose project '$ComposeProject' from the legacy folder name" 'WARN'
+}
+$expectedVolume = "${ComposeProject}_aec-pgdata"
+if ($dbVolume -and $dbVolume -ne $expectedVolume) {
+    throw "aec-db uses volume '$dbVolume', expected '$expectedVolume': refusing (a new project would init an empty DB)"
+}
+Write-Log "compose project=$ComposeProject db volume=$expectedVolume (reused, never re-initialised)"
+
+# --- 4. backups ------------------------------------------------------------------------------------
+foreach ($t in $tasks) { Export-TaskXml $t }
+foreach ($a in $autoSync) { Export-TaskXml $a }
+$legacyPy = Join-Path $LegacyRoot '.venv\Scripts\python.exe'
+Invoke-Change "save legacy pip freeze to $BackupDir" {
+    New-Item -ItemType Directory -Force -Path $BackupDir | Out-Null
+    if (Test-Path -LiteralPath $legacyPy) {
+        $ErrorActionPreference = 'Continue'
+        & $legacyPy -m pip freeze 2>$null | Set-Content -LiteralPath (Join-Path $BackupDir 'legacy-pip-freeze.txt') -Encoding UTF8
+        $ErrorActionPreference = 'Stop'
+    }
+}
+
+# --- 5. drain --------------------------------------------------------------------------------------
+$drainScript = if (Test-Path -LiteralPath (Join-Path $LegacyOps 'stop-workers.ps1')) { Join-Path $LegacyOps 'stop-workers.ps1' } else { Join-Path $NewOps 'stop-workers.ps1' }
+Invoke-Change "drain workers with $drainScript -Drain -TimeoutMin $DrainTimeoutMin" {
+    Invoke-OpsScript $drainScript @('-Drain', '-TimeoutMin', "$DrainTimeoutMin")
+}
+Invoke-Change 'stop AEC-GraphRAG-Refresh and disable the \AEC\ tasks during the switch' {
+    foreach ($t in (Get-AecTasks)) {
+        if ($t.TaskName -eq 'AEC-Ollama') { continue }  # keep embeddings/LLM serving; re-registered below
+        Stop-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName -ErrorAction SilentlyContinue
+        Disable-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName -ErrorAction SilentlyContinue | Out-Null
+    }
+}
+if (-not $SkipBackup) {
+    Invoke-Change 'pg_dump the aec database with the legacy backup.ps1 (pre-switch safety dump)' {
+        Invoke-OpsScript (Join-Path $LegacyOps 'backup.ps1') @()
+    }
+}
+
+# --- 6. .env ---------------------------------------------------------------------------------------
+Invoke-Change "copy .env to $NewEnv (values not printed) and pin COMPOSE_PROJECT_NAME=$ComposeProject" {
+    if (Test-Path -LiteralPath $NewEnv) {
+        $same = (Get-FileHash -LiteralPath $NewEnv).Hash -eq (Get-FileHash -LiteralPath $LegacyEnv).Hash
+        if (-not $same) { Copy-Item -LiteralPath $NewEnv -Destination "$NewEnv.bak-$stamp"; Write-Log "existing packages\aec\.env kept as .env.bak-$stamp" }
+    }
+    Copy-Item -LiteralPath $LegacyEnv -Destination $NewEnv -Force
+    Set-DotEnvValue $NewEnv 'COMPOSE_PROJECT_NAME' $ComposeProject
+    $override = Join-Path $LegacyRoot 'docker-compose.override.yml'
+    if (Test-Path -LiteralPath $override) { Copy-Item -LiteralPath $override -Destination (Join-Path $AecRoot 'docker-compose.override.yml') -Force }
+}
+if (-not (Get-DotEnvValue $LegacyEnv 'AEC_API_TOKEN')) { Write-Log 'legacy .env has no AEC_API_TOKEN (run init-env.ps1 afterwards)' 'WARN' }
+
+# --- 7. docker stack (same project name => same volume) -------------------------------------------
+if (-not $SkipCompose) {
+    if (-not $docker) { throw 'docker not found (start Docker Desktop or pass -SkipCompose)' }
+    $c = @('compose', '-p', $ComposeProject)
+    Invoke-Change "docker compose -p $ComposeProject build api (context = monorepo root)" { Invoke-Native 'docker' ($c + @('build', 'api')) $AecRoot }
+    Invoke-Change "docker compose -p $ComposeProject up -d db (volume $expectedVolume)" { Invoke-Native 'docker' ($c + @('up', '-d', 'db')) $AecRoot }
+    Invoke-Change "docker compose -p $ComposeProject run --rm migrate (idempotent init-db)" { Invoke-Native 'docker' ($c + @('run', '--rm', 'migrate')) $AecRoot }
+    Invoke-Change "docker compose -p $ComposeProject up -d api" { Invoke-Native 'docker' ($c + @('up', '-d', 'api')) $AecRoot }
+    if (-not $DryRun) {
+        $ErrorActionPreference = 'Continue'
+        $after = "$(& docker inspect aec-db --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Name}}{{end}}{{end}}' 2>$null)".Trim()
+        $ErrorActionPreference = 'Stop'
+        if ($after -ne $expectedVolume) { throw "after the switch aec-db uses volume '$after', expected '$expectedVolume'" }
+        Write-Log "aec-db still on volume $after"
+    }
+}
+
+# --- 8. host venv ----------------------------------------------------------------------------------
+$venv = Join-Path $AecRoot '.venv'
+$venvPy = Join-Path $venv 'Scripts\python.exe'
+if (-not $SkipVenv) {
+    if (-not $Python) {
+        $cfg = Join-Path $LegacyRoot '.venv\pyvenv.cfg'
+        $home0 = if (Test-Path -LiteralPath $cfg) { ((Get-Content -LiteralPath $cfg | Where-Object { $_ -match '^home\s*=' }) -replace '^home\s*=\s*', '') } else { '' }
+        $Python = if ($home0 -and (Test-Path -LiteralPath (Join-Path $home0 'python.exe'))) { Join-Path $home0 'python.exe' } else { 'python' }
+    }
+    Invoke-Change "create $venv with $Python (an existing .venv is renamed to .venv.old-$stamp)" {
+        if (Test-Path -LiteralPath $venv) { Rename-Item -LiteralPath $venv -NewName ".venv.old-$stamp" }
+        Invoke-Native $Python @('-m', 'venv', $venv)
+        Invoke-Native $venvPy @('-m', 'pip', 'install', '--upgrade', 'pip')
+        Invoke-Native $venvPy @('-m', 'pip', 'install', '-e', ".[$Extras]") $AecRoot
+        Invoke-Native $venvPy @('-m', 'pip', 'install', '--no-deps', '-e', $MonorepoRoot)
+        Invoke-Native $venvPy @('-c', 'import aec_intelligence, sion_cad.reader; print("venv ok")')
+    }
+}
+
+# --- 9. scheduled tasks from packages\aec ----------------------------------------------------------
+Invoke-Change 're-register \AEC\AEC-Bulk-* from packages\aec\scripts\ops\register-bulk-tasks.ps1' {
+    Invoke-OpsScript (Join-Path $NewOps 'register-bulk-tasks.ps1') @('-Config', $Config, '-Workers', "$Workers")
+}
+$hostArgs = @()
+if ($OllamaHome) { $hostArgs += @('-OllamaHome', $OllamaHome) }
+Invoke-Change 're-register \AEC\AEC-Ollama/Reembed/WSL-Reclaim/GraphRAG-Refresh from packages\aec\scripts\ops\register-host-tasks.ps1' {
+    Invoke-OpsScript (Join-Path $NewOps 'register-host-tasks.ps1') $hostArgs
+}
+foreach ($name in $StaleTasks) {
+    $st = Get-ScheduledTask -TaskPath '\AEC\' -TaskName $name -ErrorAction SilentlyContinue
+    if (-not $st) { Write-Log "stale one-shot task $name not present (ok)"; continue }
+    Invoke-Change "remove stale one-shot task \AEC\$name (XML backed up)" {
+        Unregister-ScheduledTask -TaskPath '\AEC\' -TaskName $name -Confirm:$false
+    }
+}
+if (-not $DryRun) {
+    foreach ($t in (Get-AecTasks)) {
+        $a = ($t.Actions | ForEach-Object { "$($_.Arguments) $($_.WorkingDirectory)" }) -join ' '
+        if ($a -like "*$LegacyRoot*") { Write-Log "task $($t.TaskName) still points at $LegacyRoot (not managed by the register scripts; review it)" 'WARN' }
+        if ($t.State -eq 'Disabled') {
+            Enable-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName | Out-Null
+            Write-Log "re-enabled $($t.TaskName)"
+        }
+    }
+}
+
+# --- 10. AutoSync_Code_To_GDrive must stay disabled ------------------------------------------------
+foreach ($a in $autoSync) {
+    if ($a.State -eq 'Disabled') { Write-Log "$($a.TaskPath)$($a.TaskName) already disabled (ok)"; continue }
+    Invoke-Change "disable $($a.TaskPath)$($a.TaskName) (code sync to Drive is replaced by Git + Drive snapshots)" {
+        Disable-ScheduledTask -TaskPath $a.TaskPath -TaskName $a.TaskName | Out-Null
+    }
+}
+
+# --- 11. health ------------------------------------------------------------------------------------
+function Test-AecHealth {
+    $ok = $false
+    for ($i = 0; $i -lt 30 -and -not $ok; $i++) {
+        try { Invoke-RestMethod -Uri "$ApiUrl/healthz" -TimeoutSec 5 | Out-Null; $ok = $true } catch { Start-Sleep -Seconds 4 }
+    }
+    if (-not $ok) { Write-Log "API $ApiUrl/healthz not healthy after 2 min" 'WARN'; return }
+    Write-Log "API $ApiUrl/healthz ok"
+    $token = Get-DotEnvValue $(if (Test-Path -LiteralPath $NewEnv) { $NewEnv } else { $LegacyEnv }) 'AEC_API_TOKEN'
+    $headers = @{}
+    if ($token) { $headers['Authorization'] = "Bearer $token" }
+    try {
+        $stats = Invoke-RestMethod -Uri "$ApiUrl/v1/kg/stats" -Headers $headers -TimeoutSec 30
+        Write-Log ("kg stats: " + ($stats | ConvertTo-Json -Compress -Depth 3))
+    } catch { Write-Log "GET /v1/kg/stats failed: $($_.Exception.Message)" 'WARN' }
+    finally { $token = $null; $headers = $null }
+}
+if ($DryRun) {
+    try { Invoke-RestMethod -Uri "$ApiUrl/healthz" -TimeoutSec 5 | Out-Null; Write-Log "current API $ApiUrl/healthz ok" }
+    catch { Write-Log "current API $ApiUrl/healthz not reachable" 'WARN' }
+} else { Test-AecHealth }
+
+# --- 12. GraphRAG re-index -------------------------------------------------------------------------
+if (-not $SkipGraphRag) {
+    Invoke-Change 'start \AEC\AEC-GraphRAG-Refresh (incremental kg-build + kg-summarize from packages\aec)' {
+        Start-ScheduledTask -TaskPath '\AEC\' -TaskName 'AEC-GraphRAG-Refresh'
+    }
+}
+
+# --- 13. resume ------------------------------------------------------------------------------------
+if (-not $NoResume) {
+    Invoke-Change 'resume workers with packages\aec\scripts\ops\stop-workers.ps1 -Resume' {
+        Invoke-OpsScript (Join-Path $NewOps 'stop-workers.ps1') @('-Resume')
+    }
+}
+
+Write-Log ("done: {0} warning(s); backups in {1}; log {2}" -f $script:Warnings.Count, $BackupDir, $LogFile)
+if ($DryRun) { Write-Log 'dry run only: re-run with -Apply to execute' }
