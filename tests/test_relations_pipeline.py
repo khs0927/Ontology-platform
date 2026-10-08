@@ -87,7 +87,7 @@ def test_committed_conversion_matches_source():
 
 
 def test_import_production_map_via_api_is_idempotent_and_reviewable():
-    with TestClient(bearer_app(ROOT / "data")) as c:
+    with TestClient(bearer_app(ROOT / "data"), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         body = import_production_map(c)
         assert body["import"] == {"created_nodes": 31, "skipped_nodes": 0, "created_edges": 43, "skipped_edges": 0}
         assert body["evidence_created"] == 43
@@ -105,7 +105,7 @@ def test_import_production_map_via_api_is_idempotent_and_reviewable():
 
 
 def test_dry_run_and_count_mismatch():
-    with TestClient(bearer_app(ROOT / "data")) as c:
+    with TestClient(bearer_app(ROOT / "data"), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         dry = c.post("/api/v1/import/graph-export", json={"path": str(SOURCE), "dry_run": True}, headers=AUTH).json()
         assert dry["report"]["edge_count"] == 43 and "import" not in dry
         assert c.get("/api/v1/graph", headers=AUTH).json()["edge_count"] == 0
@@ -263,7 +263,7 @@ def test_extract_review_approve_reject_flow(tmp_path):
     doc.write_text(DOC, encoding="utf-8")
     dxf = tmp_path / "plan.dxf"
     dxf.write_text("0\nSECTION\n2\nENTITIES\n0\nTEXT\n8\nA-NOTE\n1\nCAD Bridge input\n0\nLINE\n8\nA-WALL\n0\nENDSEC\n0\nEOF\n", encoding="utf-8")
-    with TestClient(bearer_app(ROOT / "data", tmp_path)) as c:
+    with TestClient(bearer_app(ROOT / "data", tmp_path), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         import_production_map(c)
         assert c.post("/api/v1/ingest/dxf", json={"path": str(dxf)}, headers=AUTH).status_code == 200
         r = c.post("/api/v1/extract/relations", json={"paths": [str(doc), str(dxf)]}, headers=AUTH)
@@ -323,7 +323,7 @@ def test_extract_review_approve_reject_flow(tmp_path):
 
 
 def test_review_errors_and_non_candidates():
-    with TestClient(bearer_app()) as c:
+    with TestClient(bearer_app(), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         a = c.post("/api/v1/entities", json={"stable_key": "p:a", "entity_type_id": "Project", "name": "A"}, headers=AUTH).json()
         b = c.post("/api/v1/entities", json={"stable_key": "p:b", "entity_type_id": "Tool", "name": "B"}, headers=AUTH).json()
         rel = c.post("/api/v1/relations", json={"stable_key": "p:a:USES:p:b", "source_entity_id": a["id"], "target_entity_id": b["id"],
@@ -358,7 +358,7 @@ DATA;
 ENDSEC;
 END-ISO-10303-21;
 """, encoding="utf-8")
-    with TestClient(bearer_app(tmp_path)) as c:
+    with TestClient(bearer_app(tmp_path), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         before = c.post("/api/v1/extract/relations", json={"paths": [str(ifc)]}, headers=AUTH).json()
         assert before["candidates_created"] == 0 and "model not ingested" in before["notes"][0]
         assert c.post("/api/v1/ingest/ifc", json={"path": str(ifc)}, headers=AUTH).status_code == 200
@@ -376,13 +376,13 @@ END-ISO-10303-21;
                                    "/api/v1/relations/candidates/00000000-0000-0000-0000-000000000000/reject",
                                    "/api/v1/graphrag/extract-relations"])
 def test_new_write_routes_require_write_scope(route):
-    with TestClient(bearer_app()) as c:
+    with TestClient(bearer_app(), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         assert c.post(route, json={}).status_code == 401
         assert c.post(route, json={}, headers={"Authorization": f"Bearer {READ}"}).status_code == 403
 
 
 def test_review_page_and_map_page_served():
-    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True)) as c:
+    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         page = c.get("/review")
         assert page.status_code == 200 and "/api/v1/relations/candidates" in page.text
         assert "/approve" not in page.text or "${action}" in page.text

@@ -367,7 +367,7 @@ def test_rest_catalog_endpoints(seeded):
     from fastapi.testclient import TestClient
     from aec_intelligence.operational.api import create_app
 
-    client = TestClient(create_app(seeded["settings"]))
+    client = TestClient(create_app(seeded["settings"]), base_url="http://localhost", client=("127.0.0.1", 50000))
     project = seeded["project"]
     assert client.get("/v1/catalog", params={"project_id": project}).json()["totals"]["projects"] == 1
     elements = client.get("/v1/elements", params={"project_id": project, "document_id": seeded["doc"], "kind": "Door,창호", "limit": 2}).json()

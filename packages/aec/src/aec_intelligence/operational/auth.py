@@ -1,6 +1,6 @@
 """Opt-in bearer-token authentication for the operational REST API.
 
-``AEC_API_TOKEN`` unset or blank → no authentication (previous behaviour; keep the API on loopback).
+``AEC_API_TOKEN`` unset or blank → token-free access for trusted loopback requests only.
 ``AEC_API_TOKEN`` set → every request needs ``Authorization: Bearer <token>`` except the liveness
 probe and the static dashboard shell (``/healthz``, ``/``, ``/dashboard``, ``/static/*``), which hold no
 data. The dashboard asks for the token and sends it on its API calls. CORS preflight (``OPTIONS``)
@@ -13,10 +13,12 @@ to the same value.
 from __future__ import annotations
 
 import hmac
+import ipaddress
 import json
 import os
 from collections.abc import Awaitable, Callable
 from typing import Any
+from urllib.parse import urlsplit
 
 TOKEN_ENV = "AEC_API_TOKEN"
 OPEN_PATHS = frozenset({"/healthz", "/", "/dashboard"})
@@ -90,4 +92,56 @@ class BearerTokenMiddleware:
                 ],
             }
         )
+        await send({"type": "http.response.body", "body": body})
+
+
+class LocalOnlyMiddleware:
+    """Token-free API access requires a loopback peer and a trusted browser target."""
+
+    def __init__(self, app: ASGIApp, allowed_origins: list[str] | None = None) -> None:
+        self.app = app
+        self.allowed_origins = tuple(allowed_origins or ())
+
+    def _authorized(self, scope: Scope) -> bool:
+        client = scope.get("client")
+        if not client:
+            return False
+        try:
+            if not ipaddress.ip_address(client[0]).is_loopback:
+                return False
+        except ValueError:
+            return False
+        headers = scope.get("headers") or []
+        hosts = [v.decode("latin-1") for k, v in headers if k.lower() == b"host"]
+        origins = [v.decode("latin-1") for k, v in headers if k.lower() == b"origin"]
+        if len(hosts) != 1 or len(origins) > 1:
+            return False
+        try:
+            host = urlsplit("//" + hosts[0])
+            host.port
+            if host.username or host.password or host.path or host.query or host.fragment:
+                return False
+            if host.hostname not in {"127.0.0.1", "localhost", "::1"}:
+                return False
+        except ValueError:
+            return False
+        if origins:
+            return origins[0] == f"{scope.get('scheme', 'http')}://{hosts[0]}" or origins[0] in self.allowed_origins
+        return not any(k.lower() == b"sec-fetch-site" and v == b"cross-site" for k, v in headers)
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] not in {"http", "websocket"} or is_open_path(scope.get("path", "")):
+            await self.app(scope, receive, send)
+            return
+        if self._authorized(scope):
+            await self.app(scope, receive, send)
+            return
+        if scope["type"] == "websocket":
+            await send({"type": "websocket.close", "code": 1008})
+            return
+        body = b'{"detail":"Token-free API access is restricted to trusted local requests"}'
+        await send({"type": "http.response.start", "status": 403, "headers": [
+            (b"content-type", b"application/json"), (b"content-length", str(len(body)).encode("ascii")),
+            (b"cache-control", b"no-store"),
+        ]})
         await send({"type": "http.response.body", "body": body})

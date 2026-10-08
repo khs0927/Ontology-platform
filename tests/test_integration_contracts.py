@@ -109,7 +109,7 @@ class _FakeAec:
 def test_sion_aec_query_satisfies_power_cad_refusal_rules():
     fake = _FakeAec()
     app = create_app(database_url="sqlite://", auto_create_schema=True, aec_adapter=fake)
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as client:
         r = client.get("/api/v1/aec/query", params={"question": "1층 방화문", "top_k": 12, "project_id": "P1"})
     assert r.status_code == 200, r.text
     body = r.json()
@@ -421,7 +421,7 @@ GREENBELT_RULE = {
 
 @needs_regulation
 def test_regulation_endpoint_uses_land_facts_fail_closed():
-    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True)) as client:
+    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000)) as client:
         def run(record, facts=None):
             r = client.post("/api/v1/regulation/evaluate", json={"rule": GREENBELT_RULE, "land_parcel": record, "facts": facts or {}})
             assert r.status_code == 200, r.text

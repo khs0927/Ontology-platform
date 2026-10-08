@@ -59,7 +59,7 @@ def bearer_app(tmp_path: Path | None = None):
 
 @pytest.mark.parametrize("route", POST_ROUTES)
 def test_post_routes_require_bearer(route):
-    with TestClient(bearer_app()) as c:
+    with TestClient(bearer_app(), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         assert c.post(route, json={}).status_code == 401
         bad = c.post(route, json={}, headers={"Authorization": "Bearer wrong-token-000000000"})
         assert bad.status_code == 401
@@ -70,11 +70,11 @@ def test_post_routes_require_bearer(route):
 def test_local_only_rejects_remote_clients():
     app = create_app(database_url="sqlite://", auto_create_schema=True,
                      auth_policy=AuthPolicy(mode="local-only"))
-    with TestClient(app, client=("203.0.113.7", 50000)) as c:
+    with TestClient(app, client=("203.0.113.7", 50000), base_url="http://localhost") as c:
         r = c.post("/api/v1/entities", json={"stable_key": "x", "entity_type_id": "Concept",
                                              "name": "x", "properties": {}})
         assert r.status_code == 403
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         assert c.get("/health").status_code == 200
 
 
@@ -82,7 +82,7 @@ def test_local_or_bearer_requires_token_remotely():
     policy = AuthPolicy(mode="local-or-bearer", token_scopes=((WRITE, frozenset({"*"})),))
     app = create_app(database_url="sqlite://", auto_create_schema=True, auth_policy=policy)
     body = {"stable_key": "concept:r", "entity_type_id": "Concept", "name": "R", "properties": {}}
-    with TestClient(app, client=("203.0.113.7", 50000)) as c:
+    with TestClient(app, client=("203.0.113.7", 50000), base_url="http://localhost") as c:
         assert c.post("/api/v1/entities", json=body).status_code == 401
         ok = c.post("/api/v1/entities", json=body, headers={"Authorization": f"Bearer {WRITE}"})
         assert ok.status_code == 201
@@ -113,7 +113,7 @@ def test_ingest_routes_round_trip_with_evidence(tmp_path):
     ifc = tmp_path / "model.ifc"
     ifc.write_text(IFC_SAMPLE, encoding="utf-8")
     headers = {"Authorization": f"Bearer {WRITE}"}
-    with TestClient(bearer_app(tmp_path)) as c:
+    with TestClient(bearer_app(tmp_path), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         r = c.post("/api/v1/ingest/documents", json={"paths": [str(doc)]}, headers=headers)
         assert r.status_code == 200 and r.json()["evidence_created"] == 2
         r = c.post("/api/v1/ingest/dxf", json={"path": str(dxf)}, headers=headers)
@@ -134,7 +134,7 @@ def test_ingest_routes_round_trip_with_evidence(tmp_path):
 
 
 def test_ingest_without_roots_refused_in_bearer_mode(tmp_path):
-    with TestClient(bearer_app()) as c:
+    with TestClient(bearer_app(), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         r = c.post("/api/v1/ingest/documents", json={"paths": [str(tmp_path / "a.md")]},
                    headers={"Authorization": f"Bearer {WRITE}"})
         assert r.status_code == 403
@@ -161,7 +161,7 @@ def test_ifc_fallback_parser(tmp_path):
 
 
 def test_map_page_served():
-    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True)) as c:
+    with TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         r = c.get("/map")
         assert r.status_code == 200
         assert "/api/v1/graph" in r.text

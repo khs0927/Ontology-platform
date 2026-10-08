@@ -41,7 +41,7 @@ def main(args=None):
 
     # serve
     serve_parser = subparsers.add_parser("serve", help="Run REST API and web dashboard")
-    # Loopback by default: the API has no authentication. Containers pass --host 0.0.0.0 explicitly
+    # Loopback by default. Remote clients also need AEC_API_TOKEN; containers opt in to other binds.
     # (docker/Dockerfile.app) and docker-compose publishes the port on 127.0.0.1 only.
     serve_parser.add_argument("--host", default="127.0.0.1", help="Bind host (default: loopback only)")
     serve_parser.add_argument("--port", type=int, default=8000, help="Bind port")

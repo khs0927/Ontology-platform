@@ -20,6 +20,19 @@ build/
 *.key
 credentials*.json
 service-account*.json
+token*.json
+oauth*.json
+*.p12
+*.pfx
+
+# Personal agent transcripts and private exports stay outside the public tree
+.codex/
+.claude/
+.gemini/
+private/
+local-data/
+sion_knowledge_graph.json
+sion_pg_knowledge_graph.sql
 
 # Runtime / databases
 runtime/

@@ -259,7 +259,7 @@ def test_healthz_surfaces_the_embedding_state(monkeypatch, tmp_path):
     from aec_intelligence.operational.api import create_app
 
     monkeypatch.delenv(auth.TOKEN_ENV, raising=False)
-    client = TestClient(create_app(make_settings(tmp_path)))
+    client = TestClient(create_app(make_settings(tmp_path)), base_url="http://localhost", client=("127.0.0.1", 50000))
     body = client.get("/healthz").json()
     assert body["status"] == "ok"  # liveness is unchanged: a degraded stage must not restart the API
     assert body["embeddings"]["degraded"] is True

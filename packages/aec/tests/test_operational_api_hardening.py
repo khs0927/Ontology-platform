@@ -47,7 +47,7 @@ def app_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     imports = tmp_path / "imports"
     imports.mkdir()
     settings = Settings(dsn="dummy", data_root=tmp_path / "data", import_roots=(imports.resolve(),))
-    client = TestClient(api_module.create_app(settings))
+    client = TestClient(api_module.create_app(settings), base_url="http://localhost", client=("127.0.0.1", 50000))
     return client, holder["db"], imports, tmp_path
 
 
@@ -159,7 +159,7 @@ def test_cors_allow_list_from_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(api_module, "Database", FakeDatabase)
     monkeypatch.setenv("AEC_CORS_ORIGINS", "http://localhost:3000/, *")
     settings = Settings(dsn="dummy", data_root=tmp_path, import_roots=(tmp_path,))
-    client = TestClient(api_module.create_app(settings))
+    client = TestClient(api_module.create_app(settings), base_url="http://localhost", client=("127.0.0.1", 50000))
     ok = client.get("/healthz", headers={"Origin": "http://localhost:3000"})
     assert ok.headers.get("access-control-allow-origin") == "http://localhost:3000"
     assert "access-control-allow-credentials" not in {k.lower() for k in ok.headers}

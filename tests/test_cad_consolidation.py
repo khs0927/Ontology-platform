@@ -101,7 +101,7 @@ def test_god_cad_analysis_endpoint(tmp_path: Path):
     doc.saveas(path)
 
     app = create_app(database_url="sqlite://", auto_create_schema=True, ingest_roots=[tmp_path])
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         r = c.post("/api/v1/analyze/dxf", json={"path": str(path), "drawing_id": "test-plan"})
         assert r.status_code == 200, r.text
         body = r.json()

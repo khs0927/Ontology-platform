@@ -10,7 +10,7 @@ from sion_ingestion.project_contracts import ProjectContractCatalog
 
 def client() -> TestClient:
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    return TestClient(app)
+    return TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 def test_health_and_inventory():
@@ -211,7 +211,7 @@ class FakeAecAdapter:
 def test_aec_federation_status_is_disabled_by_default(monkeypatch):
     monkeypatch.delenv("SION_AEC_ONTOLOGY_ROOT", raising=False)
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         status = c.get("/api/v1/aec/status")
         assert status.status_code == 200
         assert status.json() == {
@@ -229,7 +229,7 @@ def test_aec_federation_status_is_disabled_by_default(monkeypatch):
 def test_aec_federation_query_is_read_only_and_advisory():
     adapter = FakeAecAdapter()
     app = create_app(database_url="sqlite://", auto_create_schema=True, aec_adapter=adapter)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         response = c.get(
             "/api/v1/aec/query",
             params={"question": "door near lobby", "top_k": 4, "project_id": "P-AEC"},
@@ -246,7 +246,7 @@ def test_aec_federation_query_is_read_only_and_advisory():
 def test_project_contract_catalog_is_disabled_by_default(monkeypatch):
     monkeypatch.delenv("SION_PROJECT_CONTRACTS_PATH", raising=False)
     app = create_app(database_url="sqlite://", auto_create_schema=True)
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         status = c.get("/api/v1/contracts/status")
         assert status.status_code == 200
         assert status.json()["configured"] is False
@@ -304,7 +304,7 @@ def test_project_contract_catalog_filters_without_mutation(tmp_path):
         auto_create_schema=True,
         project_contract_catalog=catalog,
     )
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         status = c.get("/api/v1/contracts/status")
         assert status.status_code == 200
         assert status.json()["enabled"] is True
@@ -392,7 +392,7 @@ def test_bearer_scope_enforces_least_privilege():
         auth_policy=policy,
     )
     headers = {"Authorization": f"Bearer {token}"}
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         missing = c.get("/api/v1/aec/status")
         assert missing.status_code == 401
 
@@ -429,7 +429,7 @@ def test_bearer_wildcard_token_can_read_and_write_knowledge():
         auth_policy=policy,
     )
     headers = {"Authorization": f"Bearer {token}"}
-    with TestClient(app) as c:
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         created = c.post(
             "/api/v1/entities",
             headers=headers,

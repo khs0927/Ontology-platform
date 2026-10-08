@@ -1,12 +1,15 @@
 ﻿param(
     [string]$SourceRoot = "C:\CODE",
-    [string]$DeviceId = "device-example",
+    [string]$DeviceId = $env:COMPUTERNAME,
     [int]$EveryMinutes = 5,
-    [string]$RemoteProjectRoot = "C:\Users\USER\cokacremote_shared\sion-ontology-platform"
+    [string]$SharedRoot = (Join-Path $env:USERPROFILE "cokacremote_shared"),
+    [string]$RemoteProjectRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
-$SharedRoot = "C:\Users\USER\cokacremote_shared"
+if ([string]::IsNullOrWhiteSpace($RemoteProjectRoot)) {
+    $RemoteProjectRoot = Join-Path $SharedRoot "sion-ontology-platform"
+}
 $LogPath = Join-Path $SharedRoot "SION-DRIVE-INSTALL-LOG.txt"
 
 function Write-Log {

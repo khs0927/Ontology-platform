@@ -4,6 +4,10 @@
 - This repository is a local working copy. Edit here, not inside a Google Drive synchronized folder.
 - Preserve existing files and uncommitted changes.
 - Do not expose secrets, OAuth tokens, Doppler values, .env files, or private keys.
+- Keep personal emails, private Google Drive identifiers, profile paths, transcripts and private exports
+  outside public commits and PR descriptions. Run `python scripts/check_public_privacy.py` before publication.
+- Use a GitHub noreply email for new public commits. History privacy repairs must cover all published
+  branches and tags, preserve a local recovery backup, and use explicit expected-ref leases when pushing.
 
 ## Source of truth
 - Git/GitHub is the canonical source for code history.

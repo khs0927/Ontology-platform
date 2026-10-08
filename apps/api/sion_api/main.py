@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
@@ -78,6 +79,7 @@ def create_app(
     app.state.session_factory = factory
 
     auth_policy = auth_policy or AuthPolicy.from_env()
+    auth_policy = replace(auth_policy, trusted_origins=settings.cors_origins)
     app.state.auth_policy = auth_policy
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")

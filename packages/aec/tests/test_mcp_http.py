@@ -3,7 +3,37 @@ import json
 from pathlib import Path
 import threading
 
+import pytest
+
 from aec_intelligence.mcp_http import MCPHTTPServer
+
+
+@pytest.mark.parametrize("host", ["attacker.example", "localhost.attacker.example", "127.0.0.1", "localhost:bad"])
+def test_mcp_rejects_untrusted_host_without_dispatch(tmp_path: Path, host: str):
+    server = MCPHTTPServer(("127.0.0.1", 0), tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        port = server.server_address[1]
+        status, _, error = _request(port, {"jsonrpc": "2.0", "id": 1, "method": "initialize"}, {"Host": host})
+        assert status == 403 and error["error"]["message"] == "Invalid Host"
+        assert not server.rpc_server.initialized
+    finally:
+        server.shutdown(); server.server_close(); thread.join(timeout=5)
+
+
+def test_mcp_rejected_post_closes_connection_with_unread_body(tmp_path: Path):
+    server = MCPHTTPServer(("127.0.0.1", 0), tmp_path)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    connection = http.client.HTTPConnection("127.0.0.1", server.server_address[1], timeout=5)
+    try:
+        connection.request("POST", "/mcp", '{}', {"Origin": "https://attacker.example"})
+        response = connection.getresponse(); response.read()
+        assert response.status == 403 and response.getheader("Connection") == "close"
+        assert connection.sock is None
+    finally:
+        connection.close(); server.shutdown(); server.server_close(); thread.join(timeout=5)
 
 
 def _request(port: int, payload: dict, headers: dict[str, str] | None = None):

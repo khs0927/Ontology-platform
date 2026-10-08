@@ -83,7 +83,9 @@ be verified (point lookup, layer errors) are withheld, so the rule returns REVIE
 
 ### API security
 
-Sion is local-only by default. Requests to `/api/v1/*` from loopback clients work without a token, while remote clients are rejected.
+Sion is local-only by default. Token-free API access requires a loopback client, a local request address,
+and a trusted browser origin. Remote clients require bearer authentication.
+Allow additional browser clients explicitly with `SION_CORS_ORIGINS`; see [security and privacy](SECURITY.md).
 
 For remote access, configure scoped bearer authentication:
 

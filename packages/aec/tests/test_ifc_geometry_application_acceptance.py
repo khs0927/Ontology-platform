@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,7 @@ from aec_intelligence.freecad_adapter import FreeCADSceneAdapter, probe_native_i
 
 
 FREECAD = Path(r"C:\Program Files\FreeCAD 1.1\bin\freecadcmd.exe")
-BLENDER = Path(r"C:\Users\USER\Documents\ChatGPT\온톨로지\runtime\external\blender-5.2.0\blender.exe")
+BLENDER = Path(os.environ.get("AEC_BLENDER_EXECUTABLE", r"C:\Program Files\Blender Foundation\Blender\blender.exe"))
 
 
 @pytest.mark.skipif(

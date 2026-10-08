@@ -21,7 +21,7 @@ needs_validation = pytest.mark.skipif(not extras_report()["validation"]["install
 
 
 def _client(tmp_path: Path) -> TestClient:
-    return TestClient(create_app(database_url="sqlite://", auto_create_schema=True, ingest_roots=[tmp_path]))
+    return TestClient(create_app(database_url="sqlite://", auto_create_schema=True, ingest_roots=[tmp_path]), base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 # --------------------------------------------------------------------------- fixtures built in code

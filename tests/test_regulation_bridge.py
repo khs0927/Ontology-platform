@@ -22,7 +22,7 @@ STAIR_RULE = {
 
 
 def _client() -> TestClient:
-    return TestClient(create_app(database_url="sqlite://", auto_create_schema=True))
+    return TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000))
 
 
 def test_status_endpoint_reports_extra():
