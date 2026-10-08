@@ -56,6 +56,23 @@ def test_pick_reports_all_top_candidates():
     assert picked[0] == "E-17" and picked[2] == ["E-17", "E-18"]
 
 
+def test_drawing_list_table_is_not_a_sheet_number():
+    label = [{"center": (0.0, 10.0), "height": 3.0}]
+    table = [_cand(f"A-{100 + i}", layer="SH", center=(0.0, float(i))) for i in range(12)]
+    assert pick_sheet_number(table, label) is None
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("구조도면 일람표", "일람표"),
+    ("구조도면 목록", "표지/목록"),
+    ("구조도 상세도", "상세도"),
+    ("시방서 목록", "표지/목록"),
+    ("STRUCTURAL DRAWING LIST", "표지/목록"),
+])
+def test_new_rules_do_not_steal_schedule_or_cover_sheets(text, expected):
+    assert drawing_category(("text", text))["drawing_category"] == expected
+
+
 @pytest.mark.parametrize("text, expected", [
     ("지상3층 메인화장실 확대 환기덕트 평면도", "평면도"),
     ("ENLARGED FLOOR PLAN", "평면도"),

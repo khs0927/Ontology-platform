@@ -46,6 +46,9 @@ SHEET_LABEL_RE = re.compile(
 SHEET_LAYER_RE = re.compile(r'SHEET|TITLE|^SH$|^TB|도곽|표제|시트|도면|출력|BORDER|FRAME', re.IGNORECASE)
 
 
+MAX_SHEET_NUMBER_CANDIDATES = 4
+
+
 def sheet_number_text(text):
     """(normalised number, written with a dash) when ``text`` is entirely a sheet number, else None.
 
@@ -97,6 +100,8 @@ def pick_sheet_number(candidates, labels):
     top = max(row[0] for row in scored)
     best = sorted((row for row in scored if row[0] == top), key=lambda row: (-row[1], row[2]))
     values = list(dict.fromkeys(row[2] for row in best))
+    if len(values) > MAX_SHEET_NUMBER_CANDIDATES:  # a drawing-list table, not one sheet's own number
+        return None
     return best[0][2], best[0][3], values
 
 

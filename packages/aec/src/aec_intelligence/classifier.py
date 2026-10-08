@@ -425,19 +425,19 @@ def detail_title(text: str) -> dict[str, Any] | None:
 
 
 DRAWING_CATEGORIES: tuple[tuple[str, str, tuple[str, ...]], ...] = (
-    ("시방서", "specification", (r"시방서", r"SPECIFICATIONS?\b")),
     ("철골상세도", "steel_detail", (r"철골.*상세", r"STEEL.*DETAIL", r"CONNECTION\s+DETAIL", r"접합.*상세")),
     ("구조평면도", "structural_plan", (r"구조.*평면", r"STRUCTURAL.*PLAN", r"FRAMING\s+PLAN", r"(보|기둥|슬래브)\s*배근", r"골조.*평면")),
-    ("구조도", "structural", (r"구조도", r"STRUCTURAL\s+DRAWING")),
-    # An enlarged plan ("확대 평면도", "ENLARGED PLAN") is a plan, not a detail sheet.
-    ("평면도", "plan", (r"확대[^상]*평면", r"ENLARGED\s+(FLOOR\s+)?PLAN")),
     ("일람표", "schedule", (r"일람", r"SCHEDULE", r"리스트표", r"부재표", r"마감표")),
     ("창호도", "door_window", (r"창호", r"WINDOW\s+(ELEVATION|DETAIL)", r"DOOR\s*(&|AND)?\s*WINDOW")),
     ("표지/목록", "cover_index", (r"표지", r"목록", r"COVER", r"DRAWING\s+(LIST|INDEX)", r"\bINDEX\b")),
+    ("시방서", "specification", (r"시방서", r"SPECIFICATIONS?\b")),
+    # An enlarged plan ("확대 평면도", "ENLARGED PLAN") is a plan, not a detail sheet.
+    ("평면도", "plan", (r"확대[^상]*평면", r"ENLARGED\s+(FLOOR\s+)?PLAN")),
     ("상세도", "detail", (r"상세", r"DETAIL", r"\bDET\b", r"확대")),
     ("단면도", "section", (r"단면", r"SECTION")),
     ("입면도", "elevation", (r"입면", r"정면도", r"측면도", r"배면도", r"ELEVATION")),
     ("배치도", "site_plan", (r"배치", r"SITE\s*PLAN", r"LAYOUT\s+PLAN")),
+    ("구조도", "structural", (r"구조도", r"STRUCTURAL\s+DRAWING")),
     ("평면도", "plan", (r"평면", r"\bPLAN\b", r"FLOOR", r"\d+\s*층", r"\bB?\d+F\b")),
 )
 
