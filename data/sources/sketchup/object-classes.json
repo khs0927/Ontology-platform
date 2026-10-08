@@ -1,0 +1,216 @@
+{
+  "schema": "sion-sketchup-object-classes/v1",
+  "description": "SketchUp 건축·대지 모델 객체 분류 어휘. 모델과 무관한 공용 클래스이며 각 모델의 classification.json이 정의를 이 클래스에 연결한다.",
+  "classes": [
+    {
+      "id": "site-container",
+      "label_ko": "대지 컨테이너(CAD 기반)",
+      "label_en": "Site container (CAD-based)",
+      "category": "architecture_site",
+      "description_ko": "대지 전체(지형·포장·옹벽·도로계획선)를 한 덩어리로 묶는 최상위 컨테이너. CAD 배치도를 가져와 만든 컴포넌트가 이 역할을 한다."
+    },
+    {
+      "id": "terrain",
+      "label_ko": "지형·조경 경사면",
+      "label_en": "Terrain / landscape slope",
+      "category": "architecture_site",
+      "description_ko": "기존 지형(기존조경)과 계획 조경면(잔디 등)을 표현하는 면 그룹. 단차·경사면으로 구성된다."
+    },
+    {
+      "id": "retaining-wall",
+      "label_ko": "옹벽",
+      "label_en": "Retaining wall",
+      "category": "architecture_site",
+      "description_ko": "대지 단차를 지지하는 벽. 석재(트래버틴)·벽돌 재질의 두꺼운 수직 매스로 표현된다."
+    },
+    {
+      "id": "paving",
+      "label_ko": "외부 포장·바닥판",
+      "label_en": "Exterior paving / ground slab",
+      "category": "architecture_site",
+      "description_ko": "외부 바닥, 광장, 진입부의 평탄 또는 완경사 포장면."
+    },
+    {
+      "id": "parking-deck",
+      "label_ko": "주차장 데크·경사로",
+      "label_en": "Parking deck / ramp",
+      "category": "architecture_site",
+      "description_ko": "주차장 바닥판과 단 사이를 잇는 경사로를 포함한 매스."
+    },
+    {
+      "id": "parking-stall",
+      "label_ko": "주차구획",
+      "label_en": "Parking stall",
+      "category": "architecture_site",
+      "description_ko": "주차구획선·장애인주차 등 2D 구획 표시."
+    },
+    {
+      "id": "road-plan-surface",
+      "label_ko": "도로계획면",
+      "label_en": "Road plan surface",
+      "category": "architecture_site",
+      "description_ko": "CAD 도로계획 선(도로계획 태그)에서 만든 평면."
+    },
+    {
+      "id": "exterior-stair",
+      "label_ko": "외부계단·단차",
+      "label_en": "Exterior stair / steps",
+      "category": "architecture_site",
+      "description_ko": "대지 단차를 오르내리는 외부 계단과 계단식 단차."
+    },
+    {
+      "id": "handrail",
+      "label_ko": "난간·핸드레일",
+      "label_en": "Handrail / balustrade",
+      "category": "cad_bim",
+      "description_ko": "파이프 핸드레일, 난간동자, 난간 패널."
+    },
+    {
+      "id": "glass-railing",
+      "label_ko": "유리 난간",
+      "label_en": "Glass railing",
+      "category": "cad_bim",
+      "description_ko": "유리판으로 된 난간(보이드·발코니 가장자리)."
+    },
+    {
+      "id": "building",
+      "label_ko": "건물 매스(동)",
+      "label_en": "Building mass",
+      "category": "cad_bim",
+      "description_ko": "한 동(본동·별동)의 외피·바닥·지붕·내부를 묶는 컨테이너 그룹."
+    },
+    {
+      "id": "floor-slab",
+      "label_ko": "바닥 슬래브·천장",
+      "label_en": "Floor slab / ceiling",
+      "category": "cad_bim",
+      "description_ko": "층 바닥판, 데크, 접힌(경사) 천장."
+    },
+    {
+      "id": "wall",
+      "label_ko": "벽체",
+      "label_en": "Wall",
+      "category": "cad_bim",
+      "description_ko": "실내외 벽체와 낮은 벽(조적 벽, 계단 측벽 등)."
+    },
+    {
+      "id": "curtain-wall",
+      "label_ko": "커튼월·유리 외피·멀리언",
+      "label_en": "Curtain wall / mullions",
+      "category": "cad_bim",
+      "description_ko": "유리 외피와 수직 멀리언·핀 프레임."
+    },
+    {
+      "id": "door",
+      "label_ko": "문·출입구",
+      "label_en": "Door",
+      "category": "cad_bim",
+      "description_ko": "문틀과 유리문, 미서기 패널."
+    },
+    {
+      "id": "window-louver",
+      "label_ko": "창호 프레임·루버",
+      "label_en": "Window frame / louver",
+      "category": "cad_bim",
+      "description_ko": "창틀(프레임+유리)과 루버 살."
+    },
+    {
+      "id": "column",
+      "label_ko": "기둥",
+      "label_en": "Column",
+      "category": "cad_bim",
+      "description_ko": "원형·각형 기둥."
+    },
+    {
+      "id": "beam",
+      "label_ko": "보·처마 부재",
+      "label_en": "Beam / fascia",
+      "category": "cad_bim",
+      "description_ko": "수평 보, 처마 부재."
+    },
+    {
+      "id": "roof",
+      "label_ko": "지붕",
+      "label_en": "Roof",
+      "category": "cad_bim",
+      "description_ko": "지붕판과 처마, 지붕 마감."
+    },
+    {
+      "id": "interior-stair",
+      "label_ko": "내부계단",
+      "label_en": "Interior stair",
+      "category": "cad_bim",
+      "description_ko": "층간 실내 계단."
+    },
+    {
+      "id": "counter-millwork",
+      "label_ko": "카운터·붙박이 가구",
+      "label_en": "Counter / millwork",
+      "category": "content_assets",
+      "description_ko": "카운터, 백카운터, 붙박이 벤치·수납."
+    },
+    {
+      "id": "furniture",
+      "label_ko": "가구",
+      "label_en": "Furniture",
+      "category": "content_assets",
+      "description_ko": "의자, 테이블, 스툴, 벤치 등 반복 배치 가구."
+    },
+    {
+      "id": "planter",
+      "label_ko": "플랜터(화분대)",
+      "label_en": "Planter",
+      "category": "architecture_site",
+      "description_ko": "수목을 담는 박스형 화분대."
+    },
+    {
+      "id": "tree",
+      "label_ko": "수목",
+      "label_en": "Tree",
+      "category": "architecture_site",
+      "description_ko": "줄기(컴포넌트)와 수관(그룹)으로 된 3D 수목."
+    },
+    {
+      "id": "person",
+      "label_ko": "인물(스케일 피겨)",
+      "label_en": "Person (scale figure)",
+      "category": "content_assets",
+      "description_ko": "공간 규모를 보여 주는 인물 모델."
+    },
+    {
+      "id": "annotation",
+      "label_ko": "주석·심볼(2D)",
+      "label_en": "Annotation / 2D symbol",
+      "category": "cad_bim",
+      "description_ko": "치수·레벨·심볼 등 2D 주석 블록."
+    },
+    {
+      "id": "marker",
+      "label_ko": "표식(용도 미상)",
+      "label_en": "Marker (purpose unknown)",
+      "category": "cad_bim",
+      "description_ko": "작은 표식 판 등 용도를 확정할 수 없는 보조 객체."
+    },
+    {
+      "id": "cad-reference",
+      "label_ko": "CAD 2D 참조 정의",
+      "label_en": "CAD 2D reference definition",
+      "category": "cad_bim",
+      "description_ko": "DWG에서 가져온 2D 선 정의(평면도·도곽·블록)."
+    },
+    {
+      "id": "imported-3d",
+      "label_ko": "외부 3D 가져오기 정의",
+      "label_en": "Imported 3D definition",
+      "category": "content_assets",
+      "description_ko": "다른 3D 포맷·3D Warehouse에서 가져온 정의."
+    },
+    {
+      "id": "unused-definition",
+      "label_ko": "미사용 정의",
+      "label_en": "Unused definition",
+      "category": "data_validation",
+      "description_ko": "모델 루트에서 도달할 수 없는(배치되지 않은) 정의. 사실(machine) 판정."
+    }
+  ]
+}
