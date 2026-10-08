@@ -150,3 +150,29 @@ jobs:
 
       - name: Unified PostgreSQL tests
         run: python -m pytest -q tests/test_unified_postgres.py
+
+      - name: Logical backup/restore smoke test (pg_dump -Fc -> pg_restore into a fresh DB)
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          # Dump/restore run inside the service container so client and server versions match (pg17).
+          docker exec "$PG_CONTAINER" pg_dump -U ontology -d ontology -Fc -f /tmp/ontology.dump
+          docker exec "$PG_CONTAINER" createdb -U ontology ontology_restore
+          docker exec "$PG_CONTAINER" pg_restore -U ontology -d ontology_restore --exit-on-error /tmp/ontology.dump
+          fingerprint() {
+            psql "$1" -X -At -v ON_ERROR_STOP=1 -c "
+              SELECT string_agg(format('%s.%s=%s', schemaname, tablename,
+                       (xpath('/row/c/text()', query_to_xml(format('SELECT count(*) AS c FROM %I.%I', schemaname, tablename), false, true, '')))[1]::text),
+                     ',' ORDER BY schemaname, tablename)
+                     || ';vector=' || (SELECT extversion FROM pg_extension WHERE extname = 'vector')
+                     || ';pgcrypto=' || (SELECT extversion FROM pg_extension WHERE extname = 'pgcrypto')
+              FROM pg_tables WHERE schemaname IN ('public', 'regulation');"
+          }
+          src=$(fingerprint "$SION_TEST_POSTGRES_URL")
+          dst=$(fingerprint "${SION_TEST_POSTGRES_URL%/*}/ontology_restore")
+          echo "source:   $src"
+          echo "restored: $dst"
+          test -n "$src" && test "$src" = "$dst"
+          python -m sion_api.migrate --dsn "${SION_TEST_POSTGRES_URL%/*}/ontology_restore" | tee restore-run.txt
+          grep -q "core: applied 0" restore-run.txt
+          grep -q "regulation (regulation): applied 0" restore-run.txt
