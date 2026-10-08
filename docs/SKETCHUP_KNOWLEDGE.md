@@ -12,11 +12,13 @@ real examples from this model with sizes, levels, tags, materials and evidence.
 |---|---|
 | `data/sources/sketchup/0914-meeting/model_dump.json` | Raw read-only dump (evidence, byte-identical, see `data/sources/PROVENANCE.md`) |
 | `data/sources/sketchup/0914-meeting/geometry_probe.json` | Face levels, slope angles and arc radii for 95 definitions |
+| `data/sources/sketchup/0914-meeting/grouping_probe.json` | Grouping facts: pid path, local transform, mirror, lock, hide and glue for all 619 instances; per-definition raw geometry and child instances by tag, origin position (bbox min) and behaviour |
 | `data/sources/sketchup/object-classes.json` | 30 SketchUp object classes (`sion-sketchup-object-classes/v1`) |
 | `data/sources/sketchup/0914-meeting/classification.json` | Definition → class overlay, 214 assignments, all **inferred** (`sion-sketchup-classification/v1`, pinned to the dump sha256) |
 | `docs/sketchup/MODELING-GUIDELINES.ko.md` | 31 Korean guideline sections, each with a `sion-guide` metadata comment |
+| `docs/sketchup/GROUPING-WORKFLOW.ko.md` | How the model was grouped: 11 observed rules (`kind="pattern"`) and a 12-step grouping workflow (`kind="step"`, `implements=` rule ids) |
 | `packages/ingestion/sion_ingestion/sketchup_assets.py` | Generator, evidence attacher and CLI |
-| `data/bootstrap/sketchup-0914-meeting.json` | Generated export: 626 nodes / 2,360 edges (tests regenerate and compare) |
+| `data/bootstrap/sketchup-0914-meeting.json` | Generated export: 1,195 nodes / 4,509 edges (tests regenerate and compare) |
 | `scripts/sketchup/*.rb` | The read-only Ruby extraction scripts |
 
 ## Graph layout
@@ -29,6 +31,12 @@ Nodes use only the 11 core entity types; edges use only core relation types.
 | `sketchup:0914-meeting:dump` | Dataset | The dump file |
 | `sketchup:0914-meeting:def:<slug>` | Concept | One per definition (297): size, counts, tags, materials, first placement, probe facts |
 | `sketchup:0914-meeting:obj:<persistent_id>` | Entity | Top-level and second-level placements (76): path, tag, material, transform, world bounds |
+| `sketchup:0914-meeting:occ:<pid.pid.…>` | Entity | Deeper placements (543, depth 2–6), keyed by the persistent-id path from the root because deep ids repeat across copies |
+| `sketchup:0914-meeting:grouping-probe` | Dataset | The grouping probe file |
+| `sketchup:workflow:grouping` | Workflow | The 12-step grouping workflow (`step_order`) |
+| `sketchup:grouping:step:<id>` | Workflow | One step: inputs, decision rules, grouping/naming/tagging operation, MCP/Ruby (mm), checks, evidence; `step_no`, `previous_step`, `next_step` |
+| `sketchup:grouping:pattern:<id>` | Decision | One observed grouping rule ([관측]/[추론]/[권장]) |
+| `sketchup:grouping:doc:<id>` | Document | Grouping overview and statistics |
 | `sketchup:0914-meeting:tag:<slug>` / `mat:` / `style:` / `scene:N` / `section:N` | Concept | 49 tags (`@wall` → `at-wall`), 130 materials, 3 styles, 3 scenes, 1 section plane |
 | `sketchup:class:<id>` | Concept | 30 object classes (`retaining-wall`, `curtain-wall`, `furniture`, …) |
 | `sketchup:guide:<id>` | Document | 31 Korean guideline chunks (the full section text is the description) |
@@ -47,6 +55,15 @@ Nodes use only the 11 core entity types; edges use only core relation types.
 | guide → class (`applies_to_class`) | `REFERENCES` | candidate |
 | guide → tool (`executed_with_tool`, `tool_names`) | `USES` | candidate |
 | guide → cited definition/placement/tag/material/scene (`cites_model_evidence`) | `DERIVED_FROM` | candidate |
+| grouping step → workflow (`step_of_workflow`, `order`); step → previous step (`follows_step`); previous → next (`precedes`) | `PART_OF` / `DEPENDS_ON` / `RELATED_TO` | candidate |
+| grouping step → rule (`applies_rule`); rule → workflow (`rule_of_workflow`) | `IMPLEMENTS` / `SUPPORTS` | candidate |
+| grouping chunk → class / tool / cited object (`occ:` paths allowed) | `REFERENCES` / `USES` / `DERIVED_FROM` | candidate |
+| grouping workflow → modelling workflow (`sub_workflow_of_modeling`), → `guide:group-component` (`expands_guideline`), → model / grouping probe | `RELATED_TO` / `REFERENCES` / `DERIVED_FROM` | candidate |
+| grouping probe → model (`extracted_from`), → `tool:mcp:hueflow-sketchup` (`extracted_via_mcp`) | `EXTRACTED_FROM` / `DERIVED_FROM` | `machine_verified` |
+
+Placement nodes also carry `properties.grouping` (local identity, local origin, mirrored, locked,
+hidden, glued_to). Definition nodes carry `properties.grouping` (role `container`/`leaf`/`mixed`,
+raw geometry and child instances by tag, bbox min, insertion point, behaviour such as `cuts_opening`).
 
 Every node except the three tools and every edge carry `properties.su_evidence`
 (`source_file` relative to the repo, `source_sha256`, `locator` such as `$.definitions[12]`

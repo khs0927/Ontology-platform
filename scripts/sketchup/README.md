@@ -9,6 +9,7 @@ page or style is created, moved or deleted, and nothing calls `model.save`, `und
 |---|---|---|
 | `dump_model.rb` | `model_dump.json` | Model info, units, shadow/geo info, styles, scenes + cameras, tags (usage per entity type), materials (texture, usage), all definitions (entity counts, face area, child definitions, tags/materials used, behaviour, attributes), the instance hierarchy (persistent id, path, tag, material, transform, world bounds; max 8000 nodes / depth 8), texts, dimensions, loose top-level entities, section planes. Lengths are mm (internal inch × 25.4). |
 | `geom_probe.rb` | `geom_probe.json` (committed as `geometry_probe.json`) | For the definitions in `NAMES`: horizontal face levels and areas, sloped-face angle histogram, vertical face count, curves/arc radii. |
+| `grouping_probe.rb` | `grouping_probe.json` | Every instance (depth ≤ 12) in dump order: pid path, tag, material, locked, hidden, glued_to, local identity/origin/axes, mirrored. Every definition: raw Face/Edge counts by tag, child instances by tag, bbox min/max, insertion point, behaviour (`cuts_opening`, `is2d`, `snapto`, …). Plus `model.modified?` and the active edit path. |
 | `render_views.rb` | `view_*.png` | Writes 1600×1000 PNGs of the current view, each scene camera, an SW iso and a top view. It changes only the **camera** while rendering and restores the saved camera in `ensure`. PNGs are not committed. |
 
 Output directory: `$SION_SU_EXPORT_DIR`, else `%USERPROFILE%\grokbot-mcp-bridge\export` (must exist).
@@ -19,7 +20,7 @@ Output directory: `$SION_SU_EXPORT_DIR`, else `%USERPROFILE%\grokbot-mcp-bridge\
 [Console]::OutputEncoding=[Text.Encoding]::UTF8; cd "$env:USERPROFILE\grokbot-mcp-bridge"
 # copy dump_model.rb into .\export\ first, then:
 '{"code":"load ''C:/Users/<user>/grokbot-mcp-bridge/export/dump_model.rb''"}' | Set-Content -Encoding utf8 args_dump.json
-& "C:\Program Files\nodejs\node.exe" mcp-call.mjs call claude:hueflow-sketchup execute_ruby --args-file args_dump.json --timeout 300
+& "C:\Program Files\nodejs\node.exe" mcp-call.mjs call claude:hueflow-sketchup execute_ruby --args-file args_dump.json --timeout 280000   # milliseconds
 ```
 
 `load` returns `true`; check that the JSON file was written. Then rebuild the graph export:

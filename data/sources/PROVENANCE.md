@@ -49,6 +49,7 @@ in `migrations/007_relation_type_validates.sql`.
 |---|---|---|
 | `model_dump.json` | `33ebc367f6916e339fc9bc03a75a06403a7f37e4a6b8245e82b5c7e512a61bd6` (1,228,497 bytes, CRLF, byte-identical) | `scripts/sketchup/dump_model.rb` output, `_meta.dumped_at` 2026-10-08 10:39:38 KST |
 | `geometry_probe.json` | `c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8` (byte-identical) | `scripts/sketchup/geom_probe.rb` output (written as `geom_probe.json`), 95 definitions |
+| `grouping_probe.json` | `e623d142271d04e5597d41ac46f4821780ad3732db5a3317c89c74fcecfa5fbb` (byte-identical) | `scripts/sketchup/grouping_probe.rb` output, `_meta.dumped_at` 2026-10-08 11:06:29 KST, 619 nodes in the same depth-first order as the dump hierarchy (checked by the generator), `model_modified=true` |
 | `classification.json` | (authored) | Definition → class overlay. Every assignment is an inference from names, sizes, materials, levels and the probe; pinned to the dump sha256 above |
 | `../object-classes.json` | (authored) | 30 object classes |
 

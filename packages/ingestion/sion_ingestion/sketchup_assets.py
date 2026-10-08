@@ -7,7 +7,10 @@ Builds graph nodes/edges for GraphRAG from three inputs:
 * an object-class vocabulary plus a per-model classification overlay (human/agent-authored,
   every assignment is an *inferred* candidate with its basis written down),
 * a Korean modeling-guideline markdown whose ``##`` sections are retrievable chunks
-  (``<!-- sion-guide ... -->`` metadata links each chunk to classes, tools and evidence).
+  (``<!-- sion-guide ... -->`` metadata links each chunk to classes, tools and evidence),
+* optionally a geometry probe, a grouping probe (``scripts/sketchup/grouping_probe.rb``; same
+  depth-first order as the dump hierarchy) and a Korean grouping-workflow markdown whose
+  ``kind="pattern"`` chunks become Decision nodes and ``kind="step"`` chunks ordered Workflow steps.
 
 Rules:
 
@@ -156,6 +159,7 @@ def parse_guidelines(path: Path) -> list[dict[str, Any]]:
                 "tools": [x for x in attrs.get("tools", "").split(",") if x],
                 "evidence": [x for x in attrs.get("evidence", "").split(",") if x],
                 "after": [x for x in attrs.get("after", "").split(",") if x],
+                "implements": [x for x in attrs.get("implements", "").split(",") if x],
                 "text": content,
                 "locator": f"L{start_line}-L{end_line}",
             }
@@ -178,6 +182,20 @@ def reachable_definitions(dump: dict[str, Any]) -> set[str]:
         live.add(name)
         stack.extend(by_name[name]["child_definitions"])
     return live
+
+
+def _pid_paths(hierarchy: list[dict[str, Any]]) -> list[list[int]]:
+    """Persistent-id paths for the dump hierarchy (depth-first pre-order, as written by dump_model.rb)."""
+    stack: list[int] = []
+    out: list[list[int]] = []
+    for n in hierarchy:
+        depth = n["depth"]
+        if depth > len(stack):
+            raise SketchUpAssetError(f"hierarchy is not depth-first at persistent_id {n['pid']}")
+        del stack[depth:]
+        stack.append(n["pid"])
+        out.append(list(stack))
+    return out
 
 
 # --------------------------------------------------------------------------- builder
@@ -252,6 +270,8 @@ def build_export(
     *,
     namespace: str,
     probe_path: str | Path | None = None,
+    grouping_probe_path: str | Path | None = None,
+    grouping_doc_path: str | Path | None = None,
 ) -> MapExport:
     dump_path, classes_path = Path(dump_path), Path(classes_path)
     classification_path, guidelines_path = Path(classification_path), Path(guidelines_path)
@@ -273,6 +293,25 @@ def build_export(
     overlay_rel, overlay_sha = _rel(classification_path), _sha256(classification_path)
     probe_rel = _rel(Path(probe_path)) if probe_path else None
     probe_sha = _sha256(Path(probe_path)) if probe_path else None
+    hierarchy = dump["hierarchy"]
+    pid_paths = _pid_paths(hierarchy)
+    grouping = json.loads(Path(grouping_probe_path).read_text(encoding="utf-8-sig")) if grouping_probe_path else None
+    grouping_rel = _rel(Path(grouping_probe_path)) if grouping_probe_path else None
+    grouping_sha = _sha256(Path(grouping_probe_path)) if grouping_probe_path else None
+    grouping_nodes: list[dict[str, Any]] | None = None
+    grouping_defs: dict[str, dict[str, Any]] = {}
+    if grouping is not None:
+        grouping_nodes = grouping["nodes"]
+        if len(grouping_nodes) != len(hierarchy) or any(
+            gn["pid_path"] != pp or gn["definition"] != h["definition"]
+            for gn, pp, h in zip(grouping_nodes, pid_paths, hierarchy)
+        ):
+            raise SketchUpAssetError("grouping probe does not match the model dump hierarchy")
+        grouping_defs = {d["name"]: d for d in grouping["definitions"]}
+    grouping_def_index = {d["name"]: i for i, d in enumerate(grouping["definitions"])} if grouping else {}
+    grouping_doc = parse_guidelines(Path(grouping_doc_path)) if grouping_doc_path else []
+    if grouping_doc and grouping is None:
+        raise SketchUpAssetError("the grouping workflow document needs the grouping probe")
 
     model = dump["model"]
     skp_file = Path(str(model.get("path") or model["title"]).replace("\\", "/")).name
@@ -286,10 +325,14 @@ def build_export(
     def guide_ev(chunk: dict[str, Any]) -> dict[str, Any]:
         return {"source_file": guide_rel, "source_sha256": guide_sha, "locator": f"{chunk['locator']} #{chunk['id']}"}
 
+    def grouping_ev(locator: str) -> dict[str, Any]:
+        return {"source_file": grouping_rel, "source_sha256": grouping_sha, "locator": locator, "skp_file": skp_file}
+
     def overlay_ev(index: int) -> dict[str, Any]:
         return {"source_file": overlay_rel, "source_sha256": overlay_sha, "locator": f"$.assignments[{index}]"}
 
     k_model = f"sketchup:{ns}:model"
+    k_gprobe = f"sketchup:{ns}:grouping-probe"
     k_dump = f"sketchup:{ns}:dump"
 
     def k_def(name: str) -> str:
@@ -303,6 +346,10 @@ def build_export(
 
     def k_obj(pid: int) -> str:
         return f"sketchup:{ns}:obj:{pid}"
+
+    def k_place(path: list[int]) -> str:
+        # top-level and second-level persistent ids are unique; deeper ones repeat across copies of a definition
+        return k_obj(path[-1]) if len(path) <= 2 else f"sketchup:{ns}:occ:{'.'.join(str(p) for p in path)}"
 
     def k_class(cid: str) -> str:
         return f"sketchup:class:{cid}"
@@ -587,6 +634,36 @@ def build_export(
                 parts.append(f"경사면 각도 범위 {ang[0]}°~{ang[-1]}°.")
             if geo.get("arc_radii_mm"):
                 parts.append(f"호 반경 {geo['arc_radii_mm']} mm.")
+        gd = grouping_defs.get(name)
+        gprops = None
+        if gd is not None:
+            raw = gd["raw_geometry_by_layer"]
+            kids = gd["child_instances_by_layer"]
+            n_raw = sum(sum(v.values()) for v in raw.values())
+            n_kids = sum(sum(v.values()) for v in kids.values())
+            role = "container" if n_raw == 0 and n_kids else ("leaf" if not n_kids else "mixed")
+            role_ko = {
+                "container": "컨테이너(형상 없이 하위 그룹만)",
+                "leaf": "말단(형상만)",
+                "mixed": "혼합(형상+하위)",
+            }
+            raw_tags = sorted({t for v in raw.values() for t in v})
+            bmin = gd["bounds_min"]
+            origin = "원점=bbox 최소점" if all(abs(x) <= 1.0 for x in bmin) else f"bbox 최소점이 원점에서 {bmin} mm"
+            parts.append(
+                f"그룹화: {role_ko[role]}, 직접 형상 {n_raw}개(태그 {', '.join(raw_tags) or '없음'}), "
+                f"직접 하위 인스턴스 {n_kids}개, {origin}, cuts_opening {gd['behavior']['cuts_opening']}."
+            )
+            gprops = {
+                "role": role,
+                "raw_geometry_by_layer": raw,
+                "child_instances_by_layer": kids,
+                "bounds_min_mm": bmin,
+                "insertion_point_mm": gd["insertion_point"],
+                "count_instances": gd["count_instances"],
+                "behavior": gd["behavior"],
+                "su_evidence": grouping_ev(f"$.definitions[{grouping_def_index[name]}]"),
+            }
         if d.get("description") and d["description"] != name:
             parts.append(f"설명: {d['description'][:200]}")
         g.node(
@@ -615,6 +692,7 @@ def build_export(
                 "behavior": d.get("behavior"),
                 "attribute_dictionaries": sorted(d.get("attributes", {}).keys()),
                 "geometry_probe": geo,
+                "grouping": gprops,
                 "su_evidence": ev(f"$.definitions[{i}]", guid=d["guid"]),
             },
         )
@@ -651,45 +729,65 @@ def build_export(
                 faces_and_edges=n,
             )
 
-    # ---- placements: every top-level and second-level group/component instance
-    for i, n in enumerate(dump["hierarchy"]):
-        if n["depth"] > 1:
-            continue
-        key = k_obj(n["pid"])
+    # ---- placements: every group/component instance at every depth (full nesting tree)
+    occ_keys: list[str] = []
+    for i, n in enumerate(hierarchy):
+        path_pids = pid_paths[i]
+        key = k_place(path_pids)
+        occ_keys.append(key)
         wb = n["world_bounds"]
         tr = n["transform"]
         label = n["name"] or n["definition"]
         cc = n["child_counts"]
+        gp = grouping_nodes[i] if grouping_nodes else None
+        level = "최상위" if n["depth"] == 0 else f"{n['depth'] + 1}단계"
+        kind_ko = "컴포넌트 인스턴스" if n["type"] == "ComponentInstance" else "그룹"
         desc = (
-            f"{'최상위' if n['depth'] == 0 else '2단계'} {('컴포넌트 인스턴스' if n['type'] == 'ComponentInstance' else '그룹')} '{label}' "
-            f"(경로 {n['path']}, persistent_id {n['pid']}). 정의 {n['definition']}. 태그 {n['layer']}, 인스턴스 재질 {n['material'] or '없음'}. "
-            f"월드 최소점 {wb['min'] if wb else None} mm, 월드 크기 {_size(wb['size'] if wb else None)}. 원점 {tr['origin']} mm, 축척 {tr['scale']}, Z 회전 {tr['rot_z_deg']}°. "
+            f"{level} {kind_ko} '{label}' (경로 {n['path']}, persistent_id {n['pid']}). 정의 {n['definition']}. "
+            f"태그 {n['layer']}, 인스턴스 재질 {n['material'] or '없음'}. "
+            f"월드 최소점 {wb['min'] if wb else None} mm, 월드 크기 {_size(wb['size'] if wb else None)}. "
+            f"원점 {tr['origin']} mm, 축척 {tr['scale']}, Z 회전 {tr['rot_z_deg']}°. "
             f"직접 하위: {', '.join(f'{k} {v}' for k, v in sorted(cc.items())) or '없음'}."
         )
-        g.node(
-            key,
-            "Entity",
-            f"{label} @ {n['path']}",
-            "cad_bim",
-            desc,
-            {
-                "node_kind": "su_instance",
-                "persistent_id": n["pid"],
-                "depth": n["depth"],
-                "su_type": n["type"],
-                "instance_name": n["name"],
-                "definition_name": n["definition"],
-                "entity_path": n["path"],
-                "layer": n["layer"],
-                "material": n["material"],
-                "transform": tr,
-                "world_bounds_mm": wb,
-                "child_counts": cc,
-                "su_evidence": ev(f"$.hierarchy[{i}]", persistent_id=n["pid"], entity_path=n["path"]),
-            },
-        )
+        props: dict[str, Any] = {
+            "node_kind": "su_instance",
+            "persistent_id": n["pid"],
+            "pid_path": path_pids,
+            "depth": n["depth"],
+            "su_type": n["type"],
+            "instance_name": n["name"],
+            "definition_name": n["definition"],
+            "entity_path": n["path"],
+            "layer": n["layer"],
+            "material": n["material"],
+            "transform": tr,
+            "world_bounds_mm": wb,
+            "child_counts": cc,
+            "su_evidence": ev(f"$.hierarchy[{i}]", persistent_id=n["pid"], entity_path=n["path"]),
+        }
+        if gp is not None:
+            props["grouping"] = {
+                "local_identity": gp["local_identity"],
+                "local_origin_mm": gp["local_origin"],
+                "local_xaxis": gp["local_xaxis"],
+                "mirrored": gp["mirrored"],
+                "locked": gp["locked"],
+                "hidden": gp["hidden"],
+                "glued_to": gp["glued_to"],
+                "su_evidence": grouping_ev(f"$.nodes[{i}]"),
+            }
+            extra = []
+            if gp["local_identity"]:
+                extra.append("부모 좌표계와 같은 변환(identity)")
+            if gp["mirrored"]:
+                extra.append("반전(mirror) 배치")
+            if gp["glued_to"]:
+                extra.append(f"{gp['glued_to']['type']}에 붙음(glued)")
+            if extra:
+                desc += " 배치 특성: " + ", ".join(extra) + "."
+        g.node(key, "Entity", f"{label} @ {n['path']}"[:500], "cad_bim", desc, props)
         loc = f"$.hierarchy[{i}]"
-        parent = k_model if n["depth"] == 0 else k_obj(n["parent_pid"])
+        parent = k_model if n["depth"] == 0 else k_place(path_pids[:-1])
         g.edge(
             key, "PART_OF", parent, predicate="placed_in" if n["depth"] == 0 else "nested_in_instance", evidence=ev(loc)
         )
@@ -730,6 +828,77 @@ def build_export(
             basis_ko=item["basis_ko"],
             model_evidence=ev(f"$.definitions[{def_index[name]}]"),
         )
+
+    def link_chunk(key: str, c: dict[str, Any], gev: dict[str, Any], label: str) -> None:
+        """Class, tool and model-evidence links shared by every document chunk (all inferred)."""
+        for cid in c["applies_to"]:
+            if cid not in class_ids:
+                raise SketchUpAssetError(f"{label} {c['id']} applies to unknown class {cid}")
+            g.edge(
+                key,
+                "REFERENCES",
+                k_class(cid),
+                predicate="applies_to_class",
+                evidence=gev,
+                inferred=True,
+                confidence=0.9,
+                source_kind="document",
+            )
+        tools_seen: set[str] = set()
+        for tool in c["tools"]:
+            server, _, tool_name = tool.partition(".")
+            tid = TOOL_ALIASES.get(server)
+            if tid is None:
+                raise SketchUpAssetError(f"{label} {c['id']} names unknown MCP server {server}")
+            if tid in tools_seen:
+                continue
+            tools_seen.add(tid)
+            names = sorted(
+                {t.partition(".")[2] for t in c["tools"] if TOOL_ALIASES.get(t.partition(".")[0]) == tid and "." in t}
+            )
+            g.edge(
+                key,
+                "USES",
+                k_tool(tid),
+                predicate="executed_with_tool",
+                evidence=gev,
+                inferred=True,
+                confidence=0.9,
+                source_kind="document",
+                tool_names=names or None,
+            )
+        for ref in c["evidence"]:
+            kind, _, value = ref.partition(":")
+            if kind == "def":
+                if value not in def_index:
+                    raise SketchUpAssetError(f"{label} {c['id']} cites unknown definition {value}")
+                target = k_def(value)
+            elif kind == "obj":
+                target = k_obj(int(value))
+            elif kind == "tag":
+                target = k_tag(value)
+            elif kind == "mat":
+                target = k_mat(value)
+            elif kind in {"scene", "section"}:
+                target = f"sketchup:{ns}:{kind}:{value}"
+            elif kind == "model":
+                target = k_model
+            elif kind == "occ":
+                target = f"sketchup:{ns}:occ:{value}"
+            elif kind == "grouping-probe" and grouping is not None:
+                target = k_gprobe
+            else:
+                raise SketchUpAssetError(f"{label} {c['id']} has bad evidence ref {ref}")
+            g.edge(
+                key,
+                "DERIVED_FROM",
+                target,
+                predicate="cites_model_evidence",
+                evidence=gev,
+                inferred=True,
+                confidence=0.9,
+                source_kind="document",
+            )
 
     # ---- guidelines
     k_flow = "sketchup:workflow:architectural-site-model"
@@ -804,70 +973,208 @@ def build_export(
                 confidence=1.0,
                 source_kind="document",
             )
-        for cid in c["applies_to"]:
-            if cid not in class_ids:
-                raise SketchUpAssetError(f"guide {c['id']} applies to unknown class {cid}")
+        link_chunk(key, c, gev, "guide")
+
+    # ---- grouping probe dataset + grouping workflow (patterns = Decision, steps = Workflow)
+    if grouping is not None:
+        meta = grouping.get("_meta", {})
+        g.node(
+            k_gprobe,
+            "Dataset",
+            f"SketchUp 그룹화 프로브 {skp_file}",
+            "cad_bim",
+            f"읽기 전용 그룹화 프로브({meta.get('tool')}, {meta.get('dumped_at')}). 인스턴스 {len(grouping['nodes'])}개의 "
+            f"pid 경로·로컬 변환·잠금·숨김·붙임(glue)과 정의 {len(grouping['definitions'])}개의 태그별 직접 형상, "
+            "하위 인스턴스 태그, bbox 최소점(원점 위치), 동작(cuts_opening 등). 덤프 계층과 순서가 같다.",
+            {
+                "node_kind": "su_grouping_probe",
+                "meta": meta,
+                "model_modified": grouping.get("model_modified"),
+                "su_evidence": grouping_ev("$._meta"),
+            },
+        )
+        g.edge(k_gprobe, "EXTRACTED_FROM", k_model, predicate="extracted_from", evidence=grouping_ev("$._meta"))
+        g.edge(
+            k_gprobe,
+            "DERIVED_FROM",
+            k_tool("hueflow-sketchup"),
+            predicate="extracted_via_mcp",
+            evidence=grouping_ev("$._meta"),
+        )
+    if grouping_doc:
+        gdoc_rel, gdoc_sha = _rel(Path(grouping_doc_path)), _sha256(Path(grouping_doc_path))
+
+        def gdoc_ev(chunk: dict[str, Any]) -> dict[str, Any]:
+            return {"source_file": gdoc_rel, "source_sha256": gdoc_sha, "locator": f"{chunk['locator']} #{chunk['id']}"}
+
+        k_gflow = "sketchup:workflow:grouping"
+        steps = [c for c in grouping_doc if c["kind"] == "step"]
+        patterns = [c for c in grouping_doc if c["kind"] == "pattern"]
+        flow_ev = {"source_file": gdoc_rel, "source_sha256": gdoc_sha, "locator": "L1"}
+        g.node(
+            k_gflow,
+            "Workflow",
+            "SketchUp 모델 그룹화·정리 워크플로(0914 모델에서 재구성)",
+            "cad_bim",
+            f"{skp_file}의 그룹·컴포넌트·태그 구성을 분석해 재구성한 {len(steps)}단계 그룹화 워크플로. "
+            f"단계(sketchup:grouping:step:*)는 PART_OF로 이 노드에, DEPENDS_ON(follows_step)으로 앞 단계에, "
+            f"RELATED_TO(precedes)로 다음 단계에 연결된다. 관측 규칙 {len(patterns)}개(sketchup:grouping:pattern:*, Decision)를 "
+            "단계가 IMPLEMENTS한다.",
+            {
+                "node_kind": "su_grouping_workflow",
+                "step_count": len(steps),
+                "pattern_count": len(patterns),
+                "step_order": [c["id"] for c in sorted(steps, key=lambda c: c["order"])],
+                "su_evidence": flow_ev,
+            },
+        )
+        for target, pred in ((k_model, "derived_from_model"), (k_gprobe, "derived_from_grouping_probe")):
             g.edge(
-                key,
-                "REFERENCES",
-                k_class(cid),
-                predicate="applies_to_class",
-                evidence=gev,
-                inferred=True,
-                confidence=0.9,
-                source_kind="document",
-            )
-        tools_seen: set[str] = set()
-        for tool in c["tools"]:
-            server, _, tool_name = tool.partition(".")
-            tid = TOOL_ALIASES.get(server)
-            if tid is None:
-                raise SketchUpAssetError(f"guide {c['id']} names unknown MCP server {server}")
-            if tid in tools_seen:
-                continue
-            tools_seen.add(tid)
-            names = sorted(
-                {t.partition(".")[2] for t in c["tools"] if TOOL_ALIASES.get(t.partition(".")[0]) == tid and "." in t}
-            )
-            g.edge(
-                key,
-                "USES",
-                k_tool(tid),
-                predicate="executed_with_tool",
-                evidence=gev,
-                inferred=True,
-                confidence=0.9,
-                source_kind="document",
-                tool_names=names or None,
-            )
-        for ref in c["evidence"]:
-            kind, _, value = ref.partition(":")
-            if kind == "def":
-                if value not in def_index:
-                    raise SketchUpAssetError(f"guide {c['id']} cites unknown definition {value}")
-                target = k_def(value)
-            elif kind == "obj":
-                target = k_obj(int(value))
-            elif kind == "tag":
-                target = k_tag(value)
-            elif kind == "mat":
-                target = k_mat(value)
-            elif kind in {"scene", "section"}:
-                target = f"sketchup:{ns}:{kind}:{value}"
-            elif kind == "model":
-                target = k_model
-            else:
-                raise SketchUpAssetError(f"guide {c['id']} has bad evidence ref {ref}")
-            g.edge(
-                key,
+                k_gflow,
                 "DERIVED_FROM",
                 target,
-                predicate="cites_model_evidence",
-                evidence=gev,
+                predicate=pred,
+                evidence=flow_ev,
                 inferred=True,
-                confidence=0.9,
+                confidence=0.8,
                 source_kind="document",
             )
+        g.edge(
+            k_gflow,
+            "RELATED_TO",
+            k_flow,
+            predicate="sub_workflow_of_modeling",
+            evidence=flow_ev,
+            inferred=True,
+            confidence=0.9,
+            source_kind="document",
+        )
+        g.edge(
+            k_gflow,
+            "REFERENCES",
+            k_guide("group-component"),
+            predicate="expands_guideline",
+            evidence=flow_ev,
+            inferred=True,
+            confidence=0.9,
+            source_kind="document",
+        )
+
+        def k_gstep(cid: str) -> str:
+            return f"sketchup:grouping:step:{cid}"
+
+        def k_gpat(cid: str) -> str:
+            return f"sketchup:grouping:pattern:{cid}"
+
+        def k_gdoc(cid: str) -> str:
+            return f"sketchup:grouping:doc:{cid}"
+
+        ordered = sorted(steps, key=lambda c: c["order"])
+        step_no = {c["id"]: n for n, c in enumerate(ordered, 1)}
+        for c in grouping_doc:
+            if c["kind"] == "step":
+                key, etype, title = k_gstep(c["id"]), "Workflow", f"[그룹화 {step_no[c['id']]:02d}단계] {c['title']}"
+            elif c["kind"] == "pattern":
+                key, etype, title = k_gpat(c["id"]), "Decision", f"[그룹화 규칙] {c['title']}"
+            else:
+                key, etype, title = k_gdoc(c["id"]), "Document", f"[그룹화 문서] {c['title']}"
+            props = {
+                "node_kind": f"su_grouping_{c['kind']}",
+                "chunk_id": c["id"],
+                "order": c["order"],
+                "applies_to": c["applies_to"],
+                "tools": c["tools"],
+                "language": "ko",
+                "su_evidence": gdoc_ev(c),
+            }
+            if c["kind"] == "step":
+                n = step_no[c["id"]]
+                props.update(
+                    {
+                        "step_no": n,
+                        "previous_step": ordered[n - 2]["id"] if n > 1 else None,
+                        "next_step": ordered[n]["id"] if n < len(ordered) else None,
+                        "implements": c["implements"],
+                    }
+                )
+            g.node(key, etype, title, "cad_bim", c["text"], props)
+        ids = {c["id"]: c for c in grouping_doc}
+        for c in grouping_doc:
+            gev = gdoc_ev(c)
+            if c["kind"] == "step":
+                key = k_gstep(c["id"])
+                g.edge(
+                    key,
+                    "PART_OF",
+                    k_gflow,
+                    predicate="step_of_workflow",
+                    evidence=gev,
+                    inferred=True,
+                    confidence=1.0,
+                    source_kind="document",
+                    order=step_no[c["id"]],
+                )
+                n = step_no[c["id"]]
+                if n > 1:
+                    prev = k_gstep(ordered[n - 2]["id"])
+                    g.edge(
+                        key,
+                        "DEPENDS_ON",
+                        prev,
+                        predicate="follows_step",
+                        evidence=gev,
+                        inferred=True,
+                        confidence=1.0,
+                        source_kind="document",
+                    )
+                    g.edge(
+                        prev,
+                        "RELATED_TO",
+                        key,
+                        predicate="precedes",
+                        evidence=gev,
+                        inferred=True,
+                        confidence=1.0,
+                        source_kind="document",
+                    )
+                for pid in c["implements"]:
+                    if ids.get(pid, {}).get("kind") != "pattern":
+                        raise SketchUpAssetError(f"grouping step {c['id']} implements unknown pattern {pid}")
+                    g.edge(
+                        key,
+                        "IMPLEMENTS",
+                        k_gpat(pid),
+                        predicate="applies_rule",
+                        evidence=gev,
+                        inferred=True,
+                        confidence=0.9,
+                        source_kind="document",
+                    )
+            elif c["kind"] == "pattern":
+                key = k_gpat(c["id"])
+                g.edge(
+                    key,
+                    "SUPPORTS",
+                    k_gflow,
+                    predicate="rule_of_workflow",
+                    evidence=gev,
+                    inferred=True,
+                    confidence=0.9,
+                    source_kind="document",
+                )
+            else:
+                key = k_gdoc(c["id"])
+                g.edge(
+                    key,
+                    "PART_OF",
+                    k_gflow,
+                    predicate="document_of_workflow",
+                    evidence=gev,
+                    inferred=True,
+                    confidence=1.0,
+                    source_kind="document",
+                )
+            link_chunk(key, c, gev, "grouping chunk")
 
     export = MapExport.model_validate(
         {
@@ -948,6 +1255,8 @@ DEFAULTS = {
     "0914-meeting": {
         "dump": ROOT / "data/sources/sketchup/0914-meeting/model_dump.json",
         "probe": ROOT / "data/sources/sketchup/0914-meeting/geometry_probe.json",
+        "grouping_probe": ROOT / "data/sources/sketchup/0914-meeting/grouping_probe.json",
+        "grouping_doc": ROOT / "docs/sketchup/GROUPING-WORKFLOW.ko.md",
         "classes": ROOT / "data/sources/sketchup/object-classes.json",
         "classification": ROOT / "data/sources/sketchup/0914-meeting/classification.json",
         "guidelines": ROOT / "docs/sketchup/MODELING-GUIDELINES.ko.md",
@@ -964,8 +1273,8 @@ def main(argv: list[str] | None = None) -> int:
     for name in ("build", "import"):
         p = sub.add_parser(name)
         p.add_argument("--namespace", default="0914-meeting")
-        for opt in ("dump", "probe", "classes", "classification", "guidelines"):
-            p.add_argument(f"--{opt}")
+        for opt in ("dump", "probe", "classes", "classification", "guidelines", "grouping_probe", "grouping_doc"):
+            p.add_argument(f"--{opt.replace('_', '-')}", dest=opt)
         if name == "build":
             p.add_argument("-o", "--output")
             p.add_argument("--check", action="store_true", help="fail if the committed export differs")
@@ -985,6 +1294,8 @@ def main(argv: list[str] | None = None) -> int:
         pick("guidelines"),
         namespace=args.namespace,
         probe_path=pick("probe"),
+        grouping_probe_path=pick("grouping_probe"),
+        grouping_doc_path=pick("grouping_doc"),
     )
     summary = {"nodes": len(export.nodes), "edges": len(export.edges)}
     if args.command == "build":

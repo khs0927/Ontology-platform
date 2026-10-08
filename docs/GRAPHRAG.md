@@ -23,6 +23,8 @@ Projection is an idempotent upsert; to drop stale rows, project into a new
 - SketchUp modelling knowledge (`data/bootstrap/sketchup-0914-meeting.json`, Korean guideline
   chunks linked to object classes and to real model objects): see `docs/SKETCHUP_KNOWLEDGE.md`.
   Import with `python -m sion_ingestion.sketchup_assets import --database-url ...`, then project.
+  The pack includes the grouping workflow (`sketchup:workflow:grouping`, ordered steps and rules
+  from `docs/sketchup/GROUPING-WORKFLOW.ko.md`).
 
 ## Storage
 
