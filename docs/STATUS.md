@@ -1,6 +1,40 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-10-08 (Asia/Seoul)
+Updated: 2026-10-08 evening (Asia/Seoul)
+
+
+## Sprint 2026-10-08 evening (KST)
+
+Snapshot taken 19:50 KST. Cutoff for “after 14:35 KST” is `merged:>=2026-10-08T05:35:00Z` (14:35 KST).
+
+### Merged after 14:35 KST
+- **Ontology-platform:** [#37](https://github.com/khs0927/Ontology-platform/pull/37) feat(aec): port read-only bridge fail-closed contract + evidence lifecycle (Ontology #86/#90/#91) — merged 19:48 KST.
+- **power-cad-mcp:** [#42](https://github.com/khs0927/power-cad-mcp/pull/42) docs(hs-steel): 철골 도면 작성 플레이북·표준 JSON·AGENTS.md — merged 19:45 KST.
+- **hs-steel-cad:** none at snapshot time.
+
+### Closed (not merged) after 14:35 KST
+- [#34](https://github.com/khs0927/Ontology-platform/pull/34) docs: CI OS matrix for pytest — closed 19:45 KST; superseded by #36 Windows pytest — Ubuntu-only premise obsolete.
+- [#35](https://github.com/khs0927/Ontology-platform/pull/35) test: lock pytest OS coverage — closed 19:45 KST; same; would fail against current matrix.
+
+### Open sprint work still in flight (not yet on main)
+**Ontology-platform:**
+- #38 feat(aec): port bulk scheduling recovery & ingestion metrics (archived Ontology#80)
+- #39 feat(aec/ops): switch-to-monorepo.ps1 — PC stack → packages/aec
+- #40 fix(aec): netguard rejects fake-IP DNS range; hermetic egress tests
+
+**power-cad-mcp:**
+- #43 feat(hs-steel): asset-control tools (cad_hs_*)
+- #40 docs: sync README, operating playbook and install guide
+
+**hs-steel-cad:**
+- #7 feat(assets): hs-steel-asset-registry/1
+
+### Remaining owner actions
+1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issue #33).
+2. When **DESKTOP-KTQHS1I** is online: switch the live AEC runtime from the archived `C:\CODE\Ontology` checkout to this monorepo’s `packages/aec` (and point any scheduled ingest/KG jobs at it).
+3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
+4. After the runtime switch: re-index GraphRAG against the current graph / embeddings.
+5. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
 
 ## Completed
 
@@ -105,13 +139,12 @@ No hosting target has been chosen or deployed.
 
 ## Next milestones
 
-1. Add document ingestion + evidence extraction.
-2. Drive copy is export-on-write to `SION_STORAGE_ROOT` (see storage-root section). Do not add a live-DB scheduler.
-3. Obtain structured 31-node/43-edge map export and import it.
-4. Point the frontend graph layer to `/api/v1/graph`.
-5. Add LightRAG-compatible GraphRAG boundary.
-6. Add AEC/CAIR adapter for selected useful parts of `khs0927/Ontology`.
-7. Add CAD DXF semantic parser and IFC/IfcOpenShell ingestion.
+Most of the original gap list is done (document/DXF/IFC ingest, `/map` → `/api/v1/graph`, LightRAG boundary, AEC/CAIR adapter, export-on-write Drive storage, 31/43 imported as reviewable candidates). Remaining product work is owner-gated review and PC runtime cutover — see **Sprint 2026-10-08 evening** below and issue #33.
+
+Still open for engineering (non-blocking):
+1. Keep bridged-repo contract pins current when power-cad-mcp / hs-steel-cad land new versions.
+2. Apache AGE as an optional projection once the production PostgreSQL host is chosen.
+3. Public deployment only after real tokens, `SION_INGEST_ROOTS`, and TLS at the proxy.
 
 ## Gap fill 2026-10-07
 

@@ -21,7 +21,7 @@ This platform automatically discovers and ingests interaction sessions from mult
 - **Google Antigravity**: Local session transcripts and artifacts (`~/.gemini/antigravity/brain`)
 - **OpenAI Codex**: Rollout session logs (`~/.codex/sessions`)
 - **Anthropic Claude Code**: Conversation transcripts (`~/.claude/transcripts`)
-- **Extensible Pluggable Readers**: Stubs ready for DeepSeek, Hermes Agent, ZCode in `sion_ingestion/agent_bridge.py`.
+- **DeepSeek / Hermes / ZCode**: Local JSON/JSONL log readers (`DeepSeekReader`, `HermesReader`, `ZCodeReader` in `sion_ingestion/agent_bridge.py`) discover provider dirs via env roots (`SION_DEEPSEEK_ROOT`, `SION_HERMES_ROOT`, `SION_ZCODE_ROOT`) with sensible home defaults.
 
 ### Quick Execution on Any Computer
 
@@ -124,7 +124,7 @@ This keeps superseded design facts queryable for permit/construction revisions w
 - `POST /api/v1/ingest/documents` `{paths:[...]}` — md/txt/csv, unverified evidence
 - `POST /api/v1/ingest/dxf` `{path}` — TEXT/INSERT/LINE/LWPOLYLINE
 - `GET /map` — graph view over `/api/v1/graph`
-- DeepSeek/Hermes/ZCode local log readers
+- DeepSeek/Hermes/ZCode local JSON/JSONL log readers (registered in `PROVIDER_REGISTRY`)
 - `migrations/005_age_projection.sql` optional AGE graph
 - `sion_drive_store.upload.publish_to_mounted_drive`
 - `POST /api/v1/ingest/ifc` `{path}` — IFC via optional `ifcopenshell` (`pip install -e '.[ifc]'`), dependency-free STEP fallback otherwise; `GET /api/v1/ingest/ifc/status` reports which parser is active
