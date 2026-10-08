@@ -190,6 +190,7 @@ def test_empty_input_reports_active_model_without_a_request(monkeypatch, tmp_pat
 
 
 def test_non_local_endpoint_is_refused_without_opt_in(tmp_path, monkeypatch):
+    _public_dns(monkeypatch)
     monkeypatch.delenv("AEC_EMBEDDING_ALLOW_REMOTE", raising=False)
     calls = []
     monkeypatch.setattr(emb, "_urlopen", lambda req, timeout=None: calls.append(req.full_url))
@@ -264,3 +265,10 @@ def test_healthz_surfaces_the_embedding_state(monkeypatch, tmp_path):
     assert body["status"] == "ok"  # liveness is unchanged: a degraded stage must not restart the API
     assert body["embeddings"]["degraded"] is True
     assert body["embeddings"]["model"] == emb.HASH_MODEL
+
+
+def _public_dns(monkeypatch):
+    """Resolve names to a public address so the test is independent of the host's DNS (fake-IP proxies etc.)."""
+    from aec_intelligence.operational import netguard
+
+    monkeypatch.setattr(netguard, "_getaddrinfo", lambda host: [(2, 1, 6, "", ("93.184.216.34", 0))])
