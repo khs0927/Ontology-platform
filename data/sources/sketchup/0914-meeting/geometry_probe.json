@@ -1,0 +1,3068 @@
+{
+  "그룹#19": {
+    "horizontal_z_area_m2": [
+      [
+        167,
+        0.547
+      ],
+      [
+        333,
+        0.547
+      ],
+      [
+        500,
+        0.547
+      ],
+      [
+        667,
+        0.547
+      ],
+      [
+        833,
+        0.547
+      ],
+      [
+        1000,
+        0.547
+      ],
+      [
+        1167,
+        0.547
+      ],
+      [
+        1333,
+        3.282
+      ],
+      [
+        1500,
+        0.547
+      ],
+      [
+        1667,
+        0.547
+      ],
+      [
+        1833,
+        0.547
+      ],
+      [
+        2000,
+        0.547
+      ],
+      [
+        2167,
+        0.547
+      ],
+      [
+        2333,
+        0.547
+      ]
+    ],
+    "horizontal_levels": 14,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 15,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#23": {
+    "horizontal_z_area_m2": [
+      [
+        167,
+        0.54
+      ],
+      [
+        333,
+        0.54
+      ],
+      [
+        500,
+        0.54
+      ],
+      [
+        667,
+        0.54
+      ],
+      [
+        833,
+        0.54
+      ],
+      [
+        1000,
+        0.54
+      ],
+      [
+        1167,
+        0.54
+      ],
+      [
+        1333,
+        0.54
+      ],
+      [
+        1500,
+        0.54
+      ],
+      [
+        1667,
+        0.54
+      ],
+      [
+        1833,
+        0.54
+      ],
+      [
+        2000,
+        0.54
+      ],
+      [
+        2167,
+        3.24
+      ],
+      [
+        2333,
+        0.54
+      ],
+      [
+        2500,
+        0.54
+      ],
+      [
+        2667,
+        0.54
+      ],
+      [
+        2833,
+        0.54
+      ],
+      [
+        3000,
+        0.54
+      ],
+      [
+        3167,
+        0.54
+      ],
+      [
+        3333,
+        0.54
+      ],
+      [
+        3500,
+        0.54
+      ],
+      [
+        3667,
+        0.54
+      ],
+      [
+        3833,
+        0.54
+      ],
+      [
+        4000,
+        0.54
+      ],
+      [
+        4167,
+        0.54
+      ],
+      [
+        4333,
+        0.54
+      ]
+    ],
+    "horizontal_levels": 26,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 27,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#112": {
+    "horizontal_z_area_m2": [
+      [
+        -60,
+        0.594
+      ],
+      [
+        0,
+        0.594
+      ],
+      [
+        93,
+        0.594
+      ],
+      [
+        153,
+        0.594
+      ],
+      [
+        246,
+        0.594
+      ],
+      [
+        306,
+        0.594
+      ],
+      [
+        399,
+        0.432
+      ],
+      [
+        459,
+        0.432
+      ],
+      [
+        552,
+        0.432
+      ],
+      [
+        612,
+        0.432
+      ],
+      [
+        705,
+        0.432
+      ],
+      [
+        765,
+        0.432
+      ],
+      [
+        858,
+        0.432
+      ],
+      [
+        918,
+        0.432
+      ],
+      [
+        1011,
+        0.432
+      ],
+      [
+        1071,
+        0.432
+      ],
+      [
+        1164,
+        0.432
+      ],
+      [
+        1224,
+        0.432
+      ],
+      [
+        1317,
+        0.432
+      ],
+      [
+        1377,
+        0.432
+      ],
+      [
+        1469,
+        0.432
+      ],
+      [
+        1529,
+        0.432
+      ],
+      [
+        1622,
+        0.432
+      ],
+      [
+        1682,
+        0.432
+      ],
+      [
+        1775,
+        0.432
+      ],
+      [
+        1835,
+        0.432
+      ],
+      [
+        1928,
+        0.432
+      ],
+      [
+        1988,
+        0.432
+      ],
+      [
+        2081,
+        0.432
+      ],
+      [
+        2141,
+        0.432
+      ],
+      [
+        2234,
+        5.12
+      ],
+      [
+        2294,
+        5.12
+      ],
+      [
+        2406,
+        0.432
+      ],
+      [
+        2466,
+        0.432
+      ],
+      [
+        2578,
+        0.432
+      ],
+      [
+        2638,
+        0.432
+      ],
+      [
+        2750,
+        0.432
+      ],
+      [
+        2810,
+        0.432
+      ],
+      [
+        2922,
+        0.432
+      ],
+      [
+        2982,
+        0.432
+      ],
+      [
+        3094,
+        0.432
+      ],
+      [
+        3154,
+        0.432
+      ],
+      [
+        3267,
+        0.432
+      ],
+      [
+        3327,
+        0.432
+      ],
+      [
+        3439,
+        0.432
+      ],
+      [
+        3499,
+        0.432
+      ],
+      [
+        3611,
+        0.432
+      ],
+      [
+        3671,
+        0.432
+      ],
+      [
+        3783,
+        0.432
+      ],
+      [
+        3843,
+        0.432
+      ],
+      [
+        3955,
+        0.432
+      ],
+      [
+        4015,
+        0.432
+      ],
+      [
+        4127,
+        0.432
+      ],
+      [
+        4187,
+        0.432
+      ],
+      [
+        4299,
+        0.432
+      ],
+      [
+        4359,
+        0.432
+      ],
+      [
+        4471,
+        0.432
+      ],
+      [
+        4531,
+        0.432
+      ],
+      [
+        4643,
+        0.432
+      ],
+      [
+        4703,
+        0.432
+      ]
+    ],
+    "horizontal_levels": 62,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 125,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#113": {
+    "horizontal_z_area_m2": [
+      [
+        153,
+        0.864
+      ],
+      [
+        306,
+        0.864
+      ],
+      [
+        459,
+        0.864
+      ],
+      [
+        612,
+        0.432
+      ],
+      [
+        765,
+        0.432
+      ],
+      [
+        918,
+        0.432
+      ],
+      [
+        1071,
+        0.432
+      ],
+      [
+        1224,
+        0.432
+      ],
+      [
+        1377,
+        0.432
+      ],
+      [
+        1529,
+        0.432
+      ],
+      [
+        1682,
+        0.432
+      ],
+      [
+        1835,
+        0.432
+      ],
+      [
+        1988,
+        0.432
+      ],
+      [
+        2141,
+        0.432
+      ],
+      [
+        2294,
+        0.432
+      ],
+      [
+        2447,
+        5.12
+      ],
+      [
+        2619,
+        0.432
+      ],
+      [
+        2791,
+        0.432
+      ],
+      [
+        2963,
+        0.432
+      ],
+      [
+        3135,
+        0.432
+      ],
+      [
+        3307,
+        0.432
+      ],
+      [
+        3479,
+        0.432
+      ],
+      [
+        3652,
+        0.432
+      ],
+      [
+        3824,
+        0.432
+      ],
+      [
+        3996,
+        0.432
+      ],
+      [
+        4168,
+        0.432
+      ],
+      [
+        4340,
+        0.432
+      ],
+      [
+        4512,
+        0.432
+      ],
+      [
+        4684,
+        0.432
+      ],
+      [
+        4856,
+        0.432
+      ],
+      [
+        5028,
+        0.432
+      ]
+    ],
+    "horizontal_levels": 31,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 32,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#111": {
+    "horizontal_z_area_m2": [
+      [
+        -153,
+        2.904
+      ],
+      [
+        2387,
+        5.555
+      ],
+      [
+        4452,
+        12.1
+      ],
+      [
+        5067,
+        2.904
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+      "32.5": 2
+    },
+    "vertical_faces": 7,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#3": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        131.641
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "7.0": 20,
+      "7.1": 11,
+      "7.2": 7,
+      "7.3": 4,
+      "7.4": 3,
+      "7.5": 4,
+      "7.6": 2,
+      "7.7": 3,
+      "7.8": 1,
+      "7.9": 3,
+      "8.0": 3,
+      "8.1": 1,
+      "8.2": 2,
+      "8.4": 1,
+      "8.5": 1,
+      "11.1": 3,
+      "11.2": 6,
+      "11.3": 2,
+      "11.5": 1,
+      "11.6": 1
+    },
+    "vertical_faces": 80,
+    "curves": 4,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#4": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        154.894
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "7.2": 31,
+      "7.3": 8,
+      "7.4": 6,
+      "7.5": 3,
+      "7.6": 4,
+      "7.7": 4,
+      "7.8": 3,
+      "7.9": 1,
+      "8.0": 1,
+      "8.2": 1,
+      "8.4": 1,
+      "8.7": 2,
+      "10.6": 2,
+      "10.7": 4,
+      "10.8": 3,
+      "10.9": 2,
+      "11.0": 1,
+      "11.1": 1,
+      "11.3": 1,
+      "11.6": 2
+    },
+    "vertical_faces": 77,
+    "curves": 67,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#31": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        25.85
+      ],
+      [
+        67,
+        11.402
+      ],
+      [
+        139,
+        12.377
+      ],
+      [
+        143,
+        12.377
+      ],
+      [
+        283,
+        12.377
+      ],
+      [
+        287,
+        12.377
+      ],
+      [
+        426,
+        12.377
+      ],
+      [
+        498,
+        12.377
+      ],
+      [
+        500,
+        7.991
+      ]
+    ],
+    "horizontal_levels": 9,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#9": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        341.925
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#8": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        33.825
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#259": {
+    "horizontal_z_area_m2": [
+      [
+        885,
+        0.001
+      ],
+      [
+        915,
+        0.001
+      ],
+      [
+        4535,
+        0.021
+      ],
+      [
+        4565,
+        0.021
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+      "9.3": 6,
+      "9.9": 2,
+      "12.6": 2,
+      "13.2": 6,
+      "20.6": 6,
+      "21.2": 2,
+      "23.8": 2,
+      "24.4": 6,
+      "27.4": 4,
+      "31.4": 4,
+      "31.8": 6,
+      "32.4": 2,
+      "35.1": 2,
+      "35.7": 6,
+      "38.1": 4,
+      "41.3": 4,
+      "43.1": 6,
+      "43.7": 4,
+      "43.9": 2,
+      "46.3": 2
+    },
+    "vertical_faces": 1,
+    "curves": 7,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#57": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.0
+      ],
+      [
+        889,
+        0.0
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 32,
+    "curves": 2,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#83": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.001
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "5.6": 4,
+      "6.8": 8,
+      "12.6": 8,
+      "16.9": 4,
+      "17.3": 8,
+      "19.5": 8,
+      "20.2": 8,
+      "25.0": 8,
+      "26.8": 8,
+      "28.1": 4,
+      "28.4": 8,
+      "30.1": 8,
+      "30.9": 8,
+      "33.4": 8,
+      "34.2": 8,
+      "37.3": 8,
+      "37.7": 8,
+      "39.4": 4,
+      "39.5": 8,
+      "40.7": 8
+    },
+    "vertical_faces": 64,
+    "curves": 29,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#27": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "5.6": 4,
+      "16.9": 4,
+      "28.1": 4,
+      "29.5": 8,
+      "33.2": 8,
+      "39.4": 4,
+      "39.6": 8,
+      "47.5": 8,
+      "50.6": 4,
+      "56.3": 8,
+      "60.9": 2,
+      "61.9": 4,
+      "65.7": 8,
+      "73.1": 4,
+      "75.3": 8,
+      "84.4": 4,
+      "85.1": 8
+    },
+    "vertical_faces": 0,
+    "curves": 4,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#21": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        3.18
+      ],
+      [
+        3700,
+        0.836
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "17.7": 1
+    },
+    "vertical_faces": 4,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#24": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        3.9
+      ],
+      [
+        5700,
+        1.542
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "29.8": 1
+    },
+    "vertical_faces": 4,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#16": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        10.854
+      ],
+      [
+        500,
+        11.934
+      ],
+      [
+        5000,
+        10.854
+      ],
+      [
+        5500,
+        10.434
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+      "22.7": 1
+    },
+    "vertical_faces": 12,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#29": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        21.276
+      ],
+      [
+        4500,
+        19.453
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "30.6": 1
+    },
+    "vertical_faces": 14,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#35": {
+    "horizontal_z_area_m2": [
+      [
+        3719,
+        6.491
+      ],
+      [
+        13719,
+        6.491
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "4.5": 2,
+      "11.9": 2
+    },
+    "vertical_faces": 8,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#34": {
+    "horizontal_z_area_m2": [
+      [
+        -6500,
+        3.398
+      ],
+      [
+        3374,
+        3.398
+      ],
+      [
+        7500,
+        1.102
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+      "5.6": 10,
+      "5.7": 12,
+      "5.8": 8,
+      "5.9": 70,
+      "6.0": 16,
+      "6.1": 14,
+      "6.2": 14,
+      "6.3": 16,
+      "6.4": 12,
+      "6.5": 8,
+      "6.6": 16,
+      "6.7": 10,
+      "6.8": 12,
+      "6.9": 11,
+      "7.0": 6,
+      "7.1": 8,
+      "7.2": 6,
+      "7.3": 8,
+      "7.4": 2,
+      "7.5": 6
+    },
+    "vertical_faces": 270,
+    "curves": 132,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#6": {
+    "horizontal_z_area_m2": [
+      [
+        -5000,
+        124.955
+      ],
+      [
+        -50,
+        107.133
+      ],
+      [
+        0,
+        17.822
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 160,
+    "curves": 12,
+    "arc_curves": 12,
+    "arc_radii_mm": [
+      2000.0,
+      1000.0,
+      1800.0,
+      800.0
+    ]
+  },
+  "그룹#14": {
+    "horizontal_z_area_m2": [
+      [
+        -5500,
+        1.206
+      ],
+      [
+        0,
+        11.287
+      ],
+      [
+        4500,
+        13.333
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+      "10.9": 1,
+      "11.9": 1,
+      "12.0": 1,
+      "12.1": 2,
+      "70.8": 1
+    },
+    "vertical_faces": 43,
+    "curves": 11,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#11": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        22.606
+      ],
+      [
+        4400,
+        27.381
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 4,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#45": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        140.524
+      ],
+      [
+        3000,
+        3.4
+      ],
+      [
+        5500,
+        44.646
+      ],
+      [
+        8000,
+        102.196
+      ],
+      [
+        8020,
+        0.169
+      ],
+      [
+        8041,
+        0.159
+      ],
+      [
+        8061,
+        0.148
+      ],
+      [
+        8081,
+        0.138
+      ],
+      [
+        8101,
+        0.127
+      ]
+    ],
+    "horizontal_levels": 9,
+    "sloped_faces_by_angle_deg": {
+      "3.0": 1,
+      "3.8": 1,
+      "4.6": 1,
+      "5.6": 1,
+      "6.0": 3,
+      "6.1": 2,
+      "6.2": 2,
+      "6.3": 1,
+      "6.4": 2,
+      "6.5": 1,
+      "6.6": 3,
+      "6.7": 3,
+      "6.8": 2,
+      "6.9": 1,
+      "7.0": 3,
+      "7.1": 3,
+      "7.2": 17,
+      "7.3": 7,
+      "7.4": 6,
+      "7.5": 4
+    },
+    "vertical_faces": 70,
+    "curves": 15,
+    "arc_curves": 1,
+    "arc_radii_mm": [
+      8800.0
+    ]
+  },
+  "col": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.028
+      ],
+      [
+        4200,
+        0.151
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 32,
+    "curves": 12,
+    "arc_curves": 12,
+    "arc_radii_mm": [
+      240.0
+    ]
+  },
+  "그룹#133": {
+    "horizontal_z_area_m2": [
+      [
+        -2000,
+        76.3
+      ],
+      [
+        0,
+        152.6
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "29.7": 6
+    },
+    "vertical_faces": 13,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#203": {
+    "horizontal_z_area_m2": [
+      [
+        -800,
+        201.04
+      ],
+      [
+        0,
+        177.76
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "29.7": 1
+    },
+    "vertical_faces": 7,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#213": {
+    "horizontal_z_area_m2": [
+      [
+        10,
+        618.6
+      ],
+      [
+        110,
+        11.76
+      ],
+      [
+        200,
+        23.6
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 32,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#204": {
+    "horizontal_z_area_m2": [
+      [
+        -60,
+        6.947
+      ],
+      [
+        100,
+        85.041
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "2.8": 26
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#219": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        71.242
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "5.9": 40
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#223": {
+    "horizontal_z_area_m2": [
+      [
+        187,
+        71.242
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "5.9": 5,
+      "83.5": 3,
+      "83.9": 2,
+      "84.1": 6,
+      "84.6": 3
+    },
+    "vertical_faces": 14,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#134": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 10,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#246": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 10,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#247": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.018
+      ],
+      [
+        2970,
+        2.712
+      ],
+      [
+        3000,
+        2.73
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 6,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#245": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        1.166
+      ],
+      [
+        2910,
+        1.166
+      ],
+      [
+        2970,
+        1.188
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 6,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#257": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.228
+      ],
+      [
+        30,
+        0.224
+      ],
+      [
+        2880,
+        0.224
+      ],
+      [
+        2910,
+        0.228
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 9,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#99": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        10.352
+      ],
+      [
+        5050,
+        1.95
+      ],
+      [
+        5200,
+        8.402
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 9,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#115": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 11,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#124": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 8,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#88": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        79.21
+      ],
+      [
+        150,
+        0.4
+      ],
+      [
+        200,
+        0.22
+      ],
+      [
+        1050,
+        1.13
+      ],
+      [
+        1300,
+        1.42
+      ],
+      [
+        1650,
+        1.13
+      ],
+      [
+        2100,
+        0.18
+      ],
+      [
+        2150,
+        1.0
+      ],
+      [
+        2550,
+        0.8
+      ],
+      [
+        2750,
+        2.42
+      ],
+      [
+        3550,
+        67.24
+      ],
+      [
+        3600,
+        78.294
+      ],
+      [
+        3630,
+        14.314
+      ]
+    ],
+    "horizontal_levels": 13,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 36,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#225": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        2.415
+      ],
+      [
+        30,
+        2.397
+      ],
+      [
+        420,
+        2.397
+      ],
+      [
+        450,
+        2.415
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 9,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#89": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        2.013
+      ],
+      [
+        20,
+        2.003
+      ],
+      [
+        430,
+        2.003
+      ],
+      [
+        450,
+        2.013
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 6,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "C1": {
+    "horizontal_z_area_m2": [
+      [
+        -470,
+        0.005
+      ],
+      [
+        -120,
+        0.024
+      ],
+      [
+        -20,
+        0.174
+      ],
+      [
+        0,
+        0.201
+      ],
+      [
+        150,
+        0.008
+      ],
+      [
+        270,
+        0.008
+      ],
+      [
+        271,
+        0.002
+      ]
+    ],
+    "horizontal_levels": 7,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 36,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "T": {
+    "horizontal_z_area_m2": [
+      [
+        -670,
+        0.101
+      ],
+      [
+        -660,
+        0.098
+      ],
+      [
+        0,
+        0.637
+      ],
+      [
+        30,
+        0.64
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 76,
+    "curves": 5,
+    "arc_curves": 5,
+    "arc_radii_mm": [
+      30.0,
+      180.0
+    ]
+  },
+  "T2": {
+    "horizontal_z_area_m2": [
+      [
+        -660,
+        0.08
+      ],
+      [
+        0,
+        2.088
+      ],
+      [
+        40,
+        2.16
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 17,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "SO": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "ch5": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "ch6": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "c3": {
+    "horizontal_z_area_m2": [
+      [
+        550,
+        0.221
+      ],
+      [
+        580,
+        0.221
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "5.6": 200,
+      "9.4": 200,
+      "13.1": 200,
+      "16.9": 200,
+      "20.6": 200,
+      "24.4": 200,
+      "28.1": 200,
+      "31.9": 200,
+      "35.6": 200,
+      "39.4": 200,
+      "43.1": 200,
+      "46.9": 200,
+      "50.6": 200,
+      "54.4": 200,
+      "58.1": 200,
+      "61.9": 200,
+      "65.6": 200,
+      "69.4": 200,
+      "73.1": 200,
+      "76.9": 200
+    },
+    "vertical_faces": 100,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#163": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        1.638
+      ],
+      [
+        470,
+        1.638
+      ],
+      [
+        550,
+        0.52
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 24,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#61": {
+    "horizontal_z_area_m2": [
+      [
+        -300,
+        4.209
+      ],
+      [
+        -200,
+        6.747
+      ],
+      [
+        -190,
+        0.161
+      ],
+      [
+        182,
+        0.077
+      ],
+      [
+        202,
+        0.077
+      ],
+      [
+        740,
+        0.083
+      ],
+      [
+        750,
+        0.001
+      ],
+      [
+        770,
+        5.254
+      ],
+      [
+        800,
+        5.254
+      ]
+    ],
+    "horizontal_levels": 9,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 193,
+    "curves": 2,
+    "arc_curves": 2,
+    "arc_radii_mm": [
+      350.0
+    ]
+  },
+  "그룹#155": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        15.278
+      ],
+      [
+        900,
+        10.102
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 14,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#54": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.156
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 1728,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#63": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.187
+      ],
+      [
+        5050,
+        0.187
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 1944,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#74": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "3.1": 2,
+      "8.5": 1,
+      "8.7": 1,
+      "9.1": 1,
+      "9.6": 1,
+      "9.7": 1,
+      "9.8": 1,
+      "10.6": 1,
+      "11.3": 1,
+      "13.3": 1,
+      "17.5": 1,
+      "18.0": 1,
+      "19.1": 1,
+      "19.2": 4,
+      "19.6": 2,
+      "20.2": 1,
+      "20.9": 1,
+      "22.7": 1,
+      "23.2": 1,
+      "23.4": 2
+    },
+    "vertical_faces": 0,
+    "curves": 21,
+    "arc_curves": 21,
+    "arc_radii_mm": [
+      18.6,
+      25.2,
+      28.7,
+      23.5
+    ]
+  },
+  "Component#28": {
+    "horizontal_z_area_m2": [
+      [
+        -2221,
+        0.047
+      ],
+      [
+        952,
+        0.037
+      ],
+      [
+        1924,
+        0.026
+      ],
+      [
+        2829,
+        0.018
+      ],
+      [
+        3872,
+        0.011
+      ],
+      [
+        5125,
+        0.005
+      ]
+    ],
+    "horizontal_levels": 6,
+    "sloped_faces_by_angle_deg": {
+      "81.5": 2,
+      "81.6": 1,
+      "81.9": 1,
+      "82.1": 1,
+      "82.2": 1,
+      "82.4": 2,
+      "82.5": 3,
+      "83.6": 1,
+      "84.1": 2,
+      "84.7": 1,
+      "84.8": 1,
+      "85.2": 1,
+      "85.5": 1,
+      "85.8": 1,
+      "85.9": 1,
+      "86.4": 2,
+      "86.5": 1,
+      "86.6": 2,
+      "86.8": 1,
+      "86.9": 1
+    },
+    "vertical_faces": 5,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#62": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        3.24
+      ],
+      [
+        450,
+        3.24
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 4,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹167#1": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹169#1": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.028
+      ],
+      [
+        100,
+        0.028
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "60.0": 2
+    },
+    "vertical_faces": 2,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#78": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.48
+      ],
+      [
+        30,
+        0.462
+      ],
+      [
+        60,
+        0.042
+      ],
+      [
+        540,
+        0.042
+      ],
+      [
+        570,
+        0.462
+      ],
+      [
+        600,
+        0.48
+      ]
+    ],
+    "horizontal_levels": 6,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 17,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#77": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.96
+      ],
+      [
+        30,
+        0.924
+      ],
+      [
+        60,
+        0.217
+      ],
+      [
+        90,
+        0.122
+      ],
+      [
+        510,
+        0.122
+      ],
+      [
+        540,
+        0.217
+      ],
+      [
+        570,
+        0.924
+      ],
+      [
+        600,
+        0.96
+      ]
+    ],
+    "horizontal_levels": 8,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 54,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#82": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.15
+      ],
+      [
+        60,
+        0.136
+      ],
+      [
+        1330,
+        0.136
+      ],
+      [
+        1390,
+        0.15
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 21,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#96": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.36
+      ],
+      [
+        30,
+        0.312
+      ],
+      [
+        60,
+        0.066
+      ],
+      [
+        840,
+        0.066
+      ],
+      [
+        870,
+        0.312
+      ],
+      [
+        900,
+        0.36
+      ]
+    ],
+    "horizontal_levels": 6,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 48,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#38": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#42": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "6.0": 1,
+      "9.3": 1,
+      "33.6": 1,
+      "40.9": 1
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#44": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "18.2": 1,
+      "21.7": 1,
+      "22.2": 1,
+      "23.0": 1,
+      "26.6": 1
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#39": {
+    "horizontal_z_area_m2": [
+      [
+        -1392,
+        6.374
+      ],
+      [
+        -1391,
+        0.394
+      ],
+      [
+        -1390,
+        0.415
+      ],
+      [
+        0,
+        71.911
+      ],
+      [
+        1000,
+        69.103
+      ],
+      [
+        2000,
+        66.165
+      ]
+    ],
+    "horizontal_levels": 6,
+    "sloped_faces_by_angle_deg": {
+      "2.7": 1,
+      "2.9": 4,
+      "3.0": 1,
+      "3.5": 2,
+      "4.3": 1,
+      "4.6": 6,
+      "4.7": 1,
+      "5.7": 3,
+      "6.2": 4,
+      "6.3": 1,
+      "6.7": 2,
+      "7.1": 1,
+      "7.7": 6,
+      "7.8": 1,
+      "8.3": 1,
+      "8.6": 2,
+      "9.0": 4,
+      "9.2": 1,
+      "9.5": 3,
+      "10.3": 4
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#41": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        78.782
+      ],
+      [
+        1000,
+        83.217
+      ],
+      [
+        2000,
+        79.678
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+      "31.0": 1,
+      "33.7": 2
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#102": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "19.6": 1,
+      "19.7": 1,
+      "22.1": 1,
+      "22.9": 1,
+      "25.7": 1,
+      "27.7": 1,
+      "29.4": 1,
+      "31.8": 1,
+      "37.2": 1,
+      "49.2": 1
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#5": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        19.611
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "3.3": 7,
+      "3.4": 8,
+      "3.5": 3,
+      "3.6": 2,
+      "3.7": 2,
+      "3.8": 1,
+      "3.9": 2,
+      "4.0": 1,
+      "4.1": 1,
+      "4.3": 2,
+      "4.5": 2,
+      "4.8": 2,
+      "5.1": 1,
+      "5.2": 1,
+      "5.5": 1,
+      "5.7": 1,
+      "6.0": 1,
+      "6.2": 1,
+      "6.6": 1,
+      "7.0": 1
+    },
+    "vertical_faces": 54,
+    "curves": 4,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#7": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        48.314
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#30": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        67.99
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#32": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        37.585
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "12.6": 8,
+      "12.7": 3,
+      "12.8": 4,
+      "13.0": 2,
+      "13.2": 2,
+      "13.4": 2,
+      "13.7": 1,
+      "13.8": 1,
+      "14.1": 2,
+      "14.5": 1,
+      "14.6": 1,
+      "15.1": 2,
+      "15.7": 1,
+      "15.8": 3,
+      "15.9": 3,
+      "16.0": 7,
+      "16.1": 10,
+      "16.2": 10,
+      "16.3": 10,
+      "16.4": 8
+    },
+    "vertical_faces": 52,
+    "curves": 3,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#33": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "10.6": 1,
+      "10.7": 13,
+      "10.8": 12,
+      "10.9": 6,
+      "11.0": 5,
+      "11.1": 4,
+      "11.2": 3,
+      "11.3": 3,
+      "11.4": 3,
+      "11.5": 2,
+      "11.6": 3,
+      "11.7": 2,
+      "11.8": 2,
+      "11.9": 2,
+      "12.0": 3,
+      "12.2": 3,
+      "12.3": 1,
+      "12.4": 1,
+      "12.5": 2,
+      "12.6": 2
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#90": {
+    "horizontal_z_area_m2": [
+      [
+        -1000,
+        1.203
+      ],
+      [
+        -950,
+        11.469
+      ],
+      [
+        1800,
+        8.889
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+      "30.9": 1
+    },
+    "vertical_faces": 15,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#103": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        93.47
+      ],
+      [
+        1200,
+        89.61
+      ],
+      [
+        5200,
+        6.44
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 21,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#125": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        31.735
+      ],
+      [
+        1800,
+        0.36
+      ],
+      [
+        2700,
+        0.36
+      ],
+      [
+        4995,
+        31.735
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 16,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#229": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        13.642
+      ],
+      [
+        30,
+        13.642
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 10,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#234": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        163.28
+      ],
+      [
+        1200,
+        1.02
+      ],
+      [
+        1250,
+        1.843
+      ],
+      [
+        1700,
+        1.843
+      ],
+      [
+        2100,
+        1.02
+      ],
+      [
+        2400,
+        0.11
+      ],
+      [
+        3000,
+        0.901
+      ],
+      [
+        3350,
+        9.66
+      ],
+      [
+        3600,
+        1.8
+      ],
+      [
+        3950,
+        8.807
+      ],
+      [
+        4150,
+        99.0
+      ],
+      [
+        4350,
+        18.73
+      ],
+      [
+        5000,
+        74.6
+      ]
+    ],
+    "horizontal_levels": 13,
+    "sloped_faces_by_angle_deg": {
+      "3.8": 1,
+      "44.1": 1,
+      "87.5": 1
+    },
+    "vertical_faces": 74,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#154": {
+    "horizontal_z_area_m2": [
+      [
+        40,
+        4.667
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 101,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#156": {
+    "horizontal_z_area_m2": [
+      [
+        2719,
+        34.595
+      ],
+      [
+        3050,
+        42.771
+      ],
+      [
+        3150,
+        42.771
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+      "5.9": 4,
+      "6.2": 1
+    },
+    "vertical_faces": 14,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#119": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.864
+      ],
+      [
+        100,
+        0.704
+      ],
+      [
+        2500,
+        0.704
+      ],
+      [
+        2600,
+        0.864
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 90,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#46": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.328
+      ],
+      [
+        4650,
+        0.328
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 270,
+    "curves": 10,
+    "arc_curves": 10,
+    "arc_radii_mm": [
+      144.8
+    ]
+  },
+  "그룹#157": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        2.904
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 8,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#70": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        2.49
+      ],
+      [
+        1000,
+        2.49
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 5,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#12": {
+    "horizontal_z_area_m2": [
+      [
+        250,
+        0.003
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "63.4": 2
+    },
+    "vertical_faces": 2,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#85": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.014
+      ],
+      [
+        4000,
+        0.014
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 4,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#227": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        2.7
+      ],
+      [
+        150,
+        3.51
+      ]
+    ],
+    "horizontal_levels": 2,
+    "sloped_faces_by_angle_deg": {
+      "45.0": 9
+    },
+    "vertical_faces": 27,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#109": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        17.044
+      ],
+      [
+        450,
+        11.25
+      ],
+      [
+        600,
+        2.419
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+      "45.0": 1
+    },
+    "vertical_faces": 7,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#222": {
+    "horizontal_z_area_m2": [
+      [
+        200,
+        12.0
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+      "17.2": 1
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#214": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+      "5.9": 16
+    },
+    "vertical_faces": 16,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#253": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.022
+      ],
+      [
+        2770,
+        0.324
+      ],
+      [
+        2970,
+        0.347
+      ]
+    ],
+    "horizontal_levels": 3,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 16,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#254": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        0.072
+      ],
+      [
+        50,
+        0.066
+      ],
+      [
+        2720,
+        0.066
+      ],
+      [
+        2770,
+        0.072
+      ]
+    ],
+    "horizontal_levels": 4,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 6,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  },
+  "그룹#40": {
+    "horizontal_z_area_m2": [
+      [
+        0,
+        1069.515
+      ]
+    ],
+    "horizontal_levels": 1,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 1,
+    "arc_curves": 1,
+    "arc_radii_mm": [
+      1000.0
+    ]
+  },
+  "그룹#43": {
+    "horizontal_z_area_m2": [
+
+    ],
+    "horizontal_levels": 0,
+    "sloped_faces_by_angle_deg": {
+    },
+    "vertical_faces": 0,
+    "curves": 0,
+    "arc_curves": 0,
+    "arc_radii_mm": [
+
+    ]
+  }
+}

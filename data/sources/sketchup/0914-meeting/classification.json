@@ -1,0 +1,1293 @@
+{
+  "schema": "sion-sketchup-classification/v1",
+  "model_dump": "model_dump.json",
+  "model_dump_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+  "method": "덤프(model_dump.json)와 형상 프로브(geometry_probe.json)의 사실(이름·재질·크기·수평 레벨·경사각·인스턴스 수)을 근거로 사람이 읽고 정한 분류. 모든 분류는 추론(source_kind=inferred, verification_state=unverified)이며 basis_ko에 근거 사실을 적는다. 미사용 판정(unused-definition)은 생성기가 루트 도달성으로 계산한다.",
+  "author": "grokbot (2026-10-08, 사람 검토 전)",
+  "assignments": [
+    {
+      "definition": "학장동 skp.dwg",
+      "class": "site-container",
+      "confidence": 0.8,
+      "basis_ko": "정의 이름이 .dwg로 끝나는 CAD 가져오기 컴포넌트, 도로계획 태그 모서리 88개, 하위 그룹 8개(지형·포장·옹벽), 월드 크기 97.9×64.1×22.0 m로 모델 대부분을 차지, Z축 4.09° 회전 배치"
+    },
+    {
+      "definition": "그룹#3",
+      "class": "parking-deck",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 [Polished Concrete New], 7.0~8.5°·10.6~11.6° 경사면 다수, 수평 바닥면 1개(131.6 m²), 수직면 80개, 크기 18.1×12.3×3.0 m"
+    },
+    {
+      "definition": "그룹#4",
+      "class": "parking-deck",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 [Polished Concrete New], 7.2~8.7°·10.6~11.6° 경사면 다수, 수평 바닥면 1개(154.9 m²), 수직면 77개, 크기 20.7×14.0×3.5 m"
+    },
+    {
+      "definition": "그룹#9",
+      "class": "paving",
+      "confidence": 0.6,
+      "basis_ko": "[Polished Concrete New] 면 180개, 단일 수평면 341.9 m², 월드 z -2500, 하위 그룹#8 포함"
+    },
+    {
+      "definition": "그룹#8",
+      "class": "parking-stall",
+      "confidence": 0.5,
+      "basis_ko": "[Quartz Light Grey] 면, 도로계획 태그 모서리 12개, 수평면 33.8 m², 그룹#9(바닥) 위에 겹친 구획 표시면"
+    },
+    {
+      "definition": "그룹#5",
+      "class": "paving",
+      "confidence": 0.5,
+      "basis_ko": "[Polished Concrete New] 면 111개, 수평면 19.6 m² + 3.3~7.0° 완경사면, 월드 z 4500~5000"
+    },
+    {
+      "definition": "그룹#7",
+      "class": "road-plan-surface",
+      "confidence": 0.6,
+      "basis_ko": "<auto> 재질 면 2개, 도로계획 태그 모서리 21개, 두께 0인 평면 8.9×34.4 m (z 0)"
+    },
+    {
+      "definition": "그룹#30",
+      "class": "paving",
+      "confidence": 0.5,
+      "basis_ko": "[Quartz Light Grey]·[Polished Concrete New] 면, 단일 수평면 68.0 m², 두께 0 (z 0)"
+    },
+    {
+      "definition": "그룹#31",
+      "class": "exterior-stair",
+      "confidence": 0.5,
+      "basis_ko": "수평면 레벨 0/67/139·143/283·287/426/498/500 mm의 계단식 단차, 크기 7.9×18.5×0.5 m, 재질 [Polished Concrete New]"
+    },
+    {
+      "definition": "그룹#16",
+      "class": "retaining-wall",
+      "confidence": 0.6,
+      "basis_ko": "Travertine Stretcher 면 50개, 수평 레벨 0/500/5000/5500 mm, 수직면 12개, 크기 13.6×42.6×5.5 m"
+    },
+    {
+      "definition": "그룹#29",
+      "class": "retaining-wall",
+      "confidence": 0.6,
+      "basis_ko": "Travertine Stretcher 면 56개, 수평 레벨 0/4500 mm, 수직면 14개, 크기 15.6×38.3×4.5 m"
+    },
+    {
+      "definition": "그룹#35",
+      "class": "retaining-wall",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 Travertine Stretcher, 길이 57.2 m × 두께 방향 4.6 m × 높이 18.0 m 바운딩, 수평 레벨 3719/13719 mm"
+    },
+    {
+      "definition": "그룹#14",
+      "class": "retaining-wall",
+      "confidence": 0.5,
+      "basis_ko": "Travertine Stretcher 면 123개 + 기존조경 면 47개, 수평 레벨 -5500/0/4500 mm, 크기 64.1×10.1×22.0 m"
+    },
+    {
+      "definition": "그룹#34",
+      "class": "retaining-wall",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 Travertine Stretcher, 수직면 270개, 5.6~7.5° 경사면(경사로로 추정), 수평 레벨 -6500/3374/7500 mm, 크기 54.9×17.9×16.7 m"
+    },
+    {
+      "definition": "그룹#6",
+      "class": "retaining-wall",
+      "confidence": 0.5,
+      "basis_ko": "Even Drag Brick 면 644개, 반경 800~2000 mm 호 12개(곡선 벽), 수평 레벨 -5000/-50/0 mm, 크기 7.7×43.5×5.0 m"
+    },
+    {
+      "definition": "그룹#11",
+      "class": "terrain",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 기존조경, 수평 레벨 0/4400 mm, 크기 5.0×56.5×4.4 m"
+    },
+    {
+      "definition": "그룹#45",
+      "class": "terrain",
+      "confidence": 0.7,
+      "basis_ko": "기존조경 면 3253개, 계단식 수평 레벨 0/3000/5500/8000 mm, 3~7.5° 경사면, 크기 55.1×21.7×10.5 m"
+    },
+    {
+      "definition": "그룹#32",
+      "class": "terrain",
+      "confidence": 0.6,
+      "basis_ko": "[Vegetation Grass] 면 100개, 12.6~16.4° 경사면, 크기 10.9×4.7×3.0 m"
+    },
+    {
+      "definition": "그룹#33",
+      "class": "terrain",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 [Vegetation Grass], 10.6~12.6° 경사면만으로 구성, 크기 13.3×6.5×3.4 m"
+    },
+    {
+      "definition": "그룹#38",
+      "class": "terrain",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 [Vegetation Grass], 크기 41.2×50.1×9.6 m, 하위 그룹#42·#44 포함"
+    },
+    {
+      "definition": "그룹#42",
+      "class": "terrain",
+      "confidence": 0.4,
+      "basis_ko": "@0818변경 태그 모서리 4개, 재질 <auto>2(@0818변경 태그 색 255,218,113과 동일), 경사면 4개 — 8월 18일 변경 표시면으로 추정"
+    },
+    {
+      "definition": "그룹#44",
+      "class": "terrain",
+      "confidence": 0.4,
+      "basis_ko": "재질 <auto>2(@0818변경 태그 색과 동일), 18~27° 경사면 5개"
+    },
+    {
+      "definition": "그룹#39",
+      "class": "terrain",
+      "confidence": 0.6,
+      "basis_ko": "[Vegetation Grass] 면 419개, 수평 레벨 0/1000/2000 mm 계단식 단 + 2.7~10.3° 경사면, 크기 22.3×39.8×14.4 m"
+    },
+    {
+      "definition": "그룹#41",
+      "class": "terrain",
+      "confidence": 0.6,
+      "basis_ko": "[Vegetation Grass] 면, 수평 레벨 0/1000/2000 mm, 크기 13.4×39.8×4.4 m"
+    },
+    {
+      "definition": "그룹#102",
+      "class": "terrain",
+      "confidence": 0.6,
+      "basis_ko": "[Vegetation Grass] 면, 19.6~49.2° 경사면, 크기 13.4×39.8×4.4 m (월드 z 10200)"
+    },
+    {
+      "definition": "그룹#40",
+      "class": "paving",
+      "confidence": 0.5,
+      "basis_ko": "단일 수평면 1069.5 m²(반경 1000 mm 호 포함), 월드 z 5000 — 건물 1층 레벨의 외부 바닥판으로 추정"
+    },
+    {
+      "definition": "그룹#99",
+      "class": "wall",
+      "confidence": 0.4,
+      "basis_ko": "그룹 재질 [Translucent Glass Gray], 내부 면은 Non Slip Vinyl, 두께 300 mm × 길이 44.3 m × 높이 5.2 m의 선형 매스 — 용도 미확정(유리 스크린 벽으로 추정)"
+    },
+    {
+      "definition": "그룹#18",
+      "class": "exterior-stair",
+      "confidence": 0.7,
+      "basis_ko": "하위에 이름 'Raise' 그룹 2개, 'Handrail' 그룹 2개, 벽돌 측벽 4개를 묶은 외부계단 조립체, 크기 30.5×4.6×8.2 m"
+    },
+    {
+      "definition": "그룹#19",
+      "class": "exterior-stair",
+      "confidence": 0.8,
+      "basis_ko": "이름 'Raise', 수평 디딤면 14개가 166.7 mm 간격(167~2333 mm), 1333 mm에 넓은 참(3.28 m²), 총 높이 2500 mm"
+    },
+    {
+      "definition": "그룹#23",
+      "class": "exterior-stair",
+      "confidence": 0.8,
+      "basis_ko": "이름 'Raise', 수평 디딤면 26개가 166.7 mm 간격(167~4333 mm), 총 높이 4500 mm"
+    },
+    {
+      "definition": "그룹36#1",
+      "class": "handrail",
+      "confidence": 0.8,
+      "basis_ko": "이름 'Handrail', 하위 'D=30 mm' 파이프 그룹 2개"
+    },
+    {
+      "definition": "그룹53#1",
+      "class": "handrail",
+      "confidence": 0.8,
+      "basis_ko": "이름 'Handrail', 하위 'D=30 mm' 파이프 그룹 2개"
+    },
+    {
+      "definition": "그룹#25",
+      "class": "handrail",
+      "confidence": 0.7,
+      "basis_ko": "이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상"
+    },
+    {
+      "definition": "그룹#26",
+      "class": "handrail",
+      "confidence": 0.7,
+      "basis_ko": "이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상"
+    },
+    {
+      "definition": "그룹#27",
+      "class": "handrail",
+      "confidence": 0.7,
+      "basis_ko": "이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상"
+    },
+    {
+      "definition": "그룹#28",
+      "class": "handrail",
+      "confidence": 0.7,
+      "basis_ko": "이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상"
+    },
+    {
+      "definition": "그룹#21",
+      "class": "wall",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 Even Drag Brick Staggered (6B2XZN), 외부계단 그룹#18의 측벽, 10.6×1.1×3.7 m, 수평 레벨 0/3700 mm, 상단 17.7° 경사면"
+    },
+    {
+      "definition": "그룹#166",
+      "class": "wall",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 Even Drag Brick Staggered (6B2XZN), 외부계단 그룹#18의 측벽, 10.6×1.1×3.7 m"
+    },
+    {
+      "definition": "그룹#24",
+      "class": "wall",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 Even Drag Brick Staggered (6B2XZN), 외부계단 그룹#18의 측벽, 13.0×1.2×5.7 m, 수평 레벨 0/5700 mm, 상단 29.8° 경사면"
+    },
+    {
+      "definition": "그룹#37",
+      "class": "wall",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 Even Drag Brick Staggered (6B2XZN), 외부계단 그룹#18의 측벽, 13.0×1.2×5.7 m"
+    },
+    {
+      "definition": "그룹#201",
+      "class": "building",
+      "confidence": 0.7,
+      "basis_ko": "건물 레벨(z 4800~15450)에 놓인 최상위 그룹, 하위에 그룹 22개 + 컴포넌트 1개(인물·가구·커튼월·지붕·난간·별동), 크기 26.6×40.8×10.7 m"
+    },
+    {
+      "definition": "그룹#161",
+      "class": "building",
+      "confidence": 0.6,
+      "basis_ko": "9.0×9.0×3.6 m 박스(월드 z 9150), 흰 벽 그룹#88 + DimGray 창틀·Blue Glass 그룹#76 — 별동 상부 매스로 추정"
+    },
+    {
+      "definition": "그룹#217",
+      "class": "building",
+      "confidence": 0.5,
+      "basis_ko": "재질2(흰색)·지붕·Non Slip Vinyl 면, 수평 레벨 0~5000 mm 13개, 크기 9.4×23.4×5.0 m(월드 z 5000) — 별동 하부 매스로 추정"
+    },
+    {
+      "definition": "그룹#88",
+      "class": "wall",
+      "confidence": 0.6,
+      "basis_ko": "재질2 면 235개, 8.94×8.94 m 박스, 바닥 0과 상부 3550~3630 mm 수평면, 개구부 레벨 다수"
+    },
+    {
+      "definition": "그룹#105",
+      "class": "building",
+      "confidence": 0.5,
+      "basis_ko": "1층 실내(그룹#160)를 감싸는 최상위 그룹, 크기 24.0×25.8×5.4 m, 월드 z 4847"
+    },
+    {
+      "definition": "그룹#129",
+      "class": "curtain-wall",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 [Color M06], 하위에 유리 외피 그룹#134와 출입구 그룹#159, 크기 18.5×22.5×5.0 m (1층)"
+    },
+    {
+      "definition": "그룹#134",
+      "class": "curtain-wall",
+      "confidence": 0.7,
+      "basis_ko": "[Translucent Glass Gray] 면 73개, 수직면 10개, 크기 1.9×22.2×5.0 m"
+    },
+    {
+      "definition": "그룹#246",
+      "class": "curtain-wall",
+      "confidence": 0.6,
+      "basis_ko": "[Translucent Glass Gray] 면 20개, 두께 0, 길이 13.5 m × 높이 5.0 m"
+    },
+    {
+      "definition": "그룹#46",
+      "class": "curtain-wall",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 [Color M06], 반경 144.8 mm 호 10개, 하위 그룹#63(수직면 1944개) — 1층 커튼월 멀리언 프레임"
+    },
+    {
+      "definition": "그룹#63",
+      "class": "curtain-wall",
+      "confidence": 0.6,
+      "basis_ko": "[Color M06] 면 8029개(앞·뒷면 합), 수직면 1944개, 수평 레벨 0/5050 mm, @win 태그 모서리 1개, 크기 24.0×22.0×5.05 m"
+    },
+    {
+      "definition": "새 블럭.dwg",
+      "class": "curtain-wall",
+      "confidence": 0.5,
+      "basis_ko": "CAD 블록 이름(.dwg), Z축 -90° 회전 배치, 하위 그룹#54 1개, 월드 z 10200(2층)"
+    },
+    {
+      "definition": "그룹#54",
+      "class": "curtain-wall",
+      "confidence": 0.5,
+      "basis_ko": "[Color M06] 면 5156개, 수직면 1728개·수평면 1개, 크기 21.6×21.8×4.56 m(월드 z 10200) — 2층 수직 핀/멀리언으로 추정"
+    },
+    {
+      "definition": "그룹#154",
+      "class": "curtain-wall",
+      "confidence": 0.6,
+      "basis_ko": "[Color_001] 209 + [Translucent Glass Gray] 66 면, 수직면 101개, 크기 21.8×22.2×4.58 m(월드 z 10200) — 2층 외피"
+    },
+    {
+      "definition": "그룹#85",
+      "class": "curtain-wall",
+      "confidence": 0.4,
+      "basis_ko": "그룹 재질 [Color M06], 450×30×4000 mm 막대 — 멀리언/핀 부재로 추정"
+    },
+    {
+      "definition": "그룹#247",
+      "class": "wall",
+      "confidence": 0.6,
+      "basis_ko": "9100×300×3000 mm, 수평 레벨 0/2970/3000 mm"
+    },
+    {
+      "definition": "그룹#245",
+      "class": "wall",
+      "confidence": 0.4,
+      "basis_ko": "6600×180×2970 mm 판, 수평 레벨 0/2910/2970 mm — 미서기문 상부·문틀벽으로 추정"
+    },
+    {
+      "definition": "그룹#227",
+      "class": "wall",
+      "confidence": 0.4,
+      "basis_ko": "Even Drag Brick Staggered (2OE7HP) 면, 650×22500×150 mm, 45° 경사면 9개"
+    },
+    {
+      "definition": "그룹#109",
+      "class": "wall",
+      "confidence": 0.4,
+      "basis_ko": "Even Drag Brick Staggered (2OE7HP) 면, 1425×22500×600 mm, 수평 레벨 0/450/600 mm — 낮은 조적 벽/화단 벽으로 추정"
+    },
+    {
+      "definition": "그룹#157",
+      "class": "wall",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 Travertine (ZUB1YX), 4840×3100×4452 mm, 내부계단 그룹#111 안의 벽"
+    },
+    {
+      "definition": "그룹#257",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "3255×70×2910 mm 유리 패널(수평 레벨 0/30/2880/2910)"
+    },
+    {
+      "definition": "그룹#248",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "3255×70×2910 mm 유리 패널"
+    },
+    {
+      "definition": "그룹#249",
+      "class": "door",
+      "confidence": 0.4,
+      "basis_ko": "미서기 패널 2개를 묶은 3261×260×2910 mm"
+    },
+    {
+      "definition": "그룹#253",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "문틀 2450×180×2970 mm([Color M06]) + 유리 문짝 그룹#255(1150×2770)"
+    },
+    {
+      "definition": "그룹#255",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "유리 문짝 1150×2770 mm, 두께 0"
+    },
+    {
+      "definition": "그룹#254",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "문틀 1200×60×2770 mm + 유리 문짝 그룹#256(1100×2670)"
+    },
+    {
+      "definition": "그룹#256",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "유리 문짝 1100×2670 mm, 두께 0"
+    },
+    {
+      "definition": "그룹#119",
+      "class": "door",
+      "confidence": 0.6,
+      "basis_ko": "[Color_001]·유리 면, 1077×2663×2600 mm, 수직면 90개(2층)"
+    },
+    {
+      "definition": "그룹#87",
+      "class": "door",
+      "confidence": 0.4,
+      "basis_ko": "50×1100×2400 mm 판(재질2)"
+    },
+    {
+      "definition": "그룹#76",
+      "class": "window-louver",
+      "confidence": 0.5,
+      "basis_ko": "DimGray 184·Blue Glass 면, 하위 창틀·루버 그룹 12개, 9.0×9.0×2.6 m"
+    },
+    {
+      "definition": "그룹#91",
+      "class": "window-louver",
+      "confidence": 0.5,
+      "basis_ko": "DimGray 면 34개, 깊이 250 mm 프레임 박스"
+    },
+    {
+      "definition": "그룹#92",
+      "class": "window-louver",
+      "confidence": 0.5,
+      "basis_ko": "DimGray 면 34개, 깊이 250 mm 프레임 박스"
+    },
+    {
+      "definition": "그룹#93",
+      "class": "window-louver",
+      "confidence": 0.5,
+      "basis_ko": "DimGray 면 34개, 깊이 250 mm 프레임 박스"
+    },
+    {
+      "definition": "그룹#94",
+      "class": "window-louver",
+      "confidence": 0.5,
+      "basis_ko": "DimGray 면 34개, 깊이 250 mm 프레임 박스"
+    },
+    {
+      "definition": "그룹#95",
+      "class": "window-louver",
+      "confidence": 0.5,
+      "basis_ko": "DimGray 면 34개, 깊이 250 mm 프레임 박스"
+    },
+    {
+      "definition": "그룹#77",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 5600×200×600 mm, 수평 레벨 0/30/60/90/510/540/570/600(30 mm 프레임 단)"
+    },
+    {
+      "definition": "그룹#78",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 200×2400×600 mm, 프레임 30 mm 단"
+    },
+    {
+      "definition": "그룹#80",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 2000×200×2400 mm"
+    },
+    {
+      "definition": "그룹#81",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 200×2500×1450 mm, 하위 그룹#82"
+    },
+    {
+      "definition": "그룹#82",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 120×2440×1390 mm, 프레임 60 mm 단"
+    },
+    {
+      "definition": "그룹#84",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 200×3400×1450 mm, 하위 그룹#86"
+    },
+    {
+      "definition": "그룹#86",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 120×3340×1390 mm"
+    },
+    {
+      "definition": "그룹#66",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 7050×450×900 mm, 하위 그룹#96"
+    },
+    {
+      "definition": "그룹#96",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "DimGray 프레임 + Blue Glass, 7050×200×900 mm, 프레임 30/60 mm 단"
+    },
+    {
+      "definition": "그룹#79",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "하위 그룹167#1(루버 살 24개)을 담은 940×100×2340 mm"
+    },
+    {
+      "definition": "그룹167#1",
+      "class": "window-louver",
+      "confidence": 0.7,
+      "basis_ko": "그룹 재질 DimGray, 940×100×87.7 mm 살 24개가 100 mm 간격으로 수직 적층(23개 + 마감 1개)"
+    },
+    {
+      "definition": "그룹169#1",
+      "class": "window-louver",
+      "confidence": 0.6,
+      "basis_ko": "루버 살 940×100×87.7 mm, 60° 경사면 2개"
+    },
+    {
+      "definition": "col",
+      "class": "column",
+      "confidence": 0.9,
+      "basis_ko": "이름 'col', 반경 240 mm 호(지름 480 원형), 높이 4200 mm, 인스턴스 4개(x 70273.7, z 5000)"
+    },
+    {
+      "definition": "그룹#225",
+      "class": "beam",
+      "confidence": 0.5,
+      "basis_ko": "지붕 재질 면 46개, 300×8050×450 mm, 수평 레벨 0/30/420/450 mm, 월드 z 6250"
+    },
+    {
+      "definition": "그룹#89",
+      "class": "beam",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 DimGray, 250×8050×450 mm, 월드 z 6250(그룹#225와 같은 높이)"
+    },
+    {
+      "definition": "그룹#207",
+      "class": "roof",
+      "confidence": 0.7,
+      "basis_ko": "월드 z 13363~15450, 하위 그룹#214·#211·#223, 크기 24.6×25.3×2.1 m"
+    },
+    {
+      "definition": "그룹#219",
+      "class": "roof",
+      "confidence": 0.7,
+      "basis_ko": "지붕 재질 144 + 재질3 48 면, 5.9° 경사면 40개, 수평면 71.2 m², 24.5×25.3×1.6 m"
+    },
+    {
+      "definition": "그룹#211",
+      "class": "roof",
+      "confidence": 0.6,
+      "basis_ko": "그룹#219를 담은 지붕 컨테이너"
+    },
+    {
+      "definition": "그룹#223",
+      "class": "roof",
+      "confidence": 0.6,
+      "basis_ko": "지붕 재질 91 + 재질3 43 면, 5.9° 경사면, 처마 수직면 14개"
+    },
+    {
+      "definition": "그룹#214",
+      "class": "roof",
+      "confidence": 0.6,
+      "basis_ko": "재질3 면 32개, 5.9° 경사면 16개, 4.1×9.5×0.7 m"
+    },
+    {
+      "definition": "그룹#156",
+      "class": "roof",
+      "confidence": 0.5,
+      "basis_ko": "수평 레벨 2719/3050/3150 mm + 5.9~6.2° 경사면, 21.8×22.2×1.9 m(월드 z 12919)"
+    },
+    {
+      "definition": "그룹#202",
+      "class": "floor-slab",
+      "confidence": 0.5,
+      "basis_ko": "2층 바닥·접힌 천장(그룹#203)·2층 가구(그룹#205)·지붕(그룹#207)을 묶은 컨테이너, 26.4×27.3×7.4 m"
+    },
+    {
+      "definition": "그룹#203",
+      "class": "floor-slab",
+      "confidence": 0.6,
+      "basis_ko": "Barham & Sons Benchmark Oak 면, 수평 레벨 -800/0 mm + 29.7° 경사면, 17.4×22.2×2.0 m(월드 z 8100) — 1층 접힌 천장/2층 바닥 하부"
+    },
+    {
+      "definition": "그룹#133",
+      "class": "floor-slab",
+      "confidence": 0.6,
+      "basis_ko": "Polished Concrete 15DBUL 면 83개, 수평 레벨 -2000/0 mm + 29.7° 경사면 6개, 7.0×21.8×2.0 m"
+    },
+    {
+      "definition": "그룹#205",
+      "class": "floor-slab",
+      "confidence": 0.6,
+      "basis_ko": "2층 바닥판(그룹#204·#213)과 2층 가구 인스턴스를 담은 컨테이너, 25.7×27.3×1.2 m(월드 z 9750)"
+    },
+    {
+      "definition": "그룹#204",
+      "class": "floor-slab",
+      "confidence": 0.4,
+      "basis_ko": "지붕 재질 면 167개, 두께 160 mm, 2.8° 경사면 26개, 25.4×27.3 m(월드 z 10160)"
+    },
+    {
+      "definition": "그룹#213",
+      "class": "floor-slab",
+      "confidence": 0.6,
+      "basis_ko": "수평면 618.6 m²(레벨 10 mm), 지붕·Douglas Fir 면, 25.7×27.3×0.47 m(월드 z 9750)"
+    },
+    {
+      "definition": "그룹#231",
+      "class": "floor-slab",
+      "confidence": 0.5,
+      "basis_ko": "두께 0 평면 22.1×22.2 m(월드 z 10220), 지붕·Aluminium·Limestone 면 — 2층 마감 바닥면"
+    },
+    {
+      "definition": "그룹#229",
+      "class": "floor-slab",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 재질2, 두께 30 mm 판 9.44×14.44 m(월드 z 9350)"
+    },
+    {
+      "definition": "그룹#103",
+      "class": "floor-slab",
+      "confidence": 0.4,
+      "basis_ko": "Non Slip Vinyl 62 + 유리 36 면, 수평면 93.5 m²(0)·89.6 m²(1200)·6.4 m²(5200), 9.2×10.3×5.2 m"
+    },
+    {
+      "definition": "그룹#222",
+      "class": "floor-slab",
+      "confidence": 0.3,
+      "basis_ko": "단일 경사면 12.0 m²(17.2°), 2.7×9.6×0.45 m — 용도 미확정"
+    },
+    {
+      "definition": "그룹#111",
+      "class": "interior-stair",
+      "confidence": 0.7,
+      "basis_ko": "하위 그룹#112·#113(계단)과 #157(벽), 32.5° 경사면 2개, 5.65×8.99×5.35 m(1층→2층)"
+    },
+    {
+      "definition": "그룹#112",
+      "class": "interior-stair",
+      "confidence": 0.8,
+      "basis_ko": "수평면 62개가 60 mm 두께 디딤판 쌍으로 약 153 mm 간격 반복(-60~4703 mm), 수직면 125개, 5650×3200×4935 mm"
+    },
+    {
+      "definition": "그룹#113",
+      "class": "interior-stair",
+      "confidence": 0.8,
+      "basis_ko": "수평면 31개가 153 mm 간격(153~5028 mm), 5650×3200×5200 mm"
+    },
+    {
+      "definition": "그룹#67",
+      "class": "handrail",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 [Color M06], 하위에 'D=15 mm' 난간동자 58개(그룹#57 ×29 ×2)와 'D=30 mm' 핸드레일, 30×13015×915 mm"
+    },
+    {
+      "definition": "그룹#64",
+      "class": "handrail",
+      "confidence": 0.6,
+      "basis_ko": "난간 반쪽 조립체(그룹#67에 2개), 30×5986×915 mm"
+    },
+    {
+      "definition": "그룹#68",
+      "class": "handrail",
+      "confidence": 0.6,
+      "basis_ko": "난간동자 그룹#57 29개 + 보조선 그룹#55 1개"
+    },
+    {
+      "definition": "그룹#57",
+      "class": "handrail",
+      "confidence": 0.7,
+      "basis_ko": "이름 'D=15 mm', 15×13.5×889 mm 난간동자, XCLINE 태그 모서리 1개, 인스턴스(그룹 복사본) 29개"
+    },
+    {
+      "definition": "그룹#83",
+      "class": "handrail",
+      "confidence": 0.7,
+      "basis_ko": "이름 'D=30 mm', 관형 경사면 다수, XCLINE 태그 모서리 27개, 30×5986×915 mm"
+    },
+    {
+      "definition": "그룹#258",
+      "class": "handrail",
+      "confidence": 0.5,
+      "basis_ko": "두께 44 mm 패널 6개 + 'D=30 mm' 핸드레일 그룹#259, 7.1×2.8×6.0 m — 계단 난간으로 추정"
+    },
+    {
+      "definition": "그룹#259",
+      "class": "handrail",
+      "confidence": 0.6,
+      "basis_ko": "이름 'D=30 mm', 수평 레벨 885/915/4535/4565 mm, 경사 관형 형상"
+    },
+    {
+      "definition": "그룹356#1",
+      "class": "handrail",
+      "confidence": 0.4,
+      "basis_ko": "두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위"
+    },
+    {
+      "definition": "그룹357#1",
+      "class": "handrail",
+      "confidence": 0.4,
+      "basis_ko": "두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위"
+    },
+    {
+      "definition": "그룹358#1",
+      "class": "handrail",
+      "confidence": 0.4,
+      "basis_ko": "두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위"
+    },
+    {
+      "definition": "그룹359#1",
+      "class": "handrail",
+      "confidence": 0.4,
+      "basis_ko": "두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위"
+    },
+    {
+      "definition": "그룹360#1",
+      "class": "handrail",
+      "confidence": 0.4,
+      "basis_ko": "두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위"
+    },
+    {
+      "definition": "그룹361#1",
+      "class": "handrail",
+      "confidence": 0.4,
+      "basis_ko": "두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위"
+    },
+    {
+      "definition": "그룹#115",
+      "class": "glass-railing",
+      "confidence": 0.6,
+      "basis_ko": "[Translucent Glass Gray] 면 22개, 두께 0, 길이 14,960 mm × 높이 1100 mm, 월드 z 10300(2층)"
+    },
+    {
+      "definition": "그룹#124",
+      "class": "glass-railing",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 [Translucent Glass Gray], 수직면 8개, 6400×9400×1200 mm, 월드 z 10200"
+    },
+    {
+      "definition": "그룹#61",
+      "class": "counter-millwork",
+      "confidence": 0.8,
+      "basis_ko": "Oak (UPFJJT) 451·[Color M07] 360·석재 43 면, 반경 350 mm 호, 3400×5020×1200 mm, 하위 유리 진열장 그룹#164"
+    },
+    {
+      "definition": "그룹#164",
+      "class": "counter-millwork",
+      "confidence": 0.5,
+      "basis_ko": "[Translucent Glass Gray]1 면 24개, 763×1955×598 mm(카운터 위 진열장으로 추정)"
+    },
+    {
+      "definition": "그룹#155",
+      "class": "counter-millwork",
+      "confidence": 0.7,
+      "basis_ko": "3400×10025×1100 mm, 상판 그룹#158(40 mm) + 타일·오크 수납 그룹#165(960 mm)"
+    },
+    {
+      "definition": "그룹#158",
+      "class": "counter-millwork",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 바닥1, 1000×7522×40 mm 상판"
+    },
+    {
+      "definition": "그룹#165",
+      "class": "counter-millwork",
+      "confidence": 0.6,
+      "basis_ko": "그룹 재질 Victorian Glazed, Stack (NQNK3I), Oak 면, 1000×7522×960 mm"
+    },
+    {
+      "definition": "그룹#163",
+      "class": "counter-millwork",
+      "confidence": 0.5,
+      "basis_ko": "그룹 재질 Limestone (QRQYM4), 650×16793×550 mm, 수평 레벨 0/470/550 mm — 붙박이 벤치로 추정"
+    },
+    {
+      "definition": "그룹#226",
+      "class": "counter-millwork",
+      "confidence": 0.5,
+      "basis_ko": "2150×17126×650 mm, 하위에 스툴 c3#2 ×8과 수납·상판 그룹 20개"
+    },
+    {
+      "definition": "그룹#181",
+      "class": "counter-millwork",
+      "confidence": 0.5,
+      "basis_ko": "1950×17126×650 mm 연속 매스"
+    },
+    {
+      "definition": "그룹#70",
+      "class": "counter-millwork",
+      "confidence": 0.4,
+      "basis_ko": "400×7200×1000 mm, 수평 레벨 0/1000 mm"
+    },
+    {
+      "definition": "C1",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "의자 450×460×741 mm, 인스턴스 47개(1층, 회전 0°/180°), 인스턴스 재질 Oak Veneer (03G6SZ)"
+    },
+    {
+      "definition": "T",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "테이블 800×800×700 mm, 반경 30/180 mm 호, 인스턴스 8개"
+    },
+    {
+      "definition": "T2",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "테이블 2400×900×700 mm, 상판 두께 40 mm, 인스턴스 5개"
+    },
+    {
+      "definition": "SO",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "1500×650×560 mm, 석재 받침(그룹#150)+좌판(그룹#132), 인스턴스 8개"
+    },
+    {
+      "definition": "ch5",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "1590×630×745 mm 벤치형 좌석, 인스턴스 11개(2층)"
+    },
+    {
+      "definition": "ch6",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "837×1874×577 mm 가죽 좌석 + 스테인리스 레일, 인스턴스 5개(2층)"
+    },
+    {
+      "definition": "c3",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "스툴 510×480×700 mm, 인스턴스 6개(2층)"
+    },
+    {
+      "definition": "c3#2",
+      "class": "furniture",
+      "confidence": 0.8,
+      "basis_ko": "스툴 510×480×600 mm, 인스턴스 8개(그룹#226 안)"
+    },
+    {
+      "definition": "그룹#232",
+      "class": "furniture",
+      "confidence": 0.6,
+      "basis_ko": "ch5 인스턴스 8개를 일렬로 묶은 그룹, 630×19390×745 mm"
+    },
+    {
+      "definition": "그룹#184",
+      "class": "furniture",
+      "confidence": 0.5,
+      "basis_ko": "1320×4600×550 mm, 상판 그룹#189·#190(1150×600×30) + 다리판"
+    },
+    {
+      "definition": "그룹#180",
+      "class": "furniture",
+      "confidence": 0.4,
+      "basis_ko": "480×450×550 mm 소형 가구 박스(그룹#226·#205 안)"
+    },
+    {
+      "definition": "그룹#183",
+      "class": "furniture",
+      "confidence": 0.4,
+      "basis_ko": "480×450×550 mm 소형 가구 박스(그룹#226·#205 안)"
+    },
+    {
+      "definition": "그룹#194",
+      "class": "furniture",
+      "confidence": 0.4,
+      "basis_ko": "480×450×550 mm 소형 가구 박스(그룹#226·#205 안)"
+    },
+    {
+      "definition": "그룹#188",
+      "class": "furniture",
+      "confidence": 0.4,
+      "basis_ko": "480×450×550 mm 소형 가구 박스(그룹#226·#205 안)"
+    },
+    {
+      "definition": "그룹#185",
+      "class": "furniture",
+      "confidence": 0.4,
+      "basis_ko": "500×7526×150 mm 좌판"
+    },
+    {
+      "definition": "그룹#160",
+      "class": "furniture",
+      "confidence": 0.5,
+      "basis_ko": "1층 가구 세트 컨테이너: C1 ×47, T ×8, SO ×8, T2 ×5 + 카운터·계단 그룹, 24.0×25.8×5.4 m"
+    },
+    {
+      "definition": "Componente",
+      "class": "furniture",
+      "confidence": 0.4,
+      "basis_ko": "3D Warehouse ModelID 속성이 있는 780×634×879 mm 정의(미사용)"
+    },
+    {
+      "definition": "그룹#62",
+      "class": "planter",
+      "confidence": 0.7,
+      "basis_ko": "2.2~2.8 m 정사각 박스, 수평 레벨 0/450 mm, 하위에 수목 그룹#74 1개"
+    },
+    {
+      "definition": "그룹#72",
+      "class": "planter",
+      "confidence": 0.7,
+      "basis_ko": "2.2~2.8 m 정사각 박스, 수평 레벨 0/450 mm, 하위에 수목 그룹#74 1개"
+    },
+    {
+      "definition": "그룹#73",
+      "class": "planter",
+      "confidence": 0.7,
+      "basis_ko": "2.2~2.8 m 정사각 박스, 수평 레벨 0/450 mm, 하위에 수목 그룹#74 1개"
+    },
+    {
+      "definition": "그룹#74",
+      "class": "tree",
+      "confidence": 0.8,
+      "basis_ko": "수관 면·모서리(재질1·birch-yellow texture2·[Color_D09], Trees 3D 태그 36,338개) + 줄기 컴포넌트 Component#28"
+    },
+    {
+      "definition": "그룹#53",
+      "class": "tree",
+      "confidence": 0.8,
+      "basis_ko": "수관 면·모서리(재질1·birch-yellow texture2·[Color_D09], Trees 3D 태그 36,338개) + 줄기 컴포넌트 Component#28"
+    },
+    {
+      "definition": "그룹#56",
+      "class": "tree",
+      "confidence": 0.8,
+      "basis_ko": "수관 면·모서리(재질1·birch-yellow texture2·[Color_D09], Trees 3D 태그 36,338개) + 줄기 컴포넌트 Component#28"
+    },
+    {
+      "definition": "Component#28",
+      "class": "tree",
+      "confidence": 0.8,
+      "basis_ko": "Vegetation_Bark_Birch 재질 줄기, 인스턴스 태그 Trees 3D, 정의 높이 8296.8 mm(인스턴스는 축척 0.754×0.754×0.7316)"
+    },
+    {
+      "definition": "그룹#65",
+      "class": "tree",
+      "confidence": 0.7,
+      "basis_ko": "수목 그룹 13개(그룹#74 ×11, #53, #56)를 묶은 컨테이너, 월드 z 5000"
+    },
+    {
+      "definition": "Component18",
+      "class": "person",
+      "confidence": 0.8,
+      "basis_ko": "인스턴스 이름 'CWom0105-HD2-O01P02-S005', 높이 1752 mm, 축척 0.3937"
+    },
+    {
+      "definition": "Humano4_262",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Humano4_7987",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Humano4_965",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Humano4_2415",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Humano4_1918",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Humano4_5684",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Humano4_1422",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "Group28#1",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "이름 Humano4_*, 축척 0.0394(=1/25.4), 인물 그룹(그룹#110·#116·#130·#139) 안의 구성 요소"
+    },
+    {
+      "definition": "그룹#110",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "Humano4_* 구성 요소 2개를 묶은 인물 그룹, 높이 약 1.3 m(앉은 자세로 추정)"
+    },
+    {
+      "definition": "그룹#116",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "Humano4_* 구성 요소 2개를 묶은 인물 그룹, 높이 약 1.3 m(앉은 자세로 추정)"
+    },
+    {
+      "definition": "그룹#130",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "Humano4_* 구성 요소 2개를 묶은 인물 그룹, 높이 약 1.3 m(앉은 자세로 추정)"
+    },
+    {
+      "definition": "그룹#139",
+      "class": "person",
+      "confidence": 0.7,
+      "basis_ko": "Humano4_* 구성 요소 2개를 묶은 인물 그룹, 높이 약 1.3 m(앉은 자세로 추정)"
+    },
+    {
+      "definition": "Niraj",
+      "class": "person",
+      "confidence": 0.9,
+      "basis_ko": "SketchUp 기본 인물 정의(설명문 'Niraj is a Customer Success Manager at SketchUp'), 미사용"
+    },
+    {
+      "definition": "그룹#12",
+      "class": "marker",
+      "confidence": 0.5,
+      "basis_ko": "[Color A06](빨강) 250×250 mm 판, 63.4° 경사면, 최상위 인스턴스 2개(z 9819, 12364)"
+    },
+    {
+      "definition": "gfhfhgh",
+      "class": "annotation",
+      "confidence": 0.5,
+      "basis_ko": "225×225 mm 2D 선 블록, 인스턴스 태그 DIM(치수/레벨 심볼로 추정), 미사용 CAD 정의 안에만 배치"
+    },
+    {
+      "definition": "dfdsfdsfsdf",
+      "class": "annotation",
+      "confidence": 0.5,
+      "basis_ko": "225×225 mm 2D 선 블록, 인스턴스 태그 DIM(치수/레벨 심볼로 추정), 미사용 CAD 정의 안에만 배치"
+    },
+    {
+      "definition": "fghfghfh",
+      "class": "annotation",
+      "confidence": 0.5,
+      "basis_ko": "225×225 mm 2D 선 블록, 인스턴스 태그 DIM(치수/레벨 심볼로 추정), 미사용 CAD 정의 안에만 배치"
+    },
+    {
+      "definition": "장애인주차",
+      "class": "parking-stall",
+      "confidence": 0.9,
+      "basis_ko": "정의 이름 '장애인주차', 3350×5000 mm 2D 선(@주차 태그 254개)"
+    },
+    {
+      "definition": "주열",
+      "class": "annotation",
+      "confidence": 0.4,
+      "basis_ko": "SYM 태그 2D 심볼 72.5×945 mm"
+    },
+    {
+      "definition": "그룹#107",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용 그룹, CAD 태그 37종에 모서리 82,664개(DVM_INDOOR 53,495, FUR 4,741, @stair 4,515, @LOCK 3,287 등)와 *U20 문 블록 48개 — 원본 평면도 2D"
+    },
+    {
+      "definition": "인테리어",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용, CAD 태그(DIM·@FUR·FUR·002-제작벽체 등) 2D 선 5,325개 + 블록 36개, 범위 10,865 km(원점에서 먼 CAD 좌표)"
+    },
+    {
+      "definition": "우리필지배경",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용, @LOCK 태그 2D 선 1,980개, 범위 11,110 km(원점에서 먼 CAD 좌표)"
+    },
+    {
+      "definition": "새 블럭.dwg#1",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용 CAD 블록, DIM 태그 인스턴스 35개, 범위 13,682 km"
+    },
+    {
+      "definition": "새 블럭.dwg#2",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용 CAD 블록, @FUR·@실별면적 2D 선 466개"
+    },
+    {
+      "definition": "f2.dwg",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용 CAD 블록, @FUR·@실별면적 2D 선 1,120개(22.0×21.9 m 평면)"
+    },
+    {
+      "definition": "ST.dwg",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용 CAD 블록, @stair 태그 계단 2D/3D 혼합"
+    },
+    {
+      "definition": "ZIUM_sheet_architect",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "미사용 도곽(84,000×59,400 mm = A1 840×594의 100배), A-FORM·Layer 1·Defpoints 태그"
+    },
+    {
+      "definition": "*U20",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@door 태그 2D 문 기호, *U21 안에 96개"
+    },
+    {
+      "definition": "*U21",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@door 태그 *U20 48개를 담은 블록(미사용)"
+    },
+    {
+      "definition": "A$Ce0c0742d",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@win 태그 2D 창 기호(미사용)"
+    },
+    {
+      "definition": "A$C2BE44C31",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@text 태그 2D 문자 형상(미사용)"
+    },
+    {
+      "definition": "ID_C_G4_T",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "DVM_INDOOR 태그 2D 설비 기호(미사용)"
+    },
+    {
+      "definition": "w",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@사람 태그 2D 인물 기호 581.7×525.6 mm"
+    },
+    {
+      "definition": "ST_D",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@stair·@ELE 태그를 가진 계단 블록(미사용 계통)"
+    },
+    {
+      "definition": "ST_D#1",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@stair·@ELE 태그 계단 블록"
+    },
+    {
+      "definition": "ST_D#2",
+      "class": "cad-reference",
+      "confidence": 0.7,
+      "basis_ko": "@stair·@ELE 태그 계단 블록"
+    },
+    {
+      "definition": "3DGeom~1_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~2_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~3_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~4_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~5_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~6_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~7_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~8_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~9_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~10_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~11_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~12_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~13_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~14_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~15_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~16_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~17_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~18_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~19_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    },
+    {
+      "definition": "3DGeom~20_Defintion",
+      "class": "imported-3d",
+      "confidence": 0.6,
+      "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정"
+    }
+  ]
+}

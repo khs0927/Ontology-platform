@@ -293,3 +293,23 @@ Details are in `data/sources/PROVENANCE.md`.
    `unverified` until a person decides.
 2. If the live Sites map has different edges, save it as HTML or JSON and run
    `sion-relations convert <file> --expect-nodes 31 --expect-edges 43`.
+
+## SketchUp modelling knowledge pack 2026-10-08 (KST)
+
+- Read-only dump of `0914_담당미팅.skp` (SketchUp 25.0.634, mm) taken through the PC MCP bridge:
+  297 definitions, 619 hierarchy nodes, 49 tags, 130 materials, 3 scenes, 3 styles, 1 section plane
+  (`data/sources/sketchup/0914-meeting/`, sha256 in `data/sources/PROVENANCE.md`).
+- `docs/sketchup/MODELING-GUIDELINES.ko.md`: 31 Korean guideline sections (workflow, units, CAD
+  import, tags, group/component, levels, per-object drawing, materials, scenes, cleanup, QA, MCP
+  execution, agent judgement). Facts are labelled [관측], inferences [추론], general rules [권장].
+- `sion_ingestion.sketchup_assets` builds `data/bootstrap/sketchup-0914-meeting.json`
+  (`sion-map-export/v1`, 1,195 nodes / 4,509 edges, including placements below depth 1). Dump facts are
+  `machine_verified`; the 214 definition→class assignments and all guideline links are
+  `unverified` candidates for `/review`. Details: `docs/SKETCHUP_KNOWLEDGE.md`.
+- `tests/test_sketchup_assets.py`: regeneration, coverage, spot facts, bad references, generic
+  converter, sqlite import + evidence + `build_custom_kg`.
+- Grouping workflow (same day): `scripts/sketchup/grouping_probe.rb` (read-only) →
+  `grouping_probe.json`; `docs/sketchup/GROUPING-WORKFLOW.ko.md` has 11 observed grouping rules
+  (Decision) and a 12-step workflow (Workflow steps chained by `DEPENDS_ON`/`RELATED_TO`, linked to
+  rules, classes, MCP tools and model evidence). All 619 placements are now in the graph
+  (`occ:<pid path>` below depth 1). Export: 1,195 nodes / 4,509 edges.

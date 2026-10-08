@@ -42,3 +42,24 @@ in `migrations/007_relation_type_validates.sql`.
 - `git log --all -S` across the git repos in `C:\code`: map labels appear only in PR #8 (`c840863`),
   `3e35521`/`ed98e0c` (which remove it) and `3a48725` (label list only).
 - No browser cache, cookies or credential stores were read.
+
+## sketchup/0914-meeting/
+
+| File | SHA-256 | Notes |
+|---|---|---|
+| `model_dump.json` | `b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d` (1,158,572 bytes, LF in git, byte-identical to the committed dump) | `scripts/sketchup/dump_model.rb` output, `_meta.dumped_at` 2026-10-08 10:39:38 KST |
+| `geometry_probe.json` | `c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8` (byte-identical) | `scripts/sketchup/geom_probe.rb` output (written as `geom_probe.json`), 95 definitions |
+| `grouping_probe.json` | `e623d142271d04e5597d41ac46f4821780ad3732db5a3317c89c74fcecfa5fbb` (byte-identical) | `scripts/sketchup/grouping_probe.rb` output, `_meta.dumped_at` 2026-10-08 11:06:29 KST, 619 nodes in the same depth-first order as the dump hierarchy (checked by the generator), `model_modified=true` |
+| `classification.json` | (authored) | Definition → class overlay. Every assignment is an inference from names, sizes, materials, levels and the probe; pinned to the dump sha256 above |
+| `../object-classes.json` | (authored) | 30 object classes |
+
+- Source model: `0914_담당미팅.skp` (`<USER_HOME>\Documents\카카오톡 받은 파일\`), open in
+  SketchUp 25.0.634 on the user's Windows PC with **unsaved changes** (`modified=true`). The dump
+  reflects the in-memory state at dump time, not the file on disk.
+- Captured through the PC MCP bridge with `claude:hueflow-sketchup` `execute_ruby` (`load` of the
+  scripts). The scripts are read-only: no geometry, tag, material, page or style was created,
+  changed or deleted, nothing was saved, undone or purged. `render_views.rb` changed only the view
+  camera to render PNGs and restored it.
+- `.gitattributes` keeps `data/sources/**` byte-identical (`-text`).
+- Not captured: the `.skp` file itself, texture images, plugin settings, anything inside definitions
+  deeper than 8 levels (none were truncated: 619 hierarchy nodes, `truncated` 0).
