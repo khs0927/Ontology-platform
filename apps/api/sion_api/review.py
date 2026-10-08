@@ -10,6 +10,10 @@ by ``sion_ingestion.relation_extraction`` or by a graph-export import). Its
 
 Decisions are recorded in ``properties.review`` and copied onto the candidate's
 evidence rows; the original extractor, rules and evidence are left untouched.
+
+``decide_bulk`` applies one human decision to many explicitly listed ids. Each
+candidate gets exactly the same per-item audit record (plus a shared
+``batch_id``); nothing is ever approved without an id the reviewer selected.
 """
 
 from __future__ import annotations
@@ -60,6 +64,17 @@ def _entity_brief(row: models.Entity | None) -> dict[str, Any] | None:
     return {"id": str(row.id), "stable_key": row.stable_key, "name": row.name, "entity_type_id": row.entity_type_id, "category": row.category}
 
 
+def _source_file(properties: dict[str, Any], evidence: list[models.Evidence]) -> str | None:
+    for key in ("provenance", "su_evidence"):
+        value = properties.get(key)
+        if isinstance(value, dict) and value.get("source_file"):
+            return str(value["source_file"])
+    for e in evidence:
+        if e.source_uri:
+            return e.source_uri.rstrip("/").rsplit("/", 1)[-1]
+    return None
+
+
 def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 10) -> dict[str, Any]:
     evidence = list(
         session.scalars(
@@ -85,6 +100,7 @@ def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 1
         "rules": properties.get("rules") or ([properties["rule"]] if properties.get("rule") else []),
         "support": properties.get("support", evidence_count),
         "provenance": properties.get("provenance"),
+        "source_file": _source_file(properties, evidence),
         "review": properties.get("review"),
         "evidence_count": evidence_count,
         "evidence": [
@@ -136,17 +152,16 @@ def get_candidate(session: Session, relation_id: uuid.UUID) -> models.Relation:
     return row
 
 
-def decide(
+def _apply_decision(
     session: Session,
-    relation_id: uuid.UUID,
+    row: models.Relation,
     *,
     approve: bool,
-    reviewer: str | None = None,
-    note: str | None = None,
-) -> models.Relation:
-    row = get_candidate(session, relation_id)
-    if row.verification_state != "unverified":
-        raise AlreadyReviewed(f"candidate already {STATE_TO_STATUS.get(row.verification_state, row.verification_state)}")
+    reviewer: str | None,
+    note: str | None,
+    batch_id: str | None = None,
+) -> None:
+    """Record one decision on ``row`` and its evidence rows (no commit)."""
     state = "human_verified" if approve else "rejected"
     decided_at = datetime.now(timezone.utc).isoformat()
     properties = dict(row.properties or {})
@@ -158,13 +173,95 @@ def decide(
         "previous_state": row.verification_state,
         "previous_confidence": row.confidence,
     }
+    if batch_id is not None:
+        properties["review"]["batch_id"] = batch_id
     row.properties = properties
     row.verification_state = state
     for evidence in session.scalars(select(models.Evidence).where(models.Evidence.relation_id == row.id)):
         evidence.verification_state = state
         evidence_props = dict(evidence.properties or {})
         evidence_props["review"] = {"decision": properties["review"]["decision"], "decided_at": decided_at}
+        if batch_id is not None:
+            evidence_props["review"]["batch_id"] = batch_id
         evidence.properties = evidence_props
+
+
+def decide(
+    session: Session,
+    relation_id: uuid.UUID,
+    *,
+    approve: bool,
+    reviewer: str | None = None,
+    note: str | None = None,
+) -> models.Relation:
+    row = get_candidate(session, relation_id)
+    if row.verification_state != "unverified":
+        raise AlreadyReviewed(f"candidate already {STATE_TO_STATUS.get(row.verification_state, row.verification_state)}")
+    _apply_decision(session, row, approve=approve, reviewer=reviewer, note=note)
     session.commit()
     session.refresh(row)
     return row
+
+
+BULK_RESULTS = ("applied", "unchanged", "conflict", "not_found", "not_candidate", "invalid_id")
+
+
+def decide_bulk(
+    session: Session,
+    ids: list[str],
+    *,
+    approve: bool,
+    note: str,
+    reviewer: str | None = None,
+) -> dict[str, Any]:
+    """Apply one decision to each listed candidate; per-id results, idempotent, one commit.
+
+    * ``applied``       pending -> decided now (same audit record as the per-item route)
+    * ``unchanged``     already has this decision (repeat call; nothing rewritten)
+    * ``conflict``      already has the opposite decision (left as is)
+    * ``not_found`` / ``not_candidate`` / ``invalid_id``  skipped
+    """
+    decision = "approved" if approve else "rejected"
+    target_state = STATUS_TO_STATE[decision]
+    batch_id = str(uuid.uuid4())
+    results: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for raw in ids:
+        key = str(raw).strip()
+        if key in seen:
+            continue
+        seen.add(key)
+        try:
+            relation_id = uuid.UUID(key)
+        except ValueError:
+            results.append({"id": key, "result": "invalid_id", "detail": "not a UUID"})
+            continue
+        row = session.get(models.Relation, relation_id)
+        if row is None:
+            results.append({"id": str(relation_id), "result": "not_found", "detail": "relation not found"})
+            continue
+        if not _is_candidate(row):
+            results.append({"id": str(relation_id), "result": "not_candidate", "detail": "relation is not a candidate"})
+            continue
+        status = STATE_TO_STATUS.get(row.verification_state, row.verification_state)
+        if row.verification_state == target_state:
+            results.append({"id": str(relation_id), "result": "unchanged", "status": status, "detail": f"already {status}"})
+            continue
+        if row.verification_state != "unverified":
+            results.append({"id": str(relation_id), "result": "conflict", "status": status, "detail": f"candidate already {status}"})
+            continue
+        _apply_decision(session, row, approve=approve, reviewer=reviewer, note=note, batch_id=batch_id)
+        results.append({"id": str(relation_id), "result": "applied", "status": decision})
+    applied = sum(1 for r in results if r["result"] == "applied")
+    if applied:
+        session.commit()
+    else:
+        session.rollback()
+    counts = {name: sum(1 for r in results if r["result"] == name) for name in BULK_RESULTS}
+    return {
+        "decision": decision,
+        "batch_id": batch_id if applied else None,
+        "requested": len(results),
+        "counts": counts,
+        "results": results,
+    }

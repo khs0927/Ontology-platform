@@ -258,6 +258,13 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return review.serialize(session, row)
 
+    @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_knowledge)])
+    def bulk_decide_candidate_relations(payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)):
+        """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item."""
+        return review.decide_bulk(
+            session, payload.ids, approve=payload.decision == "approve", note=payload.note, reviewer=payload.reviewer
+        )
+
     @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_knowledge)])
     def approve_candidate_relation(
         relation_id: uuid.UUID,
