@@ -41,7 +41,7 @@
       "maxItems": 500,
       "items": {
         "type": "object",
-        "required": ["spec", "shape", "family", "dimensions_mm", "unit_weight_kg_m", "paint_area_m2_m"],
+        "required": ["spec", "shape", "family", "dimensions_mm", "unit_weight_kg_m", "paint_area_m2_m", "aci_color"],
         "properties": {
           "spec": {"type": "string", "pattern": "\\S"},
           "shape": {"type": "string", "pattern": "\\S"},

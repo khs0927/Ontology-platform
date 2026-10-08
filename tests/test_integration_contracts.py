@@ -334,15 +334,29 @@ def test_hs_steel_section_catalog_validates_and_feeds_aec_loader(tmp_path):
         {"may_execute_mutation": True},
         {"producer": "someone/else"},
         {"rows": [{"spec": "H100x50x5x7", "shape": "H", "family": "H-BEAM", "dimensions_mm": [100, 50, 5, 7],
-                   "unit_weight_kg_m": 9.3, "paint_area_m2_m": 0.4}]},  # power-cad requires six dimensions
+                   "unit_weight_kg_m": 9.3, "paint_area_m2_m": 0.4, "aci_color": 1}]},  # power-cad requires six dimensions
         {"rows": [{"spec": " ", "shape": "H", "family": "H-BEAM", "dimensions_mm": [1, 1, 1, 1, 1, 1],
-                   "unit_weight_kg_m": 1, "paint_area_m2_m": 1}]},
+                   "unit_weight_kg_m": 1, "paint_area_m2_m": 1, "aci_color": 1}]},
         {"rows": [{"spec": "H1", "shape": "H", "family": "H-BEAM", "dimensions_mm": [1, 1, 1, 1, 1, -1],
-                   "unit_weight_kg_m": 1, "paint_area_m2_m": 1}]},
+                   "unit_weight_kg_m": 1, "paint_area_m2_m": 1, "aci_color": 1}]},
     ],
 )
 def test_hs_steel_section_catalog_rejects_unverified_or_authorizing_payloads(overrides):
     assert contracts.errors("hs-steel-section-catalog/1", _section_catalog(**overrides))
+
+
+@pytest.mark.parametrize("field", ["aci_color", "spec", "dimensions_mm", "unit_weight_kg_m", "paint_area_m2_m"])
+def test_hs_steel_section_catalog_rejects_rows_missing_a_handoff_field(field):
+    # SectionCatalogHandoff.Build always emits these per row (aci_color = row.Color, used by
+    # cad_hs_steel_catalog_prepare); a producer that drops or renames one must fail the contract.
+    payload = _section_catalog()
+    rows = [dict(row) for row in payload["rows"]]
+    rows[0].pop(field)
+    assert contracts.errors("hs-steel-section-catalog/1", _section_catalog(rows=rows))
+    renamed = [dict(row) for row in payload["rows"]]
+    if field == "aci_color":
+        renamed[0]["color"] = renamed[0].pop("aci_color")
+        assert contracts.errors("hs-steel-section-catalog/1", _section_catalog(rows=renamed))
 
 
 # --------------------------------------------------------------------------- hs-steel-cad asset registry (provenance)

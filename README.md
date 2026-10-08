@@ -21,7 +21,7 @@ This platform automatically discovers and ingests interaction sessions from mult
 - **Google Antigravity**: Local session transcripts and artifacts (`~/.gemini/antigravity/brain`)
 - **OpenAI Codex**: Rollout session logs (`~/.codex/sessions`)
 - **Anthropic Claude Code**: Conversation transcripts (`~/.claude/transcripts`)
-- **DeepSeek / Hermes / ZCode**: Local JSON/JSONL log readers (`DeepSeekReader`, `HermesReader`, `ZCodeReader` in `sion_ingestion/agent_bridge.py`) discover provider dirs via env roots (`SION_DEEPSEEK_ROOT`, `SION_HERMES_ROOT`, `SION_ZCODE_ROOT`) with sensible home defaults.
+- **DeepSeek / Hermes / ZCode**: Local JSON/JSONL log readers (`DeepSeekReader`, `HermesReader`, `ZCodeReader` in `sion_ingestion/agent_bridge.py`) discover provider dirs via env roots (`SION_DEEPSEEK_ROOT`, `SION_HERMES_ROOT`, `SION_ZCODE_ROOT`) with sensible home defaults. They run through the same CLI: `--provider all` (default) covers all six readers, or pick one with `--provider deepseek|hermes|zcode`.
 
 ### Quick Execution on Any Computer
 
