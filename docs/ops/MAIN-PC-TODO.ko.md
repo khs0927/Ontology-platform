@@ -1,6 +1,6 @@
 # 메인 PC 복귀 시 할 일 (체크리스트)
 
-작성: 2026-10-08 저녁 (Asia/Seoul) · 대상: 메인 PC(운영 DB·API·대량 수집이 도는 PC)
+작성: 2026-10-08 저녁, 1단계 갱신 22:00 (Asia/Seoul) · 대상: 메인 PC(운영 DB·API·대량 수집이 도는 PC)
 실행 주체: 오너 또는 오너가 이 대화/세션에서 PC 제어를 허락한 에이전트.
 
 > **규칙**
@@ -72,17 +72,41 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
 ## 1. 모노레포 main 받기 (5분)
 
 - [ ] **왜:** 운영 코드는 이제 `Ontology-platform`의 `packages/aec`가 기준입니다. 전환 스크립트는 깨끗한 `main`에서만 돕니다.
-- **명령** (Google Drive 동기화 폴더 **밖**에 둡니다)
+  2026-10-08 12:23 KST에 개인정보 정리용 히스토리 재작성(force push)이 있었습니다(그 전 03:11에 exe 제거 재작성도 있었음).
+  그 전에 만든 체크아웃은 `origin/main`과 **갈라져** 있어서 `git pull --ff-only`가 실패합니다. 백업한 뒤 `origin/main`으로 맞춥니다.
+- **명령** (작업 체크아웃은 `C:\code` 아래, Google Drive 동기화 폴더 **밖**)
   ```powershell
-  $SION = "$env:USERPROFILE\CODE\Ontology-platform"
-  if (Test-Path $SION) { git -C $SION switch main; git -C $SION pull --ff-only }
-  else { git clone https://github.com/khs0927/Ontology-platform.git $SION }
+  $SION = 'C:\code\Ontology-platform'
+  $BK   = "$env:USERPROFILE\sion-bundles"        # 저장소 밖 백업 폴더
+  if (-not (Test-Path $SION)) {
+    git clone https://github.com/khs0927/Ontology-platform.git $SION
+  } else {
+    git -C $SION status --short --branch            # 로컬 변경·현재 브랜치 확인
+    git -C $SION fetch origin --prune
+    git -C $SION merge-base --is-ancestor HEAD origin/main; "HEAD가 origin/main에 포함됨(0=예): $LASTEXITCODE"
+    # 백업: 모든 로컬 ref 번들 + 커밋 안 한 변경 diff + 이전 HEAD 기록
+    $ts  = Get-Date -Format yyyyMMdd-HHmmss
+    New-Item -ItemType Directory -Force $BK | Out-Null
+    $old = git -C $SION rev-parse HEAD
+    $old | Set-Content "$BK\Ontology-platform-pre-reset-$ts.head.txt"
+    git -C $SION bundle create "$BK\Ontology-platform-pre-reset-$ts.bundle" --all
+    git -C $SION diff HEAD --binary --output="$BK\Ontology-platform-pre-reset-$ts.diff"
+    git -C $SION bundle verify "$BK\Ontology-platform-pre-reset-$ts.bundle"
+    # 백업 확인 후에만: main을 새 히스토리로 맞춤 (커밋 안 한 변경은 사라지고 백업 diff에만 남음.
+    # 추적되지 않는 새 파일은 reset --hard가 지우지 않으므로 그대로 남음)
+    git -C $SION switch -f main
+    git -C $SION reset --hard origin/main
+  }
   git -C $SION status --short --branch
   git -C $SION log --oneline -3
+  git -C $SION merge-base --is-ancestor 54e1921 HEAD; "새 히스토리(0=예): $LASTEXITCODE"
+  git -C $SION branch -vv                           # 예전 히스토리 기반 로컬 브랜치 확인 (푸시 금지)
   ```
-- **성공 기준:** `## main...origin/main`, 변경 파일 없음. 최근 로그에 PR #41 이후 병합 커밋이 보임.
-- **롤백:** 새 클론이면 폴더만 지우면 됩니다(아직 운영에 연결되지 않음). 기존 체크아웃에 로컬 변경이 있으면
-  `git stash`가 아니라 **별도 클론**을 새로 만드세요(로컬 변경 보존).
+- **성공 기준:** `## main...origin/main`, 변경 파일 없음, 최근 로그에 PR #48 이후 병합 커밋이 보임, `54e1921` 포함 검사 결과 `0`.
+- **주의:** 12:23 이전 히스토리의 로컬 브랜치·폴더(예: 예전 작업용 클론)에서는 **절대 푸시하지 않습니다.** 지운 exe와 가리기 전
+  개인정보가 다시 올라갑니다. 필요한 변경은 새 클론의 새 브랜치로 옮기세요(`git cherry-pick` 또는 백업 diff 적용). 다른 예전 체크아웃도 같은 방식으로 맞추거나 보관합니다.
+- **롤백:** `git -C $SION reset --hard $old` (이전 커밋은 로컬 객체와 번들에 남아 있음). 커밋 안 한 변경은
+  `git -C $SION apply <백업 .diff>` 로 되살립니다. 새 클론이었다면 폴더만 지우면 됩니다(아직 운영에 연결되지 않음).
 
 ## 2. 런타임을 `packages/aec`로 전환 (20–40분)
 
