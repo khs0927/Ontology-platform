@@ -201,6 +201,25 @@ class IngestionWorker:
         except Exception as exc:
             heartbeat_stop.set()
             heartbeat_thread.join(timeout=2)
+            # A drive/share that disconnects mid-job (hashing, DWG staging, DXF parsing) surfaces as a plain
+            # FileNotFoundError/OSError/ValueError, not SourceUnavailableError. Re-probe the import roots
+            # before finalizing so a mount loss is refunded and requeued instead of permanently FAILED.
+            try:
+                missing_roots = unavailable_import_roots(self.settings)
+            except Exception:  # noqa: BLE001 - a probe failure must not turn into a FAILED job either
+                logger.exception("Job %s: import-root re-probe failed; treating the source as unavailable", job_id)
+                missing_roots = ["<probe failed>"]
+            if missing_roots:
+                deferred = self.db.defer_unavailable_source(job_id, self.worker_id)
+                logger.warning(
+                    "Job %s failed while import roots were unavailable %s; deferred=%s: %s: %s",
+                    job_id,
+                    missing_roots,
+                    deferred,
+                    type(exc).__name__,
+                    exc,
+                )
+                return False
             error_msg = f"{type(exc).__name__}: {exc}"
             logger.exception(f"Job {job_id} failed: {error_msg}")
             marked_failed = self.db.finish(job_id, self.worker_id, result=None, error=error_msg)

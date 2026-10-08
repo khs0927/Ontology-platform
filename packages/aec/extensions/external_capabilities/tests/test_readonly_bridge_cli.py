@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timezone
 
 from capability_registry.history import EvidenceHistory
+from readonly_bridges import ingest_readonly_probe
 from readonly_bridges.cli import main
 from readonly_bridges.evidence import CONTRACT_CAPABILITY_ID
 
@@ -10,21 +11,17 @@ NOW = datetime(2026, 10, 5, 9, 0, tzinfo=timezone.utc)
 
 
 def projection():
-    return {
-        "identity": {
-            "provider_id": "rhino",
-            "upstream_repo": "https://example.test/rhino-bridge",
-            "upstream_commit": "a" * 40,
-            "source_path": "bridge/probe.json",
-            "adapter_version": "1",
-        },
-        "payload_sha256": "b" * 64,
-        "status": "DECLARED",
-        "verification_kind": "contract_only",
-        "execution_allowed": False,
-        "canonical_allowed": False,
-        "native_mapping_verified": False,
+    identity = {
+        "provider_id": "rhino",
+        "upstream_repo": "https://example.test/rhino-bridge",
+        "upstream_commit": "a" * 40,
+        "source_path": "bridge/probe.json",
+        "adapter_version": "1",
     }
+    response = dict(schema_version=1, identity=identity, read_only=True, mutation_count=0,
+                    capabilities=["health"], authenticated=False, complete=True, host="rhino", host_version="8")
+    return ingest_readonly_probe(json.dumps(response).encode(), expected_identity=dict(identity),
+                                 expected_capabilities=["health"])
 
 
 def test_runtime_cli_records_projection_into_ledger(tmp_path, capsys):

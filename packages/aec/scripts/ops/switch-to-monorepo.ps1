@@ -16,12 +16,15 @@
     6. env         copies .env (and docker-compose.override.yml) to packages\aec; values are never printed;
                    pins COMPOSE_PROJECT_NAME to the detected project
     7. stack       docker compose -p <project>: build api, up -d db, run --rm migrate (init-db), up -d api
-    8. venv        packages\aec\.venv (an old one is renamed, never deleted); pip install -e
+    8. venv        packages\aec\.venv with Python >= 3.12 (checked in preflight; an old venv is renamed to the
+                   git-ignored .venv.old-<stamp>, never deleted); pip install -e
                    ".[<Extras>]" plus the monorepo root (--no-deps, shared sion_cad reader)
     9. tasks       register-bulk-tasks.ps1 + register-host-tasks.ps1 from packages\aec\scripts\ops;
-                   removes the one-shot AEC-Ops-FinalWrap / AEC-Ops-FinalCheck tasks
+                   removes the one-shot AEC-Ops-FinalWrap / AEC-Ops-FinalCheck tasks; re-enables the \AEC\
+                   tasks except any that still target -LegacyRoot (those stay disabled, WARN)
    10. autosync    AutoSync_Code_To_GDrive must be disabled (disabled here when present and enabled)
-   11. health      GET /healthz and /v1/kg/stats (Bearer token read from .env, never printed)
+   11. health      GET /healthz and /v1/kg/stats on 127.0.0.1:<AEC_API_HOST_PORT from .env, default 58000>
+                   (or -ApiUrl; Bearer token read from .env, never printed)
    12. graphrag    starts \AEC\AEC-GraphRAG-Refresh (incremental kg-build + kg-summarize = re-index)
    13. resume      new stop-workers.ps1 -Resume (unless -NoResume)
   The legacy checkout is left untouched (rollback = re-import the XML backups, see the runbook
@@ -48,7 +51,7 @@ param(
     [int]$DrainTimeoutMin = 30,
     [string[]]$StaleTasks = @('AEC-Ops-FinalWrap', 'AEC-Ops-FinalCheck'),
     [string]$AutoSyncTask = 'AutoSync_Code_To_GDrive',
-    [string]$ApiUrl = 'http://127.0.0.1:58000',
+    [string]$ApiUrl = '',
     [switch]$SkipBackup,
     [switch]$SkipVenv,
     [switch]$SkipCompose,
@@ -98,6 +101,14 @@ function Set-DotEnvValue([string]$Path, [string]$Key, [string]$Value) {
 if (-not $DataRoot) {
     $DataRoot = Get-DotEnvValue $LegacyEnv 'AEC_DATA_ROOT'
     if (-not $DataRoot -or $DataRoot.StartsWith('/')) { $DataRoot = 'D:\AECData' }  # container value -> host default
+}
+if (-not $ApiUrl) {
+    # Same rule as docker-compose.yml ("127.0.0.1:${AEC_API_HOST_PORT:-58000}:8000").
+    $apiPort = 58000
+    $envPort = Get-DotEnvValue $LegacyEnv 'AEC_API_HOST_PORT'
+    $parsedPort = 0
+    if ($envPort -and [int]::TryParse($envPort, [ref]$parsedPort) -and $parsedPort -ge 1 -and $parsedPort -le 65535) { $apiPort = $parsedPort }
+    $ApiUrl = "http://127.0.0.1:$apiPort"
 }
 if (-not $LogDir) { $LogDir = Join-Path $DataRoot 'bulk\logs' }
 if (-not $Config) { $Config = Join-Path $DataRoot 'bulk\sources.json' }
@@ -170,6 +181,53 @@ if ($LASTEXITCODE -eq 0) {
 } else { Write-Log 'git fetch failed (offline?); skipping the behind-origin check' 'WARN' }
 $ErrorActionPreference = $prevEap
 
+# Resolve a Python 3.12+ interpreter for the host venv now, before anything is drained or disabled:
+# the monorepo root (pip install -e $MonorepoRoot) requires Python >= 3.12, while the archived AEC
+# venv may legitimately be 3.11. An explicit -Python must satisfy the floor; otherwise the legacy
+# venv's base interpreter is reused only when it is new enough, then the py launcher, then PATH.
+$MinPython = [version]'3.12'
+function Get-PythonVersion([string]$Exe) {
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try {
+        # No double quotes in the -c code: Windows PowerShell 5.1 strips them from native arguments.
+        $out = (& $Exe -c 'import sys; print(*sys.version_info[:2], sep=chr(46))' 2>$null | Select-Object -Last 1)
+        if ($LASTEXITCODE -eq 0 -and "$out" -match '^\d+\.\d+$') { return [version]"$out" }
+    } catch { } finally { $ErrorActionPreference = $prev }
+    return $null
+}
+function Resolve-PyLauncher([string]$Tag) {
+    $launcher = Get-Command py -ErrorAction SilentlyContinue
+    if (-not $launcher) { return '' }
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try {
+        $exe = (& $launcher.Source "-$Tag" -c 'import sys; print(sys.executable)' 2>$null | Select-Object -Last 1)
+        if ($LASTEXITCODE -eq 0 -and $exe -and (Test-Path -LiteralPath "$exe".Trim())) { return "$exe".Trim() }
+    } catch { } finally { $ErrorActionPreference = $prev }
+    return ''
+}
+if (-not $SkipVenv) {
+    if ($Python) {
+        $pyVersion = Get-PythonVersion $Python
+        if (-not $pyVersion -or $pyVersion -lt $MinPython) {
+            throw "-Python $Python is $(if ($pyVersion) { $pyVersion } else { 'not runnable' }); the monorepo requires Python >= $MinPython"
+        }
+    } else {
+        $candidates = New-Object System.Collections.Generic.List[string]
+        $cfg = Join-Path $LegacyRoot '.venv\pyvenv.cfg'
+        $home0 = if (Test-Path -LiteralPath $cfg) { ((Get-Content -LiteralPath $cfg | Where-Object { $_ -match '^home\s*=' }) -replace '^home\s*=\s*', '') } else { '' }
+        if ($home0 -and (Test-Path -LiteralPath (Join-Path $home0 'python.exe'))) { $candidates.Add((Join-Path $home0 'python.exe')) }
+        foreach ($tag in @('3.13', '3.12')) { $found = Resolve-PyLauncher $tag; if ($found) { $candidates.Add($found) } }
+        $candidates.Add('python')
+        foreach ($candidate in $candidates) {
+            $v = Get-PythonVersion $candidate
+            if ($v -and $v -ge $MinPython) { $Python = $candidate; $pyVersion = $v; break }
+            Write-Log "python candidate $candidate is $(if ($v) { $v } else { 'not runnable' }) (< $MinPython); skipped"
+        }
+        if (-not $Python) { throw "no Python >= $MinPython found (install it or pass -Python <path to python.exe>); nothing was changed" }
+    }
+    Write-Log "host venv interpreter: $Python (Python $pyVersion)"
+}
+
 # --- 2. inventory ----------------------------------------------------------------------------------
 $tasks = Get-AecTasks
 foreach ($t in $tasks) {
@@ -183,29 +241,95 @@ else { Write-Log "$AutoSyncTask not registered (ok)" }
 
 # --- 3. compose project / volume -------------------------------------------------------------------
 $docker = Get-Command docker -ErrorAction SilentlyContinue
-if (-not $ComposeProject) { $ComposeProject = Get-DotEnvValue $LegacyEnv 'COMPOSE_PROJECT_NAME' }
-$dbVolume = ''
-if ($docker) {
-    $ErrorActionPreference = 'Continue'
-    $label = (& docker inspect aec-db --format '{{ index .Config.Labels "com.docker.compose.project" }}' 2>$null)
-    $mount = (& docker inspect aec-db --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Name}}{{end}}{{end}}' 2>$null)
-    $ErrorActionPreference = $prevEap
-    if ($label) { $label = "$label".Trim() }
-    if ($mount) { $dbVolume = "$mount".Trim() }
-    if ($label -and $ComposeProject -and $label -ne $ComposeProject) {
-        throw "aec-db belongs to compose project '$label' but -ComposeProject/.env says '$ComposeProject'"
+# Go templates are passed WITHOUT embedded double quotes and parsed as JSON here: Windows PowerShell 5.1
+# strips inner double quotes from native arguments, which broke '{{ index .Config.Labels "..." }}'
+# ("function com not defined") and silently skipped the volume-reuse check.
+function Get-DockerJson([string[]]$Arguments) {
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try {
+        $raw = (& docker @Arguments 2>$null) -join "`n"
+        if ($LASTEXITCODE -ne 0 -or -not "$raw".Trim() -or "$raw".Trim() -eq 'null') { return $null }
+        return ($raw | ConvertFrom-Json)
+    } catch { return $null } finally { $ErrorActionPreference = $prev }
+}
+function Get-AecDbInfo {
+    $info = [pscustomobject]@{ Reachable = $false; Found = $false; Project = ''; Volume = '' }
+    if (-not $docker) { return $info }
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & docker version --format '{{json .Server.Version}}' 2>$null | Out-Null
+    $reachable = ($LASTEXITCODE -eq 0)
+    & docker container inspect aec-db --format '{{json .Id}}' 2>$null | Out-Null
+    $found = $reachable -and ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $prev
+    $info.Reachable = $reachable
+    if (-not $found) { return $info }
+    $info.Found = $true
+    $labels = Get-DockerJson @('container', 'inspect', 'aec-db', '--format', '{{json .Config.Labels}}')
+    if ($labels) {
+        $prop = $labels.PSObject.Properties['com.docker.compose.project']
+        if ($prop -and "$($prop.Value)".Trim()) { $info.Project = "$($prop.Value)".Trim() }
     }
-    if ($label) { $ComposeProject = $label }
+    foreach ($m in @(Get-DockerJson @('container', 'inspect', 'aec-db', '--format', '{{json .Mounts}}'))) {
+        if ($m -and $m.Destination -eq '/var/lib/postgresql/data' -and $m.Name) { $info.Volume = "$($m.Name)".Trim() }
+    }
+    return $info
+}
+function ConvertTo-ComposeProjectName([string]$Name) {
+    # docker compose project names: lower-case letters, digits, '-' and '_', starting with a letter or digit
+    return (($Name.ToLowerInvariant() -replace '[^a-z0-9_-]', '') -replace '^[^a-z0-9]+', '')
+}
+
+# Project name precedence: -ComposeProject > running aec-db compose label (authoritative; must agree with an
+# explicit/.env value) > .env COMPOSE_PROJECT_NAME > prefix of aec-db's <project>_aec-pgdata volume >
+# the only existing *_aec-pgdata volume > legacy folder name (compose default; WARN).
+$projectSource = ''
+if ($ComposeProject) { $projectSource = '-ComposeProject' }
+else {
+    $ComposeProject = Get-DotEnvValue $LegacyEnv 'COMPOSE_PROJECT_NAME'
+    if ($ComposeProject) { $projectSource = 'legacy .env COMPOSE_PROJECT_NAME' }
+}
+$db = Get-AecDbInfo
+$dbVolume = $db.Volume
+if ($docker -and -not $db.Reachable) { Write-Log 'docker is installed but the daemon is not reachable (Docker Desktop stopped?): aec-db project/volume could not be checked' 'WARN' }
+elseif ($db.Reachable -and -not $db.Found) { Write-Log 'container aec-db not found on this docker daemon' 'WARN' }
+if ($db.Project) {
+    if ($ComposeProject -and $db.Project -ne $ComposeProject) {
+        throw "aec-db belongs to compose project '$($db.Project)' but $projectSource says '$ComposeProject'"
+    }
+    $ComposeProject = $db.Project; $projectSource = 'aec-db compose label'
+}
+if (-not $ComposeProject -and $dbVolume -match '^(.+)_aec-pgdata$') {
+    $ComposeProject = $Matches[1]; $projectSource = "aec-db volume $dbVolume"
+}
+if (-not $ComposeProject -and $db.Reachable) {
+    $prevVol = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $volumes = @(& docker volume ls --format '{{.Name}}' 2>$null | Where-Object { "$_" -match '^.+_aec-pgdata$' })
+    $ErrorActionPreference = $prevVol
+    if ($volumes.Count -eq 1) {
+        $ComposeProject = ($volumes[0] -replace '_aec-pgdata$', ''); $projectSource = "only existing volume $($volumes[0])"
+    } elseif ($volumes.Count -gt 1) {
+        $msg = "several *_aec-pgdata volumes exist ($($volumes -join ', ')); pass -ComposeProject to pick the live one"
+        if ($DryRun) { Write-Log $msg 'WARN' } else { throw $msg }
+    }
 }
 if (-not $ComposeProject) {
     # docker compose default project name = lower-cased folder name of the legacy checkout
-    $ComposeProject = ((Split-Path -Leaf $LegacyRoot).ToLowerInvariant() -replace '[^a-z0-9_-]', '')
-    Write-Log "aec-db not found; assuming compose project '$ComposeProject' from the legacy folder name" 'WARN'
+    $ComposeProject = ConvertTo-ComposeProjectName (Split-Path -Leaf $LegacyRoot)
+    $projectSource = 'legacy folder name (compose default)'
+    Write-Log "compose project not detectable; assuming '$ComposeProject' from the legacy folder name" 'WARN'
+}
+$normalized = ConvertTo-ComposeProjectName $ComposeProject
+if (-not $normalized) { throw "invalid compose project name '$ComposeProject' (from $projectSource)" }
+if ($normalized -ne $ComposeProject) {
+    if ($db.Project) { throw "aec-db compose label '$ComposeProject' is not a valid compose project name" }
+    Write-Log "compose project '$ComposeProject' normalized to '$normalized'" 'WARN'
+    $ComposeProject = $normalized
 }
 $expectedVolume = "${ComposeProject}_aec-pgdata"
 if ($dbVolume -and $dbVolume -ne $expectedVolume) {
     throw "aec-db uses volume '$dbVolume', expected '$expectedVolume': refusing (a new project would init an empty DB)"
 }
+Write-Log "compose project source: $projectSource; aec-db found=$($db.Found) volume=$(if ($dbVolume) { $dbVolume } else { '<unknown>' }); api=$ApiUrl"
 Write-Log "compose project=$ComposeProject db volume=$expectedVolume (reused, never re-initialised)"
 
 # --- 4. backups ------------------------------------------------------------------------------------
@@ -261,9 +385,7 @@ if (-not $SkipCompose) {
     Invoke-Change "docker compose -p $ComposeProject run --rm migrate (idempotent init-db)" { Invoke-Native 'docker' ($c + @('run', '--rm', 'migrate')) $AecRoot }
     Invoke-Change "docker compose -p $ComposeProject up -d api" { Invoke-Native 'docker' ($c + @('up', '-d', 'api')) $AecRoot }
     if (-not $DryRun) {
-        $ErrorActionPreference = 'Continue'
-        $after = "$(& docker inspect aec-db --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Name}}{{end}}{{end}}' 2>$null)".Trim()
-        $ErrorActionPreference = 'Stop'
+        $after = (Get-AecDbInfo).Volume
         if ($after -ne $expectedVolume) { throw "after the switch aec-db uses volume '$after', expected '$expectedVolume'" }
         Write-Log "aec-db still on volume $after"
     }
@@ -273,11 +395,7 @@ if (-not $SkipCompose) {
 $venv = Join-Path $AecRoot '.venv'
 $venvPy = Join-Path $venv 'Scripts\python.exe'
 if (-not $SkipVenv) {
-    if (-not $Python) {
-        $cfg = Join-Path $LegacyRoot '.venv\pyvenv.cfg'
-        $home0 = if (Test-Path -LiteralPath $cfg) { ((Get-Content -LiteralPath $cfg | Where-Object { $_ -match '^home\s*=' }) -replace '^home\s*=\s*', '') } else { '' }
-        $Python = if ($home0 -and (Test-Path -LiteralPath (Join-Path $home0 'python.exe'))) { Join-Path $home0 'python.exe' } else { 'python' }
-    }
+    # $Python was resolved and checked (>= $MinPython) during preflight.
     Invoke-Change "create $venv with $Python (an existing .venv is renamed to .venv.old-$stamp)" {
         if (Test-Path -LiteralPath $venv) { Rename-Item -LiteralPath $venv -NewName ".venv.old-$stamp" }
         Invoke-Native $Python @('-m', 'venv', $venv)
@@ -306,8 +424,16 @@ foreach ($name in $StaleTasks) {
 }
 if (-not $DryRun) {
     foreach ($t in (Get-AecTasks)) {
-        $a = ($t.Actions | ForEach-Object { "$($_.Arguments) $($_.WorkingDirectory)" }) -join ' '
-        if ($a -like "*$LegacyRoot*") { Write-Log "task $($t.TaskName) still points at $LegacyRoot (not managed by the register scripts; review it)" 'WARN' }
+        $a = ($t.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments) $($_.WorkingDirectory)" }) -join ' '
+        if ($a -like "*$LegacyRoot*") {
+            # Not managed by the register scripts and still running archived code against the live DB:
+            # keep it disabled (XML backup above) until it is migrated by hand.
+            if ($t.State -ne 'Disabled') {
+                Disable-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName -ErrorAction SilentlyContinue | Out-Null
+            }
+            Write-Log "task $($t.TaskName) still points at $LegacyRoot (not managed by the register scripts): left DISABLED; migrate it, then enable it" 'WARN'
+            continue
+        }
         if ($t.State -eq 'Disabled') {
             Enable-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName | Out-Null
             Write-Log "re-enabled $($t.TaskName)"

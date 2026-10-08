@@ -27,6 +27,17 @@ from sion_ingestion.agent_bridge import (
 )
 from sion_ingestion.map_import import import_map_export
 
+# Every reader shipped in sion_ingestion.agent_bridge; "all" expands to these (plus any provider registered
+# at runtime via register_provider) so documented SION_*_ROOT overrides work through this CLI too.
+BUILTIN_PROVIDERS = ("antigravity", "codex", "claude", "deepseek", "hermes", "zcode")
+
+
+def resolve_providers(choice: str) -> list[str]:
+    if choice != "all":
+        return [choice]
+    extra = [name for name in PROVIDER_REGISTRY if name not in BUILTIN_PROVIDERS]
+    return [name for name in BUILTIN_PROVIDERS if name in PROVIDER_REGISTRY] + extra
+
 
 def sync_cycle(args, providers: list[str], limit_val: int | None) -> None:
     device_id = get_device_id()
@@ -172,15 +183,15 @@ def install_automated_task() -> None:
             print(f"[!] Failed to configure cron job: {e}")
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Automated cross-device multi-agent conversation session bridge."
     )
     parser.add_argument(
         "--provider",
-        choices=["antigravity", "codex", "claude", "all"],
+        choices=[*BUILTIN_PROVIDERS, "all"],
         default="all",
-        help="Target agent provider (default: all)",
+        help="Target agent provider (default: all = " + ", ".join(BUILTIN_PROVIDERS) + ")",
     )
     parser.add_argument(
         "--limit",
@@ -233,13 +244,17 @@ def main():
         help="Register a recurring background task on this OS to run automatically",
     )
 
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = build_parser().parse_args()
 
     if args.install_task:
         install_automated_task()
         return
 
-    providers = ["antigravity", "codex", "claude"] if args.provider == "all" else [args.provider]
+    providers = resolve_providers(args.provider)
     limit_val = None if args.limit <= 0 else args.limit
 
     if args.daemon:

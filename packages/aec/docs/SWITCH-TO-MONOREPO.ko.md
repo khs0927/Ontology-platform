@@ -34,6 +34,9 @@ powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-mono
   (`docker inspect aec-db` 의 compose 라벨과 마운트에서 자동 감지. 다르면 스크립트가 거부합니다.)
 - `task \AEC\... legacy=True` 목록 — 전환 대상
 - `AutoSync_Code_To_GDrive` 상태
+- `host venv interpreter: ... (Python 3.12 이상)` — 모노레포 루트가 Python 3.12+ 를 요구하므로, 예전 venv 가
+  3.11 이면 `py -3.13`/`py -3.12` 또는 PATH 의 3.12+ 를 고릅니다. 찾지 못하면 **아무것도 바꾸기 전에** 멈춥니다
+  (`-Python <python.exe 경로>` 로 직접 지정 가능, 3.12 미만이면 거부).
 - 마지막 줄의 `[DRY-RUN] would ...` 계획
 
 ## 3. 실행
@@ -47,6 +50,7 @@ powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-mono
 `COMPOSE_PROJECT_NAME` 고정) → `docker compose -p <project>` build api / up db / run migrate / up api →
 `packages\aec\.venv` 재생성(`pip install -e ".[operational,pdf,bim,ocr,cad]"` + 모노레포 루트 `--no-deps`) →
 `register-bulk-tasks.ps1`·`register-host-tasks.ps1` 로 작업 재등록 → FinalWrap/FinalCheck 삭제 →
+`\AEC\` 작업 재활성화(단, 여전히 `-LegacyRoot` 를 가리키는 작업은 **비활성 상태로 남기고** WARN — 직접 옮긴 뒤 켜세요) →
 `AutoSync_Code_To_GDrive` 비활성 확인 → `/healthz`, `/v1/kg/stats` 확인 → `AEC-GraphRAG-Refresh` 시작(재색인) →
 `stop-workers.ps1 -Resume`.
 
@@ -96,4 +100,6 @@ powershell -ExecutionPolicy Bypass -File scripts\ops\stop-workers.ps1 -Resume
 ## 6. 전환 후 할 일
 - `/review` 화면에서 관계 후보 승인/반려 (사람 판단 필요)
 - 며칠 안정적으로 돈 뒤 예전 `.venv`(`packages\aec\.venv.old-*` 포함)와 예전 체크아웃 정리는 직접 결정하세요.
+  `.venv.old-*` 와 복사된 `docker-compose.override.yml` 은 git 에서 무시되므로, 중간에 실패해도 깨끗한 작업 트리
+  검사에 걸리지 않고 그대로 다시 실행할 수 있습니다.
   스크립트는 아무것도 지우지 않습니다.

@@ -18,9 +18,12 @@
 
 ## 2. subtree 규칙
 
-- `packages/*` 는 git subtree입니다. **subtree 병합이 들어간 브랜치는 rebase 하지 않습니다**(히스토리가 깨짐).
-  최신 main을 받을 때는 `git merge origin/main`.
-- 패키지별 테스트·CI(`aec.yml`, `regulation.yml` 등)를 그 패키지 안에서 계속 초록으로 유지합니다.
+- git subtree는 **세 디렉터리뿐**입니다: `packages/regulation`(ArchOntos), `packages/aec`(Ontology),
+  `packages/cad/god-cad`(GOD-CAD) — 루트 [`AGENTS.md`](../../AGENTS.md)의 Integration 절과 같습니다.
+  `packages/core`, `packages/ingestion`, `packages/graphrag` 등 나머지 `packages/*` 는 **일반 패키지**이고 subtree가 아닙니다.
+- **subtree 병합(`git subtree pull/merge` 커밋)이 들어간 브랜치는 rebase 하지 않습니다**(히스토리가 깨짐).
+  그런 브랜치에서 최신 main을 받을 때는 `git merge origin/main`. 일반 패키지만 고친 브랜치에는 이 제한이 없습니다.
+- 세 subtree 패키지는 각자의 테스트·CI(`aec.yml`, `regulation.yml`, GOD-CAD 테스트)를 계속 초록으로 유지합니다.
 - 히스토리 재작성(개인정보 정리 등)은 오너 승인 + 로컬 복구 백업 + `--force-with-lease=<ref>:<expected>` 로만. 평소에는 **force push 금지**.
 
 ## 3. 보관 저장소의 PR을 모노레포로 이식하기
@@ -41,7 +44,7 @@
 | 작업 공간 | 작업자(에이전트)마다 **자기 클론**(예: `/workspace/<sprint>/<worker>/`). 다른 작업자의 디렉터리·브랜치를 건드리지 않음 |
 | 브랜치 | `sprint/…`, `sprint2/…` 처럼 스프린트 접두사 + 주제. 한 브랜치 = 한 주제 |
 | 범위 | 맡은 파일만 고침. diff가 범위를 벗어나면 PR을 나눔. 공용 파일은 **소유자 한 명**(예: `docs/STATUS.md`, `docs/STATUS.ko.md`는 문서 담당만) |
-| 병합 | **CI 전부 초록 확인 후** `gh pr merge --merge --delete-branch` (merge commit; squash·rebase 안 함 — subtree 때문) |
+| 병합 | **CI 전부 초록 확인 후** `gh pr merge --merge --delete-branch` (저장소 공통 관례로 merge commit 사용. squash·rebase 병합이 **반드시 금지**되는 것은 위 세 subtree 경로의 subtree 병합이 들어간 PR) |
 | 충돌 | 나중에 병합하는 쪽이 `git merge origin/main` 으로 해결. rebase·force push 금지 |
 | 요청량 제한 | 한 번에 다 띄우지 않음. **4–5개씩 묶어서** 실행, 우선순위 높은 것부터. 멈춘 작업은 범위를 줄여 다시 시작 |
 | 기록 | 마지막에 STATUS 담당이 병합된 PR을 **다시 조회**해서 상태 문서를 실제와 맞춤(“진행 중”으로 남은 항목이 없게) |

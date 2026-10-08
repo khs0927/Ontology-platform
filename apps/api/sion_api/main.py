@@ -281,6 +281,21 @@ def create_app(
     ):
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
 
+    @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_knowledge)])
+    def reopen_candidate_relation(
+        relation_id: uuid.UUID,
+        payload: schemas.CandidateReopen,
+        session: Session = Depends(get_session),
+    ):
+        """Return an approved/rejected candidate to pending (note required; the reverted decision stays on record)."""
+        try:
+            row = review.reopen(session, relation_id, note=payload.note, reviewer=payload.reviewer)
+        except LookupError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except (review.NotACandidate, review.NotReviewed, review.AlreadyReviewed) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return review.serialize(session, row)
+
     @app.post(
         "/api/v1/evidence",
         response_model=schemas.EvidenceRead,

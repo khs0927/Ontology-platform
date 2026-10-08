@@ -176,11 +176,12 @@ rows into read-only steel section evidence keyed by `canonical_section`. Schema:
 - `source_sha256` (lowercase hex SHA-256 of the family file) is required; the Sion loader ignores files
   without it or without PASS, and the schema rejects the same payloads
 - `rows[]` (≤500): `spec`, `shape`, `family` non-blank, `dimensions_mm` exactly six non-negative numbers,
-  `unit_weight_kg_m`, `paint_area_m2_m`, `aci_color`
+  `unit_weight_kg_m`, `paint_area_m2_m`, `aci_color` (integer) — all seven are required per row
 - `contract_digest`: same canonical-JSON SHA-256 rule as §4. Row-count consistency
   (`returned_rows == len(rows)`, `accepted_rows ≤ read_rows`) is checked by power-cad, not by the schema.
 
-Tests: a valid synthetic handoff goes through the real AEC loader; 11 tampered payloads fail.
+Tests: a valid synthetic handoff goes through the real AEC loader; 11 tampered payloads fail, and rows
+missing (or renaming) a required field such as `aci_color` fail.
 
 ## 4b. hs-steel-cad asset registry (`hs-steel-asset-registry/1`)
 

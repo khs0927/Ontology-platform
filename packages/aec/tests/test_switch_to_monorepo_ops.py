@@ -76,3 +76,68 @@ def test_no_personal_paths(path):
                if m.lower() not in {"user", "username", "public", "<user>", "<username>"}]
     assert profile == []
     assert not re.search(r"[A-Za-z0-9._%+-]+@(gmail|naver|hanmail|daum|hotmail|outlook)\.", text, re.I)
+
+
+def _section(text: str, start: str, end: str) -> str:
+    return text[text.index(start): text.index(end)]
+
+
+def test_python_312_is_enforced_in_preflight_before_any_change():
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "$MinPython = [version]'3.12'" in text
+    preflight = _section(text, "# --- 1. preflight", "# --- 2. inventory")
+    # resolved and version-checked before the drain/disable steps; explicit -Python must also satisfy it
+    assert "Get-PythonVersion $Python" in preflight and "-lt $MinPython" in preflight
+    assert "-ge $MinPython" in preflight and "throw \"no Python >= $MinPython found" in preflight
+    venv = _section(text, "# --- 8. host venv", "# --- 9. scheduled tasks")
+    assert "pyvenv.cfg" not in venv  # no un-checked legacy interpreter fallback at venv time
+
+
+def test_legacy_targeting_tasks_are_never_re_enabled():
+    text = SCRIPT.read_text(encoding="utf-8")
+    loop = _section(text, "if (-not $DryRun) {\n    foreach ($t in (Get-AecTasks))", "# --- 10. AutoSync")
+    legacy_branch = loop[loop.index('if ($a -like "*$LegacyRoot*")'): loop.index("if ($t.State -eq 'Disabled')")]
+    assert "Disable-ScheduledTask" in legacy_branch and "continue" in legacy_branch
+    assert "Enable-ScheduledTask" not in legacy_branch
+
+
+@pytest.mark.parametrize("path", ["packages/aec/.venv.old-20260101-000000/pyvenv.cfg",
+                                  "packages/aec/docker-compose.override.yml"])
+def test_switch_side_files_are_git_ignored_so_retries_pass_the_clean_tree_check(path):
+    git = shutil.which("git")
+    root = Path(__file__).resolve().parents[3]
+    if not git or not (root / ".git").exists():
+        pytest.skip("needs a git checkout of the monorepo")
+    result = subprocess.run([git, "-C", str(root), "check-ignore", "-q", "--no-index", path], capture_output=True)
+    assert result.returncode == 0, f"{path} would dirty the worktree"
+
+
+def test_docker_templates_survive_windows_powershell_quote_stripping():
+    # Live PS 5.1 dry-run: '{{ index .Config.Labels "com.docker.compose.project" }}' lost its inner quotes
+    # ("function com not defined"), so the project/volume checks were silently skipped.
+    text = SCRIPT.read_text(encoding="utf-8")
+    code = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+    templates = re.findall(r"--format',?\s*'([^']*)'|--format\s+'([^']*)'", code)
+    templates = [a or b for a, b in templates]
+    assert templates and all('"' not in t for t in templates), templates
+    assert "{{json .Config.Labels}}" in code and "{{json .Mounts}}" in code
+    assert "com.docker.compose.project" in code and "ConvertFrom-Json" in code
+    # the post-switch volume check uses the same parser
+    stack = _section(text, "# --- 7. docker stack", "# --- 8. host venv")
+    assert "(Get-AecDbInfo).Volume" in stack and "docker inspect" not in stack
+
+
+def test_health_url_follows_aec_api_host_port():
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "[string]$ApiUrl = ''," in text
+    assert "Get-DotEnvValue $LegacyEnv 'AEC_API_HOST_PORT'" in text and "$apiPort = 58000" in text
+
+
+def test_compose_project_inference_order():
+    text = SCRIPT.read_text(encoding="utf-8")
+    section = _section(text, "# --- 3. compose project / volume", "# --- 4. backups")
+    order = ["'-ComposeProject'", "COMPOSE_PROJECT_NAME'", "'aec-db compose label'", "aec-db volume $dbVolume",
+             "only existing volume", "legacy folder name (compose default)"]
+    positions = [section.index(marker) for marker in order]
+    assert positions == sorted(positions)
+    assert "several *_aec-pgdata volumes exist" in section and "ConvertTo-ComposeProjectName" in section

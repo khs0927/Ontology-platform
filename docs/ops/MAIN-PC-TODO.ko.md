@@ -131,6 +131,11 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
     [pscustomobject]@{ Task = $_.TaskName; State = $_.State; Cmd = ($_.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments) [$($_.WorkingDirectory)]" }) -join ' | ' }
   } | Format-Table -Wrap
   Get-ScheduledTask -TaskName 'AutoSync_Code_To_GDrive' -ErrorAction SilentlyContinue | Format-Table TaskName, State
+  # 2단계 직후에는 재색인이 아직 돌고 있을 수 있습니다(수 시간). 끝날 때까지 기다린 뒤 결과를 봅니다.
+  # 실행 중의 LastTaskResult 0x41301(=267009)은 "작업이 실행 중"이라는 뜻이지 실패가 아닙니다.
+  while ((Get-ScheduledTask -TaskPath '\AEC\' -TaskName 'AEC-GraphRAG-Refresh').State -eq 'Running') {
+    Write-Host "AEC-GraphRAG-Refresh 실행 중... $(Get-Date -Format T)"; Start-Sleep -Seconds 300
+  }
   Get-ScheduledTaskInfo -TaskPath '\AEC\' -TaskName 'AEC-GraphRAG-Refresh' | Format-List LastRunTime, LastTaskResult
   powershell -ExecutionPolicy Bypass -File scripts\ops\graphrag.ps1 stats
   ```
@@ -139,7 +144,8 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
   - `\AEC\` 작업의 명령/작업 폴더가 모두 `...\Ontology-platform\packages\aec` 를 가리키고 `<LEGACY_ONTOLOGY>` 경로가 없음.
     AEC-Ops-FinalWrap / AEC-Ops-FinalCheck 는 삭제됨.
   - `AutoSync_Code_To_GDrive` 는 `Disabled`(또는 존재하지 않음). 라이브 DB를 Drive로 복사하면 안 됩니다.
-  - `AEC-GraphRAG-Refresh` 의 `LastTaskResult = 0`. 끝나면 `graphrag.ps1 stats` 에서 **FAILED 커뮤니티 0**
+  - `AEC-GraphRAG-Refresh` 가 **끝난 뒤**(State ≠ `Running`) `LastTaskResult = 0`. 위 대기 루프가 끝나기 전의
+    `0x41301`/267009 는 실행 중 표시라 실패로 보지 않습니다. 끝나면 `graphrag.ps1 stats` 에서 **FAILED 커뮤니티 0**
     (이전 6건). 남아 있으면 `graphrag.ps1 summarize` 를 한 번 더 실행(FAILED는 자동 재시도·캐시 재사용).
 - **롤백:** 2-2의 롤백과 같음. GraphRAG 재색인은 데이터를 지우지 않으므로 롤백 불필요.
 
@@ -211,7 +217,12 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
   일괄 승인·반려(PR #44, 병합됨): 필터로 묶은 뒤 일괄 처리하거나 단축키로 빠르게 판정합니다. 화면의 "추천" 표시는
   참고용일 뿐 자동으로 반영되지 않습니다. API로는 `POST /api/v1/relations/candidates/bulk`(쓰기 권한 필요, 로컬 전용).
 - **성공 기준:** `/review` 의 대기 후보 수가 0(또는 의도적으로 보류한 것만 남음). 이슈 #3 닫기, #33 체크리스트 갱신.
-- **롤백:** 판정은 이력으로 남습니다. 잘못 판정한 건은 `/review` 에서 다시 반대로 판정(삭제 엔드포인트 없음).
+- **롤백:** 승인·거절된 후보에 바로 반대 판정을 내리는 것은 막혀 있습니다(409). 잘못 판정한 건은 **되돌리기**로 먼저
+  대기 상태로 돌린 뒤 다시 판정합니다.
+  - 화면: `/review` 에서 상태를 "승인" 또는 "거절"로 바꿔 해당 카드의 **되돌리기** 버튼 → 이유 입력(필수).
+  - API(쓰기 권한, 로컬 전용): `POST /api/v1/relations/candidates/<id>/reopen` 본문 `{"note": "<이유>", "reviewer": "<이름>"}`.
+  - 되돌린 판정은 지워지지 않고 `properties.review_history` 에 이유·시각과 함께 남습니다. 동시에 다른 사람이 같은 후보를
+    바꿨다면 409 로 거부되니 새로고침 후 다시 확인하세요. 삭제 엔드포인트는 없습니다.
 
 ## 9. power-cad-mcp 최신화 (20분)
 
