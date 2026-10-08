@@ -248,3 +248,29 @@ class RegulationEvaluate(BaseModel):
     entity_id: uuid.UUID | None = None
     # korean-land-mcp analyze_parcel record (contract korean-land-parcel-analysis/2) -> land.* facts
     land_parcel: dict[str, Any] | None = None
+
+
+class CandidateDecision(BaseModel):
+    reviewer: str | None = Field(default=None, max_length=200)
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class RelationExtractionRequest(BaseModel):
+    paths: list[str] = Field(min_length=1, max_length=500)
+    min_cooccurrence: int = Field(default=2, ge=1, le=100)
+    include_cooccurrence: bool = True
+
+
+class GraphExportImportRequest(BaseModel):
+    path: str = Field(min_length=1)
+    namespace: str | None = Field(default=None, max_length=120, pattern=r"^[0-9A-Za-z._-]+$")
+    expected_node_count: int | None = Field(default=None, ge=0)
+    expected_edge_count: int | None = Field(default=None, ge=0)
+    as_candidates: bool = True
+    graph_index: int | None = Field(default=None, ge=0)
+    allow_implicit_nodes: bool = False
+    dry_run: bool = False
+
+
+class LightRagExtractionRequest(BaseModel):
+    max_nodes: int = Field(default=1000, ge=1, le=20000)

@@ -6,7 +6,7 @@ graph (AGE / LightRAG) and search remain rebuildable projections.
 
 | Schema | Owner | Tables | Migrations | Tracking table |
 |---|---|---|---|---|
-| `public` | Sion core | `ontology_versions`, `entity_types`, `relation_types`, `entities`, `artifacts`, `documents`, `chunks`, `relations`, `evidence`, `embeddings`, `outbox_events` | `migrations/001_core`, `002_vector`, `004_seed_core_types`, `006_outbox` (+ optional `005_age_projection`) | `public.sion_schema_migrations` |
+| `public` | Sion core | `ontology_versions`, `entity_types`, `relation_types`, `entities`, `artifacts`, `documents`, `chunks`, `relations`, `evidence`, `embeddings`, `outbox_events` | `migrations/001_core`, `002_vector`, `004_seed_core_types`, `006_outbox`, `007_relation_type_validates` (+ optional `005_age_projection`) | `public.sion_schema_migrations` |
 | `regulation` | ArchOntos | `source_document`, `source_version`, `artifact`, `evidence_span`, `assertion*`, `rule`, `rule_version`, `rule_assertion`, `evaluation`, `decision`, `domain_event`, `outbox_message`, `projection_checkpoint`, `embedding_projection`, `hyperedge*`, `action*`, `audit_log`, ... (29) | `packages/regulation/db/migrations/001..013` | `regulation.schema_migrations` |
 
 The `pgcrypto` and `vector` extensions are installed once in `public`, so

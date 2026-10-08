@@ -747,7 +747,8 @@ ON CONFLICT (id) DO NOTHING;\n""",
   ('EXTRACTED_FROM', 'Extracted from', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
   ('EVIDENCED_BY', 'Evidenced by', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
   ('SUPERSEDES', 'Supersedes', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
-  ('VERSION_OF', 'Version of', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb)
+  ('VERSION_OF', 'Version of', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('VALIDATES', 'Validates', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb)
 ON CONFLICT (id) DO NOTHING;\n""",
             "-- 3. Entities",
         ]

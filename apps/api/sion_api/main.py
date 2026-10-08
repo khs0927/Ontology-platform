@@ -21,7 +21,7 @@ from sion_ingestion.project_contracts import (
 )
 from sqlalchemy.orm import Session
 
-from . import __version__, models, outbox, regulation, repository, schemas, vector_repository
+from . import __version__, models, outbox, regulation, repository, review, schemas, vector_repository
 from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -218,6 +218,51 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
+    # --- candidate relations: review queue ---------------------------------------
+    @app.get("/api/v1/relations/candidates", dependencies=[Depends(read_knowledge)])
+    def list_candidate_relations(
+        status: str = Query(default="pending", pattern="^(pending|approved|rejected|all)$"),
+        limit: int = Query(default=100, ge=1, le=1000),
+        offset: int = Query(default=0, ge=0),
+        session: Session = Depends(get_session),
+    ):
+        return review.list_candidates(session, status=status, limit=limit, offset=offset)
+
+    @app.get("/api/v1/relations/candidates/{relation_id}", dependencies=[Depends(read_knowledge)])
+    def get_candidate_relation(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+        try:
+            row = review.get_candidate(session, relation_id)
+        except LookupError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except review.NotACandidate as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return review.serialize(session, row, evidence_limit=100)
+
+    def _decide(relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool):
+        try:
+            row = review.decide(session, relation_id, approve=approve, reviewer=payload.reviewer, note=payload.note)
+        except LookupError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        except (review.NotACandidate, review.AlreadyReviewed) as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        return review.serialize(session, row)
+
+    @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_knowledge)])
+    def approve_candidate_relation(
+        relation_id: uuid.UUID,
+        payload: schemas.CandidateDecision | None = None,
+        session: Session = Depends(get_session),
+    ):
+        return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
+
+    @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
+    def reject_candidate_relation(
+        relation_id: uuid.UUID,
+        payload: schemas.CandidateDecision | None = None,
+        session: Session = Depends(get_session),
+    ):
+        return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
+
     @app.post(
         "/api/v1/evidence",
         response_model=schemas.EvidenceRead,
@@ -248,6 +293,7 @@ def create_app(
         limit: int = Query(default=500, ge=1, le=5000),
         at: datetime | None = Query(default=None, description="Return graph edges valid at this instant"),
         active_only: bool = Query(default=False, description="Return graph edges valid now; ignored when at is supplied"),
+        include_rejected: bool = Query(default=False, description="Also return relations a reviewer rejected"),
         session: Session = Depends(get_session),
     ):
         nodes, edges = repository.get_graph(
@@ -256,6 +302,8 @@ def create_app(
             at=at,
             active_only=active_only,
         )
+        if not include_rejected:
+            edges = [edge for edge in edges if edge.verification_state != "rejected"]
         return schemas.GraphResponse(
             nodes=[schemas.EntityRead.model_validate(node) for node in nodes],
             edges=[
@@ -454,6 +502,13 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return {"canonical": False, **result}
 
+    @app.get("/review")
+    def review_page():
+        page = Path(__file__).resolve().parents[3] / "apps" / "web" / "review.html"
+        if not page.exists():
+            raise HTTPException(status_code=404, detail="review page missing")
+        return FileResponse(page)
+
     @app.get("/map")
     def ontology_map():
         page = Path(__file__).resolve().parents[3] / "apps" / "web" / "index.html"
@@ -536,6 +591,67 @@ def create_app(
     @app.post("/api/v1/ingest/ifc", dependencies=[Depends(write_knowledge)])
     def ingest_ifc_route(payload: dict, session: Session = Depends(get_session)):
         return ingest_ifc(session, single_file(payload, {".ifc"}, "ifc"))
+
+    # --- relation construction ---------------------------------------------------
+    @app.post("/api/v1/extract/relations", dependencies=[Depends(write_knowledge)])
+    def extract_relations_route(payload: schemas.RelationExtractionRequest, session: Session = Depends(get_session)):
+        """Propose unverified candidate relations (with evidence spans) from documents/DXF/IFC."""
+        from sion_ingestion.relation_extraction import extract_relation_candidates
+
+        paths = [resolve_ingest_path(item) for item in payload.paths]
+        return extract_relation_candidates(
+            session,
+            paths,
+            min_cooccurrence=payload.min_cooccurrence,
+            include_cooccurrence=payload.include_cooccurrence,
+        )
+
+    @app.post("/api/v1/import/graph-export", dependencies=[Depends(write_knowledge)])
+    def import_graph_export_route(payload: schemas.GraphExportImportRequest, session: Session = Depends(get_session)):
+        """Convert a Sites/HTML/D3/vis/Cytoscape/Mermaid/GraphML/JSON graph export and import it."""
+        from sion_ingestion.graph_export import GraphExportError, compare_with_inventory, convert_file
+        from sion_ingestion.map_import import GraphImportError, import_map_export
+
+        path = resolve_ingest_path(payload.path)
+        if not path.is_file():
+            raise HTTPException(status_code=422, detail="graph export file required")
+        try:
+            export, report = convert_file(
+                path,
+                namespace=payload.namespace,
+                expected_nodes=payload.expected_node_count,
+                expected_edges=payload.expected_edge_count,
+                as_candidates=payload.as_candidates,
+                graph_index=payload.graph_index,
+                allow_implicit_nodes=payload.allow_implicit_nodes,
+            )
+        except (GraphExportError, ValueError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        body: dict = {"report": report.as_dict(), "dry_run": payload.dry_run}
+        inventory_path: Path = settings.map_inventory_path
+        if inventory_path.exists():
+            body["inventory"] = compare_with_inventory(export, json.loads(inventory_path.read_text(encoding="utf-8")))
+        if payload.dry_run:
+            return body
+        try:
+            result = import_map_export(session, export)
+        except GraphImportError as exc:
+            session.rollback()
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        from sion_ingestion.graph_export import attach_export_evidence
+
+        body["import"] = result.model_dump()
+        body["evidence_created"] = attach_export_evidence(session, export, source_uri=f"file:///{path.as_posix().lstrip('/')}")
+        return body
+
+    @app.post("/api/v1/graphrag/extract-relations", dependencies=[Depends(write_knowledge)])
+    async def graphrag_extract_relations(payload: schemas.LightRagExtractionRequest | None = None):
+        """Candidates from the LightRAG knowledge graph (``rag`` extra + configured engine)."""
+        engine = require_graphrag()
+        try:
+            return await engine.extract_relation_candidates(factory, max_nodes=(payload.max_nodes if payload else 1000))
+        except GraphRagUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     # --- transactional outbox (pull consumers) ---------------------------------
     @app.get("/api/v1/outbox", response_model=list[schemas.OutboxEventRead], dependencies=[Depends(read_knowledge)])

@@ -84,7 +84,8 @@ jobs:
               migrations/001_core.sql \
               migrations/002_vector.sql \
               migrations/004_seed_core_types.sql \
-              migrations/006_outbox.sql; do
+              migrations/006_outbox.sql \
+              migrations/007_relation_type_validates.sql; do
               psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 -f "$migration"
             done
           done
@@ -100,8 +101,8 @@ jobs:
             IF (SELECT count(*) FROM entity_types) <> 11 THEN
               RAISE EXCEPTION 'expected 11 canonical entity types';
             END IF;
-            IF (SELECT count(*) FROM relation_types) <> 14 THEN
-              RAISE EXCEPTION 'expected 14 canonical relation types';
+            IF (SELECT count(*) FROM relation_types) <> 15 THEN
+              RAISE EXCEPTION 'expected 15 canonical relation types';
             END IF;
             IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pgcrypto') THEN
               RAISE EXCEPTION 'pgcrypto extension is missing';
