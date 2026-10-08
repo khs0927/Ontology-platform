@@ -76,3 +76,37 @@ def test_no_personal_paths(path):
                if m.lower() not in {"user", "username", "public", "<user>", "<username>"}]
     assert profile == []
     assert not re.search(r"[A-Za-z0-9._%+-]+@(gmail|naver|hanmail|daum|hotmail|outlook)\.", text, re.I)
+
+
+def _section(text: str, start: str, end: str) -> str:
+    return text[text.index(start): text.index(end)]
+
+
+def test_python_312_is_enforced_in_preflight_before_any_change():
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "$MinPython = [version]'3.12'" in text
+    preflight = _section(text, "# --- 1. preflight", "# --- 2. inventory")
+    # resolved and version-checked before the drain/disable steps; explicit -Python must also satisfy it
+    assert "Get-PythonVersion $Python" in preflight and "-lt $MinPython" in preflight
+    assert "-ge $MinPython" in preflight and "throw \"no Python >= $MinPython found" in preflight
+    venv = _section(text, "# --- 8. host venv", "# --- 9. scheduled tasks")
+    assert "pyvenv.cfg" not in venv  # no un-checked legacy interpreter fallback at venv time
+
+
+def test_legacy_targeting_tasks_are_never_re_enabled():
+    text = SCRIPT.read_text(encoding="utf-8")
+    loop = _section(text, "if (-not $DryRun) {\n    foreach ($t in (Get-AecTasks))", "# --- 10. AutoSync")
+    legacy_branch = loop[loop.index('if ($a -like "*$LegacyRoot*")'): loop.index("if ($t.State -eq 'Disabled')")]
+    assert "Disable-ScheduledTask" in legacy_branch and "continue" in legacy_branch
+    assert "Enable-ScheduledTask" not in legacy_branch
+
+
+@pytest.mark.parametrize("path", ["packages/aec/.venv.old-20260101-000000/pyvenv.cfg",
+                                  "packages/aec/docker-compose.override.yml"])
+def test_switch_side_files_are_git_ignored_so_retries_pass_the_clean_tree_check(path):
+    git = shutil.which("git")
+    root = Path(__file__).resolve().parents[3]
+    if not git or not (root / ".git").exists():
+        pytest.skip("needs a git checkout of the monorepo")
+    result = subprocess.run([git, "-C", str(root), "check-ignore", "-q", "--no-index", path], capture_output=True)
+    assert result.returncode == 0, f"{path} would dirty the worktree"

@@ -3,6 +3,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .venv/
+# switch-to-monorepo.ps1 renames an existing venv instead of deleting it
+.venv.old-*/
 *.egg-info/
 runtime/
 projects/
@@ -14,6 +16,8 @@ projects/
 .coverage
 
 .env
+# Host-local compose override copied from the legacy checkout by switch-to-monorepo.ps1
+docker-compose.override.yml
 
 # Host-side ops logs (scripts/ops/*.ps1 write here; may name private drawing paths)
 logs/

@@ -86,7 +86,10 @@ if ($env:AEC_MIN_AVAILABLE_MB) {
     if ([int]::TryParse($env:AEC_MIN_AVAILABLE_MB, [ref]$configuredMin) -and $configuredMin -gt 0) {
         $minAvailableMb = $configuredMin
     } else {
-        Write-BulkLog "invalid AEC_MIN_AVAILABLE_MB; using $minAvailableMb MB"
+        Write-BulkLog "invalid AEC_MIN_AVAILABLE_MB '$($env:AEC_MIN_AVAILABLE_MB)'; using $minAvailableMb MB"
+        # The Python workers read the same variable and fail closed on a bad value (pause forever), so
+        # hand them the fallback this script actually applies instead of the malformed original.
+        $env:AEC_MIN_AVAILABLE_MB = "$minAvailableMb"
     }
 }
 while ($true) {

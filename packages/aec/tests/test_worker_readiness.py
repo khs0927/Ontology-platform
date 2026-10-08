@@ -144,3 +144,57 @@ def test_run_forever_pauses_on_missing_root_instead_of_crashing(tmp_path, monkey
     assert waits == [1.0, 1.0]
     assert db.claims == 1
     assert len(db.finished) == 1
+
+
+@pytest.mark.parametrize("error", [FileNotFoundError("vanished while hashing"), OSError(5, "I/O error"),
+                                   ValueError("DXF structure error")])
+def test_mount_loss_during_parsing_defers_instead_of_failing(tmp_path, monkeypatch, error):
+    root = tmp_path / "mounted"
+    root.mkdir()
+    settings = Settings("unused", tmp_path, (root,))
+    db = FakeDB()
+    ingest = worker.IngestionWorker(db, settings, worker_id="test")
+
+    def disconnect_mid_job(job):
+        root.rmdir()  # the share drops after claim and the initial is_file() check
+        raise error
+
+    monkeypatch.setattr(ingest, "process_job", disconnect_mid_job)
+    assert ingest.run_once() is False
+    assert db.deferred == [("job-1", "test")]
+    assert db.finished == []
+
+
+def test_parse_error_with_roots_mounted_still_fails_the_job(tmp_path, monkeypatch):
+    root = tmp_path / "mounted"
+    root.mkdir()
+    settings = Settings("unused", tmp_path, (root,))
+    db = FakeDB()
+    ingest = worker.IngestionWorker(db, settings, worker_id="test")
+
+    def broken(job):
+        raise ValueError("corrupt drawing")
+
+    monkeypatch.setattr(ingest, "process_job", broken)
+    assert ingest.run_once() is True
+    assert db.deferred == []
+    assert len(db.finished) == 1
+
+
+def test_root_probe_failure_after_error_defers(tmp_path, monkeypatch):
+    settings = Settings("unused", tmp_path, ())
+    db = FakeDB()
+    ingest = worker.IngestionWorker(db, settings, worker_id="test")
+    monkeypatch.setattr(ingest, "process_job", lambda job: (_ for _ in ()).throw(OSError("parse")))
+    calls = iter([[], RuntimeError("probe broke")])
+
+    def probe(settings):
+        value = next(calls)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    monkeypatch.setattr(worker, "unavailable_import_roots", probe)
+    assert ingest.run_once() is False
+    assert db.deferred == [("job-1", "test")]
+    assert db.finished == []

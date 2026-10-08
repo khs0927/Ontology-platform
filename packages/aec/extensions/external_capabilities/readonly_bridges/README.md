@@ -30,3 +30,11 @@ The contract tests include independent fixtures under
 
 These fixtures do not simulate a native CAD host. They only verify that malformed,
 contradictory, absent or incomplete contract evidence cannot be promoted.
+
+`readonly_bridges.evidence.record_readonly_probe_evidence` (and the `readonly-bridge-evidence record` CLI) only
+accept projections with the exact shape `ingest_readonly_probe` produces: a `freecad`/`rhino`/`sketcharch`
+identity, `contract_scope: headless-contract/1`, `verification_kind: contract_only`, the sorted declared
+capability list, a matching `host` for `DECLARED`, and every authority flag (`execution_allowed`,
+`canonical_allowed`, `native_mapping_verified`, `probe_authenticated`, `host_identity_verified`) `false`.
+Section-catalog results, hand-written JSON, or projections claiming authority are refused and never reach the
+ledger, so `TESTED` can only come from an evaluated read-only probe.

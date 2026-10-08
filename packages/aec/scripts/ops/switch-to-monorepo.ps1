@@ -16,10 +16,12 @@
     6. env         copies .env (and docker-compose.override.yml) to packages\aec; values are never printed;
                    pins COMPOSE_PROJECT_NAME to the detected project
     7. stack       docker compose -p <project>: build api, up -d db, run --rm migrate (init-db), up -d api
-    8. venv        packages\aec\.venv (an old one is renamed, never deleted); pip install -e
+    8. venv        packages\aec\.venv with Python >= 3.12 (checked in preflight; an old venv is renamed to the
+                   git-ignored .venv.old-<stamp>, never deleted); pip install -e
                    ".[<Extras>]" plus the monorepo root (--no-deps, shared sion_cad reader)
     9. tasks       register-bulk-tasks.ps1 + register-host-tasks.ps1 from packages\aec\scripts\ops;
-                   removes the one-shot AEC-Ops-FinalWrap / AEC-Ops-FinalCheck tasks
+                   removes the one-shot AEC-Ops-FinalWrap / AEC-Ops-FinalCheck tasks; re-enables the \AEC\
+                   tasks except any that still target -LegacyRoot (those stay disabled, WARN)
    10. autosync    AutoSync_Code_To_GDrive must be disabled (disabled here when present and enabled)
    11. health      GET /healthz and /v1/kg/stats (Bearer token read from .env, never printed)
    12. graphrag    starts \AEC\AEC-GraphRAG-Refresh (incremental kg-build + kg-summarize = re-index)
@@ -170,6 +172,52 @@ if ($LASTEXITCODE -eq 0) {
 } else { Write-Log 'git fetch failed (offline?); skipping the behind-origin check' 'WARN' }
 $ErrorActionPreference = $prevEap
 
+# Resolve a Python 3.12+ interpreter for the host venv now, before anything is drained or disabled:
+# the monorepo root (pip install -e $MonorepoRoot) requires Python >= 3.12, while the archived AEC
+# venv may legitimately be 3.11. An explicit -Python must satisfy the floor; otherwise the legacy
+# venv's base interpreter is reused only when it is new enough, then the py launcher, then PATH.
+$MinPython = [version]'3.12'
+function Get-PythonVersion([string]$Exe) {
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try {
+        $out = (& $Exe -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>$null | Select-Object -Last 1)
+        if ($LASTEXITCODE -eq 0 -and "$out" -match '^\d+\.\d+$') { return [version]"$out" }
+    } catch { } finally { $ErrorActionPreference = $prev }
+    return $null
+}
+function Resolve-PyLauncher([string]$Tag) {
+    $launcher = Get-Command py -ErrorAction SilentlyContinue
+    if (-not $launcher) { return '' }
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try {
+        $exe = (& $launcher.Source "-$Tag" -c 'import sys; print(sys.executable)' 2>$null | Select-Object -Last 1)
+        if ($LASTEXITCODE -eq 0 -and $exe -and (Test-Path -LiteralPath "$exe".Trim())) { return "$exe".Trim() }
+    } catch { } finally { $ErrorActionPreference = $prev }
+    return ''
+}
+if (-not $SkipVenv) {
+    if ($Python) {
+        $pyVersion = Get-PythonVersion $Python
+        if (-not $pyVersion -or $pyVersion -lt $MinPython) {
+            throw "-Python $Python is $(if ($pyVersion) { $pyVersion } else { 'not runnable' }); the monorepo requires Python >= $MinPython"
+        }
+    } else {
+        $candidates = New-Object System.Collections.Generic.List[string]
+        $cfg = Join-Path $LegacyRoot '.venv\pyvenv.cfg'
+        $home0 = if (Test-Path -LiteralPath $cfg) { ((Get-Content -LiteralPath $cfg | Where-Object { $_ -match '^home\s*=' }) -replace '^home\s*=\s*', '') } else { '' }
+        if ($home0 -and (Test-Path -LiteralPath (Join-Path $home0 'python.exe'))) { $candidates.Add((Join-Path $home0 'python.exe')) }
+        foreach ($tag in @('3.13', '3.12')) { $found = Resolve-PyLauncher $tag; if ($found) { $candidates.Add($found) } }
+        $candidates.Add('python')
+        foreach ($candidate in $candidates) {
+            $v = Get-PythonVersion $candidate
+            if ($v -and $v -ge $MinPython) { $Python = $candidate; $pyVersion = $v; break }
+            Write-Log "python candidate $candidate is $(if ($v) { $v } else { 'not runnable' }) (< $MinPython); skipped"
+        }
+        if (-not $Python) { throw "no Python >= $MinPython found (install it or pass -Python <path to python.exe>); nothing was changed" }
+    }
+    Write-Log "host venv interpreter: $Python (Python $pyVersion)"
+}
+
 # --- 2. inventory ----------------------------------------------------------------------------------
 $tasks = Get-AecTasks
 foreach ($t in $tasks) {
@@ -273,11 +321,7 @@ if (-not $SkipCompose) {
 $venv = Join-Path $AecRoot '.venv'
 $venvPy = Join-Path $venv 'Scripts\python.exe'
 if (-not $SkipVenv) {
-    if (-not $Python) {
-        $cfg = Join-Path $LegacyRoot '.venv\pyvenv.cfg'
-        $home0 = if (Test-Path -LiteralPath $cfg) { ((Get-Content -LiteralPath $cfg | Where-Object { $_ -match '^home\s*=' }) -replace '^home\s*=\s*', '') } else { '' }
-        $Python = if ($home0 -and (Test-Path -LiteralPath (Join-Path $home0 'python.exe'))) { Join-Path $home0 'python.exe' } else { 'python' }
-    }
+    # $Python was resolved and checked (>= $MinPython) during preflight.
     Invoke-Change "create $venv with $Python (an existing .venv is renamed to .venv.old-$stamp)" {
         if (Test-Path -LiteralPath $venv) { Rename-Item -LiteralPath $venv -NewName ".venv.old-$stamp" }
         Invoke-Native $Python @('-m', 'venv', $venv)
@@ -306,8 +350,16 @@ foreach ($name in $StaleTasks) {
 }
 if (-not $DryRun) {
     foreach ($t in (Get-AecTasks)) {
-        $a = ($t.Actions | ForEach-Object { "$($_.Arguments) $($_.WorkingDirectory)" }) -join ' '
-        if ($a -like "*$LegacyRoot*") { Write-Log "task $($t.TaskName) still points at $LegacyRoot (not managed by the register scripts; review it)" 'WARN' }
+        $a = ($t.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments) $($_.WorkingDirectory)" }) -join ' '
+        if ($a -like "*$LegacyRoot*") {
+            # Not managed by the register scripts and still running archived code against the live DB:
+            # keep it disabled (XML backup above) until it is migrated by hand.
+            if ($t.State -ne 'Disabled') {
+                Disable-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName -ErrorAction SilentlyContinue | Out-Null
+            }
+            Write-Log "task $($t.TaskName) still points at $LegacyRoot (not managed by the register scripts): left DISABLED; migrate it, then enable it" 'WARN'
+            continue
+        }
         if ($t.State -eq 'Disabled') {
             Enable-ScheduledTask -TaskPath $t.TaskPath -TaskName $t.TaskName | Out-Null
             Write-Log "re-enabled $($t.TaskName)"
