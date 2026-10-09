@@ -97,7 +97,7 @@
 - `G:` 마운트가 불안정하다(감사 중 두 번 해제). 안정화 후 이동 작업을 재개해야 한다.
 - 루트의 AEC 관련 후보 폴더(`08_VALIDATION`, `PowerCad`, `PowerCad-Assets`, `SketchUp-Assets`, `Sion Ontology Artifacts`, `Ontology-platform-verification-2026-09-24`, `cokacmux-graph`, `지음_CAD_DB`, `GrokBot-Migration-2026-10-08`, `hillside_villa_export`, `revit-mcp-guideline`)와 루트의 `Ontology_*_2026100x.zip`, `Claude_Drive_처리_인계_20261002.md`, `hillside_villa.rvt` 는 `AEC-INTELLIGENCE` 하위로 옮길 후보지만, 참조 여부가 불확실하여 이동하지 않았다.
 - `AEC-INTELLIGENCE\08_VALIDATION` 과 루트 `08_VALIDATION` 중복 여부, `SION-ONTOLOGY\09_RECOVERY` 의 용도.
-- 루트에 `GoogleDrive-khs0927@gmail.com (2026. 7. 15...)`, `새 폴더`, `무제 폴더`, `Untitled`, `제목 없는 *` 등 임시/중복 성격 항목이 있음 (삭제 금지, 소유자 판단).
+- 루트에 `GoogleDrive-<계정> (2026. 7. 15...)`, `새 폴더`, `무제 폴더`, `Untitled`, `제목 없는 *` 등 임시/중복 성격 항목이 있음 (삭제 금지, 소유자 판단).
 - `my_key.key`, `encrypted_data.bin`, `NPKI`, `GPKI` 가 Drive 루트에 있음 (비밀 정보, 5절 위반 가능성).
 - 체크포인트 8c405d66 의 Drive 해시 검증, `.dump.partial` 처리, 로컬 최신 덤프 4종의 게시/복원 검증.
 - `rclone config reconnect gdrive:` (토큰 만료).
