@@ -1,0 +1,310 @@
+{
+ "source": "data/sources/sion-map-production.json",
+ "decided_at": "2026-10-09",
+ "method": "사용자 위임: Claude(내부 일관성 판단) + DeepSeek v4.1 flash 4개 병렬 교차검토. 원본 대조 없음. 둘 중 하나라도 보류면 보류.",
+ "approve": 36,
+ "hold": 7,
+ "items": [
+  {
+   "id": "rel-01",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "core-workflow와 core-gpo가 모두 존재하고, 워크플로가 온톨로지를 근거로 사용한다는 USES/ontology-grounding 의미가 타당하다."
+  },
+  {
+   "id": "rel-02",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "core-workflow가 산출물을 만들어낸다는 PRODUCES 관계와 'workflow-output' 역할이 워크플로→딜리버러블 흐름에 부합한다."
+  },
+  {
+   "id": "rel-03",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "core-workflow와 core-decision 양끝 노드가 존재하고, 워크플로가 결정 기록(Decision Memory)을 참조한다는 REFERENCES 방향과 role 의미가 자연스럽다."
+  },
+  {
+   "id": "rel-04",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "두 노드가 모두 존재하고 대시보드가 프로젝트 워크플로를 시각화해 지원한다는 role이 의미상 타당함."
+  },
+  {
+   "id": "rel-05",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "양끝 노드가 존재하며 모바일 커맨드가 프로젝트 워크플로를 지원·디스패치한다는 SUPPORTS/mobile-dispatch가 자연스럽다."
+  },
+  {
+   "id": "rel-06",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Mobile Command가 Sites Dashboard에 의존한다는 DEPENDS_ON과 'dashboard-api' 역할이 모바일이 대시보드 API를 소비하는 구조에 타당하다."
+  },
+  {
+   "id": "rel-07",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "core-decision과 core-gpo 양끝 노드가 존재하며, Decision Memory를 Global Project Ontology의 구성 모듈로 보는 PART_OF와 ontology-structuring role이 정합한다."
+  },
+  {
+   "id": "rel-08",
+   "decision": "hold",
+   "claude": "hold",
+   "deepseek": "approve",
+   "reason": "IMPLEMENTS가 프로젝트→온톨로지 관계로 어색함(PART_OF/REFERENCES 검토)"
+  },
+  {
+   "id": "rel-09",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "arch-project와 arch-site-pack이 존재하고, 프로젝트가 대지맥락을 위해 사이트팩을 사용한다는 USES/site-context가 적합하다."
+  },
+  {
+   "id": "rel-10",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "건축 프로젝트가 인허가 지식을 참조한다는 REFERENCES와 'regulatory-reference' 역할이 규제 참조 의미에 부합한다."
+  },
+  {
+   "id": "rel-11",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "arch-dubai와 arch-project 양끝 노드가 존재하고, Dubai Concept을 건축 프로젝트의 사례(인스턴스)로 보는 PART_OF와 concept-instantiation role이 타당하다."
+  },
+  {
+   "id": "rel-12",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Dubai Concept이 대지맥락 팩을 사용해 대지분석을 수행한다는 USES 관계가 자연스러움."
+  },
+  {
+   "id": "rel-13",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "양끝 노드가 존재하며 워크플로가 건축 프로젝트 실행을 지원한다는 SUPPORTS/project-execution이 의미상 타당하다."
+  },
+  {
+   "id": "rel-14",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "인허가 지식이 프로젝트를 법규 준수 관점에서 검증한다는 VALIDATES와 'code-compliance' 역할이 의미상 타당하다."
+  },
+  {
+   "id": "rel-15",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "cad-bridge와 cad-dwg 양끝 노드가 존재하고, CAD Bridge가 DWG/DXF를 도면 수집(drawing-ingestion) 대상으로 사용한다는 USES가 의미상 맞다."
+  },
+  {
+   "id": "rel-16",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "CAD Bridge가 의미 변환(semantic-conversion)을 통해 CAD Semantic Graph를 산출한다는 PRODUCES 관계가 적합함."
+  },
+  {
+   "id": "rel-17",
+   "decision": "hold",
+   "claude": "approve",
+   "deepseek": "hold",
+   "reason": "노드는 존재하나 CAD Semantic Graph가 Global Project Ontology를 '구현(IMPLEMENTS)'한다기보다 매핑하는 관계라 role(cad-ontology-mapping)과 관계종류가 어긋난다."
+  },
+  {
+   "id": "rel-18",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Rhino/Grasshopper가 계산적 생성으로 BIM/3D 모델을 산출한다는 PRODUCES와 'computational-generation' 역할이 타당하다."
+  },
+  {
+   "id": "rel-19",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "cad-bim과 cad-dwg 양끝 노드가 존재하며, 3D 모델이 2D 도면에서 파생된다는 DERIVED_FROM 방향과 2d-to-3d-derivation role이 일치한다."
+  },
+  {
+   "id": "rel-20",
+   "decision": "hold",
+   "claude": "approve",
+   "deepseek": "hold",
+   "reason": "BIM/3D 모델은 프로젝트의 구성요소라기보다 산출물·표현이므로 PART_OF보다 DELIVERABLE_OF/REPRESENTS가 더 적합함."
+  },
+  {
+   "id": "rel-21",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "cad-graph와 cad-bim이 존재하고 CAD 그래프가 BIM을 상호 참조한다는 REFERENCES/bim-cross-reference가 적합하다."
+  },
+  {
+   "id": "rel-22",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "CAD Bridge가 시트 인덱싱으로 Drawing Index를 지원한다는 SUPPORTS와 'sheet-indexing' 역할이 브릿지의 색인 생성 기능에 부합한다."
+  },
+  {
+   "id": "rel-23",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "ai-orchestrator와 ai-deepseek 양끝 노드가 존재하고, 오케스트레이터가 DeepSeek Planner를 계획 엔진으로 사용한다는 USES·planning-engine이 정합한다."
+  },
+  {
+   "id": "rel-24",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "오케스트레이터가 GPT Executor를 태스크 실행기로 사용한다는 USES 관계가 타당함."
+  },
+  {
+   "id": "rel-25",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "양끝 노드가 존재하며 오케스트레이터가 MCP 메시에 의존해 연결된다는 DEPENDS_ON/mesh-connectivity가 타당하다."
+  },
+  {
+   "id": "rel-26",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "MCP Mesh가 Browser Control을 웹 도구로 사용한다는 USES와 'web-tool' 역할이 메시도구 구성 의미에 타당하다."
+  },
+  {
+   "id": "rel-27",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "ai-mcp와 cad-bridge 양끝 노드가 존재하며, MCP Mesh가 CAD Bridge를 CAD 도구로 사용한다는 USES·cad-tool 관계가 타당하다."
+  },
+  {
+   "id": "rel-28",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "오케스트레이터가 안전 게이트(ai-safety)에 의존한다는 DEPENDS_ON 관계가 적합함."
+  },
+  {
+   "id": "rel-29",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "ai-safety와 core-workflow가 존재하고 안전 계층이 승인검사로 워크플로를 검증한다는 VALIDATES/approval-check가 적합하다."
+  },
+  {
+   "id": "rel-30",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Agent Orchestrator가 워크플로 자동화로 Project Workflow를 지원한다는 SUPPORTS와 'workflow-automation' 역할이 부합한다."
+  },
+  {
+   "id": "rel-31",
+   "decision": "hold",
+   "claude": "approve",
+   "deepseek": "hold",
+   "reason": "양끝 노드는 존재하나 'canonical-specification'은 정식 규범인 GPO보다 Zion Bible 자체의 성격에 가까워 REFERENCES 방향과 role 지정이 어긋날 소지가 있다."
+  },
+  {
+   "id": "rel-32",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Zeta Universe가 Zion Bible 로어에서 파생되었다는 DERIVED_FROM 관계와 lore-derivation role이 성립함."
+  },
+  {
+   "id": "rel-33",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "양끝 노드가 존재하며 Figma 자산 시스템이 미디어팩으로 자산을 산출·내보낸다는 PRODUCES/asset-export가 자연스럽다."
+  },
+  {
+   "id": "rel-34",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Visual & Media Pack이 딜리버러블 자산으로 Deliverables의 일부라는 PART_OF와 'deliverable-asset' 역할이 타당하다."
+  },
+  {
+   "id": "rel-35",
+   "decision": "hold",
+   "claude": "hold",
+   "deepseek": "approve",
+   "reason": "서사 콘텐츠가 건축 개념을 SUPPORTS한다는 의미가 모호함"
+  },
+  {
+   "id": "rel-36",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Figma Asset System이 UI 라이브러리로 대시보드를 지원한다는 SUPPORTS 관계가 타당함."
+  },
+  {
+   "id": "rel-37",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "온톨로지 스토어와 Supabase/Postgres가 존재하고 저장엔진으로서 의존한다는 DEPENDS_ON/storage-engine이 타당하다."
+  },
+  {
+   "id": "rel-38",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Ontology Store가 온톨로지 영속화로 GPO를 지원한다는 SUPPORTS와 'ontology-persistence' 역할이 저장소 본연 기능에 부합한다."
+  },
+  {
+   "id": "rel-39",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "data-validation과 data-ontology-store 양끝 노드가 존재하며, Cross Validation이 스키마·SHACL 검증으로 Ontology Store를 검증한다는 VALIDATES가 정합한다."
+  },
+  {
+   "id": "rel-40",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "Evidence Ledger가 출처 추적(provenance-tracking)으로 Ontology Store를 뒷받침한다는 관계가 성립함."
+  },
+  {
+   "id": "rel-41",
+   "decision": "approve",
+   "claude": "approve",
+   "deepseek": "approve",
+   "reason": "양끝 노드가 존재하며 드라이브 미러가 스냅샷 백업으로 스토어를 지원한다는 SUPPORTS/snapshot-backup이 의미상 적합하다."
+  },
+  {
+   "id": "rel-42",
+   "decision": "hold",
+   "claude": "approve",
+   "deepseek": "hold",
+   "reason": "Drive Mirror가 DWG/DXF를 '사용(USES)'한다기보다 해당 도면을 미러링·보관하는 대상으로 삼는 관계여서, 방향과 관계종류가 'artifact-mirroring' 역할과 어긋난다."
+  },
+  {
+   "id": "rel-43",
+   "decision": "hold",
+   "claude": "approve",
+   "deepseek": "hold",
+   "reason": "양끝 노드는 존재하나 Drawing Index는 Ontology Store의 구성요소라기보다 이를 색인하는 파생 카탈로그이므로 PART_OF보다 REFERENCES 계열이 타당해 보인다."
+  }
+ ]
+}
