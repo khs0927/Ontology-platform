@@ -29,7 +29,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import sys
@@ -93,7 +92,6 @@ def apply(dsn: str, sql_only: bool) -> int:
         print("BLOCKED: psycopg is not installed in this interpreter; cannot reach the database.",
               file=sys.stderr)
         return 3
-    manifest = json.loads((PACK / "manifest.json").read_text(encoding="utf-8"))
     nodes = load_jsonl(PACK / "graph" / "kg_nodes.jsonl")
     vectors = load_jsonl(PACK / "vectors" / "vector_corpus.jsonl")
     sql_file = PACK / "sql" / "archioffice_kg_load.sql"
