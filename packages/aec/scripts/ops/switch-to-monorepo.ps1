@@ -147,6 +147,21 @@ function Invoke-OpsScript([string]$Script, [string[]]$Arguments) {
     Invoke-Native $ps (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $Script) + $Arguments)
 }
 
+# Windows PowerShell 5.1 strips double quotes out of a native -c argument, so a code
+# string containing them arrives mangled and dies with a SyntaxError. Only single
+# quotes survive native argument passing.
+function Test-VenvImport([string]$Python, [int]$Attempts = 3, [int]$DelaySeconds = 5) {
+    $code = 'import aec_intelligence, sion_cad.reader; print(''venv ok'')'
+    for ($i = 1; $i -le $Attempts; $i++) {
+        try { Invoke-Native $Python @('-c', $code); return }
+        catch {
+            if ($i -ge $Attempts) { throw }
+            Write-Log "[WARN] venv import check failed (attempt $i/$Attempts), retrying in ${DelaySeconds}s"
+            Start-Sleep -Seconds $DelaySeconds
+        }
+    }
+}
+
 function Get-AecTasks { @(Get-ScheduledTask -TaskPath '\AEC\' -ErrorAction SilentlyContinue) }
 
 function Export-TaskXml($Task) {
@@ -402,7 +417,7 @@ if (-not $SkipVenv) {
         Invoke-Native $venvPy @('-m', 'pip', 'install', '--upgrade', 'pip')
         Invoke-Native $venvPy @('-m', 'pip', 'install', '-e', ".[$Extras]") $AecRoot
         Invoke-Native $venvPy @('-m', 'pip', 'install', '--no-deps', '-e', $MonorepoRoot)
-        Invoke-Native $venvPy @('-c', 'import aec_intelligence, sion_cad.reader; print("venv ok")')
+        Test-VenvImport $venvPy
     }
 }
 
