@@ -36,6 +36,7 @@ def test_kind_and_category_vocabulary_resolve_korean_terms():
     assert catalog.resolve_kinds("CustomKind") == ["CustomKind"]
     assert catalog.resolve_category("detail")[0] == "상세도"
     assert catalog.resolve_category("평면도")[0] == "평면도"
+    assert catalog.resolve_category("specification")[0] == "시방서"
     assert catalog.parse_bbox("10,20,0,0") == [0.0, 0.0, 10.0, 20.0]
     with pytest.raises(ValueError):
         catalog.decode_cursor("!!notacursor")
@@ -168,7 +169,10 @@ def _synthetic_snapshot(project, doc):
     from aec_intelligence.operational.parsers import relation
     document = _obs(doc, "document", "Document", f"{doc}.dxf")
     plan = _obs(doc, "layout:A-101", "View", "1층 평면도", layout="A-101", props={"drawing_category": "평면도"})
-    detail = _obs(doc, "layout:A-501", "View", "창호 상세도", layout="A-501", props={"drawing_category": "상세도"})
+    detail = _obs(doc, "layout:A-501", "View", "창호 상세도", layout="A-501",
+                  props={"drawing_category": "상세도", "drawingNumber": "A-501", "drawingNumber_source": "file_name"})
+    spec = _obs(doc, "layout:A-901", "View", "구조 시방서", layout="A-901",
+                props={"drawing_category": "시방서", "drawingNumber": "A-901", "drawingNumber_source": "file_name"})
     tb = _obs(doc, "tb", "TitleBlock", "TB", layout="A-101", handle="TB1",
               props={"drawingNumber": "A-101", "drawingTitle": "1층 평면도", "scale": "1/100", "block_name": "TITLE_A1"})
     door_def = _obs(doc, "blk:DOOR_SD", "BlockDefinition", "DOOR_SD",
@@ -186,8 +190,9 @@ def _synthetic_snapshot(project, doc):
     wall = _obs(doc, "A-101:L1", "Wall", "벽체", layout="A-101", handle="L1", props={"layer": "A-WALL"},
                 bbox=dict(min_x=0, min_y=0, max_x=10, max_y=0.2), state="AI_INFERRED")
     section = _obs(doc, "sec:H200", "SteelSection", "H-200x100", props={"designation": "H-200x100"})
-    objects = [document, plan, detail, tb, door_def, dyn_def, door1, door2, window, wall, section]
+    objects = [document, plan, detail, spec, tb, door_def, dyn_def, door1, door2, window, wall, section]
     relations = [relation(document["id"], "contains", plan["id"]), relation(document["id"], "contains", detail["id"]),
+                 relation(document["id"], "contains", spec["id"]),
                  relation(plan["id"], "contains", door1["id"]), relation(plan["id"], "contains", door2["id"]),
                  relation(plan["id"], "contains", wall["id"]), relation(detail["id"], "contains", window["id"]),
                  relation(plan["id"], "hasTitleBlock", tb["id"]),
@@ -332,15 +337,19 @@ def test_drawing_index_lists_sheets_with_title_blocks(seeded):
     docs = {d["document_id"]: d for d in result["items"]}
     assert set(docs) == {seeded["doc"], seeded["dxf_doc"]}
     synthetic = docs[seeded["doc"]]
-    assert synthetic["drawing_categories"] == ["상세도", "평면도"]
+    assert synthetic["drawing_categories"] == ["상세도", "시방서", "평면도"]
     sheets = {s["layout"]: s for s in synthetic["sheets"]}
     assert sheets["A-101"]["title_block"]["drawing_number"] == "A-101"
     assert sheets["A-101"]["title_block"]["scale"] == "1/100"
     assert sheets["A-101"]["drawing_category"] == "평면도"
     assert sheets["A-101"]["element_counts"]["Door"] == 2
+    assert sheets["A-501"]["drawing_number"] == "A-501" and sheets["A-501"]["drawing_number_source"] == "file_name"
+    assert sheets["A-901"]["drawing_number"] == "A-901" and sheets["A-901"]["drawing_category"] == "시방서"
     assert docs[seeded["dxf_doc"]]["sheets"]
     only_detail = catalog.drawing_index(seeded["db"], project_id=seeded["project"], category="상세도")
     assert [d["document_id"] for d in only_detail["items"]] == [seeded["doc"]]
+    by_spec = catalog.drawing_index(seeded["db"], project_id=seeded["project"], category="specification")
+    assert [d["document_id"] for d in by_spec["items"]] == [seeded["doc"]]
 
 
 @needs_db

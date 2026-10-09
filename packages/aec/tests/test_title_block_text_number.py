@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 from aec_intelligence.classifier import drawing_category
-from aec_intelligence.operational.parsers import pick_sheet_number, sheet_number_text
+from aec_intelligence.operational.parsers import SHEET_LABEL_RE, pick_sheet_number, sheet_number_text
 
 
 @pytest.mark.parametrize("text, expected", [
@@ -33,6 +33,21 @@ from aec_intelligence.operational.parsers import pick_sheet_number, sheet_number
 ])
 def test_sheet_number_text(text, expected):
     assert sheet_number_text(text) == expected
+
+
+@pytest.mark.parametrize("text", ["SHEET NOTES", "DRAWING NOTES", "DWG NOTES", "SHEET NOTE", "DWG NOTATION"])
+def test_notes_headings_are_not_sheet_number_labels(text):
+    assert SHEET_LABEL_RE.match(text) is None
+
+
+@pytest.mark.parametrize("text, value", [
+    ("DWG NO. A-101", "A-101"),
+    ("SHEET NO: A-201", "A-201"),
+    ("DRAWING NUMBER A-301", "A-301"),
+])
+def test_sheet_number_labels_still_match(text, value):
+    match = SHEET_LABEL_RE.match(text)
+    assert match is not None and match.group(1).strip() == value
 
 
 def _cand(value, layer="0", dash=True, center=(0.0, 0.0), height=3.0):
@@ -141,5 +156,14 @@ def test_no_sheet_evidence_gives_no_number(tmp_path: Path):
     doc = ezdxf.new("R2018", setup=True)
     msp = doc.modelspace()
     msp.add_text("WD-12", dxfattribs={"height": 100, "insert": (0, 0), "layer": "A-WIND"})
+    props = _parse(tmp_path, doc)["Model"]["properties"]
+    assert "drawingNumber" not in props
+
+
+def test_notes_heading_does_not_vouch_for_a_nearby_code(tmp_path: Path):
+    doc = ezdxf.new("R2018", setup=True)
+    msp = doc.modelspace()
+    msp.add_text("SHEET NOTES", dxfattribs={"height": 400, "insert": (0, 0)})
+    msp.add_text("M-503", dxfattribs={"height": 300, "insert": (100, 0)})
     props = _parse(tmp_path, doc)["Model"]["properties"]
     assert "drawingNumber" not in props

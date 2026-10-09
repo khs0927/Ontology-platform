@@ -40,7 +40,7 @@ _ORDER_PREFIX_RE = re.compile(r'^(?:\d{1,3}[_.]\s*|\d{1,3}\s+-\s+(?=[A-Za-z]{1,3
 SHEET_TEXT_RE = re.compile(r'^\s*([A-Z]{1,3}|[가-힣]{1,4})\s*(-)?\s*(\d{1,4})(?:\s*-\s*(\d{1,3}))?\s*$')
 # A title-block field label, optionally followed by its value in the same text ("DWG NO. A-101").
 SHEET_LABEL_RE = re.compile(
-    r'^\s*(?:도\s*면\s*번\s*호|도\s*번|시\s*트\s*번\s*호|DWG\.?\s*NO|DRAWING\s*(?:NO|NUMBER)|SHEET\s*(?:NO|NUMBER))'
+    r'^\s*(?:도\s*면\s*번\s*호|도\s*번|시\s*트\s*번\s*호|DWG\.?\s*NO\b|DRAWING\s*(?:NO|NUMBER)\b|SHEET\s*(?:NO|NUMBER)\b)'
     r'\s*\.?\s*[:：]?\s*(.*)$', re.IGNORECASE)
 # Layers that title-block / sheet-frame text is drawn on ("SH", "A-TITLE", "시트지-t", "x. 출력", "M-SheetNumberText").
 SHEET_LAYER_RE = re.compile(r'SHEET|TITLE|^SH$|^TB|도곽|표제|시트|도면|출력|BORDER|FRAME', re.IGNORECASE)
