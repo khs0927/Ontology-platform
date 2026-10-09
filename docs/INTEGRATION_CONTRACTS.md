@@ -14,6 +14,7 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
+| [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | standalone gateway (planned) | **planned, no contract yet**: upstream repo has no commits as of 2026-10-09 | (none; see section 9) |
 
 Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 `sion_core/contracts/schemas/` (`packages/core/sion_core/contracts/`). Python access:
@@ -270,6 +271,30 @@ rather than a monolithic CAD MCP. Its README marks historical scores as unverifi
 `fixtures/arch_sample_room.dxf` is vendored for the DXF census tests. The routing guidance matches how
 this repo reaches CAD hosts: through read-only adapters (CAIR, `/api/v1/aec/query`), never through
 several concurrent writers.
+
+## 9. building-regulation-gateway (planned, no contract yet)
+
+**Status (2026-10-09):** `khs0927/building-regulation-gateway` has no commits, so there is no tool list,
+port, env var or DB schema to pin. Nothing in Sion depends on it and no schema was added.
+
+**Decision: standalone service, bridged read-only.** It follows the same pattern as korean-land-mcp:
+its own runtime and MCP server, with Sion consuming its output as advisory regulation facts
+(`canonical: false`), never as canonical state. Do not vendor it into `packages/`.
+
+Rules to apply when the first commit lands (update the schema, pinned commit and contract tests in one PR):
+
+- **Overlap with site-pipeline-mcp.** `site_compliance` there already computes 건폐율/용적률 ceilings and
+  the 정북 일조사선 profile (built-in 서울/군산 ordinance tables). The gateway must own legal-text lookup
+  and rule resolution; `site_compliance` stays a geometric envelope calculator. Do not duplicate the
+  ceilings tables in the gateway; have one call the other or label which is authoritative.
+- **Name clashes to check before registering in any `.mcp.json`:** MCP server key and tool names must not
+  reuse `site_compliance`, `parcel_geometry`, `dem_to_landxml`, `contours_to_landxml`, or the
+  korean-land / korean-law tool names; prefix gateway tools (for example `regulation_gateway_*`).
+- **Ports/DB:** do not use 55432 (`aec-db`), 11434 (Ollama) or the Sion API port. Do not write to the
+  `aec-db` schemas; keep gateway state in its own database or schema.
+- **Env vars:** namespace as `BRG_*` to avoid collisions with `SION_*`, `AEC_*`, `VWORLD_*`.
+- **Per-PC settings:** the executable/server path differs per PC (hostname first); record it in the
+  per-PC work log, not in this repo.
 
 ## In-repo contracts (for reference)
 
