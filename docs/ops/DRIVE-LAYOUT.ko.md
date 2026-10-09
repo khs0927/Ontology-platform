@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | b20f9160... | 764,976,533 | 7c0228ab...b581b | 일치 (RECOVERY_VERIFIED). Drive 에 restore-report.json 포함 |
 | 410d25e2... | 753,033,819 | 0aad9937...12610 | 일치 (BACKUP_VERIFIED, 복원 미검증). PROVENANCE-CORRECTION.txt 포함 |
-| 8c405d66... | 1,153,838,125 | 읽기 중 G: 해제로 미검증 | 크기 일치. 로컬 사본 SHA256 D6D1F879...A41C8 (= 로컬 aec-db-20261004T094218Z.dump). 영수증/복원 보고서 없음 → 미검증 |
+| 8c405d66... | 1,153,838,125 | D6D1F879...A41C8 (2026-10-09 Get-FileHash 1회, 로컬과 전체 64자 일치) | 일치 (BACKUP_VERIFIED, 복원 미검증). 로컬 사본 SHA256 D6D1F879...A41C8 (= 로컬 aec-db-20261004T094218Z.dump). 영수증/복원 보고서 없음 → 미검증 |
 
 - `backups\aec-db-20261008T190226Z.dump.partial` (24.6MB)은 업로드가 진행 중인 파일이므로 건드리지 않는다.
 - 로컬 `D:\AECData\backups` 의 2026-10-08 덤프 2개(1,652,469,511B; SHA256 61EB15A5..., 94E11A66...)와 20261005T193005Z, 20261006T193326Z 는 Drive 체크포인트나 영수증이 없다 → 미게시/미검증.
@@ -101,3 +101,15 @@
 - `my_key.key`, `encrypted_data.bin`, `NPKI`, `GPKI` 가 Drive 루트에 있음 (비밀 정보, 5절 위반 가능성).
 - 체크포인트 8c405d66 의 Drive 해시 검증, `.dump.partial` 처리, 로컬 최신 덤프 4종의 게시/복원 검증.
 - `rclone config reconnect gdrive:` (토큰 만료).
+
+## 8. 정리 실행 결과 (2026-10-09)
+
+- 이동 2건 (삭제 0건): 비어 있는 임시 폴더 `새 폴더`, `무제 폴더` 를 `_정리대기\temp\` 로 옮김. 기록: `AEC-INTELLIGENCE\_ops\reorg-manifest-20261009.csv`, undo: `reorg-undo-20261009.ps1` (둘 다 `D:\AECData\dev\` 에도 사본).
+- 체크포인트 8c405d66 (1,153,838,125 B): Drive 의 `database.dump` 를 Get-FileHash 로 1회 계산한 SHA256 이 로컬 staging manifest 값 D6D1F879EDC145A1F548A519E96FC608C7F3710B3A0F3CACECAD4FFE90DA41C8 과 일치. 상태는 BACKUP_VERIFIED 유지 (복원 미검증, writer_handoff_verified=false).
+- 이동하지 않은 항목과 사유:
+  - 루트 AEC 후보 폴더(`08_VALIDATION`, `PowerCad`, `PowerCad-Assets`, `SketchUp-Assets`, `Sion Ontology Artifacts`, `지음_CAD_DB`, `Ontology-platform-verification-2026-09-24`, `cokacmux-graph`, `GrokBot-Migration-2026-10-08`, `hillside_villa_export`, `revit-mcp-guideline`)와 루트 `Ontology_*_2026100x.zip`, `Claude_Drive_처리_인계_20261002.md`, `hillside_villa.rvt`: 이 문서가 구체적 목적지를 지정하지 않음 → 유지.
+  - `Untitled`: 폴더가 아니라 0바이트 파일 → 유지 (소유자 판단).
+  - `##작업중`, `1.회사`: 수집 소스, 접근 금지.
+  - `my_key.key`, `encrypted_data.bin`, `NPKI`, `GPKI`: 비밀 정보, 목록만 기록, 이동 안 함. 소유자가 Drive 밖으로 옮길지 결정 필요.
+  - `*.dump.partial`, db-checkpoints 이하 파일: 건드리지 않음.
+  - 그 외 개인 폴더/파일 및 임시 성격 중복 항목(`(1)`, `(2)` 접미 등): 소유자 영역 → 유지.
