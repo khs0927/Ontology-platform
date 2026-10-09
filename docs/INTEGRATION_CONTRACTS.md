@@ -14,19 +14,19 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
-| [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | standalone gateway (planned) | **planned, no contract yet**: upstream repo has no commits as of 2026-10-09 | (none; see section 9) |
+| [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; no Sion adapter yet | `building-regulation-report/1` |
 
 Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 `sion_core/contracts/schemas/` (`packages/core/sion_core/contracts/`). Python access:
 
 ```python
 from sion_core import contracts
-contracts.names()                      # the 9 contract names
+contracts.names()                      # the 10 contract names
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
 ```
 
-Contract tests: `tests/test_integration_contracts.py` (81 tests). Upstream files used as fixtures are
+Contract tests: `tests/test_integration_contracts.py` (82 tests). Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
 
@@ -272,29 +272,34 @@ rather than a monolithic CAD MCP. Its README marks historical scores as unverifi
 this repo reaches CAD hosts: through read-only adapters (CAIR, `/api/v1/aec/query`), never through
 several concurrent writers.
 
-## 9. building-regulation-gateway (planned, no contract yet)
+## 9. building-regulation-gateway → regulation evidence (`building-regulation-report/1`)
 
-**Status (2026-10-09):** `khs0927/building-regulation-gateway` has no commits, so there is no tool list,
-port, env var or DB schema to pin. Nothing in Sion depends on it and no schema was added.
+Producer: `khs0927/building-regulation-gateway` @ d2cc08a (FastAPI, v0.1 **evidence-only**). One REST route,
+`POST /api/v1/produce-compliance-report` (Bearer token), returns a report with per-branch evidence
+(site, spatial, building, law, interpretation, technical, document). `decision.status` is only
+`insufficient_evidence` or `conflicting_evidence`; the gateway never issues a legal allow/deny.
+Schema: `building-regulation-report-1.schema.json`; test: `test_building_regulation_report_contract`.
 
-**Decision: standalone service, bridged read-only.** It follows the same pattern as korean-land-mcp:
-its own runtime and MCP server, with Sion consuming its output as advisory regulation facts
-(`canonical: false`), never as canonical state. Do not vendor it into `packages/`.
+**Decision: standalone service, bridged read-only; no in-repo adapter yet.** The gateway is an MCP
+*client* (it calls upstream korean-law / korean-land / archhub MCP servers behind a read-only allowlist)
+and exposes no MCP server, so it is not registered in any `.mcp.json`. Sion consumes the report as
+advisory evidence (`canonical: false`), like korean-land-mcp. Evidence hash/provenance fields are
+format-checked upstream, not proven authentic. A Sion-side adapter should wait until the gateway has
+real upstream adapters (README: planned).
 
-Rules to apply when the first commit lands (update the schema, pinned commit and contract tests in one PR):
+Conflict check (2026-10-09):
 
-- **Overlap with site-pipeline-mcp.** `site_compliance` there already computes 건폐율/용적률 ceilings and
-  the 정북 일조사선 profile (built-in 서울/군산 ordinance tables). The gateway must own legal-text lookup
-  and rule resolution; `site_compliance` stays a geometric envelope calculator. Do not duplicate the
-  ceilings tables in the gateway; have one call the other or label which is authoritative.
-- **Name clashes to check before registering in any `.mcp.json`:** MCP server key and tool names must not
-  reuse `site_compliance`, `parcel_geometry`, `dem_to_landxml`, `contours_to_landxml`, or the
-  korean-land / korean-law tool names; prefix gateway tools (for example `regulation_gateway_*`).
-- **Ports/DB:** do not use 55432 (`aec-db`), 11434 (Ollama) or the Sion API port. Do not write to the
-  `aec-db` schemas; keep gateway state in its own database or schema.
-- **Env vars:** namespace as `BRG_*` to avoid collisions with `SION_*`, `AEC_*`, `VWORLD_*`.
-- **Per-PC settings:** the executable/server path differs per PC (hostname first); record it in the
-  per-PC work log, not in this repo.
+| Area | Result |
+|---|---|
+| MCP tool names | none: no MCP server. Its planned names (`produce_compliance_report` etc.) do not clash with site-pipeline (`parcel_geometry`, `dem_to_landxml`, `contours_to_landxml`, `site_compliance`), korean-land or korean-law. |
+| Ports | README example uses 8000 (uvicorn, 127.0.0.1); no clash with 55432 `aec-db` or 11434 Ollama. Check the Sion API port per PC before running both. |
+| Env vars | `GATEWAY_TOKEN`, `GATEWAY_DB`; generic names, no overlap with `SION_*`/`AEC_*`/`VWORLD_*`. Set them per process, never commit. |
+| DB | own SQLite file (`GATEWAY_DB`, default in-memory), table `runs(id, body)`; no PostgreSQL / `aec-db` use. |
+| Dependencies | fastapi, uvicorn, mcp>=1.12,<2, httpx; use a separate venv (site-pipeline pins fastmcp<3, which also needs `mcp`). |
+| Overlap with site-pipeline `site_compliance` | none in v0.1: the gateway computes no 건폐율/용적률/일조 values (no spatial or legal rules). If it later adds them, `site_compliance` stays the geometric envelope calculator and the gateway owns legal-text evidence; do not duplicate the ordinance tables. |
+
+Per-PC: `pip install -e C:/CODE/building-regulation-gateway[test]` in its own venv; set `GATEWAY_TOKEN`
+and `GATEWAY_DB`; run `uvicorn gateway.main:app --host 127.0.0.1 --port 8000`.
 
 ## In-repo contracts (for reference)
 

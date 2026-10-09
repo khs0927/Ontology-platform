@@ -40,7 +40,7 @@ def sha(text: str) -> str:
 
 
 def test_every_contract_schema_is_valid_draft_2020_12_and_packaged():
-    assert len(contracts.names()) == 9
+    assert len(contracts.names()) == 10
     for name in contracts.names():
         schema = contracts.load(name)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -587,3 +587,20 @@ def test_regulation_endpoint_uses_land_facts_fail_closed():
         assert override["result"]["outcome"] == "PASS"
         bad = client.post("/api/v1/regulation/evaluate", json={"rule": GREENBELT_RULE, "land_parcel": {"query": "x"}})
         assert bad.status_code == 422
+
+
+# --------------------------------------------------------------------------- building-regulation-gateway -> Sion evidence
+
+
+def test_building_regulation_report_contract():
+    """Shape follows building-regulation-gateway gateway/engine.py @ d2cc08a (evidence-only v0.1)."""
+    report = {
+        "request_id": "r1", "input_hash": "sha256:" + "0" * 64, "retrieved_at": "2026-10-09T00:00:00+00:00",
+        "as_of": "2026-10-09", "required_branches": ["site"],
+        "results": {"site": {"status": "missing", "data": {}, "evidence": [], "reason": "PROVIDER_NOT_CONFIGURED"}},
+        "verification": {"verified": False, "missing": ["site"], "conflicts": []},
+        "decision": {"status": "insufficient_evidence", "reason_codes": ["MISSING_REQUIRED_EVIDENCE"]},
+    }
+    assert contracts.errors("building-regulation-report/1", report) == []
+    report["decision"]["status"] = "permitted"  # the gateway never issues a legal verdict
+    assert contracts.errors("building-regulation-report/1", report)
