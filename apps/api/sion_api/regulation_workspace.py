@@ -66,8 +66,8 @@ def briefing(report: dict, notes: str = "", tasks: list[str] | None = None) -> s
             lines.append(f"수집 상태: {result['reason']}")
         documents = {}
         for ev in result.get("evidence", []):
-            documents.setdefault((ev["document_id"], ev["source_url"]), []).append(ev)
-        for (_, url), evidence in documents.items():
+            documents.setdefault((ev["source_url"], ev["snapshot_hash"]), []).append(ev)
+        for (url, _), evidence in documents.items():
             first = evidence[0]
             lines.extend(
                 [
@@ -82,8 +82,11 @@ def briefing(report: dict, notes: str = "", tasks: list[str] | None = None) -> s
                 # Overview snapshots contain metadata; brief the located clauses instead.
                 if not location and len(evidence) > 1:
                     continue
-                heading = re.search(r"제\d+조(?:의\d+)?\([^\n)]*\)", ev["excerpt"])
-                title = heading.group() if heading else location.get("title") or ev["claim"]
+                headings = re.findall(r"제\d+조(?:의\d+)?\([^\n)]*\)", ev["excerpt"])
+                heading = next(
+                    (h for h in headings if location.get("title") and h.endswith("(" + location["title"] + ")")), None
+                )
+                title = heading or location.get("title") or ev["claim"]
                 meaningful = [
                     line.strip()
                     for line in ev["excerpt"].splitlines()
