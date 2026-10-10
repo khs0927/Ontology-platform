@@ -110,3 +110,22 @@ def test_invalid_report_never_saved_and_scopes(monkeypatch):
             == 403
         )
         assert c.get("/api/v1/regulation/works").json() == []
+
+
+def test_invalid_audit_cannot_create_work_or_evidence(monkeypatch):
+    monkeypatch.setenv("SION_REGULATION_GATEWAY_URL", "http://gateway")
+    run = str(uuid.uuid4())
+    report = fixture_report(run)
+    report["decision"]["status"] = "permitted"  # no reviewed metadata
+    transport = httpx.MockTransport(lambda req: httpx.Response(200, json=report))
+    app = create_app(database_url="sqlite://", regulation_transport=transport)
+    with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
+        project = c.post(
+            "/api/v1/entities", json={"stable_key": "invalid-p", "entity_type_id": "Project", "name": "synthetic"}
+        ).json()
+        response = c.post("/api/v1/regulation/works", json={"project_id": project["id"], "run_id": run, "title": "x"})
+        assert response.status_code == 502
+        assert c.get("/api/v1/regulation/works").json() == []
+    with app.state.session_factory() as s:
+        assert s.scalar(select(func.count()).select_from(models.Evidence)) == 0
+        assert s.scalar(select(func.count()).select_from(models.Relation)) == 0
