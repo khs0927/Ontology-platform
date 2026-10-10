@@ -36,15 +36,25 @@ The contracts were derived from these commits (read-only clones; no upstream rep
 
 | Repository | Commit | Date (KST) |
 |---|---|---|
-| power-cad-mcp | `086ee35` (PR #43) | 2026-10-08 20:01 |
-| hs-steel-cad | `4958a11` (PR #7) | 2026-10-08 19:57 |
-| korean-land-mcp | `3110809` (PR #1, CI only) | 2026-10-08 19:48 |
-| HS-CAD | `76e870d` (PR #157) | 2026-10-08 19:45 |
+| power-cad-mcp | `461df6c` (PR #49) | 2026-10-09 12:11 |
+| hs-steel-cad | `cefd395` (PR #8) | 2026-10-09 12:11 |
+| korean-land-mcp | `9bca5ea` (PR #2, deps only) | 2026-10-08 20:20 |
+| HS-CAD | `8bf34e1` (PR #158) | 2026-10-08 20:20 |
 | All-In-Cad | `329f9ad` | 2026-10-03 20:39 |
 | CAD-MCP | `50ae134` | 2026-10-03 20:15 |
 
 When an upstream changes one of the files named below, update the schema and the pin in this table
 and the test module docstring in the same PR.
+
+### Upstream changes reviewed at the 2026-10-09 pin
+
+| Repository | Change since the previous pin | Contract effect |
+|---|---|---|
+| power-cad-mcp | PRs #45–#49, #51: asset pipeline (embedding search, atomic `hs_assets.sqlite` swap), headless DXF recover, `cad_hs_*` gateway reply detach, hs-steel marks in `cad_hs_members_place`, docs. `OntologyRestTools.cs` only gains an injectable `TimeProvider` for per-request deadlines | None: request paths, parameters, bounds and timeout settings are unchanged; `OntologyContext.cs`, `OntologyLocate.cs`, `OntologyBlockCandidates.cs` and `ExecutionReceiptContract.cs` are unchanged and no MCP tool exposes the receipt projector yet |
+| hs-steel-cad | PR #8: `tools/AssetExtract` (ACadSharp DWG → Drive DB cards), consolidated TODO | None: `DrawPlan.cs`, `SectionCatalogHandoff.cs` and `assets/registry/` are unchanged |
+| korean-land-mcp | PR #2: npm audit fixes (vitest 4.1.11, transitive bumps) | None (`analyze_parcel.ts` unchanged) |
+| HS-CAD | PR #158: removed a committed API key from `opencode.json`, Pillow ≥ 12.3 | None (scan export and `command_validator.py` unchanged) |
+| All-In-Cad, CAD-MCP | no new commits | none |
 
 ### Upstream changes reviewed at the 2026-10-08 evening pin
 
@@ -124,7 +134,7 @@ Test: `test_sion_aec_query_satisfies_power_cad_refusal_rules`.
 
 Producer: `ExecutionReceiptContract.Project(plan)` (`ExecutionReceiptContract.cs`, documented in
 `docs/framework/EXECUTION_RECEIPT_CONTRACT.md`). At `f2a8469` the projector exists but no MCP tool exposes
-it yet (still true at `086ee35`). Schema: `power-cad-execution-receipt-1.schema.json`.
+it yet (still true at `461df6c`). Schema: `power-cad-execution-receipt-1.schema.json`.
 
 | Status | Meaning | Constraints the schema enforces |
 |---|---|---|

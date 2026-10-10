@@ -1,7 +1,7 @@
 """Contract tests for the bridged repositories (docs/INTEGRATION_CONTRACTS.md).
 
-Pinned producer/consumer commits: power-cad-mcp 086ee35, hs-steel-cad 4958a11,
-korean-land-mcp 3110809, HS-CAD 76e870d, All-In-Cad 329f9ad, CAD-MCP 50ae134.
+Pinned producer/consumer commits: power-cad-mcp 461df6c, hs-steel-cad cefd395,
+korean-land-mcp 9bca5ea, HS-CAD 8bf34e1, All-In-Cad 329f9ad, CAD-MCP 50ae134.
 """
 
 from __future__ import annotations
