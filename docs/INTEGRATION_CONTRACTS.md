@@ -14,7 +14,7 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
-| [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; no Sion adapter yet | `building-regulation-report/1` |
+| [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; Sion project workspace adapter | `building-regulation-report/1` |
 
 Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 `sion_core/contracts/schemas/` (`packages/core/sion_core/contracts/`). Python access:
@@ -274,32 +274,11 @@ several concurrent writers.
 
 ## 9. building-regulation-gateway → regulation evidence (`building-regulation-report/1`)
 
-Producer: `khs0927/building-regulation-gateway` @ d2cc08a (FastAPI, v0.1 **evidence-only**). One REST route,
-`POST /api/v1/produce-compliance-report` (Bearer token), returns a report with per-branch evidence
-(site, spatial, building, law, interpretation, technical, document). `decision.status` is only
-`insufficient_evidence` or `conflicting_evidence`; the gateway never issues a legal allow/deny.
-Schema: `building-regulation-report-1.schema.json`; test: `test_building_regulation_report_contract`.
+Producer: `khs0927/building-regulation-gateway` @ `21e146574c2ba173ed436c685b376f5cefa813b0` (v0.2). Seven REST/MCP tools collect site, spatial, building, law, interpretation, technical and document evidence. Default decisions remain evidence-only; explicitly configured reviewed rules may produce scoped decisions. Incomplete coverage and unresolved conflicts fail closed.
 
-**Decision: standalone service, bridged read-only; no in-repo adapter yet.** The gateway is an MCP
-*client* (it calls upstream korean-law / korean-land / archhub MCP servers behind a read-only allowlist)
-and exposes no MCP server, so it is not registered in any `.mcp.json`. Sion consumes the report as
-advisory evidence (`canonical: false`), like korean-land-mcp. Evidence hash/provenance fields are
-format-checked upstream, not proven authentic. A Sion-side adapter should wait until the gateway has
-real upstream adapters (README: planned).
+Sion provides an authenticated HTTP bridge and a project workspace at `/regulation`. Saved reports are advisory (`canonical:false`), with source evidence and project relationships recorded through existing transactions/outbox. No CAD mutation is performed. Contract schema and tests cover the v0.2 statuses and require review metadata for determinate decisions. See [REGULATION-WORKSPACE.ko.md](REGULATION-WORKSPACE.ko.md) for endpoints, configuration and MCP router adapter.
 
-Conflict check (2026-10-09):
-
-| Area | Result |
-|---|---|
-| MCP tool names | none: no MCP server. Its planned names (`produce_compliance_report` etc.) do not clash with site-pipeline (`parcel_geometry`, `dem_to_landxml`, `contours_to_landxml`, `site_compliance`), korean-land or korean-law. |
-| Ports | README example uses 8000 (uvicorn, 127.0.0.1); no clash with 55432 `aec-db` or 11434 Ollama. Check the Sion API port per PC before running both. |
-| Env vars | `GATEWAY_TOKEN`, `GATEWAY_DB`; generic names, no overlap with `SION_*`/`AEC_*`/`VWORLD_*`. Set them per process, never commit. |
-| DB | own SQLite file (`GATEWAY_DB`, default in-memory), table `runs(id, body)`; no PostgreSQL / `aec-db` use. |
-| Dependencies | fastapi, uvicorn, mcp>=1.12,<2, httpx; use a separate venv (site-pipeline pins fastmcp<3, which also needs `mcp`). |
-| Overlap with site-pipeline `site_compliance` | none in v0.1: the gateway computes no 건폐율/용적률/일조 values (no spatial or legal rules). If it later adds them, `site_compliance` stays the geometric envelope calculator and the gateway owns legal-text evidence; do not duplicate the ordinance tables. |
-
-Per-PC: `pip install -e C:/CODE/building-regulation-gateway[test]` in its own venv; set `GATEWAY_TOKEN`
-and `GATEWAY_DB`; run `uvicorn gateway.main:app --host 127.0.0.1 --port 8000`.
+Gateway runtime remains isolated (its own SQLite or PostgreSQL snapshot store and MCP dependencies). The platform owns project work, notes and tasks in its existing entity/evidence tables. Check service ports per PC; tokens come from process environment.
 
 ## In-repo contracts (for reference)
 
@@ -307,3 +286,12 @@ and `GATEWAY_DB`; run `uvicorn gateway.main:app --host 127.0.0.1 --port 8000`.
   ArchOntos subject references for one project.
 - `GET /api/v1/contracts`: Sion's read-only catalogue of project contracts from khs0927/All-in-memory.
 - `POST /api/v1/analyze/dxf`: GOD-CAD `Drawing` contract (see `packages/README.md`).
+
+
+### v0.2 project workspace integration
+
+Sion `/regulation` provides project-scoped saved reviews, notes, tasks and source-cited Markdown briefings. API: `/api/v1/regulation/gateway/report`, `/api/v1/regulation/works`, `/api/v1/regulation/works/{id}` and `/briefing`. Saves fetch a server-owned gateway audit run and validate the report before creating Document/Evidence/PART_OF rows in one transaction with the existing outbox and Drive export hooks. Reports and evidence remain `canonical:false`, unverified; work completion does not establish legal compliance.
+
+The pinned v0.2 producer supports scoped reviewed-rule decisions in addition to evidence-only outcomes. The schema accepts these statuses and requires review metadata for determinate decisions. Historical applicability, local ordinances, missing rule domains and incomplete spatial coverage remain fail-closed upstream.
+
+See [REGULATION-WORKSPACE.ko.md](REGULATION-WORKSPACE.ko.md) for configuration and the existing AEC MCP router integration.
