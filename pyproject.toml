@@ -13,6 +13,8 @@ dependencies = [
   "sqlalchemy==2.1.3",
   "uvicorn==0.54.0",
   "psycopg[binary]==3.3.6",
+  "httpx>=0.28,<1",
+  "jsonschema>=4.26,<5",
 ]
 
 [project.scripts]
@@ -147,6 +149,7 @@ god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
 
 [tool.setuptools.package-data]
+sion_api = ["*.html"]
 sion_core = ["contracts/schemas/*.json"]
 aec_intelligence = [
   "resources/*.json",

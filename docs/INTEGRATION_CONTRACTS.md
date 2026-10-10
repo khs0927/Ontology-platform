@@ -14,18 +14,19 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
+| [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; Sion project workspace adapter | `building-regulation-report/1` |
 
 Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 `sion_core/contracts/schemas/` (`packages/core/sion_core/contracts/`). Python access:
 
 ```python
 from sion_core import contracts
-contracts.names()                      # the 9 contract names
+contracts.names()                      # the 10 contract names
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
 ```
 
-Contract tests: `tests/test_integration_contracts.py` (81 tests). Upstream files used as fixtures are
+Contract tests: `tests/test_integration_contracts.py` (82 tests). Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
 
@@ -281,9 +282,26 @@ rather than a monolithic CAD MCP. Its README marks historical scores as unverifi
 this repo reaches CAD hosts: through read-only adapters (CAIR, `/api/v1/aec/query`), never through
 several concurrent writers.
 
+## 9. building-regulation-gateway → regulation evidence (`building-regulation-report/1`)
+
+Producer: `khs0927/building-regulation-gateway` @ `21e146574c2ba173ed436c685b376f5cefa813b0` (v0.2). Seven REST/MCP tools collect site, spatial, building, law, interpretation, technical and document evidence. Default decisions remain evidence-only; explicitly configured reviewed rules may produce scoped decisions. Incomplete coverage and unresolved conflicts fail closed.
+
+Sion provides an authenticated HTTP bridge and a project workspace at `/regulation`. Saved reports are advisory (`canonical:false`), with source evidence and project relationships recorded through existing transactions/outbox. No CAD mutation is performed. Contract schema and tests cover the v0.2 statuses and require review metadata for determinate decisions. See [REGULATION-WORKSPACE.ko.md](REGULATION-WORKSPACE.ko.md) for endpoints, configuration and MCP router adapter.
+
+Gateway runtime remains isolated (its own SQLite or PostgreSQL snapshot store and MCP dependencies). The platform owns project work, notes and tasks in its existing entity/evidence tables. Check service ports per PC; tokens come from process environment.
+
 ## In-repo contracts (for reference)
 
 - `aec-facts-export/1`: `GET /v1/kg/projects/{project_key}/facts` (packages/aec) exports rule facts and
   ArchOntos subject references for one project.
 - `GET /api/v1/contracts`: Sion's read-only catalogue of project contracts from khs0927/All-in-memory.
 - `POST /api/v1/analyze/dxf`: GOD-CAD `Drawing` contract (see `packages/README.md`).
+
+
+### v0.2 project workspace integration
+
+Sion `/regulation` provides project-scoped saved reviews, notes, tasks and source-cited Markdown briefings. API: `/api/v1/regulation/gateway/report`, `/api/v1/regulation/works`, `/api/v1/regulation/works/{id}` and `/briefing`. Saves fetch a server-owned gateway audit run and validate the report before creating Document/Evidence/PART_OF rows in one transaction with the existing outbox and Drive export hooks. Reports and evidence remain `canonical:false`, unverified; work completion does not establish legal compliance.
+
+The pinned v0.2 producer supports scoped reviewed-rule decisions in addition to evidence-only outcomes. The schema accepts these statuses and requires review metadata for determinate decisions. Historical applicability, local ordinances, missing rule domains and incomplete spatial coverage remain fail-closed upstream.
+
+See [REGULATION-WORKSPACE.ko.md](REGULATION-WORKSPACE.ko.md) for configuration and the existing AEC MCP router integration.
