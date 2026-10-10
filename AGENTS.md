@@ -1,5 +1,16 @@
 # Sion Ontology Platform - Agent Instructions
 
+## Read first for regulation work
+- Before planning or changing building/land regulation, legal ontology, regulation GraphRAG,
+  gateway integration, or regulation MCP routing, read
+  [`docs/regulation/DEVELOPMENT-GUIDELINES.md`](docs/regulation/DEVELOPMENT-GUIDELINES.md)
+  and follow its reading order.
+- The current regulation initiative is planning-only. Do not start implementation, dependency
+  installation, migrations, service restarts, or deployment without a subsequent user instruction.
+  An explicit later instruction to start development supersedes this planning hold.
+- Preserve prior unfinished implementation changes. Do not publish them as part of documentation work.
+- The documents define target behavior, not evidence that those capabilities already exist on `main`.
+
 ## Workspace
 - This repository is a local working copy. Edit here, not inside a Google Drive synchronized folder.
 - Preserve existing files and uncommitted changes.
