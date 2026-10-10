@@ -1,5 +1,13 @@
 # Sion Ontology Platform
 
+## 건축·토지 규제 작업 전 필독
+
+건축규제, 토지 중첩규제, 법령 온톨로지, GraphRAG 또는 규제 MCP 연결 작업은 먼저
+[개발 지침과 읽기 순서](docs/regulation/DEVELOPMENT-GUIDELINES.md)를 읽으세요.
+전체 프레임워크·벤치마킹·검증 계획을 연결한 문서입니다.
+현재 단계는 **계획 수립**이며 개발·설치·마이그레이션·배포 착수는 별도 지시가 필요합니다.
+계획 문서의 목표 기능과 현재 구현을 구분하세요. 에이전트 지침은 [AGENTS.md](AGENTS.md)에 있습니다.
+
 Local-first ontology / knowledge graph / GraphRAG platform with automated multi-agent session ingestion, evidence tracking, and cross-device Google Drive persistence.
 
 Current milestone: monorepo consolidation (v0.2.0) — regulation, AEC and GOD-CAD merged; bridged repos on versioned contracts.
