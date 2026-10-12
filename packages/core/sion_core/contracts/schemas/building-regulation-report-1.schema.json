@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/building-regulation-report-1.schema.json",
+  "title": "building-regulation-gateway compliance report (evidence-only)",
+  "description": "Producer: building-regulation-gateway POST /api/v1/produce-compliance-report (gateway/engine.py, pinned d2cc08a, v0.1 evidence-only). The gateway never issues a legal permit/deny verdict; decision.status is only insufficient_evidence or conflicting_evidence. Sion treats the report as advisory evidence (canonical:false), never canonical state. Evidence hash/provenance fields are format-checked upstream, not proven authentic.",
+  "type": "object",
+  "required": [
+    "request_id",
+    "input_hash",
+    "retrieved_at",
+    "as_of",
+    "required_branches",
+    "results",
+    "verification",
+    "decision"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "input_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "retrieved_at": {
+      "type": "string"
+    },
+    "as_of": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "required_branches": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "ok",
+              "missing",
+              "error"
+            ]
+          },
+          "data": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "evidence_id",
+                "branch",
+                "origin_id",
+                "source_url",
+                "publisher",
+                "document_id",
+                "retrieved_at",
+                "snapshot_hash",
+                "claim",
+                "excerpt"
+              ],
+              "properties": {
+                "evidence_id": {
+                  "type": "string"
+                },
+                "branch": {
+                  "enum": [
+                    "site",
+                    "spatial",
+                    "building",
+                    "law",
+                    "interpretation",
+                    "technical",
+                    "document"
+                  ]
+                },
+                "origin_id": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                },
+                "publisher": {
+                  "type": "string"
+                },
+                "document_id": {
+                  "type": "string"
+                },
+                "retrieved_at": {
+                  "type": "string"
+                },
+                "effective_from": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "effective_to": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "snapshot_hash": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "claim": {
+                  "type": "string"
+                },
+                "excerpt": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "verified",
+        "missing",
+        "conflicts"
+      ],
+      "properties": {
+        "verified": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "status",
+        "reason_codes"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "insufficient_evidence",
+            "conflicting_evidence"
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
