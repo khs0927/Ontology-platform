@@ -63,6 +63,7 @@ CATEGORY_ALIASES: dict[str, tuple[str, ...]] = {
     "배치도": ("site_plan", "site", "배치"),
     "천장도": ("ceiling_plan", "rcp", "천장평면도", "천정도"),
     "구조도": ("structural", "structure", "구조"),
+    "시방서": ("specification", "spec", "시방"),
     "전개도": ("interior_elevation", "전개"),
     "계단상세도": ("stair_detail",),
 }
@@ -535,6 +536,14 @@ def drawing_index(db: Database, project_id: str | None = None, category: str | N
             sheet = doc["sheets"].setdefault(layout, {"layout": layout, "element_counts": {}})
             sheet.update({"view_id": row["id"], "view_label": row["label"], "drawing_category": row["category"],
                           "preview_path": evidence.get("preview_path")})
+            props = payload.get("properties") or {}
+            # No-TitleBlock drawings keep the number/title only on the View/Page row.
+            if props.get("drawingNumber"):
+                sheet["drawing_number"] = props["drawingNumber"]
+                if props.get("drawingNumber_source"):
+                    sheet["drawing_number_source"] = props["drawingNumber_source"]
+            if props.get("drawingTitle"):
+                sheet["drawing_title"] = props["drawingTitle"]
             view_ids[row["id"]] = layout
         elif row["kind"] == "TitleBlock":
             fields = title_block_fields(payload.get("properties") or {})
