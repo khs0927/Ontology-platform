@@ -5,7 +5,15 @@ from __future__ import annotations
 import json
 
 from sion_ingestion.sketchup_assets import DEFAULTS, build_export
-from sion_ingestion.sketchup_ontology import BLOCK_CLASSES, OUTPUT, build_ontology, export_text, safe_rel
+from sion_ingestion.sketchup_ontology import (
+    BLOCK_CLASSES,
+    HIERARCHY,
+    OBJECTS,
+    OUTPUT,
+    build_ontology,
+    export_text,
+    safe_rel,
+)
 
 D = DEFAULTS["0914-meeting"]
 
@@ -22,6 +30,10 @@ def _build(**kw):
         grouping_doc_path=D["grouping_doc"],
     )
     cls = json.loads(D["classification"].read_text(encoding="utf-8"))
+    kw.setdefault("hierarchy", json.loads(HIERARCHY.read_text(encoding="utf-8")))
+    kw.setdefault("objects", json.loads(OBJECTS.read_text(encoding="utf-8")))
+    kw.setdefault("hierarchy_ref", "data/sources/sketchup/0914-meeting/hierarchy.json")
+    kw.setdefault("objects_ref", "data/sources/sketchup/0914-meeting/objects.json")
     return build_ontology(base, classification=cls, **kw), cls
 
 

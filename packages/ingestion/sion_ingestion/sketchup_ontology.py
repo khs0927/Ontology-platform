@@ -35,6 +35,8 @@ BLOCK_CLASSES = ("tree", "person", "vehicle", "planter", "furniture", "counter-m
 LEVELS_MM = {"L1": 5000.0, "L2": 10200.0, "L3": 14600.0}
 LEVEL_TOL_MM = 400.0
 OUTPUT = ROOT / "data/bootstrap/sketchup-0914-meeting.ontology.json"
+HIERARCHY = ROOT / "data/sources/sketchup/0914-meeting/hierarchy.json"
+OBJECTS = ROOT / "data/sources/sketchup/0914-meeting/objects.json"
 EXTRACTOR = "sion-sketchup-ontology/v1"
 _ABS = re.compile(r"^(?:[A-Za-z]:[\\/]|/)")
 
@@ -296,8 +298,8 @@ def main(argv: list[str] | None = None) -> int:
     exp = build_ontology(
         base,
         classification=load(a.classification or d["classification"]),
-        hierarchy=load(a.hierarchy),
-        objects=load(a.objects),
+        hierarchy=load(a.hierarchy or (HIERARCHY if HIERARCHY.exists() else None)),
+        objects=load(a.objects or (OBJECTS if OBJECTS.exists() else None)),
         hierarchy_ref=f"data/sources/sketchup/{NS}/hierarchy.json",
         objects_ref=f"data/sources/sketchup/{NS}/objects.json",
     )

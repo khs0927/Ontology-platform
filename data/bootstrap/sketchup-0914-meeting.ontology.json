@@ -1,7 +1,7 @@
 {
  "schema": "sion-map-export/v1",
  "source": "sketchup-assets:0914-meeting:0914_담당미팅.skp#sha256=b698c632b9396c37",
- "expected_node_count": 908,
+ "expected_node_count": 893,
  "expected_edge_count": 3548,
  "nodes": [
   {
@@ -9,13 +9,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/marker/그룹_12__1249504.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#12'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#12'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/marker/그룹_12__1249504.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#12",
     "class_guess": "marker"
    },
@@ -26,13 +26,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/exterior-stair/그룹_23__5135551.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#23'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#23'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/exterior-stair/그룹_23__5135551.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#23",
     "class_guess": "exterior-stair"
    },
@@ -43,13 +43,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/furniture/그룹_160__4905257.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#160'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#160'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/그룹_160__4905257.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#160",
     "class_guess": "furniture"
    },
@@ -60,13 +60,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/glass-railing/그룹_115__4577803.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#115'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#115'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/glass-railing/그룹_115__4577803.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#115",
     "class_guess": "glass-railing"
    },
@@ -77,32 +77,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/retaining-wall/그룹_35__4073133.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#35'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#35'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_35__4073133.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#35",
     "class_guess": "retaining-wall"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:103c443f267e1a80",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/c3__4360603.skp",
-   "category": "cad_bim",
-   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/c3__4360603.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "c3",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -111,13 +94,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/wall/그룹_109__4577815.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#109'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#109'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_109__4577815.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#109",
     "class_guess": "wall"
    },
@@ -128,13 +111,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/curtain-wall/새_블럭.dwg__1181414.skp",
    "category": "cad_bim",
-   "description": "정의 '새 블럭.dwg'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '새 블럭.dwg'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/새_블럭.dwg__1181414.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "새 블럭.dwg",
     "class_guess": "curtain-wall"
    },
@@ -145,13 +128,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/handrail/그룹_258__4577838.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#258'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#258'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹_258__4577838.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#258",
     "class_guess": "handrail"
    },
@@ -162,13 +145,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/wall/그룹_24__5135580.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#24'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#24'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_24__5135580.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#24",
     "class_guess": "wall"
    },
@@ -179,13 +162,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/unclassified/그룹_1__4073099.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#1'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#1'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_1__4073099.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#1",
     "class_guess": "unclassified"
    },
@@ -196,13 +179,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/wall/그룹_166__5135582.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#166'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#166'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_166__5135582.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#166",
     "class_guess": "wall"
    },
@@ -213,13 +196,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/curtain-wall/그룹_85__4577814.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#85'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#85'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/그룹_85__4577814.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#85",
     "class_guess": "curtain-wall"
    },
@@ -230,13 +213,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/planter/그룹_72__4577840.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#72'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#72'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/planter/그룹_72__4577840.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#72",
     "class_guess": "planter"
    },
@@ -247,13 +230,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/furniture/c3__4360599.skp",
    "category": "cad_bim",
-   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/c3__4360599.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "c3",
     "class_guess": "furniture"
    },
@@ -264,13 +247,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/counter-millwork/그룹_226__4360630.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#226'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#226'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/counter-millwork/그룹_226__4360630.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#226",
     "class_guess": "counter-millwork"
    },
@@ -281,13 +264,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/person/그룹_130__4577818.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#130'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#130'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_130__4577818.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#130",
     "class_guess": "person"
    },
@@ -298,13 +281,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/terrain/그룹_39__1245541.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#39'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#39'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_39__1245541.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#39",
     "class_guess": "terrain"
    },
@@ -315,13 +298,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/planter/그룹_62__4577839.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#62'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#62'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/planter/그룹_62__4577839.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#62",
     "class_guess": "planter"
    },
@@ -332,66 +315,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/person/그룹_139__4577816.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#139'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#139'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_139__4577816.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#139",
     "class_guess": "person"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:2ec3bf92d1e277a4",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/c3__4360601.skp",
-   "category": "cad_bim",
-   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/c3__4360601.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "c3",
-    "class_guess": "furniture"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:2ef14be58d22c08e",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/column/col__2005214.skp",
-   "category": "cad_bim",
-   "description": "정의 'col'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/column/col__2005214.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "col",
-    "class_guess": "column"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:3b11abedd4b16d80",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/c3__4360602.skp",
-   "category": "cad_bim",
-   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/c3__4360602.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "c3",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -400,32 +332,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/exterior-stair/그룹_19__5135415.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#19'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#19'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/exterior-stair/그룹_19__5135415.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#19",
     "class_guess": "exterior-stair"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:4519458099523f98",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/ch6__4360626.skp",
-   "category": "cad_bim",
-   "description": "정의 'ch6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/ch6__4360626.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "ch6",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -434,13 +349,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/terrain/그룹_41__5131684.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#41'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#41'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_41__5131684.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#41",
     "class_guess": "terrain"
    },
@@ -451,13 +366,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/wall/그룹_21__5135417.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#21'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#21'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_21__5135417.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#21",
     "class_guess": "wall"
    },
@@ -468,13 +383,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/terrain/그룹_38__125087.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#38'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#38'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_38__125087.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#38",
     "class_guess": "terrain"
    },
@@ -485,13 +400,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/unclassified/그룹_43__4580519.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#43'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#43'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_43__4580519.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#43",
     "class_guess": "unclassified"
    },
@@ -502,32 +417,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/paving/그룹_30__4073111.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#30'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#30'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/paving/그룹_30__4073111.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#30",
     "class_guess": "paving"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:4faa3e47f89bf449",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/marker/그룹_12__1249528.skp",
-   "category": "cad_bim",
-   "description": "정의 '그룹#12'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/marker/그룹_12__1249528.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "그룹#12",
-    "class_guess": "marker"
    },
    "ontology_version": null
   },
@@ -536,13 +434,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/curtain-wall/그룹_129__4577801.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#129'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#129'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/그룹_129__4577801.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#129",
     "class_guess": "curtain-wall"
    },
@@ -553,13 +451,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/glass-railing/그룹_124__4577806.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#124'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#124'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/glass-railing/그룹_124__4577806.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#124",
     "class_guess": "glass-railing"
    },
@@ -570,13 +468,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/person/그룹_116__4577819.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#116'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#116'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_116__4577819.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#116",
     "class_guess": "person"
    },
@@ -587,31 +485,14 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/furniture/ch6__4360625.skp",
    "category": "cad_bim",
-   "description": "정의 'ch6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 'ch6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/ch6__4360625.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "ch6",
-    "class_guess": "furniture"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:606d8fc078de620d",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/ch5__4360624.skp",
-   "category": "cad_bim",
-   "description": "정의 'ch5'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/ch5__4360624.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "ch5",
     "class_guess": "furniture"
    },
    "ontology_version": null
@@ -621,13 +502,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/person/Component18__4577820.skp",
    "category": "cad_bim",
-   "description": "정의 'Component18'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 'Component18'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/Component18__4577820.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "Component18",
     "class_guess": "person"
    },
@@ -638,13 +519,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/beam/그룹_89__1171922.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#89'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#89'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/beam/그룹_89__1171922.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#89",
     "class_guess": "beam"
    },
@@ -655,32 +536,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/building/그룹_201__511546.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#201'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#201'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_201__511546.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#201",
     "class_guess": "building"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:7351c6307d994623",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/ch6__4360629.skp",
-   "category": "cad_bim",
-   "description": "정의 'ch6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/ch6__4360629.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "ch6",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -689,13 +553,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/column/col__2004749.skp",
    "category": "cad_bim",
-   "description": "정의 'col'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 'col'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/column/col__2004749.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "col",
     "class_guess": "column"
    },
@@ -706,13 +570,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/site-container/학장동_skp.dwg__30598.skp",
    "category": "cad_bim",
-   "description": "정의 '학장동 skp.dwg'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '학장동 skp.dwg'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/site-container/학장동_skp.dwg__30598.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "학장동 skp.dwg",
     "class_guess": "site-container"
    },
@@ -723,13 +587,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/furniture/ch5__4360622.skp",
    "category": "cad_bim",
-   "description": "정의 'ch5'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 'ch5'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/ch5__4360622.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "ch5",
     "class_guess": "furniture"
    },
@@ -740,13 +604,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/person/그룹_110__4577817.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#110'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#110'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_110__4577817.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#110",
     "class_guess": "person"
    },
@@ -757,13 +621,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/paving/그룹_5__4073100.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#5'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#5'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/paving/그룹_5__4073100.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#5",
     "class_guess": "paving"
    },
@@ -774,13 +638,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/unclassified/그룹_2__4073103.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#2'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#2'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_2__4073103.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#2",
     "class_guess": "unclassified"
    },
@@ -791,13 +655,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/building/그룹_105__1458557.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#105'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#105'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_105__1458557.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#105",
     "class_guess": "building"
    },
@@ -808,13 +672,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/retaining-wall/그룹_34__90359.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#34'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#34'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_34__90359.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#34",
     "class_guess": "retaining-wall"
    },
@@ -825,13 +689,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/building/그룹_217__4577809.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#217'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#217'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_217__4577809.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#217",
     "class_guess": "building"
    },
@@ -842,13 +706,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/handrail/그룹53_1__5135552.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹53#1'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹53#1'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹53_1__5135552.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹53#1",
     "class_guess": "handrail"
    },
@@ -859,49 +723,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/building/그룹_161__4577805.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#161'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#161'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_161__4577805.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#161",
     "class_guess": "building"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:950b4e9268dc247a",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/column/col__2004982.skp",
-   "category": "cad_bim",
-   "description": "정의 'col'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/column/col__2004982.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "col",
-    "class_guess": "column"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:98406d0586c3a102",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/c3__4360600.skp",
-   "category": "cad_bim",
-   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/c3__4360600.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "c3",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -910,13 +740,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/furniture/그룹_232__4360631.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#232'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#232'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/그룹_232__4360631.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#232",
     "class_guess": "furniture"
    },
@@ -927,13 +757,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/handrail/그룹_67__4577813.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#67'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#67'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹_67__4577813.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#67",
     "class_guess": "handrail"
    },
@@ -944,13 +774,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/terrain/그룹_42__4580639.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#42'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#42'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_42__4580639.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#42",
     "class_guess": "terrain"
    },
@@ -961,13 +791,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/curtain-wall/그룹_54__4915226.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#54'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#54'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/그룹_54__4915226.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#54",
     "class_guess": "curtain-wall"
    },
@@ -978,13 +808,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/floor-slab/그룹_103__4577799.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#103'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#103'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/floor-slab/그룹_103__4577799.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#103",
     "class_guess": "floor-slab"
    },
@@ -995,49 +825,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/tree/그룹_65__800070.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#65'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#65'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/tree/그룹_65__800070.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#65",
     "class_guess": "tree"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:c1ba6b54e39d8c1f",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/c3__4360604.skp",
-   "category": "cad_bim",
-   "description": "정의 'c3'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/c3__4360604.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "c3",
-    "class_guess": "furniture"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:c3ce386e44b7caa8",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/ch5__4360623.skp",
-   "category": "cad_bim",
-   "description": "정의 'ch5'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/ch5__4360623.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "ch5",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -1046,13 +842,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/paving/그룹_40__125433.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#40'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#40'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/paving/그룹_40__125433.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#40",
     "class_guess": "paving"
    },
@@ -1063,13 +859,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/terrain/그룹_102__1245859.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#102'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#102'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_102__1245859.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#102",
     "class_guess": "terrain"
    },
@@ -1080,13 +876,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/unclassified/그룹_125__4577808.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#125'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#125'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_125__4577808.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#125",
     "class_guess": "unclassified"
    },
@@ -1097,13 +893,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/unclassified/그룹_90__4577807.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#90'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#90'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_90__4577807.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#90",
     "class_guess": "unclassified"
    },
@@ -1114,49 +910,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/handrail/그룹36_1__5135416.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹36#1'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹36#1'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹36_1__5135416.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹36#1",
     "class_guess": "handrail"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:d1cb53898b457bce",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/ch6__4360628.skp",
-   "category": "cad_bim",
-   "description": "정의 'ch6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/ch6__4360628.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "ch6",
-    "class_guess": "furniture"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:d57f1a6bd30418e5",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/column/col__2005446.skp",
-   "category": "cad_bim",
-   "description": "정의 'col'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/column/col__2005446.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "col",
-    "class_guess": "column"
    },
    "ontology_version": null
   },
@@ -1165,32 +927,15 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/retaining-wall/그룹_14__4073106.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#14'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#14'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_14__4073106.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#14",
     "class_guess": "retaining-wall"
-   },
-   "ontology_version": null
-  },
-  {
-   "stable_key": "sketchup:0914-meeting:asset:d804bc139fadce90",
-   "entity_type_id": "Artifact",
-   "name": "자산 objects/furniture/ch6__4360627.skp",
-   "category": "cad_bim",
-   "description": "정의 'ch6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
-   "external_uri": null,
-   "properties": {
-    "node_kind": "su_asset",
-    "asset_path": "objects/furniture/ch6__4360627.skp",
-    "sha256": null,
-    "asset_state": "planned",
-    "definition_name": "ch6",
-    "class_guess": "furniture"
    },
    "ontology_version": null
   },
@@ -1199,13 +944,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/terrain/그룹_44__4580640.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#44'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#44'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_44__4580640.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#44",
     "class_guess": "terrain"
    },
@@ -1216,13 +961,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/exterior-stair/그룹_18__47944.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#18'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#18'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/exterior-stair/그룹_18__47944.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#18",
     "class_guess": "exterior-stair"
    },
@@ -1233,13 +978,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/wall/그룹_37__5135581.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#37'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#37'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_37__5135581.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#37",
     "class_guess": "wall"
    },
@@ -1250,13 +995,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/beam/그룹_225__4577837.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#225'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#225'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/beam/그룹_225__4577837.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#225",
     "class_guess": "beam"
    },
@@ -1267,13 +1012,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/road-plan-surface/그룹_7__4073102.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#7'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#7'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/road-plan-surface/그룹_7__4073102.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#7",
     "class_guess": "road-plan-surface"
    },
@@ -1284,13 +1029,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/floor-slab/그룹_202__4577802.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#202'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#202'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/floor-slab/그룹_202__4577802.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#202",
     "class_guess": "floor-slab"
    },
@@ -1301,13 +1046,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/retaining-wall/그룹_6__4073101.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#6'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_6__4073101.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#6",
     "class_guess": "retaining-wall"
    },
@@ -1318,13 +1063,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/unclassified/그룹_71__4577804.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#71'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#71'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_71__4577804.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#71",
     "class_guess": "unclassified"
    },
@@ -1335,13 +1080,13 @@
    "entity_type_id": "Artifact",
    "name": "자산 objects/planter/그룹_73__4577841.skp",
    "category": "cad_bim",
-   "description": "정의 '그룹#73'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 planned.",
+   "description": "정의 '그룹#73'을(를) 단독 .skp로 저장한 재사용 자산(상대경로, SION_STORAGE_ROOT 기준). 상태 exported.",
    "external_uri": null,
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/planter/그룹_73__4577841.skp",
     "sha256": null,
-    "asset_state": "planned",
+    "asset_state": "exported",
     "definition_name": "그룹#73",
     "class_guess": "planter"
    },
@@ -103916,12 +103661,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[492]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1171922,
-     "entity_path": "그룹#89"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[97]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104037,12 +103779,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[493]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1181414,
-     "entity_path": "새 블럭.dwg"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[98]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104115,12 +103854,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[495]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1245541,
-     "entity_path": "그룹#39"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[100]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104217,12 +103953,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[497]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1245859,
-     "entity_path": "그룹#102"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[102]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104319,12 +104052,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[498]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1249504,
-     "entity_path": "그룹#12"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[103]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104386,9 +104116,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:obj:1249528:REFERENCES:sketchup:0914-meeting:asset:4faa3e47f89bf449",
+   "stable_key": "sketchup:0914-meeting:obj:1249528:REFERENCES:sketchup:0914-meeting:asset:0290914232b6ceb3",
    "source_stable_key": "sketchup:0914-meeting:obj:1249528",
-   "target_stable_key": "sketchup:0914-meeting:asset:4faa3e47f89bf449",
+   "target_stable_key": "sketchup:0914-meeting:asset:0290914232b6ceb3",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -104397,12 +104127,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[499]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1249528,
-     "entity_path": "그룹#12"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[104]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104499,12 +104226,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[36]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 125087,
-     "entity_path": "그룹#38"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[30]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104620,12 +104344,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[39]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 125433,
-     "entity_path": "그룹#40"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[33]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104722,12 +104443,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[500]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 1458557,
-     "entity_path": "그룹#105"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[105]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104824,12 +104542,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[615]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 2004749,
-     "entity_path": "col"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[107]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -104934,9 +104649,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:obj:2004982:REFERENCES:sketchup:0914-meeting:asset:950b4e9268dc247a",
+   "stable_key": "sketchup:0914-meeting:obj:2004982:REFERENCES:sketchup:0914-meeting:asset:73a70c3a4c9842ad",
    "source_stable_key": "sketchup:0914-meeting:obj:2004982",
-   "target_stable_key": "sketchup:0914-meeting:asset:950b4e9268dc247a",
+   "target_stable_key": "sketchup:0914-meeting:asset:73a70c3a4c9842ad",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -104945,12 +104660,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[616]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 2004982,
-     "entity_path": "col"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[108]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105055,9 +104767,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:obj:2005214:REFERENCES:sketchup:0914-meeting:asset:2ef14be58d22c08e",
+   "stable_key": "sketchup:0914-meeting:obj:2005214:REFERENCES:sketchup:0914-meeting:asset:73a70c3a4c9842ad",
    "source_stable_key": "sketchup:0914-meeting:obj:2005214",
-   "target_stable_key": "sketchup:0914-meeting:asset:2ef14be58d22c08e",
+   "target_stable_key": "sketchup:0914-meeting:asset:73a70c3a4c9842ad",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -105066,12 +104778,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[617]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 2005214,
-     "entity_path": "col"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[109]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105157,9 +104866,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:obj:2005446:REFERENCES:sketchup:0914-meeting:asset:d57f1a6bd30418e5",
+   "stable_key": "sketchup:0914-meeting:obj:2005446:REFERENCES:sketchup:0914-meeting:asset:73a70c3a4c9842ad",
    "source_stable_key": "sketchup:0914-meeting:obj:2005446",
-   "target_stable_key": "sketchup:0914-meeting:asset:d57f1a6bd30418e5",
+   "target_stable_key": "sketchup:0914-meeting:asset:73a70c3a4c9842ad",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -105168,12 +104877,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[618]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 2005446,
-     "entity_path": "col"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[110]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105246,12 +104952,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[0]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 30598,
-     "entity_path": "학장동 skp.dwg"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[0]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105324,12 +105027,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[1]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073099,
-     "entity_path": "학장동 skp.dwg > 그룹#1"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[1]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105402,12 +105102,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[9]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073100,
-     "entity_path": "학장동 skp.dwg > 그룹#5"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[6]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105480,12 +105177,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[10]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073101,
-     "entity_path": "학장동 skp.dwg > 그룹#6"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[7]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105558,12 +105252,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[11]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073102,
-     "entity_path": "학장동 skp.dwg > 그룹#7"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[8]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105636,12 +105327,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[12]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073103,
-     "entity_path": "학장동 skp.dwg > 그룹#2"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[9]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105714,12 +105402,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[19]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073106,
-     "entity_path": "학장동 skp.dwg > 그룹#14"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[13]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105792,12 +105477,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[20]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073111,
-     "entity_path": "학장동 skp.dwg > 그룹#30"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[14]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105870,12 +105552,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[21]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4073133,
-     "entity_path": "학장동 skp.dwg > 그룹#35"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[15]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -105991,12 +105670,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[208]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577799,
-     "entity_path": "그룹#201 > 그룹#103"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[70]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106093,12 +105769,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[186]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577801,
-     "entity_path": "그룹#201 > 그룹#129"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[63]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106190,12 +105863,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[210]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577802,
-     "entity_path": "그룹#201 > 그룹#202"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[72]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106292,12 +105962,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[68]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577803,
-     "entity_path": "그룹#201 > 그룹#115"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[54]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106394,12 +106061,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[55]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577804,
-     "entity_path": "그룹#201 > 그룹#71"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[49]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106472,12 +106136,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[69]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577805,
-     "entity_path": "그룹#201 > 그룹#161"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[55]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106574,12 +106235,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[209]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577806,
-     "entity_path": "그룹#201 > 그룹#124"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[71]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106671,12 +106329,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[201]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577807,
-     "entity_path": "그룹#201 > 그룹#90"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[66]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106773,12 +106428,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[205]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577808,
-     "entity_path": "그룹#201 > 그룹#125"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[68]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106875,12 +106527,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[179]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577809,
-     "entity_path": "그룹#201 > 그룹#217"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[60]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -106977,12 +106626,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[112]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577813,
-     "entity_path": "그룹#201 > 그룹#67"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[57]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107098,12 +106744,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[67]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577814,
-     "entity_path": "그룹#201 > 그룹#85"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[53]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107219,12 +106862,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[45]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577815,
-     "entity_path": "그룹#201 > 그룹#109"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[39]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107321,12 +106961,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[64]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577816,
-     "entity_path": "그룹#201 > 그룹#139"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[52]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107423,12 +107060,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[61]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577817,
-     "entity_path": "그룹#201 > 그룹#110"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[51]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107525,12 +107159,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[202]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577818,
-     "entity_path": "그룹#201 > 그룹#130"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[67]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107627,12 +107258,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[183]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577819,
-     "entity_path": "그룹#201 > 그룹#116"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[62]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107729,12 +107357,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[43]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577820,
-     "entity_path": "그룹#201 > CWom0105-HD2-O01P02-S005"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[37]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107807,12 +107432,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[44]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577837,
-     "entity_path": "그룹#201 > 그룹#225"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[38]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -107909,12 +107531,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[47]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577838,
-     "entity_path": "그룹#201 > 그룹#258"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[41]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108011,12 +107630,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[456]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577839,
-     "entity_path": "그룹#201 > 그룹#62"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[93]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108113,12 +107729,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[459]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577840,
-     "entity_path": "그룹#201 > 그룹#72"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[94]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108215,12 +107828,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[462]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4577841,
-     "entity_path": "그룹#201 > 그룹#73"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[95]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108317,12 +107927,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[40]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4580519,
-     "entity_path": "그룹#40 > 그룹#43"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[34]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108438,12 +108045,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[37]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4580639,
-     "entity_path": "그룹#38 > 그룹#42"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[31]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108516,12 +108120,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[38]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4580640,
-     "entity_path": "그룹#38 > 그룹#44"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[32]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108594,12 +108195,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[22]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 47944,
-     "entity_path": "그룹#18"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[16]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108696,12 +108294,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[501]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4905257,
-     "entity_path": "그룹#105 > 그룹#160"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[106]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108798,12 +108393,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[494]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4915226,
-     "entity_path": "새 블럭.dwg > 그룹#54"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[99]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108900,12 +108492,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[42]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 511546,
-     "entity_path": "그룹#201"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[36]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -108978,12 +108567,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[496]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5131684,
-     "entity_path": "그룹#39 > 그룹#41"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[101]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109056,12 +108642,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[23]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135415,
-     "entity_path": "그룹#18 > Raise"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[17]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109153,12 +108736,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[24]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135416,
-     "entity_path": "그룹#18 > Handrail"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[18]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109231,12 +108811,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[27]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135417,
-     "entity_path": "그룹#18 > 그룹#21"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[21]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109328,12 +108905,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[28]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135551,
-     "entity_path": "그룹#18 > Raise"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[22]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109425,12 +108999,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[29]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135552,
-     "entity_path": "그룹#18 > Handrail"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[23]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109503,12 +109074,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[32]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135580,
-     "entity_path": "그룹#18 > 그룹#24"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[26]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109600,12 +109168,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[33]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135581,
-     "entity_path": "그룹#18 > 그룹#37"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[27]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109697,12 +109262,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[34]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 5135582,
-     "entity_path": "그룹#18 > 그룹#166"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[28]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109818,12 +109380,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[465]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 800070,
-     "entity_path": "그룹#65"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[96]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -109896,12 +109455,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[35]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 90359,
-     "entity_path": "그룹#34"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[29]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -112767,12 +112323,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[218]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360599,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[75]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -112858,9 +112411,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360600:REFERENCES:sketchup:0914-meeting:asset:98406d0586c3a102",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360600:REFERENCES:sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360600",
-   "target_stable_key": "sketchup:0914-meeting:asset:98406d0586c3a102",
+   "target_stable_key": "sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -112869,12 +112422,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[220]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360600,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[76]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -112960,9 +112510,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601:REFERENCES:sketchup:0914-meeting:asset:2ec3bf92d1e277a4",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601:REFERENCES:sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601",
-   "target_stable_key": "sketchup:0914-meeting:asset:2ec3bf92d1e277a4",
+   "target_stable_key": "sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -112971,12 +112521,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[222]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360601,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[77]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113062,9 +112609,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360602:REFERENCES:sketchup:0914-meeting:asset:3b11abedd4b16d80",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360602:REFERENCES:sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360602",
-   "target_stable_key": "sketchup:0914-meeting:asset:3b11abedd4b16d80",
+   "target_stable_key": "sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113073,12 +112620,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[224]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360602,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[78]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113164,9 +112708,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603:REFERENCES:sketchup:0914-meeting:asset:103c443f267e1a80",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603:REFERENCES:sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603",
-   "target_stable_key": "sketchup:0914-meeting:asset:103c443f267e1a80",
+   "target_stable_key": "sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113175,12 +112719,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[228]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360603,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[80]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113266,9 +112807,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360604:REFERENCES:sketchup:0914-meeting:asset:c1ba6b54e39d8c1f",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360604:REFERENCES:sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360604",
-   "target_stable_key": "sketchup:0914-meeting:asset:c1ba6b54e39d8c1f",
+   "target_stable_key": "sketchup:0914-meeting:asset:2886aa48f7f0669a",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113277,12 +112818,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[226]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360604,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[79]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113379,12 +112917,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[230]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360622,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch5"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[81]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113470,9 +113005,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360623:REFERENCES:sketchup:0914-meeting:asset:c3ce386e44b7caa8",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360623:REFERENCES:sketchup:0914-meeting:asset:82b6889f742c7db5",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360623",
-   "target_stable_key": "sketchup:0914-meeting:asset:c3ce386e44b7caa8",
+   "target_stable_key": "sketchup:0914-meeting:asset:82b6889f742c7db5",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113481,12 +113016,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[241]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360623,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch5"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[82]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113572,9 +113104,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624:REFERENCES:sketchup:0914-meeting:asset:606d8fc078de620d",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624:REFERENCES:sketchup:0914-meeting:asset:82b6889f742c7db5",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624",
-   "target_stable_key": "sketchup:0914-meeting:asset:606d8fc078de620d",
+   "target_stable_key": "sketchup:0914-meeting:asset:82b6889f742c7db5",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113583,12 +113115,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[252]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360624,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch5"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[83]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113685,12 +113214,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[263]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360625,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[84]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113776,9 +113302,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626:REFERENCES:sketchup:0914-meeting:asset:4519458099523f98",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626:REFERENCES:sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626",
-   "target_stable_key": "sketchup:0914-meeting:asset:4519458099523f98",
+   "target_stable_key": "sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113787,12 +113313,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[272]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360626,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[85]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113878,9 +113401,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360627:REFERENCES:sketchup:0914-meeting:asset:d804bc139fadce90",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360627:REFERENCES:sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360627",
-   "target_stable_key": "sketchup:0914-meeting:asset:d804bc139fadce90",
+   "target_stable_key": "sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113889,12 +113412,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[281]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360627,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[86]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -113980,9 +113500,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628:REFERENCES:sketchup:0914-meeting:asset:d1cb53898b457bce",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628:REFERENCES:sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628",
-   "target_stable_key": "sketchup:0914-meeting:asset:d1cb53898b457bce",
+   "target_stable_key": "sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -113991,12 +113511,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[290]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360628,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[87]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -114082,9 +113599,9 @@
    }
   },
   {
-   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360629:REFERENCES:sketchup:0914-meeting:asset:7351c6307d994623",
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360629:REFERENCES:sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360629",
-   "target_stable_key": "sketchup:0914-meeting:asset:7351c6307d994623",
+   "target_stable_key": "sketchup:0914-meeting:asset:5ae9b21b9053ae3f",
    "relation_type_id": "REFERENCES",
    "confidence": 1.0,
    "verification_state": "machine_verified",
@@ -114093,12 +113610,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[299]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360629,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[88]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -114195,12 +113709,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[308]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360630,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#226"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[89]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
@@ -114297,12 +113808,9 @@
    "properties": {
     "predicate": "stored_as_asset",
     "su_evidence": {
-     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
-     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
-     "locator": "$.hierarchy[361]",
-     "skp_file": "0914_담당미팅.skp",
-     "persistent_id": 4360631,
-     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#232"
+     "source_file": "data/sources/sketchup/0914-meeting/objects.json",
+     "locator": "$.objects[90]",
+     "skp_file": "0914_담당미팅.skp"
     }
    }
   },
