@@ -2,7 +2,7 @@
  "schema": "sion-map-export/v1",
  "source": "sketchup-assets:0914-meeting:0914_담당미팅.skp#sha256=b698c632b9396c37",
  "expected_node_count": 893,
- "expected_edge_count": 3548,
+ "expected_edge_count": 3550,
  "nodes": [
   {
    "stable_key": "sketchup:0914-meeting:asset:0290914232b6ceb3",
@@ -113910,6 +113910,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361374.4361353:PART_OF:sketchup:0914-meeting:level:L3",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361374.4361353",
+   "target_stable_key": "sketchup:0914-meeting:level:L3",
+   "relation_type_id": "PART_OF",
+   "confidence": 0.4,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "on_level_by_top",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[451]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4361353,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#207 > 그룹#214"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "지붕 분류: 월드 최대 Z 14,227.7 mm가 레벨 +14.6 m에서 ±400 mm 안(최소 Z 13,508.3 mm는 레벨 밖이라 상단 기준으로 연결)"
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361374.4361353:PART_OF:sketchup:0914-meeting:occ:511546.4577802.4361374",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361374.4361353",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361374",
@@ -114511,6 +114535,30 @@
      "locator": "$.hierarchy[57]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192.4088191:PART_OF:sketchup:0914-meeting:level:L3",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192.4088191",
+   "target_stable_key": "sketchup:0914-meeting:level:L3",
+   "relation_type_id": "PART_OF",
+   "confidence": 0.4,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "on_level_by_top",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[60]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4088191,
+     "entity_path": "그룹#201 > 그룹#71 > 그룹#100 > 그룹#156"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "지붕 분류: 월드 최대 Z 14,782.7 mm가 레벨 +14.6 m에서 ±400 mm 안(최소 Z 12,918.6 mm는 레벨 밖이라 상단 기준으로 연결)"
    }
   },
   {
