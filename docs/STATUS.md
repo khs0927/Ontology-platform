@@ -1,7 +1,60 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-10-08 evening (Asia/Seoul)
+Updated: 2026-10-08 22:00 KST (Asia/Seoul)
 
+## Current state (re-checked 2026-10-08 22:00 KST)
+
+Base: `main` at `e2bffe3` (#48), 316 commits. Open PRs: none besides this one. Open issues: #3, #33.
+
+### Tests (current numbers; older sections below keep the numbers of their time)
+
+| Suite | Install | Result |
+|---|---|---|
+| root (`tests/`) | `.[all,test,dev]` | **265 passed, 3 skipped** (the 3 need `SION_TEST_POSTGRES_URL`) |
+| root (`tests/`) | minimal `.[test]` | 239 passed, 29 skipped (optional libs absent) |
+| `packages/aec` | | 619 passed, 51 skipped |
+| `packages/regulation` | local, no PostgreSQL | 213 passed, 39 skipped (PostgreSQL tests run in CI) |
+| `packages/cad/god-cad` | | 27 passed |
+
+### CI on `main` — 15 checks, all green
+GitHub Actions (14): pytest; pytest (windows-latest, all extras); SQLite and API tests; PostgreSQL migration
+verification; uv.lock check + locked install (all extras); dependencies; privacy; aec_intelligence lint + tests +
+extensions; aec_intelligence operational stack (PostgreSQL + AGE + pgvector + PostGIS); aec_intelligence api/worker
+image (monorepo build context); ArchOntos lint, types, tests (PostgreSQL); ArchOntos Helm render; GOD-CAD
+(ubuntu-latest, py3.12); GOD-CAD (windows-latest, py3.12). CircleCI (1): `ci/circleci: pytest`.
+
+### History rewrites (both owner-approved; force-pushed)
+1. **2026-10-08 03:11 KST — exe purge.** `git filter-repo` removed `bin/sion-agent-bridge.exe` from all history
+   (pack 75.7 MiB → 2.6 MiB). The binary lives in Release v0.2.0. Details: "Follow-up 2026-10-08" below.
+2. **2026-10-08 12:23 KST — privacy rewrite.** Emails, Google Drive file ids and device names were masked in
+   public history. `main` and 29 other branches (30 refs) were force-pushed in the same second (12:23:55 KST).
+   Old `main` `217ccd3` → new `54e1921` ("Protect public privacy and local HTTP access", added on top). All 263
+   commits of the old `main` are kept with the same subjects and author times; the tree differs only in the 9
+   masked files. No commit was dropped.
+
+Consequences:
+- Every clone made before 12:23 KST is on the **old history** and has diverged from `origin/main`;
+  `git pull --ff-only` fails there. Back up, then `git fetch` + `git reset --hard origin/main`, or re-clone
+  (see `docs/ops/MAIN-PC-TODO.ko.md` step 1). **Never push from an old clone or old local branch** — it would
+  re-upload the purged exe and the unmasked data. A new-history checkout contains `54e1921`
+  (`git merge-base --is-ancestor 54e1921 HEAD`).
+- Rewritten commits lost GitHub's "Verified" signature badge.
+
+### Branch cleanup (2026-10-08 22:00 KST)
+13 remote branches that were fully contained in `main` (`git merge-base --is-ancestor` true and
+`git rev-list --count main..<branch>` = 0, no open PR) were deleted after a backup bundle was made outside the
+repository: `ci/windows-pytest`, `claude/gallant-goodall-u0z28w`, `complete-2026-10-08`,
+`feat/drive-storage-root`, `feat/sketchup-0914-modeling-assets`, `phase1-exe-releases`, `phase2-packages`,
+`phase3-regulation`, `phase4-cad-bim-cair`, `phase5-integration-contracts`,
+`pr-aec-binaries`, `pr-docs-shacl`, `relations-pipeline-20261008`.
+19 stale branches still have commits not in `main` and were **kept** (owner decision): `claude/project-thread-au08rs`,
+`codex/cair-error-boundary-20261003`, `codex/circleci-restore-cutover-20260924`,
+`codex/fix-private-auth-openapi-20260924`, `codex/fix-windows-file-uri-test-20260924`,
+`codex/p0-remediation-20260924`, `codex/pg-verification-integrity-20260923`,
+`codex/restore-github-actions-ci-20260924`, `docs/chatgpt-audit-20261002-1105-e92060`, `docs/ci-os-matrix`,
+`feat/aec-cair-federation-20261001`, `feat/gap-fill-upgrades`, `feat/hindsight-advisory-memory-20261001`,
+`feat/hindsight-advisory-memory-20261002`, `feat/local-gap-fill-and-upgrades`, `feat/scoped-api-security-20261001`,
+`feat/sion-auth-firewall-20261001`, `feat/temporal-relations-20261001`, `test/ci-os-coverage`.
 
 ## Sprint 2026-10-08 evening (KST)
 
@@ -24,7 +77,7 @@ Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2
 - zium-onboarding [#1](https://github.com/khs0927/zium-onboarding/pull/1) merged (`bacdf61`): lockfile resync, lint 0 errors; 11 template test failures remain.
 
 ### Closed (not merged)
-- [#34](https://github.com/khs0927/Ontology-platform/pull/34), [#35](https://github.com/khs0927/Ontology-platform/pull/35) — superseded by #36 (Windows pytest); the Ubuntu-only premise is obsolete.
+- [#34](https://github.com/khs0927/Ontology-platform/pull/34), [#35](https://github.com/khs0927/Ontology-platform/pull/35) — closed 19:45 KST, superseded by #36 (Windows pytest); the Ubuntu-only premise is obsolete.
 
 ### Known follow-ups (non-blocking)
 - Follow-up sprint (sprint2/), merged:
@@ -54,6 +107,8 @@ Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2
 4. After the runtime switch: GraphRAG refresh (retries the 6 FAILED communities).
 5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
 6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
+7. Bring PC checkouts made before 12:23 KST onto the new history (backup, then `fetch` + `reset --hard origin/main`) or archive them; do not push from them meanwhile.
+8. Decide whether to keep or clean up the 19 stale remote branches that still have commits not in `main`.
 
 ## Completed
 
@@ -111,7 +166,7 @@ Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2
 - generated metadata and caches excluded from Git
 
 ### Verification
-- Python unit/integration suite: 13 passing
+- Python unit/integration suite: 13 passing (P1/P2 at the time; current numbers: "Current state" at the top)
 - real HTTP smoke test completed
 - real PostgreSQL migration test completed
 - real PostgreSQL + pgvector vector API round-trip completed
@@ -177,7 +232,7 @@ Still open for engineering (non-blocking):
 
 ## Completion 2026-10-08
 
-Verified in a fresh venv (`pip install -e '.[test]'`, Python 3.13):
+Historical (PR #22 time; current numbers: "Current state" at the top). Verified in a fresh venv (`pip install -e '.[test]'`, Python 3.13):
 **62 passed, 1 skipped** (the skip is the LightRAG test, which needs the
 `graphrag` extra). With `pip install -e '.[test,graphrag]'`: **63 passed**.
 
@@ -213,7 +268,7 @@ Follow-up (same day): dependency upgrades and optional OSS parsers
   (google-api-python-client, google-auth), `all`, `dev` (ruff, build).
   DXF text fallback rewritten to handle padded group codes and to scan only
   the ENTITIES section; it now matches ezdxf output on the test drawing.
-- Results: all extras, Py 3.12 and 3.13: 66 passed. Minimal `.[test]`:
+- Results (at the time): all extras, Py 3.12 and 3.13: 66 passed. Minimal `.[test]`:
   62 passed, 4 skipped (optional libs absent). `ruff check .` clean
   (E701/E702/E402 ignored for existing upstream style). wheel + sdist build OK.
   `scripts/build_exe.py` produces a working Linux binary under Python 3.12;
@@ -259,7 +314,7 @@ Still needs the owner's decision:
 - aec `POST /v1/search` now accepts power-cad-mcp's `model` hint and rejects a model other than
   `AEC_EMBEDDING_MODEL` with 422 (previously ignored silently).
 - #20 and #21 were closed as superseded (#22–#27 and the follow-up PR).
-- History purge (user-approved): `bin/sion-agent-bridge.exe` was removed from all history with
+- History purge (user-approved, force-pushed 03:11 KST): `bin/sion-agent-bridge.exe` was removed from all history with
   `git filter-repo`. Pack size went from 75.7 MiB to 2.6 MiB; v0.2.0 release assets are unchanged.
   A pre-rewrite mirror and an all-refs bundle are kept outside the repository.
 - The 25 binary files left out of the Ontology import (`fixtures/simple_house.dwg` and 24
@@ -332,7 +387,7 @@ Details are in `data/sources/PROVENANCE.md`.
    verification state.
 5. **CLI**: `sion-relations convert|import|extract|candidates`.
 
-### Verification
+### Verification (at PR #30; current numbers: "Current state" at the top)
 - `.[all,test,dev]`, Python 3.13: **193 passed, 3 skipped** (the 3 skips need `SION_TEST_POSTGRES_URL`).
   Minimal `.[test,dev,documents,validation]`: 172 passed, 24 skipped.
   New `tests/test_relations_pipeline.py`: 23 tests.
