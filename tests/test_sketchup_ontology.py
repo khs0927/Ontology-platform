@@ -7,6 +7,7 @@ import json
 from sion_ingestion.sketchup_assets import DEFAULTS, build_export
 from sion_ingestion.sketchup_ontology import (
     BLOCK_CLASSES,
+    HASHES,
     HIERARCHY,
     OBJECTS,
     OUTPUT,
@@ -32,6 +33,7 @@ def _build(**kw):
     cls = json.loads(D["classification"].read_text(encoding="utf-8"))
     kw.setdefault("hierarchy", json.loads(HIERARCHY.read_text(encoding="utf-8")))
     kw.setdefault("objects", json.loads(OBJECTS.read_text(encoding="utf-8")))
+    kw.setdefault("hashes", json.loads(HASHES.read_text(encoding="utf-8")) if HASHES.exists() else None)
     kw.setdefault("hierarchy_ref", "data/sources/sketchup/0914-meeting/hierarchy.json")
     kw.setdefault("objects_ref", "data/sources/sketchup/0914-meeting/objects.json")
     return build_ontology(base, classification=cls, **kw), cls
@@ -85,3 +87,16 @@ def test_run2_manifest_paths_are_made_relative():
     )
     a = [n for n in exp.nodes if n.properties.get("asset_path") == "objects/site-container/s__30598.skp"]
     assert a and a[0].properties["asset_state"] == "exported"
+
+
+def test_roof_links_level_by_top_as_unverified_candidate():
+    exp, _ = _build()
+    tops = [e for e in exp.edges if e.properties["predicate"] == "on_level_by_top"]
+    assert tops and all(e.verification_state == "unverified" and e.properties["basis_ko"] for e in tops)
+
+
+def test_hashes_fill_asset_sha():
+    exp, _ = _build()
+    a = next(n for n in exp.nodes if n.properties.get("node_kind") == "su_asset")
+    exp2, _ = _build(hashes={"files": [{"file": a.properties["asset_path"], "sha256": "f" * 64}]})
+    assert next(n for n in exp2.nodes if n.stable_key == a.stable_key).properties["sha256"] == "f" * 64

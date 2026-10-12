@@ -34,9 +34,11 @@ NS = "0914-meeting"
 BLOCK_CLASSES = ("tree", "person", "vehicle", "planter", "furniture", "counter-millwork", "imported-3d")
 LEVELS_MM = {"L1": 5000.0, "L2": 10200.0, "L3": 14600.0}
 LEVEL_TOL_MM = 400.0
+TOP_LEVEL_CLASSES = ("roof",)
 OUTPUT = ROOT / "data/bootstrap/sketchup-0914-meeting.ontology.json"
 HIERARCHY = ROOT / "data/sources/sketchup/0914-meeting/hierarchy.json"
 OBJECTS = ROOT / "data/sources/sketchup/0914-meeting/objects.json"
+HASHES = ROOT / "data/sources/sketchup/0914-meeting/objects_sha.json"
 EXTRACTOR = "sion-sketchup-ontology/v1"
 _ABS = re.compile(r"^(?:[A-Za-z]:[\\/]|/)")
 
@@ -67,6 +69,7 @@ def build_ontology(
     objects: dict[str, Any] | None = None,
     hierarchy_ref: str = "hierarchy.json",
     objects_ref: str = "objects.json",
+    hashes: dict[str, Any] | None = None,
 ) -> MapExport:
     data = base.model_dump(by_alias=True) if isinstance(base, MapExport) else json.loads(json.dumps(base))
     pfx = f"sketchup:{NS}"
@@ -212,7 +215,31 @@ def build_ontology(
                     basis=f"월드 최소 Z {zmin:,.1f} mm가 레벨 +{z / 1000:.1f} m에서 ±{LEVEL_TOL_MM:.0f} mm 안",
                 )
 
+    # 3b) roofs: top face at a level (roof slabs hang below the level line)
+    for p, k in sorted(by_path.items()):
+        props = nodes[k]["properties"]
+        if cls_of.get(props.get("definition_name")) not in TOP_LEVEL_CLASSES:
+            continue
+        wb = props.get("world_bounds_mm") or {}
+        if not wb.get("max"):
+            continue
+        ztop, zmin = wb["max"][2], wb["min"][2]
+        for lid, z in LEVELS_MM.items():
+            if abs(ztop - z) <= LEVEL_TOL_MM and abs(zmin - z) > LEVEL_TOL_MM:
+                add_edge(
+                    k,
+                    "PART_OF",
+                    f"{pfx}:level:{lid}",
+                    "on_level_by_top",
+                    props.get("su_evidence", {}),
+                    inferred=True,
+                    conf=0.4,
+                    basis=f"지붕 분류: 월드 최대 Z {ztop:,.1f} mm가 레벨 +{z / 1000:.1f} m에서 ±{LEVEL_TOL_MM:.0f} mm 안"
+                    f"(최소 Z {zmin:,.1f} mm는 레벨 밖이라 상단 기준으로 연결)",
+                )
+
     # 4) assets
+    sha_of = {f["file"]: f["sha256"] for f in (hashes or {}).get("files", [])}
     manifest = {}
     if objects:
         for i, o in enumerate(objects.get("objects", [])):
@@ -241,6 +268,7 @@ def build_ontology(
             )
         if rel is None:
             continue
+        sha = sha or sha_of.get(rel)
         akey = f"{pfx}:asset:{hashlib.sha256(rel.encode()).hexdigest()[:16]}"
         if akey not in nodes:
             nodes[akey] = {
@@ -300,6 +328,7 @@ def main(argv: list[str] | None = None) -> int:
         classification=load(a.classification or d["classification"]),
         hierarchy=load(a.hierarchy or (HIERARCHY if HIERARCHY.exists() else None)),
         objects=load(a.objects or (OBJECTS if OBJECTS.exists() else None)),
+        hashes=load(HASHES if HASHES.exists() else None),
         hierarchy_ref=f"data/sources/sketchup/{NS}/hierarchy.json",
         objects_ref=f"data/sources/sketchup/{NS}/objects.json",
     )
