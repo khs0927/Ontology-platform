@@ -1,0 +1,3335 @@
+{
+ "objects": [
+  {
+   "id": "su:30598",
+   "pid": 30598,
+   "path": "학장동 skp.dwg",
+   "depth": 0,
+   "type": "ComponentInstance",
+   "definition": "학장동 skp.dwg",
+   "class_guess": "site-container",
+   "block_node": false,
+   "file": "objects/site-container/학장동_skp.dwg__30598.skp",
+   "bbox": {
+    "min": [
+     866.1,
+     -7783.1,
+     -9500.0
+    ],
+    "max": [
+     98721.8,
+     56332.9,
+     12494.9
+    ],
+    "size": [
+     97855.7,
+     64115.9,
+     21994.9
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073099",
+   "pid": 4073099,
+   "path": "학장동 skp.dwg > 그룹#1",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#1",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_1__4073099.skp",
+   "bbox": {
+    "min": [
+     7112.7,
+     -7348.3,
+     -5000.0
+    ],
+    "max": [
+     61344.2,
+     48855.6,
+     5000.0
+    ],
+    "size": [
+     54231.5,
+     56203.9,
+     10000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4066614",
+   "pid": 4066614,
+   "path": "학장동 skp.dwg > 그룹#1 > 그룹#3",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#3",
+   "class_guess": "parking-deck",
+   "block_node": false,
+   "file": "objects/parking-deck/그룹_3__4066614.skp",
+   "bbox": {
+    "min": [
+     7112.7,
+     34160.6,
+     -2500.0
+    ],
+    "max": [
+     25261.6,
+     46485.4,
+     500.0
+    ],
+    "size": [
+     18148.9,
+     12324.8,
+     3000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Polished Concrete New]"
+  },
+  {
+   "id": "su:4066615",
+   "pid": 4066615,
+   "path": "학장동 skp.dwg > 그룹#1 > 그룹#4",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#4",
+   "class_guess": "parking-deck",
+   "block_node": false,
+   "file": "objects/parking-deck/그룹_4__4066615.skp",
+   "bbox": {
+    "min": [
+     31322.0,
+     33394.8,
+     500.0
+    ],
+    "max": [
+     51972.2,
+     47392.1,
+     4000.0
+    ],
+    "size": [
+     20650.2,
+     13997.2,
+     3500.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Polished Concrete New]"
+  },
+  {
+   "id": "su:4066616",
+   "pid": 4066616,
+   "path": "학장동 skp.dwg > 그룹#1 > 그룹#17",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#17",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_17__4066616.skp",
+   "bbox": {
+    "min": [
+     13933.3,
+     -6862.8,
+     -5000.0
+    ],
+    "max": [
+     61344.2,
+     48325.9,
+     5000.0
+    ],
+    "size": [
+     47410.9,
+     55188.7,
+     10000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4066617",
+   "pid": 4066617,
+   "path": "학장동 skp.dwg > 그룹#1 > 그룹#33",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#33",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_33__4066617.skp",
+   "bbox": {
+    "min": [
+     31839.7,
+     33396.2,
+     556.5
+    ],
+    "max": [
+     45189.6,
+     39932.1,
+     4000.0
+    ],
+    "size": [
+     13349.9,
+     6535.9,
+     3443.5
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Vegetation Grass]"
+  },
+  {
+   "id": "su:4073100",
+   "pid": 4073100,
+   "path": "학장동 skp.dwg > 그룹#5",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#5",
+   "class_guess": "paving",
+   "block_node": false,
+   "file": "objects/paving/그룹_5__4073100.skp",
+   "bbox": {
+    "min": [
+     52910.6,
+     15315.7,
+     4500.0
+    ],
+    "max": [
+     61012.6,
+     22246.6,
+     5000.0
+    ],
+    "size": [
+     8102.0,
+     6930.9,
+     500.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073101",
+   "pid": 4073101,
+   "path": "학장동 skp.dwg > 그룹#6",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#6",
+   "class_guess": "retaining-wall",
+   "block_node": false,
+   "file": "objects/retaining-wall/그룹_6__4073101.skp",
+   "bbox": {
+    "min": [
+     55936.2,
+     6239.6,
+     0.0
+    ],
+    "max": [
+     63627.1,
+     49789.1,
+     5000.0
+    ],
+    "size": [
+     7690.9,
+     43549.6,
+     5000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073102",
+   "pid": 4073102,
+   "path": "학장동 skp.dwg > 그룹#7",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#7",
+   "class_guess": "road-plan-surface",
+   "block_node": false,
+   "file": "objects/road-plan-surface/그룹_7__4073102.skp",
+   "bbox": {
+    "min": [
+     38715.8,
+     -94.0,
+     0.0
+    ],
+    "max": [
+     47620.1,
+     34323.0,
+     0.0
+    ],
+    "size": [
+     8904.3,
+     34417.1,
+     0.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073103",
+   "pid": 4073103,
+   "path": "학장동 skp.dwg > 그룹#2",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#2",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_2__4073103.skp",
+   "bbox": {
+    "min": [
+     866.1,
+     -7783.1,
+     -6000.0
+    ],
+    "max": [
+     59753.2,
+     53543.4,
+     4500.0
+    ],
+    "size": [
+     58887.1,
+     61326.4,
+     10500.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4072538",
+   "pid": 4072538,
+   "path": "학장동 skp.dwg > 그룹#2 > 그룹#9",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#9",
+   "class_guess": "paving",
+   "block_node": false,
+   "file": "objects/paving/그룹_9__4072538.skp",
+   "bbox": {
+    "min": [
+     2918.8,
+     -7717.5,
+     -2500.0
+    ],
+    "max": [
+     22648.1,
+     35003.1,
+     -2500.0
+    ],
+    "size": [
+     19729.3,
+     42720.6,
+     0.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4072539",
+   "pid": 4072539,
+   "path": "학장동 skp.dwg > 그룹#2 > 그룹#10",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#10",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_10__4072539.skp",
+   "bbox": {
+    "min": [
+     866.1,
+     -6777.0,
+     -6000.0
+    ],
+    "max": [
+     59681.2,
+     53543.4,
+     4500.0
+    ],
+    "size": [
+     58815.1,
+     60320.4,
+     10500.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4072540",
+   "pid": 4072540,
+   "path": "학장동 skp.dwg > 그룹#2 > 그룹#32",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#32",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_32__4072540.skp",
+   "bbox": {
+    "min": [
+     14380.9,
+     34968.7,
+     -2500.0
+    ],
+    "max": [
+     25238.5,
+     39702.8,
+     500.0
+    ],
+    "size": [
+     10857.7,
+     4734.1,
+     3000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073106",
+   "pid": 4073106,
+   "path": "학장동 skp.dwg > 그룹#14",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#14",
+   "class_guess": "retaining-wall",
+   "block_node": false,
+   "file": "objects/retaining-wall/그룹_14__4073106.skp",
+   "bbox": {
+    "min": [
+     34614.7,
+     -5588.3,
+     -9500.0
+    ],
+    "max": [
+     98718.6,
+     4540.0,
+     12494.9
+    ],
+    "size": [
+     64103.9,
+     10128.3,
+     21994.9
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073111",
+   "pid": 4073111,
+   "path": "학장동 skp.dwg > 그룹#30",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#30",
+   "class_guess": "paving",
+   "block_node": false,
+   "file": "objects/paving/그룹_30__4073111.skp",
+   "bbox": {
+    "min": [
+     33465.1,
+     2997.6,
+     0.0
+    ],
+    "max": [
+     39585.4,
+     16410.5,
+     0.0
+    ],
+    "size": [
+     6120.3,
+     13412.9,
+     0.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4073133",
+   "pid": 4073133,
+   "path": "학장동 skp.dwg > 그룹#35",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#35",
+   "class_guess": "retaining-wall",
+   "block_node": false,
+   "file": "objects/retaining-wall/그룹_35__4073133.skp",
+   "bbox": {
+    "min": [
+     41173.9,
+     -49.5,
+     -5500.0
+    ],
+    "max": [
+     98355.7,
+     4540.6,
+     12494.9
+    ],
+    "size": [
+     57181.8,
+     4590.0,
+     17994.9
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Travertine Stretcher 3260 x 2660 mm (UMXUG9)"
+  },
+  {
+   "id": "su:47944",
+   "pid": 47944,
+   "path": "그룹#18",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#18",
+   "class_guess": "exterior-stair",
+   "block_node": false,
+   "file": "objects/exterior-stair/그룹_18__47944.skp",
+   "bbox": {
+    "min": [
+     15936.5,
+     14796.9,
+     -2500.0
+    ],
+    "max": [
+     46432.0,
+     19384.7,
+     5700.0
+    ],
+    "size": [
+     30495.4,
+     4587.8,
+     8200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5135415",
+   "pid": 5135415,
+   "path": "그룹#18 > Raise",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#19",
+   "class_guess": "exterior-stair",
+   "block_node": false,
+   "file": "objects/exterior-stair/그룹_19__5135415.skp",
+   "bbox": {
+    "min": [
+     18401.7,
+     15271.0,
+     -2500.0
+    ],
+    "max": [
+     24217.3,
+     17496.8,
+     0.0
+    ],
+    "size": [
+     5815.6,
+     2225.8,
+     2500.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Polished Concrete New]"
+  },
+  {
+   "id": "su:5135416",
+   "pid": 5135416,
+   "path": "그룹#18 > Handrail",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹36#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹36_1__5135416.skp",
+   "bbox": {
+    "min": [
+     18400.5,
+     15355.3,
+     -1446.4
+    ],
+    "max": [
+     24218.5,
+     17412.6,
+     913.1
+    ],
+    "size": [
+     5818.0,
+     2057.2,
+     2359.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5134006",
+   "pid": 5134006,
+   "path": "그룹#18 > Handrail > D=30 mm",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#27",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_27__5134006.skp",
+   "bbox": {
+    "min": [
+     18400.5,
+     16974.6,
+     -1446.4
+    ],
+    "max": [
+     24102.6,
+     17412.6,
+     913.1
+    ],
+    "size": [
+     5702.1,
+     437.9,
+     2359.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5134007",
+   "pid": 5134007,
+   "path": "그룹#18 > Handrail > D=30 mm",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#28",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_28__5134007.skp",
+   "bbox": {
+    "min": [
+     18516.4,
+     15355.3,
+     -1446.4
+    ],
+    "max": [
+     24218.5,
+     15793.3,
+     913.1
+    ],
+    "size": [
+     5702.1,
+     437.9,
+     2359.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5135417",
+   "pid": 5135417,
+   "path": "그룹#18 > 그룹#21",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#21",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_21__5135417.skp",
+   "bbox": {
+    "min": [
+     16088.1,
+     14796.9,
+     -2500.0
+    ],
+    "max": [
+     26682.5,
+     15853.0,
+     1200.0
+    ],
+    "size": [
+     10594.4,
+     1056.1,
+     3700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Even Drag Brick Staggered (6B2XZN)"
+  },
+  {
+   "id": "su:5135551",
+   "pid": 5135551,
+   "path": "그룹#18 > Raise",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#23",
+   "class_guess": "exterior-stair",
+   "block_node": false,
+   "file": "objects/exterior-stair/그룹_23__5135551.skp",
+   "bbox": {
+    "min": [
+     35110.6,
+     16467.0,
+     0.0
+    ],
+    "max": [
+     44515.4,
+     18926.4,
+     4500.0
+    ],
+    "size": [
+     9404.8,
+     2459.4,
+     4500.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Polished Concrete New]"
+  },
+  {
+   "id": "su:5135552",
+   "pid": 5135552,
+   "path": "그룹#18 > Handrail",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹53#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹53_1__5135552.skp",
+   "bbox": {
+    "min": [
+     35109.4,
+     16551.3,
+     1053.6
+    ],
+    "max": [
+     44516.6,
+     18842.2,
+     5413.1
+    ],
+    "size": [
+     9407.2,
+     2290.9,
+     4359.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5135288",
+   "pid": 5135288,
+   "path": "그룹#18 > Handrail > D=30 mm",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#25",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_25__5135288.skp",
+   "bbox": {
+    "min": [
+     35223.6,
+     16551.3,
+     1053.6
+    ],
+    "max": [
+     44516.6,
+     17246.3,
+     5413.1
+    ],
+    "size": [
+     9292.9,
+     695.0,
+     4359.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5135289",
+   "pid": 5135289,
+   "path": "그룹#18 > Handrail > D=30 mm",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#26",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_26__5135289.skp",
+   "bbox": {
+    "min": [
+     35109.4,
+     18147.2,
+     1053.6
+    ],
+    "max": [
+     44402.3,
+     18842.2,
+     5413.1
+    ],
+    "size": [
+     9292.9,
+     695.0,
+     4359.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5135580",
+   "pid": 5135580,
+   "path": "그룹#18 > 그룹#24",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#24",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_24__5135580.skp",
+   "bbox": {
+    "min": [
+     33293.8,
+     18133.9,
+     0.0
+    ],
+    "max": [
+     46282.0,
+     19361.3,
+     5700.0
+    ],
+    "size": [
+     12988.2,
+     1227.4,
+     5700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Even Drag Brick Staggered (6B2XZN)"
+  },
+  {
+   "id": "su:5135581",
+   "pid": 5135581,
+   "path": "그룹#18 > 그룹#37",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#37",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_37__5135581.skp",
+   "bbox": {
+    "min": [
+     33443.7,
+     16039.3,
+     0.0
+    ],
+    "max": [
+     46432.0,
+     17266.7,
+     5700.0
+    ],
+    "size": [
+     12988.2,
+     1227.4,
+     5700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Even Drag Brick Staggered (6B2XZN)"
+  },
+  {
+   "id": "su:5135582",
+   "pid": 5135582,
+   "path": "그룹#18 > 그룹#166",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#166",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_166__5135582.skp",
+   "bbox": {
+    "min": [
+     15936.5,
+     16914.9,
+     -2500.0
+    ],
+    "max": [
+     26530.9,
+     17971.0,
+     1200.0
+    ],
+    "size": [
+     10594.4,
+     1056.1,
+     3700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Even Drag Brick Staggered (6B2XZN)"
+  },
+  {
+   "id": "su:90359",
+   "pid": 90359,
+   "path": "그룹#34",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#34",
+   "class_guess": "retaining-wall",
+   "block_node": false,
+   "file": "objects/retaining-wall/그룹_34__90359.skp",
+   "bbox": {
+    "min": [
+     2083.6,
+     31309.3,
+     -11660.0
+    ],
+    "max": [
+     56959.7,
+     49206.3,
+     5000.0
+    ],
+    "size": [
+     54876.1,
+     17897.0,
+     16660.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Travertine Stretcher 3260 x 2660 mm (UMXUG9)"
+  },
+  {
+   "id": "su:125087",
+   "pid": 125087,
+   "path": "그룹#38",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#38",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_38__125087.skp",
+   "bbox": {
+    "min": [
+     60346.9,
+     2065.1,
+     5000.0
+    ],
+    "max": [
+     101564.6,
+     52168.1,
+     14600.0
+    ],
+    "size": [
+     41217.8,
+     50103.0,
+     9600.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Vegetation Grass]"
+  },
+  {
+   "id": "su:4580639",
+   "pid": 4580639,
+   "path": "그룹#38 > 그룹#42",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#42",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_42__4580639.skp",
+   "bbox": {
+    "min": [
+     60346.9,
+     43178.0,
+     5000.0
+    ],
+    "max": [
+     85286.4,
+     51213.5,
+     9000.0
+    ],
+    "size": [
+     24939.5,
+     8035.5,
+     4000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4580640",
+   "pid": 4580640,
+   "path": "그룹#38 > 그룹#44",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#44",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_44__4580640.skp",
+   "bbox": {
+    "min": [
+     81683.1,
+     3583.9,
+     9000.0
+    ],
+    "max": [
+     101564.6,
+     50497.4,
+     14600.0
+    ],
+    "size": [
+     19881.5,
+     46913.5,
+     5600.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:125433",
+   "pid": 125433,
+   "path": "그룹#40",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#40",
+   "class_guess": "paving",
+   "block_node": false,
+   "file": "objects/paving/그룹_40__125433.skp",
+   "bbox": {
+    "min": [
+     60545.4,
+     1836.7,
+     5000.0
+    ],
+    "max": [
+     84956.3,
+     47840.6,
+     10200.0
+    ],
+    "size": [
+     24410.8,
+     46003.9,
+     5200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4580519",
+   "pid": 4580519,
+   "path": "그룹#40 > 그룹#43",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#43",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_43__4580519.skp",
+   "bbox": {
+    "min": [
+     84656.3,
+     3584.5,
+     5000.0
+    ],
+    "max": [
+     84956.3,
+     47840.6,
+     10200.0
+    ],
+    "size": [
+     300.0,
+     44256.2,
+     5200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Translucent Glass Gray]"
+  },
+  {
+   "id": "su:4580507",
+   "pid": 4580507,
+   "path": "그룹#40 > 그룹#43 > 그룹#99",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#99",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_99__4580507.skp",
+   "bbox": {
+    "min": [
+     84656.3,
+     3584.5,
+     5000.0
+    ],
+    "max": [
+     84956.3,
+     47840.6,
+     10200.0
+    ],
+    "size": [
+     300.0,
+     44256.2,
+     5200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Translucent Glass Gray]"
+  },
+  {
+   "id": "su:511546",
+   "pid": 511546,
+   "path": "그룹#201",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#201",
+   "class_guess": "building",
+   "block_node": false,
+   "file": "objects/building/그룹_201__511546.skp",
+   "bbox": {
+    "min": [
+     59256.3,
+     5577.4,
+     4800.0
+    ],
+    "max": [
+     85816.3,
+     46407.4,
+     15450.3
+    ],
+    "size": [
+     26560.0,
+     40830.0,
+     10650.3
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577820",
+   "pid": 4577820,
+   "path": "그룹#201 > CWom0105-HD2-O01P02-S005",
+   "depth": 1,
+   "type": "ComponentInstance",
+   "definition": "Component18",
+   "class_guess": "person",
+   "block_node": true,
+   "file": "objects/person/Component18__4577820.skp",
+   "bbox": {
+    "min": [
+     60906.1,
+     27208.8,
+     5000.0
+    ],
+    "max": [
+     61641.7,
+     28059.4,
+     6752.4
+    ],
+    "size": [
+     735.6,
+     850.6,
+     1752.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577837",
+   "pid": 4577837,
+   "path": "그룹#201 > 그룹#225",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#225",
+   "class_guess": "beam",
+   "block_node": false,
+   "file": "objects/beam/그룹_225__4577837.skp",
+   "bbox": {
+    "min": [
+     75406.3,
+     10282.4,
+     6250.0
+    ],
+    "max": [
+     75706.3,
+     18332.4,
+     6700.0
+    ],
+    "size": [
+     300.0,
+     8050.0,
+     450.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577815",
+   "pid": 4577815,
+   "path": "그룹#201 > 그룹#109",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#109",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_109__4577815.skp",
+   "bbox": {
+    "min": [
+     62206.3,
+     22257.4,
+     5000.0
+    ],
+    "max": [
+     63631.3,
+     44757.4,
+     5600.0
+    ],
+    "size": [
+     1425.0,
+     22500.0,
+     600.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4082704",
+   "pid": 4082704,
+   "path": "그룹#201 > 그룹#109 > 그룹#227",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#227",
+   "class_guess": "wall",
+   "block_node": false,
+   "file": "objects/wall/그룹_227__4082704.skp",
+   "bbox": {
+    "min": [
+     62206.3,
+     22257.4,
+     5450.0
+    ],
+    "max": [
+     62856.3,
+     44757.4,
+     5600.0
+    ],
+    "size": [
+     650.0,
+     22500.0,
+     150.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577838",
+   "pid": 4577838,
+   "path": "그룹#201 > 그룹#258",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#258",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_258__4577838.skp",
+   "bbox": {
+    "min": [
+     77284.3,
+     6035.4,
+     4800.0
+    ],
+    "max": [
+     84428.3,
+     8813.4,
+     10765.0
+    ],
+    "size": [
+     7144.0,
+     2778.0,
+     5965.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086193",
+   "pid": 4086193,
+   "path": "그룹#201 > 그룹#258 > 그룹356#1",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹356#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹356_1__4086193.skp",
+   "bbox": {
+    "min": [
+     81484.3,
+     6051.4,
+     9350.0
+    ],
+    "max": [
+     81528.3,
+     7563.4,
+     10650.0
+    ],
+    "size": [
+     44.0,
+     1512.0,
+     1300.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086194",
+   "pid": 4086194,
+   "path": "그룹#201 > 그룹#258 > 그룹357#1",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹357#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹357_1__4086194.skp",
+   "bbox": {
+    "min": [
+     77300.3,
+     7235.4,
+     4800.0
+    ],
+    "max": [
+     79092.3,
+     7279.4,
+     7000.0
+    ],
+    "size": [
+     1792.0,
+     44.0,
+     2200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086195",
+   "pid": 4086195,
+   "path": "그룹#201 > 그룹#258 > 그룹358#1",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹358#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹358_1__4086195.skp",
+   "bbox": {
+    "min": [
+     77284.3,
+     7251.4,
+     5700.0
+    ],
+    "max": [
+     77328.3,
+     7563.4,
+     7000.0
+    ],
+    "size": [
+     44.0,
+     312.0,
+     1300.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086196",
+   "pid": 4086196,
+   "path": "그룹#201 > 그룹#258 > 그룹359#1",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹359#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹359_1__4086196.skp",
+   "bbox": {
+    "min": [
+     84384.3,
+     6051.4,
+     9350.0
+    ],
+    "max": [
+     84428.3,
+     8813.4,
+     10650.0
+    ],
+    "size": [
+     44.0,
+     2762.0,
+     1300.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086197",
+   "pid": 4086197,
+   "path": "그룹#201 > 그룹#258 > 그룹360#1",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹360#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹360_1__4086197.skp",
+   "bbox": {
+    "min": [
+     77300.3,
+     7535.4,
+     5700.0
+    ],
+    "max": [
+     81512.3,
+     7579.4,
+     10650.0
+    ],
+    "size": [
+     4212.0,
+     44.0,
+     4950.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086198",
+   "pid": 4086198,
+   "path": "그룹#201 > 그룹#258 > 그룹361#1",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹361#1",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹361_1__4086198.skp",
+   "bbox": {
+    "min": [
+     81500.3,
+     6035.4,
+     9350.0
+    ],
+    "max": [
+     84412.3,
+     6079.4,
+     10650.0
+    ],
+    "size": [
+     2912.0,
+     44.0,
+     1300.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4086199",
+   "pid": 4086199,
+   "path": "그룹#201 > 그룹#258 > D=30 mm",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#259",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_259__4086199.skp",
+   "bbox": {
+    "min": [
+     77291.3,
+     6042.5,
+     6186.6
+    ],
+    "max": [
+     84421.2,
+     8807.4,
+     10765.0
+    ],
+    "size": [
+     7129.9,
+     2765.0,
+     4578.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577804",
+   "pid": 4577804,
+   "path": "그룹#201 > 그룹#71",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#71",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_71__4577804.skp",
+   "bbox": {
+    "min": [
+     62856.3,
+     22407.4,
+     10200.0
+    ],
+    "max": [
+     84656.3,
+     44607.4,
+     14782.7
+    ],
+    "size": [
+     21800.0,
+     22200.0,
+     4582.7
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4088192",
+   "pid": 4088192,
+   "path": "그룹#201 > 그룹#71 > 그룹#100",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#100",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_100__4088192.skp",
+   "bbox": {
+    "min": [
+     62856.3,
+     22407.4,
+     10200.0
+    ],
+    "max": [
+     84656.3,
+     44607.4,
+     14782.7
+    ],
+    "size": [
+     21800.0,
+     22200.0,
+     4582.7
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577817",
+   "pid": 4577817,
+   "path": "그룹#201 > 그룹#110",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#110",
+   "class_guess": "person",
+   "block_node": true,
+   "file": "objects/person/그룹_110__4577817.skp",
+   "bbox": {
+    "min": [
+     61733.5,
+     29673.2,
+     5067.0
+    ],
+    "max": [
+     62448.8,
+     30252.8,
+     6370.4
+    ],
+    "size": [
+     715.4,
+     579.6,
+     1303.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577816",
+   "pid": 4577816,
+   "path": "그룹#201 > 그룹#139",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#139",
+   "class_guess": "person",
+   "block_node": true,
+   "file": "objects/person/그룹_139__4577816.skp",
+   "bbox": {
+    "min": [
+     61576.1,
+     28643.3,
+     5000.0
+    ],
+    "max": [
+     62569.3,
+     29712.2,
+     6299.7
+    ],
+    "size": [
+     993.2,
+     1069.0,
+     1299.7
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577814",
+   "pid": 4577814,
+   "path": "그룹#201 > 그룹#85",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#85",
+   "class_guess": "curtain-wall",
+   "block_node": false,
+   "file": "objects/curtain-wall/그룹_85__4577814.skp",
+   "bbox": {
+    "min": [
+     78606.3,
+     5577.4,
+     5000.0
+    ],
+    "max": [
+     79056.3,
+     5607.4,
+     9000.0
+    ],
+    "size": [
+     450.0,
+     30.0,
+     4000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Color M06]"
+  },
+  {
+   "id": "su:4577803",
+   "pid": 4577803,
+   "path": "그룹#201 > 그룹#115",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#115",
+   "class_guess": "glass-railing",
+   "block_node": false,
+   "file": "objects/glass-railing/그룹_115__4577803.skp",
+   "bbox": {
+    "min": [
+     70856.3,
+     22407.4,
+     10300.0
+    ],
+    "max": [
+     85816.3,
+     22407.4,
+     11400.0
+    ],
+    "size": [
+     14960.0,
+     0.0,
+     1100.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577805",
+   "pid": 4577805,
+   "path": "그룹#201 > 그룹#161",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#161",
+   "class_guess": "building",
+   "block_node": false,
+   "file": "objects/building/그룹_161__4577805.skp",
+   "bbox": {
+    "min": [
+     76006.3,
+     8757.4,
+     9150.0
+    ],
+    "max": [
+     85006.3,
+     17757.4,
+     12780.0
+    ],
+    "size": [
+     9000.0,
+     9000.0,
+     3630.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4164146",
+   "pid": 4164146,
+   "path": "그룹#201 > 그룹#161 > 그룹#101",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#101",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_101__4164146.skp",
+   "bbox": {
+    "min": [
+     76006.3,
+     8757.4,
+     9150.0
+    ],
+    "max": [
+     85006.3,
+     17757.4,
+     12780.0
+    ],
+    "size": [
+     9000.0,
+     9000.0,
+     3630.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577813",
+   "pid": 4577813,
+   "path": "그룹#201 > 그룹#67",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#67",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_67__4577813.skp",
+   "bbox": {
+    "min": [
+     62841.3,
+     7007.4,
+     5000.0
+    ],
+    "max": [
+     62871.3,
+     20022.4,
+     5915.0
+    ],
+    "size": [
+     30.0,
+     13015.0,
+     915.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Color M06]"
+  },
+  {
+   "id": "su:4168074",
+   "pid": 4168074,
+   "path": "그룹#201 > 그룹#67 > 그룹#64",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#64",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_64__4168074.skp",
+   "bbox": {
+    "min": [
+     62841.3,
+     14036.3,
+     5000.0
+    ],
+    "max": [
+     62871.3,
+     20022.4,
+     5915.0
+    ],
+    "size": [
+     30.0,
+     5986.1,
+     915.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4168075",
+   "pid": 4168075,
+   "path": "그룹#201 > 그룹#67 > 그룹#64",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#64",
+   "class_guess": "handrail",
+   "block_node": false,
+   "file": "objects/handrail/그룹_64__4168074.skp",
+   "bbox": {
+    "min": [
+     62841.3,
+     7007.4,
+     5000.0
+    ],
+    "max": [
+     62871.3,
+     12993.5,
+     5915.0
+    ],
+    "size": [
+     30.0,
+     5986.1,
+     915.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577809",
+   "pid": 4577809,
+   "path": "그룹#201 > 그룹#217",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#217",
+   "class_guess": "building",
+   "block_node": false,
+   "file": "objects/building/그룹_217__4577809.skp",
+   "bbox": {
+    "min": [
+     75236.3,
+     5587.4,
+     5000.0
+    ],
+    "max": [
+     84676.3,
+     29007.4,
+     10000.0
+    ],
+    "size": [
+     9440.0,
+     23420.0,
+     5000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4168702",
+   "pid": 4168702,
+   "path": "그룹#201 > 그룹#217 > 그룹#234",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#234",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_234__4168702.skp",
+   "bbox": {
+    "min": [
+     75236.3,
+     5587.4,
+     5000.0
+    ],
+    "max": [
+     84676.3,
+     29007.4,
+     10000.0
+    ],
+    "size": [
+     9440.0,
+     23420.0,
+     5000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577819",
+   "pid": 4577819,
+   "path": "그룹#201 > 그룹#116",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#116",
+   "class_guess": "person",
+   "block_node": true,
+   "file": "objects/person/그룹_116__4577819.skp",
+   "bbox": {
+    "min": [
+     61789.8,
+     23165.3,
+     5017.9
+    ],
+    "max": [
+     62631.5,
+     23850.0,
+     6348.7
+    ],
+    "size": [
+     841.7,
+     684.7,
+     1330.9
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577801",
+   "pid": 4577801,
+   "path": "그룹#201 > 그룹#129",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#129",
+   "class_guess": "curtain-wall",
+   "block_node": false,
+   "file": "objects/curtain-wall/그룹_129__4577801.skp",
+   "bbox": {
+    "min": [
+     62856.3,
+     22107.4,
+     5000.0
+    ],
+    "max": [
+     81356.3,
+     44607.4,
+     10000.0
+    ],
+    "size": [
+     18500.0,
+     22500.0,
+     5000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Color M06]"
+  },
+  {
+   "id": "su:4204587",
+   "pid": 4204587,
+   "path": "그룹#201 > 그룹#129 > 그룹#134",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#134",
+   "class_guess": "curtain-wall",
+   "block_node": false,
+   "file": "objects/curtain-wall/그룹_134__4204587.skp",
+   "bbox": {
+    "min": [
+     62856.3,
+     22407.4,
+     5000.0
+    ],
+    "max": [
+     64725.5,
+     44607.4,
+     10000.0
+    ],
+    "size": [
+     1869.2,
+     22200.0,
+     5000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4204624",
+   "pid": 4204624,
+   "path": "그룹#201 > 그룹#129 > 그룹#159",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#159",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_159__4204624.skp",
+   "bbox": {
+    "min": [
+     62856.3,
+     22107.4,
+     5000.0
+    ],
+    "max": [
+     76356.3,
+     22447.4,
+     10000.0
+    ],
+    "size": [
+     13500.0,
+     340.0,
+     5000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577807",
+   "pid": 4577807,
+   "path": "그룹#201 > 그룹#90",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#90",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_90__4577807.skp",
+   "bbox": {
+    "min": [
+     78056.3,
+     39407.4,
+     7200.0
+    ],
+    "max": [
+     80456.3,
+     44687.4,
+     10000.0
+    ],
+    "size": [
+     2400.0,
+     5280.0,
+     2800.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577818",
+   "pid": 4577818,
+   "path": "그룹#201 > 그룹#130",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#130",
+   "class_guess": "person",
+   "block_node": true,
+   "file": "objects/person/그룹_130__4577818.skp",
+   "bbox": {
+    "min": [
+     61766.8,
+     23634.1,
+     5158.0
+    ],
+    "max": [
+     62762.3,
+     24584.4,
+     6529.4
+    ],
+    "size": [
+     995.5,
+     950.3,
+     1371.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577808",
+   "pid": 4577808,
+   "path": "그룹#201 > 그룹#125",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#125",
+   "class_guess": null,
+   "block_node": false,
+   "file": "objects/unclassified/그룹_125__4577808.skp",
+   "bbox": {
+    "min": [
+     75406.3,
+     39407.4,
+     5000.0
+    ],
+    "max": [
+     84656.3,
+     44957.4,
+     9995.0
+    ],
+    "size": [
+     9250.0,
+     5550.0,
+     4995.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4237658",
+   "pid": 4237658,
+   "path": "그룹#201 > 그룹#125 > 그룹#66",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#66",
+   "class_guess": "window-louver",
+   "block_node": false,
+   "file": "objects/window-louver/그룹_66__4237658.skp",
+   "bbox": {
+    "min": [
+     76981.3,
+     44507.4,
+     6800.0
+    ],
+    "max": [
+     84031.3,
+     44957.4,
+     7700.0
+    ],
+    "size": [
+     7050.0,
+     450.0,
+     900.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577799",
+   "pid": 4577799,
+   "path": "그룹#201 > 그룹#103",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#103",
+   "class_guess": "floor-slab",
+   "block_node": false,
+   "file": "objects/floor-slab/그룹_103__4577799.skp",
+   "bbox": {
+    "min": [
+     75456.3,
+     28707.4,
+     5000.0
+    ],
+    "max": [
+     84656.3,
+     39007.4,
+     10200.0
+    ],
+    "size": [
+     9200.0,
+     10300.0,
+     5200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577806",
+   "pid": 4577806,
+   "path": "그룹#201 > 그룹#124",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#124",
+   "class_guess": "glass-railing",
+   "block_node": false,
+   "file": "objects/glass-railing/그룹_124__4577806.skp",
+   "bbox": {
+    "min": [
+     78056.3,
+     28707.4,
+     10200.0
+    ],
+    "max": [
+     84456.3,
+     38107.4,
+     11400.0
+    ],
+    "size": [
+     6400.0,
+     9400.0,
+     1200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "[Translucent Glass Gray]"
+  },
+  {
+   "id": "su:4577802",
+   "pid": 4577802,
+   "path": "그룹#201 > 그룹#202",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#202",
+   "class_guess": "floor-slab",
+   "block_node": false,
+   "file": "objects/floor-slab/그룹_202__4577802.skp",
+   "bbox": {
+    "min": [
+     59256.3,
+     19107.4,
+     8100.0
+    ],
+    "max": [
+     85611.4,
+     46407.4,
+     15450.3
+    ],
+    "size": [
+     26355.1,
+     27300.0,
+     7350.3
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4361372",
+   "pid": 4361372,
+   "path": "그룹#201 > 그룹#202 > 그룹#203",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#203",
+   "class_guess": "floor-slab",
+   "block_node": false,
+   "file": "objects/floor-slab/그룹_203__4361372.skp",
+   "bbox": {
+    "min": [
+     62856.3,
+     22407.4,
+     8100.0
+    ],
+    "max": [
+     80256.3,
+     44607.4,
+     10100.0
+    ],
+    "size": [
+     17400.0,
+     22200.0,
+     2000.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4361373",
+   "pid": 4361373,
+   "path": "그룹#201 > 그룹#202 > 그룹#205",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#205",
+   "class_guess": "floor-slab",
+   "block_node": false,
+   "file": "objects/floor-slab/그룹_205__4361373.skp",
+   "bbox": {
+    "min": [
+     59256.3,
+     19107.4,
+     9750.0
+    ],
+    "max": [
+     84956.3,
+     46407.4,
+     10970.0
+    ],
+    "size": [
+     25700.0,
+     27300.0,
+     1220.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360599",
+   "pid": 4360599,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > c3",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "c3",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/c3__4360599.skp",
+   "bbox": {
+    "min": [
+     64883.7,
+     43920.0,
+     10220.0
+    ],
+    "max": [
+     65393.7,
+     44400.0,
+     10920.0
+    ],
+    "size": [
+     510.0,
+     480.0,
+     700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360600",
+   "pid": 4360600,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > c3",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "c3",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/c3__4360599.skp",
+   "bbox": {
+    "min": [
+     65483.7,
+     43920.0,
+     10220.0
+    ],
+    "max": [
+     65993.7,
+     44400.0,
+     10920.0
+    ],
+    "size": [
+     510.0,
+     480.0,
+     700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360601",
+   "pid": 4360601,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > c3",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "c3",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/c3__4360599.skp",
+   "bbox": {
+    "min": [
+     66083.7,
+     43920.0,
+     10220.0
+    ],
+    "max": [
+     66593.7,
+     44400.0,
+     10920.0
+    ],
+    "size": [
+     510.0,
+     480.0,
+     700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360602",
+   "pid": 4360602,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > c3",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "c3",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/c3__4360599.skp",
+   "bbox": {
+    "min": [
+     66683.7,
+     43920.0,
+     10220.0
+    ],
+    "max": [
+     67193.7,
+     44400.0,
+     10920.0
+    ],
+    "size": [
+     510.0,
+     480.0,
+     700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360604",
+   "pid": 4360604,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > c3",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "c3",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/c3__4360599.skp",
+   "bbox": {
+    "min": [
+     68683.7,
+     43920.0,
+     10220.0
+    ],
+    "max": [
+     69193.7,
+     44400.0,
+     10920.0
+    ],
+    "size": [
+     510.0,
+     480.0,
+     700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360603",
+   "pid": 4360603,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > c3",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "c3",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/c3__4360599.skp",
+   "bbox": {
+    "min": [
+     68083.7,
+     43920.0,
+     10220.0
+    ],
+    "max": [
+     68593.7,
+     44400.0,
+     10920.0
+    ],
+    "size": [
+     510.0,
+     480.0,
+     700.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360622",
+   "pid": 4360622,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch5",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch5",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch5__4360622.skp",
+   "bbox": {
+    "min": [
+     67651.7,
+     23173.8,
+     10220.0
+    ],
+    "max": [
+     69241.7,
+     23803.8,
+     10965.4
+    ],
+    "size": [
+     1590.0,
+     630.0,
+     745.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360623",
+   "pid": 4360623,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch5",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch5",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch5__4360622.skp",
+   "bbox": {
+    "min": [
+     65651.7,
+     23173.8,
+     10220.0
+    ],
+    "max": [
+     67241.7,
+     23803.8,
+     10965.4
+    ],
+    "size": [
+     1590.0,
+     630.0,
+     745.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360624",
+   "pid": 4360624,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch5",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch5",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch5__4360622.skp",
+   "bbox": {
+    "min": [
+     63651.7,
+     23173.8,
+     10220.0
+    ],
+    "max": [
+     65241.7,
+     23803.8,
+     10965.4
+    ],
+    "size": [
+     1590.0,
+     630.0,
+     745.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360625",
+   "pid": 4360625,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch6",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch6",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch6__4360625.skp",
+   "bbox": {
+    "min": [
+     69606.7,
+     26213.0,
+     10220.0
+    ],
+    "max": [
+     70443.7,
+     28087.0,
+     10796.8
+    ],
+    "size": [
+     837.0,
+     1874.0,
+     576.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360626",
+   "pid": 4360626,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch6",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch6",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch6__4360625.skp",
+   "bbox": {
+    "min": [
+     69606.7,
+     29413.0,
+     10220.0
+    ],
+    "max": [
+     70443.7,
+     31287.0,
+     10796.8
+    ],
+    "size": [
+     837.0,
+     1874.0,
+     576.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360627",
+   "pid": 4360627,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch6",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch6",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch6__4360625.skp",
+   "bbox": {
+    "min": [
+     69606.7,
+     31813.0,
+     10220.0
+    ],
+    "max": [
+     70443.7,
+     33687.0,
+     10796.8
+    ],
+    "size": [
+     837.0,
+     1874.0,
+     576.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360628",
+   "pid": 4360628,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch6",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch6",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch6__4360625.skp",
+   "bbox": {
+    "min": [
+     69606.7,
+     34213.0,
+     10220.0
+    ],
+    "max": [
+     70443.7,
+     36087.0,
+     10796.8
+    ],
+    "size": [
+     837.0,
+     1874.0,
+     576.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360629",
+   "pid": 4360629,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > ch6",
+   "depth": 3,
+   "type": "ComponentInstance",
+   "definition": "ch6",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/ch6__4360625.skp",
+   "bbox": {
+    "min": [
+     69606.7,
+     36613.0,
+     10220.0
+    ],
+    "max": [
+     70443.7,
+     38487.0,
+     10796.8
+    ],
+    "size": [
+     837.0,
+     1874.0,
+     576.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360630",
+   "pid": 4360630,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#226",
+   "depth": 3,
+   "type": "Group",
+   "definition": "그룹#226",
+   "class_guess": "counter-millwork",
+   "block_node": true,
+   "file": "objects/counter-millwork/그룹_226__4360630.skp",
+   "bbox": {
+    "min": [
+     65963.7,
+     24973.8,
+     10220.0
+    ],
+    "max": [
+     68113.7,
+     42100.0,
+     10870.0
+    ],
+    "size": [
+     2150.0,
+     17126.2,
+     650.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4360631",
+   "pid": 4360631,
+   "path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#232",
+   "depth": 3,
+   "type": "Group",
+   "definition": "그룹#232",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/그룹_232__4360631.skp",
+   "bbox": {
+    "min": [
+     63813.7,
+     24360.0,
+     10220.0
+    ],
+    "max": [
+     64443.7,
+     43750.0,
+     10965.4
+    ],
+    "size": [
+     630.0,
+     19390.0,
+     745.4
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4361374",
+   "pid": 4361374,
+   "path": "그룹#201 > 그룹#202 > 그룹#207",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#207",
+   "class_guess": "roof",
+   "block_node": false,
+   "file": "objects/roof/그룹_207__4361374.skp",
+   "bbox": {
+    "min": [
+     61031.7,
+     20507.4,
+     13362.6
+    ],
+    "max": [
+     85611.4,
+     45807.4,
+     15450.3
+    ],
+    "size": [
+     24579.7,
+     25300.0,
+     2087.6
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4361375",
+   "pid": 4361375,
+   "path": "그룹#201 > 그룹#202 > 그룹#222",
+   "depth": 2,
+   "type": "Group",
+   "definition": "그룹#222",
+   "class_guess": "floor-slab",
+   "block_node": false,
+   "file": "objects/floor-slab/그룹_222__4361375.skp",
+   "bbox": {
+    "min": [
+     75456.3,
+     29057.4,
+     9300.0
+    ],
+    "max": [
+     78156.3,
+     38657.4,
+     9750.0
+    ],
+    "size": [
+     2700.0,
+     9600.0,
+     450.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577839",
+   "pid": 4577839,
+   "path": "그룹#201 > 그룹#62",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#62",
+   "class_guess": "planter",
+   "block_node": true,
+   "file": "objects/planter/그룹_62__4577839.skp",
+   "bbox": {
+    "min": [
+     70222.1,
+     15627.7,
+     5000.0
+    ],
+    "max": [
+     73034.8,
+     18440.2,
+     7435.8
+    ],
+    "size": [
+     2812.7,
+     2812.5,
+     2435.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577840",
+   "pid": 4577840,
+   "path": "그룹#201 > 그룹#72",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#72",
+   "class_guess": "planter",
+   "block_node": true,
+   "file": "objects/planter/그룹_72__4577840.skp",
+   "bbox": {
+    "min": [
+     64588.3,
+     12415.3,
+     5000.0
+    ],
+    "max": [
+     66833.6,
+     14665.2,
+     8231.1
+    ],
+    "size": [
+     2245.3,
+     2249.9,
+     3231.1
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4577841",
+   "pid": 4577841,
+   "path": "그룹#201 > 그룹#73",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#73",
+   "class_guess": "planter",
+   "block_node": true,
+   "file": "objects/planter/그룹_73__4577841.skp",
+   "bbox": {
+    "min": [
+     70662.4,
+     8227.1,
+     5000.0
+    ],
+    "max": [
+     73476.2,
+     11041.1,
+     8086.5
+    ],
+    "size": [
+     2813.8,
+     2814.0,
+     3086.5
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:800070",
+   "pid": 800070,
+   "path": "그룹#65",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#65",
+   "class_guess": "tree",
+   "block_node": true,
+   "file": "objects/tree/그룹_65__800070.skp",
+   "bbox": {
+    "min": [
+     57367.6,
+     4328.9,
+     5000.0
+    ],
+    "max": [
+     76134.7,
+     49275.8,
+     8707.8
+    ],
+    "size": [
+     18767.1,
+     44946.9,
+     3707.8
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:1171922",
+   "pid": 1171922,
+   "path": "그룹#89",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#89",
+   "class_guess": "beam",
+   "block_node": false,
+   "file": "objects/beam/그룹_89__1171922.skp",
+   "bbox": {
+    "min": [
+     75156.3,
+     10282.4,
+     6250.0
+    ],
+    "max": [
+     75406.3,
+     18332.4,
+     6700.0
+    ],
+    "size": [
+     250.0,
+     8050.0,
+     450.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "DimGray"
+  },
+  {
+   "id": "su:1181414",
+   "pid": 1181414,
+   "path": "새 블럭.dwg",
+   "depth": 0,
+   "type": "ComponentInstance",
+   "definition": "새 블럭.dwg",
+   "class_guess": "curtain-wall",
+   "block_node": false,
+   "file": "objects/curtain-wall/새_블럭.dwg__1181414.skp",
+   "bbox": {
+    "min": [
+     63063.7,
+     22600.0,
+     10200.0
+    ],
+    "max": [
+     84663.7,
+     44400.0,
+     14761.0
+    ],
+    "size": [
+     21600.0,
+     21800.0,
+     4561.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4915226",
+   "pid": 4915226,
+   "path": "새 블럭.dwg > 그룹#54",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#54",
+   "class_guess": "curtain-wall",
+   "block_node": false,
+   "file": "objects/curtain-wall/그룹_54__4915226.skp",
+   "bbox": {
+    "min": [
+     63063.7,
+     22600.0,
+     10200.0
+    ],
+    "max": [
+     84663.7,
+     44400.0,
+     14761.0
+    ],
+    "size": [
+     21600.0,
+     21800.0,
+     4561.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:1245541",
+   "pid": 1245541,
+   "path": "그룹#39",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#39",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_39__1245541.skp",
+   "bbox": {
+    "min": [
+     76056.3,
+     5081.9,
+     200.0
+    ],
+    "max": [
+     98356.3,
+     44907.4,
+     14600.0
+    ],
+    "size": [
+     22300.0,
+     39825.5,
+     14400.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:5131684",
+   "pid": 5131684,
+   "path": "그룹#39 > 그룹#41",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#41",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_41__5131684.skp",
+   "bbox": {
+    "min": [
+     84956.3,
+     5081.9,
+     200.0
+    ],
+    "max": [
+     98356.3,
+     44907.4,
+     4600.0
+    ],
+    "size": [
+     13400.0,
+     39825.5,
+     4400.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:1245859",
+   "pid": 1245859,
+   "path": "그룹#102",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#102",
+   "class_guess": "terrain",
+   "block_node": false,
+   "file": "objects/terrain/그룹_102__1245859.skp",
+   "bbox": {
+    "min": [
+     84956.3,
+     5081.9,
+     10200.0
+    ],
+    "max": [
+     98356.3,
+     44907.4,
+     14600.0
+    ],
+    "size": [
+     13400.0,
+     39825.5,
+     4400.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:1249504",
+   "pid": 1249504,
+   "path": "그룹#12",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#12",
+   "class_guess": "marker",
+   "block_node": false,
+   "file": "objects/marker/그룹_12__1249504.skp",
+   "bbox": {
+    "min": [
+     77781.3,
+     9047.4,
+     9819.0
+    ],
+    "max": [
+     78031.3,
+     9057.4,
+     10069.0
+    ],
+    "size": [
+     250.0,
+     10.0,
+     250.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:1249528",
+   "pid": 1249528,
+   "path": "그룹#12",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#12",
+   "class_guess": "marker",
+   "block_node": false,
+   "file": "objects/marker/그룹_12__1249504.skp",
+   "bbox": {
+    "min": [
+     62914.3,
+     43267.5,
+     12364.3
+    ],
+    "max": [
+     62948.2,
+     43517.3,
+     12614.3
+    ],
+    "size": [
+     33.9,
+     249.8,
+     250.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:1458557",
+   "pid": 1458557,
+   "path": "그룹#105",
+   "depth": 0,
+   "type": "Group",
+   "definition": "그룹#105",
+   "class_guess": "building",
+   "block_node": false,
+   "file": "objects/building/그룹_105__1458557.skp",
+   "bbox": {
+    "min": [
+     60669.1,
+     22557.4,
+     4847.1
+    ],
+    "max": [
+     84663.7,
+     48392.4,
+     10200.0
+    ],
+    "size": [
+     23994.6,
+     25835.0,
+     5352.9
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:4905257",
+   "pid": 4905257,
+   "path": "그룹#105 > 그룹#160",
+   "depth": 1,
+   "type": "Group",
+   "definition": "그룹#160",
+   "class_guess": "furniture",
+   "block_node": true,
+   "file": "objects/furniture/그룹_160__4905257.skp",
+   "bbox": {
+    "min": [
+     60669.1,
+     22557.4,
+     4847.1
+    ],
+    "max": [
+     84663.7,
+     48392.4,
+     10200.0
+    ],
+    "size": [
+     23994.6,
+     25835.0,
+     5352.9
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:2004749",
+   "pid": 2004749,
+   "path": "col",
+   "depth": 0,
+   "type": "ComponentInstance",
+   "definition": "col",
+   "class_guess": "column",
+   "block_node": false,
+   "file": "objects/column/col__2004749.skp",
+   "bbox": {
+    "min": [
+     70273.7,
+     28405.0,
+     5000.0
+    ],
+    "max": [
+     70753.7,
+     28885.0,
+     9200.0
+    ],
+    "size": [
+     480.0,
+     480.0,
+     4200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Polished Concrete None 3000 x 2152 mm (15DBUL)"
+  },
+  {
+   "id": "su:2004982",
+   "pid": 2004982,
+   "path": "col",
+   "depth": 0,
+   "type": "ComponentInstance",
+   "definition": "col",
+   "class_guess": "column",
+   "block_node": false,
+   "file": "objects/column/col__2004749.skp",
+   "bbox": {
+    "min": [
+     70273.7,
+     38905.0,
+     5000.0
+    ],
+    "max": [
+     70753.7,
+     39385.0,
+     9200.0
+    ],
+    "size": [
+     480.0,
+     480.0,
+     4200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": "Polished Concrete None 3000 x 2152 mm (15DBUL)"
+  },
+  {
+   "id": "su:2005214",
+   "pid": 2005214,
+   "path": "col",
+   "depth": 0,
+   "type": "ComponentInstance",
+   "definition": "col",
+   "class_guess": "column",
+   "block_node": false,
+   "file": "objects/column/col__2004749.skp",
+   "bbox": {
+    "min": [
+     70273.7,
+     22505.0,
+     5000.0
+    ],
+    "max": [
+     70753.7,
+     22985.0,
+     9200.0
+    ],
+    "size": [
+     480.0,
+     480.0,
+     4200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  },
+  {
+   "id": "su:2005446",
+   "pid": 2005446,
+   "path": "col",
+   "depth": 0,
+   "type": "ComponentInstance",
+   "definition": "col",
+   "class_guess": "column",
+   "block_node": false,
+   "file": "objects/column/col__2004749.skp",
+   "bbox": {
+    "min": [
+     70273.7,
+     44005.0,
+     5000.0
+    ],
+    "max": [
+     70753.7,
+     44485.0,
+     9200.0
+    ],
+    "size": [
+     480.0,
+     480.0,
+     4200.0
+    ]
+   },
+   "tag": "Layer0",
+   "material": null
+  }
+ ],
+ "failures": []
+}
