@@ -14,7 +14,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/marker/그룹_12__1249504.skp",
-    "sha256": null,
+    "sha256": "8e4a827012d75184d055c95ab80120fd4b268cb42db3cd6d0c1fe1e558ebdd23",
     "asset_state": "exported",
     "definition_name": "그룹#12",
     "class_guess": "marker"
@@ -31,7 +31,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/exterior-stair/그룹_23__5135551.skp",
-    "sha256": null,
+    "sha256": "abab5302b70b3c68f8834852e093d94093dc788a174cc1d0ed3fe6b71323ad1d",
     "asset_state": "exported",
     "definition_name": "그룹#23",
     "class_guess": "exterior-stair"
@@ -48,7 +48,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/그룹_160__4905257.skp",
-    "sha256": null,
+    "sha256": "ee4c0a2701eaff6f9d0d7e796efbc4b95330e77f1fe03557c26e50eb315d9322",
     "asset_state": "exported",
     "definition_name": "그룹#160",
     "class_guess": "furniture"
@@ -65,7 +65,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/glass-railing/그룹_115__4577803.skp",
-    "sha256": null,
+    "sha256": "905b14cdbc1bf23555686b6e430b156d1d5f62265dc46bac6e310d82cb5ae2f5",
     "asset_state": "exported",
     "definition_name": "그룹#115",
     "class_guess": "glass-railing"
@@ -82,7 +82,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_35__4073133.skp",
-    "sha256": null,
+    "sha256": "1f1d3351ba65ee34dfa35711124e39e0327020a5ab227b68fe35257321261d68",
     "asset_state": "exported",
     "definition_name": "그룹#35",
     "class_guess": "retaining-wall"
@@ -99,7 +99,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_109__4577815.skp",
-    "sha256": null,
+    "sha256": "5e3e3293cd21b4fb4249bdfa0a938547a19c9b22e25a325f3fc0d466375a254b",
     "asset_state": "exported",
     "definition_name": "그룹#109",
     "class_guess": "wall"
@@ -116,7 +116,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/새_블럭.dwg__1181414.skp",
-    "sha256": null,
+    "sha256": "5fc1e5c77bc15dfd97e074459c101decd3b459c696a2197cc205096dd84f67dc",
     "asset_state": "exported",
     "definition_name": "새 블럭.dwg",
     "class_guess": "curtain-wall"
@@ -133,7 +133,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹_258__4577838.skp",
-    "sha256": null,
+    "sha256": "97b886e4b273971ce11495bdb567ec2ae41b0a935626a2644a55504b4592b680",
     "asset_state": "exported",
     "definition_name": "그룹#258",
     "class_guess": "handrail"
@@ -150,7 +150,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_24__5135580.skp",
-    "sha256": null,
+    "sha256": "c0a25839131ea0a51cb2443283aea028de0060a7957d917ae5ce595cd23ac6f7",
     "asset_state": "exported",
     "definition_name": "그룹#24",
     "class_guess": "wall"
@@ -167,7 +167,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_1__4073099.skp",
-    "sha256": null,
+    "sha256": "c6ac7ec055a848b7dc3fa1cadf2c240d87d438321c4403f2f2576c619d1d6884",
     "asset_state": "exported",
     "definition_name": "그룹#1",
     "class_guess": "unclassified"
@@ -184,7 +184,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_166__5135582.skp",
-    "sha256": null,
+    "sha256": "c165990f7491c4fae43d860bd46f795491e93069b4646d56be3e01df8a1ec949",
     "asset_state": "exported",
     "definition_name": "그룹#166",
     "class_guess": "wall"
@@ -201,7 +201,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/그룹_85__4577814.skp",
-    "sha256": null,
+    "sha256": "1c52417c2a7a1cb09789f274189331862531f1ac8cf04cf4af0631efe6f72756",
     "asset_state": "exported",
     "definition_name": "그룹#85",
     "class_guess": "curtain-wall"
@@ -218,7 +218,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/planter/그룹_72__4577840.skp",
-    "sha256": null,
+    "sha256": "72d98ebf19488838145df539984d95687ba8a714a7ca9c05c45e1219803c5b5b",
     "asset_state": "exported",
     "definition_name": "그룹#72",
     "class_guess": "planter"
@@ -235,7 +235,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/c3__4360599.skp",
-    "sha256": null,
+    "sha256": "637bf6f1267a3bdd8e203816b78ede83737b28999fcbb9c698ee1f14cc0a088f",
     "asset_state": "exported",
     "definition_name": "c3",
     "class_guess": "furniture"
@@ -252,7 +252,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/counter-millwork/그룹_226__4360630.skp",
-    "sha256": null,
+    "sha256": "c0ba5e8e50866c7bcc7ff033b66316ef3d808c78753ef0fe0085f3da896fe903",
     "asset_state": "exported",
     "definition_name": "그룹#226",
     "class_guess": "counter-millwork"
@@ -269,7 +269,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_130__4577818.skp",
-    "sha256": null,
+    "sha256": "d49d38c8e51ca23e2d39319f1429288520a87cfb8cb8e6d5f286e83c5f4c3048",
     "asset_state": "exported",
     "definition_name": "그룹#130",
     "class_guess": "person"
@@ -286,7 +286,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_39__1245541.skp",
-    "sha256": null,
+    "sha256": "488a9f94b2c44bacfefe7765bb5253cd97d1a22292e02311b4774e034a48f1e3",
     "asset_state": "exported",
     "definition_name": "그룹#39",
     "class_guess": "terrain"
@@ -303,7 +303,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/planter/그룹_62__4577839.skp",
-    "sha256": null,
+    "sha256": "24bcb6d8f175b3b7ffef8b1209ca8036a67c02e1d681d8920d6cd757f8471629",
     "asset_state": "exported",
     "definition_name": "그룹#62",
     "class_guess": "planter"
@@ -320,7 +320,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_139__4577816.skp",
-    "sha256": null,
+    "sha256": "1a5efce8e4a9d3801b46e7473bb09edcb6334d50d7e4bd875a2ddf2983bb05e5",
     "asset_state": "exported",
     "definition_name": "그룹#139",
     "class_guess": "person"
@@ -337,7 +337,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/exterior-stair/그룹_19__5135415.skp",
-    "sha256": null,
+    "sha256": "a81db61dcb6842f06d0ed6e4dff569550d67cd0cdbb31f96cc5cd91688bec486",
     "asset_state": "exported",
     "definition_name": "그룹#19",
     "class_guess": "exterior-stair"
@@ -354,7 +354,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_41__5131684.skp",
-    "sha256": null,
+    "sha256": "7a0f71456e8956f64708ee81ff4c0dcee03cb402323331b39b2f8f7c2c67c9f4",
     "asset_state": "exported",
     "definition_name": "그룹#41",
     "class_guess": "terrain"
@@ -371,7 +371,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_21__5135417.skp",
-    "sha256": null,
+    "sha256": "572da54bd9ab4c9c80160488e549fe4660a982cbb7023530a29bb7811e4a07c7",
     "asset_state": "exported",
     "definition_name": "그룹#21",
     "class_guess": "wall"
@@ -388,7 +388,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_38__125087.skp",
-    "sha256": null,
+    "sha256": "115f37e8b23670368af81b6d5160410890742cbe66199c2dacec1d4235fc52a9",
     "asset_state": "exported",
     "definition_name": "그룹#38",
     "class_guess": "terrain"
@@ -405,7 +405,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_43__4580519.skp",
-    "sha256": null,
+    "sha256": "a567b76cb502c9d307155f29e3cced2057c8d6f807145613634945304ad0368d",
     "asset_state": "exported",
     "definition_name": "그룹#43",
     "class_guess": "unclassified"
@@ -422,7 +422,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/paving/그룹_30__4073111.skp",
-    "sha256": null,
+    "sha256": "8d51a7f5d8927c7fa0e9b11084a6f4e084621d18e29d9863be264f9adfe3f648",
     "asset_state": "exported",
     "definition_name": "그룹#30",
     "class_guess": "paving"
@@ -439,7 +439,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/그룹_129__4577801.skp",
-    "sha256": null,
+    "sha256": "5b1475b512df7208ad599160445752dd6e32b93f6881fa4197234528c8c357cc",
     "asset_state": "exported",
     "definition_name": "그룹#129",
     "class_guess": "curtain-wall"
@@ -456,7 +456,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/glass-railing/그룹_124__4577806.skp",
-    "sha256": null,
+    "sha256": "7c5e2d9e2b9221bc758fe47a2f412f240ec45f2d76d500b8e22239749df729c4",
     "asset_state": "exported",
     "definition_name": "그룹#124",
     "class_guess": "glass-railing"
@@ -473,7 +473,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_116__4577819.skp",
-    "sha256": null,
+    "sha256": "a389cd85d65558479a8dac018742624e53e980363a04c68a5a4658e94d5b2194",
     "asset_state": "exported",
     "definition_name": "그룹#116",
     "class_guess": "person"
@@ -490,7 +490,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/ch6__4360625.skp",
-    "sha256": null,
+    "sha256": "cd6aa1cb370a231807f2e1dc23e5919e65df28798546994a015972ecfdbdac37",
     "asset_state": "exported",
     "definition_name": "ch6",
     "class_guess": "furniture"
@@ -507,7 +507,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/Component18__4577820.skp",
-    "sha256": null,
+    "sha256": "e60db092c64ef0f1cdc95beabfde89e00ccd7740556b0cce115fd13d82a4d2a9",
     "asset_state": "exported",
     "definition_name": "Component18",
     "class_guess": "person"
@@ -524,7 +524,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/beam/그룹_89__1171922.skp",
-    "sha256": null,
+    "sha256": "f0654da345ac08b9067b6803eaed73c225ae7119ba93ac3aaf5ba3987f250e6f",
     "asset_state": "exported",
     "definition_name": "그룹#89",
     "class_guess": "beam"
@@ -541,7 +541,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_201__511546.skp",
-    "sha256": null,
+    "sha256": "5a2b8c4a138d95d0d3344fbd3219b1b1e28448683074aa7b19e98e27bb010414",
     "asset_state": "exported",
     "definition_name": "그룹#201",
     "class_guess": "building"
@@ -558,7 +558,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/column/col__2004749.skp",
-    "sha256": null,
+    "sha256": "ca812c6d7fcae22840c3b11af30220eebaa85f49fcb93c85b423b4ee83c18f9f",
     "asset_state": "exported",
     "definition_name": "col",
     "class_guess": "column"
@@ -575,7 +575,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/site-container/학장동_skp.dwg__30598.skp",
-    "sha256": null,
+    "sha256": "1352856ae28a00db3a26e2a59f86ec7cdb30b28fe5c87bd7584d7fd36a702e10",
     "asset_state": "exported",
     "definition_name": "학장동 skp.dwg",
     "class_guess": "site-container"
@@ -592,7 +592,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/ch5__4360622.skp",
-    "sha256": null,
+    "sha256": "7f3c26c912ac14a04ea18f7297642a3ea2d213d8e6271f20884c7fc00cd26f6d",
     "asset_state": "exported",
     "definition_name": "ch5",
     "class_guess": "furniture"
@@ -609,7 +609,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/person/그룹_110__4577817.skp",
-    "sha256": null,
+    "sha256": "0d664def3352970c6e7066418c17a2ef52ed3f1ec96fada3dbb346a8c92d690c",
     "asset_state": "exported",
     "definition_name": "그룹#110",
     "class_guess": "person"
@@ -626,7 +626,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/paving/그룹_5__4073100.skp",
-    "sha256": null,
+    "sha256": "a1f7b5448d0b75af8ef409df59fc87464877c142646c8528278315b44fd25a81",
     "asset_state": "exported",
     "definition_name": "그룹#5",
     "class_guess": "paving"
@@ -643,7 +643,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_2__4073103.skp",
-    "sha256": null,
+    "sha256": "74c932833b65ba705cdfcb023cf4643c9e0c3caa01f7bc66306c6b8d52542f46",
     "asset_state": "exported",
     "definition_name": "그룹#2",
     "class_guess": "unclassified"
@@ -660,7 +660,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_105__1458557.skp",
-    "sha256": null,
+    "sha256": "224b4927ab64cab3412cb1ae24660677f4c1fdf214b0cc9f125f80958de671cf",
     "asset_state": "exported",
     "definition_name": "그룹#105",
     "class_guess": "building"
@@ -677,7 +677,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_34__90359.skp",
-    "sha256": null,
+    "sha256": "fa326c1cffb04bbd66773bea1c3270f9279838d720089f848c80e3e852cc1faa",
     "asset_state": "exported",
     "definition_name": "그룹#34",
     "class_guess": "retaining-wall"
@@ -694,7 +694,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_217__4577809.skp",
-    "sha256": null,
+    "sha256": "617c8a9db525f7ac26c4901470122b834d1867f9340b4ee6f1dc355328ab8e97",
     "asset_state": "exported",
     "definition_name": "그룹#217",
     "class_guess": "building"
@@ -711,7 +711,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹53_1__5135552.skp",
-    "sha256": null,
+    "sha256": "ce4972d2bac271b6af2126aa5dd67ba7f54c4c213f5f9577d48fd09f5dea6e1c",
     "asset_state": "exported",
     "definition_name": "그룹53#1",
     "class_guess": "handrail"
@@ -728,7 +728,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/building/그룹_161__4577805.skp",
-    "sha256": null,
+    "sha256": "4c465060975bd72b76a5459c473493f3376a777f1e3dd6b14762e211b9aad58a",
     "asset_state": "exported",
     "definition_name": "그룹#161",
     "class_guess": "building"
@@ -745,7 +745,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/furniture/그룹_232__4360631.skp",
-    "sha256": null,
+    "sha256": "951485933664e403331a8fb5ca8a7d9f0e5135c442f0f890a180212ed15b862d",
     "asset_state": "exported",
     "definition_name": "그룹#232",
     "class_guess": "furniture"
@@ -762,7 +762,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹_67__4577813.skp",
-    "sha256": null,
+    "sha256": "ee7570a3549aa960bc8d904cf4f0f01f5c92bc27b8c827c5fed8817968f0d0c6",
     "asset_state": "exported",
     "definition_name": "그룹#67",
     "class_guess": "handrail"
@@ -779,7 +779,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_42__4580639.skp",
-    "sha256": null,
+    "sha256": "9cd3505e6ee0bba7670bbeb5094f4b6d424ea7a6bb48af70564d945a946ff543",
     "asset_state": "exported",
     "definition_name": "그룹#42",
     "class_guess": "terrain"
@@ -796,7 +796,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/curtain-wall/그룹_54__4915226.skp",
-    "sha256": null,
+    "sha256": "a4781d82ba4890dfdb69b97a77df02de7460254febf87515dbf226857d4d08ff",
     "asset_state": "exported",
     "definition_name": "그룹#54",
     "class_guess": "curtain-wall"
@@ -813,7 +813,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/floor-slab/그룹_103__4577799.skp",
-    "sha256": null,
+    "sha256": "2bbf878f80fc3316026593a9c696aab2e8c4b0246fbafc1823910a5854f29771",
     "asset_state": "exported",
     "definition_name": "그룹#103",
     "class_guess": "floor-slab"
@@ -830,7 +830,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/tree/그룹_65__800070.skp",
-    "sha256": null,
+    "sha256": "1afcd9e8caac5c1f00824d6e34e7bc7b7d940a18b13928a1002f5c114b98e1ac",
     "asset_state": "exported",
     "definition_name": "그룹#65",
     "class_guess": "tree"
@@ -847,7 +847,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/paving/그룹_40__125433.skp",
-    "sha256": null,
+    "sha256": "6f956bdea8807e0e0b55c2db6281f7e5dcd28fca900e2c7cc3350af0f86a3d5c",
     "asset_state": "exported",
     "definition_name": "그룹#40",
     "class_guess": "paving"
@@ -864,7 +864,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_102__1245859.skp",
-    "sha256": null,
+    "sha256": "9e4df73d0acd7f4a45a9e79aca6c4e0f6c14c0cc24fd0dda7055a79d5dae00ec",
     "asset_state": "exported",
     "definition_name": "그룹#102",
     "class_guess": "terrain"
@@ -881,7 +881,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_125__4577808.skp",
-    "sha256": null,
+    "sha256": "e9aeecbeaea0bf7b4adde445e96916f2fa47ad15ddef0428294670ef30b42a65",
     "asset_state": "exported",
     "definition_name": "그룹#125",
     "class_guess": "unclassified"
@@ -898,7 +898,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_90__4577807.skp",
-    "sha256": null,
+    "sha256": "80f1cb837ac84f429829d6252d00c0228ba3d7be2eac7682bc4744e196b313be",
     "asset_state": "exported",
     "definition_name": "그룹#90",
     "class_guess": "unclassified"
@@ -915,7 +915,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/handrail/그룹36_1__5135416.skp",
-    "sha256": null,
+    "sha256": "2cafef917264f295ac4f5bb2fcc2838b8bb2398c5f0810e6fe3e1898abfe1e34",
     "asset_state": "exported",
     "definition_name": "그룹36#1",
     "class_guess": "handrail"
@@ -932,7 +932,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_14__4073106.skp",
-    "sha256": null,
+    "sha256": "2e07030a5a85016d4b72a60692bb938718e0533470de2b134b9e8fca8ebcfca8",
     "asset_state": "exported",
     "definition_name": "그룹#14",
     "class_guess": "retaining-wall"
@@ -949,7 +949,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/terrain/그룹_44__4580640.skp",
-    "sha256": null,
+    "sha256": "943f0336ce08c66a8d5c7136cae89f4a07fbcd74808c4f6aeb734ac897fce087",
     "asset_state": "exported",
     "definition_name": "그룹#44",
     "class_guess": "terrain"
@@ -966,7 +966,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/exterior-stair/그룹_18__47944.skp",
-    "sha256": null,
+    "sha256": "5d861ca78aace9d7705e189483ec6c7918e94a82d05967e08a59c92879bcec77",
     "asset_state": "exported",
     "definition_name": "그룹#18",
     "class_guess": "exterior-stair"
@@ -983,7 +983,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/wall/그룹_37__5135581.skp",
-    "sha256": null,
+    "sha256": "9a00fc6530f20616312e68c0ddf51780ea29654baa494bda18eb7e1ae5ada7cb",
     "asset_state": "exported",
     "definition_name": "그룹#37",
     "class_guess": "wall"
@@ -1000,7 +1000,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/beam/그룹_225__4577837.skp",
-    "sha256": null,
+    "sha256": "508ca69216fdfaaa2344b91a201637548e81926ba9175ae09e1e509a9100f310",
     "asset_state": "exported",
     "definition_name": "그룹#225",
     "class_guess": "beam"
@@ -1017,7 +1017,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/road-plan-surface/그룹_7__4073102.skp",
-    "sha256": null,
+    "sha256": "d4b569bb8b683760c2c29f4ffc6151deba025cdae128b064794016d736f25a29",
     "asset_state": "exported",
     "definition_name": "그룹#7",
     "class_guess": "road-plan-surface"
@@ -1034,7 +1034,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/floor-slab/그룹_202__4577802.skp",
-    "sha256": null,
+    "sha256": "3f80cf7bac4d24dc3da3785adb346bea5bfe023493a26bf089aaec5636cadcb5",
     "asset_state": "exported",
     "definition_name": "그룹#202",
     "class_guess": "floor-slab"
@@ -1051,7 +1051,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/retaining-wall/그룹_6__4073101.skp",
-    "sha256": null,
+    "sha256": "6c2f984901486006514f42d0b2dae20a3ba299ea298c160816f64e224e384320",
     "asset_state": "exported",
     "definition_name": "그룹#6",
     "class_guess": "retaining-wall"
@@ -1068,7 +1068,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/unclassified/그룹_71__4577804.skp",
-    "sha256": null,
+    "sha256": "3670e362ea85550c849da8f5f664229f2622c1cbbde3ad1e632743d4a59bb198",
     "asset_state": "exported",
     "definition_name": "그룹#71",
     "class_guess": "unclassified"
@@ -1085,7 +1085,7 @@
    "properties": {
     "node_kind": "su_asset",
     "asset_path": "objects/planter/그룹_73__4577841.skp",
-    "sha256": null,
+    "sha256": "ea8394274aa758cbff757f1f7803e5ef170d3adb366735b8ba1dc6c0292f273c",
     "asset_state": "exported",
     "definition_name": "그룹#73",
     "class_guess": "planter"
