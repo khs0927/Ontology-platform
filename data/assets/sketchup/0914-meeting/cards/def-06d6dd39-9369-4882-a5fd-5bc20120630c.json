@@ -1,0 +1,131 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:06d6dd39-9369-4882-a5fd-5bc20120630c",
+ "basis_ko": "사용 인스턴스 0개(instances=1) — 루트에서 도달 불가",
+ "block": false,
+ "card_kind": "definition",
+ "class": "unused-definition",
+ "confidence": 0.7,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuildingElementProxy",
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "NOTDEFINED"
+ },
+ "level": null,
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 0,
+  "entity_counts": {
+   "Edge": 36,
+   "Face": 16
+  },
+  "face_area_m2": 11.135,
+  "height_mm": 1000.0,
+  "length_mm": 6238.1,
+  "thickness_mm": 1000.0,
+  "width_mm": 2832.2
+ },
+ "provenance": {
+  "classification": "build_bim_cards.py rule",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/unused-definition.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-inspect",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info",
+     "hueflow.list_entities",
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-verify-cleanup",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.list_components",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "tags",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "sketchup-mcp2.create_layer",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cleanup",
+    "tools": [
+     "hueflow.list_components",
+     "sketchup-mcp2.find_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "none",
+  "method_ko": "사용되지 않는 정의(purge 대상)",
+  "nesting": "definition",
+  "ruby_hint": "purge_unused (사람 승인 후)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#75",
+  "guid": "su-guid:06d6dd39-9369-4882-a5fd-5bc20120630c",
+  "instance_pids": [],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 0
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "(purge 후보)"
+ }
+}

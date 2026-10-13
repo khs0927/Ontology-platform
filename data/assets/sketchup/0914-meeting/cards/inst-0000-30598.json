@@ -1,0 +1,236 @@
+{
+ "asset_file": {
+  "bytes": 2298116,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "1352856ae28a00db3a26e2a59f86ec7cdb30b28fe5c87bd7584d7fd36a702e10",
+  "skp": "objects/site-container/학장동_skp.dwg__30598.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/site-container/학장동_skp.dwg__30598.png",
+  "thumbnail_sha256": "0c32e00f67928e7d6e3cc10e8b03345f144ffb41493bf0e5f1a4f73278b0eb90"
+ },
+ "asset_id": "su-inst:0914-meeting:30598@0",
+ "basis_ko": "정의 카드 su-def:0914-meeting:9dd020dc-3206-4373-86cf-487555f57491 분류 상속: 정의 이름이 .dwg로 끝나는 CAD 가져오기 컴포넌트, 도로계획 태그 모서리 88개, 하위 그룹 8개(지형·포장·옹벽), 월드 크기 97.9×64.1×22.0 m로 모델 대부분을 차지, Z축 4.09° 회전 배치",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "site-container",
+ "confidence": 0.8,
+ "definition_ref": "su-def:0914-meeting:9dd020dc-3206-4373-86cf-487555f57491",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSite",
+  "entity": "IfcSite",
+  "predefined_type": null
+ },
+ "level": {
+  "base_z_mm": -9500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 2046,
+  "height_mm": 21994.9,
+  "length_mm": 97855.7,
+  "thickness_mm": 21994.9,
+  "transformation": [
+   0.99745,
+   0.0714,
+   -0.0,
+   0.0,
+   -0.0714,
+   0.99745,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   149.31357,
+   -271.4982,
+   0.0,
+   1.0
+  ],
+  "width_mm": 64115.9,
+  "world_bbox_mm": {
+   "max": [
+    98721.8,
+    56332.9,
+    12494.9
+   ],
+   "min": [
+    866.1,
+    -7783.1,
+    -9500.0
+   ],
+   "size": [
+    97855.7,
+    64115.9,
+    21994.9
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/site-container.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "grouping-overview",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "cad-host-nesting",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "rotated-frames",
+    "tools": [
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "definition-origin",
+    "tools": [
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-inspect",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info",
+     "hueflow.list_entities",
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-cad-host",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-verify-cleanup",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.list_components",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "overview",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "units-origin",
+    "tools": [
+     "hueflow.get_model_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.get_model_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cad-import",
+    "tools": [
+     "hueflow.list_components",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "terrain",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "cad-import",
+  "method_ko": "CAD(dwg) 가져오기 컴포넌트를 호스트로 두고 하위 그룹으로 부위를 나눔",
+  "nesting": "depth-0",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "ComponentInstance"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "학장동 skp.dwg",
+  "depth": 0,
+  "hierarchy_locator": "$.nodes[0]",
+  "name": null,
+  "occurrence": 0,
+  "parent_pid": null,
+  "path": "학장동 skp.dwg",
+  "pid": 30598,
+  "type": "ComponentInstance"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "Layer0→CAD-참조"
+ }
+}
