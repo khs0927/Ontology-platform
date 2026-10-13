@@ -31,3 +31,19 @@ uv run python -m sion_ingestion.sketchup_assets build --check  # CI-style freshn
 ```
 
 See `docs/SKETCHUP_KNOWLEDGE.md` for the graph layout and the ingest path.
+
+## 객체별 온톨로지(블록 규칙·자산·레벨)
+
+```bash
+# SketchUp(읽기 전용): SION_SU_OUT 폴더에 hierarchy.json, objects.json, objects/<분류>/*.skp 생성
+#   eval(File.read('scripts/sketchup/export_objects.rb'))
+python -m sion_ingestion.sketchup_ontology \
+  [--hierarchy data/sources/sketchup/0914-meeting/hierarchy.json] \
+  [--objects data/sources/sketchup/0914-meeting/objects.json]      # -> data/bootstrap/sketchup-0914-meeting.ontology.json
+python -m sion_ingestion.sketchup_ontology --check
+```
+
+- 나무·사람·차량·플랜터·가구·카운터·가져온 3D는 **블록 노드 하나**로만 기억(내부 형상 노드 생략, `collapsed_children`).
+- 최상위·2단계 객체와 모든 블록 노드는 `stored_as_asset` → `Artifact`(상대경로 `objects/<분류>/<정의>__<pid>.skp`, sha256). 매니페스트가 없으면 `asset_state=planned`.
+- 레벨(+5.0/+10.2/+14.6 m, ±400 mm)과 블록 판정은 `unverified` 후보 + `basis_ko`. 자동 승인 없음 → `/review`.
+- `.skp` 바이너리와 개인 절대경로는 커밋하지 않는다.
