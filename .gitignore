@@ -56,3 +56,6 @@ Thumbs.db
 bin/*.exe
 bin/sion-agent-bridge
 *.exe
+
+# derived SketchUp asset index (rebuild with python -m sion_ingestion.asset_index build)
+data/assets/sketchup/_index/*.sqlite*
