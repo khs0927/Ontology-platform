@@ -257,6 +257,34 @@ def build_ontology(
             class_candidate_basis_ko=a["basis_ko"],
             class_candidate_evidence=_ev(supplement_ref, f"$.assignments[{i}]"),
         )
+        if f"sketchup:class:{a['class']}" in nodes:
+            add_edge(
+                k,
+                "IMPLEMENTS",
+                f"sketchup:class:{a['class']}",
+                "classified_as_supplement",
+                _ev(supplement_ref, f"$.assignments[{i}]"),
+                inferred=True,
+                conf=a["confidence"],
+                basis=a["basis_ko"],
+            )
+
+    # 3d) block decisions as reviewable candidates
+    for r in block_roots:
+        k = by_path[r]
+        props = nodes[k]["properties"]
+        tgt = f"sketchup:class:{props['block_class']}"
+        if tgt in nodes:
+            add_edge(
+                k,
+                "IMPLEMENTS",
+                tgt,
+                "collapsed_as_block",
+                props.get("su_evidence", {}),
+                inferred=True,
+                conf=0.7,
+                basis=props["block_basis_ko"],
+            )
 
     # 4) assets
     sha_of = {f["file"]: f["sha256"] for f in (hashes or {}).get("files", [])}
