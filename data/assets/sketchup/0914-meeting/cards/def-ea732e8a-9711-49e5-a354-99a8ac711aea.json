@@ -1,0 +1,154 @@
+{
+ "asset_file": {
+  "bytes": 47181,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "5a3008e658d1f6d1ac0349d826b37af841768251827b442af4b4d9ba7ced2e4e",
+  "skp": "objects/paving/그룹_9__4072538.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/paving/그룹_9__4072538.png",
+  "thumbnail_sha256": "20ee4c61529e07423a090271b49a0d75ab3265819c059a4e5ad7402f1e9d629a"
+ },
+ "asset_id": "su-def:0914-meeting:ea732e8a-9711-49e5-a354-99a8ac711aea",
+ "basis_ko": "[Polished Concrete New] 면 180개, 단일 수평면 341.9 m², 월드 z -2500, 하위 그룹#8 포함",
+ "block": false,
+ "card_kind": "definition",
+ "class": "paving",
+ "confidence": 0.6,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSlab",
+  "entity": "IfcSlab",
+  "predefined_type": "PAVING"
+ },
+ "level": {
+  "base_z_mm": -2500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    238,
+    238,
+    242
+   ],
+   "sketchup_material": "[Polished Concrete New]",
+   "texture_file": "Polished Concrete New.jpg",
+   "texture_size_mm": [
+    3000.0,
+    3000.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 121,
+   "Face": 30,
+   "Group": 1
+  },
+  "face_area_m2": 341.925,
+  "height_mm": 0.0,
+  "length_mm": 41627.3,
+  "thickness_mm": 0.0,
+  "width_mm": 16800.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹#8"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/paving.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "cad-host-nesting",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-parts",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "parking",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#9",
+  "guid": "su-guid:ea732e8a-9711-49e5-a354-99a8ac711aea",
+  "instance_pids": [
+   4072538
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@3D-대지"
+ }
+}

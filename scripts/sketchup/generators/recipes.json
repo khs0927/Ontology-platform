@@ -1,0 +1,14 @@
+{
+  "schema": "sion-bim-recipes/1",
+  "generators": {
+    "column": "column_grid",
+    "slab": "slab",
+    "curtain-wall": "curtain_wall",
+    "glass-railing": "glass_railing",
+    "stair": "stair",
+    "retaining-wall": "retaining_wall",
+    "roof": "roof",
+    "parking-deck": "parking_deck",
+    "asset-block": "place_block"
+  }
+}

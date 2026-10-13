@@ -1,0 +1,265 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4071824@16",
+ "basis_ko": "정의 카드 su-def:0914-meeting:44e4ea8e-fea5-4cd8-8ebc-8f8b9793b456 분류 상속: 그룹 재질 기존조경, 수평 레벨 0/4400 mm, 크기 5.0×56.5×4.4 m",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "terrain",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:44e4ea8e-fea5-4cd8-8ebc-8f8b9793b456",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcGeographicElement",
+  "entity": "IfcGeographicElement",
+  "predefined_type": "TERRAIN"
+ },
+ "level": {
+  "base_z_mm": -6000.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    166,
+    173,
+    136
+   ],
+   "sketchup_material": "기존조경",
+   "texture_file": "Vegetation_Grass1.jpg",
+   "texture_size_mm": [
+    609.6,
+    609.6
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 6,
+  "height_mm": 4400.0,
+  "length_mm": 56464.7,
+  "thickness_mm": 4400.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   -260.9891,
+   1.0
+  ],
+  "width_mm": 4952.9,
+  "world_bbox_mm": {
+   "max": [
+    5819.0,
+    49687.8,
+    -1600.0
+   ],
+   "min": [
+    866.1,
+    -6777.0,
+    -6000.0
+   ],
+   "size": [
+    4952.9,
+    56464.7,
+    4400.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/terrain.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "grouping-overview",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-parts",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-markup",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.execute_ruby",
+     "hueflow.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "overview",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "terrain",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "mcp-execution",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.set_material",
+     "sketchup-mcp2.create_layer",
+     "sketchup-mcp2.export_scene",
+     "sketchup-mcp2.eval_ruby",
+     "sketchup-mcp2.undo",
+     "hueflow.execute_ruby",
+     "hueflow.create_box",
+     "hueflow.create_group",
+     "hueflow.place_component",
+     "hueflow.list_materials"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "faces-sandbox",
+  "method_ko": "등고선/점에서 면을 만들고(샌드박스·create_face) 단차별 그룹으로 묶음",
+  "nesting": "depth-3",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#11",
+  "depth": 3,
+  "hierarchy_locator": "$.nodes[16]",
+  "name": null,
+  "occurrence": 16,
+  "parent_pid": 4072539,
+  "path": "학장동 skp.dwg > 그룹#2 > 그룹#10 > 그룹#11",
+  "pid": 4071824,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@3D-대지"
+ }
+}

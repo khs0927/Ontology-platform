@@ -23,7 +23,7 @@ module ZiumRegroup0914
   TOP_TAGS = {
     30598 => 'CAD-참조', 47944 => '@stair', 90359 => '옹벽',
     125087 => '@3D-대지', 125433 => '@3D-대지', 1245541 => '@3D-대지', 1245859 => '@3D-대지',
-    800070 => 'Trees 3D', 511546 => 'A-본동', 1458557 => 'A-별동',
+    800070 => 'Trees 3D', 511546 => 'A-본동', 4577809 => 'A-별동', 1458557 => '@FUR',
     1171922 => 'S-STEEL COLUMN', 2004749 => 'S-STEEL COLUMN', 2004982 => 'S-STEEL COLUMN',
     2005214 => 'S-STEEL COLUMN', 2005446 => 'S-STEEL COLUMN',
     1181414 => '@win', 1249504 => 'WIP', 1249528 => 'WIP'
@@ -32,14 +32,18 @@ module ZiumRegroup0914
   TOP_NAMES = {
     30598 => 'SITE-CAD-학장동', 47944 => 'SITE-외부계단', 90359 => 'SITE-옹벽',
     125087 => 'SITE-조경-동측', 125433 => 'SITE-포장', 800070 => 'SITE-수목',
-    511546 => 'BLDG-본동', 1458557 => 'BLDG-별동', 1171922 => 'STR-보',
+    511546 => 'BLDG-본동', 4577809 => 'BLDG-별동', 1458557 => 'INT-1F-카페가구',
+    1171922 => 'STR-보',
     1249504 => 'WIP-0818-표식-1', 1249528 => 'WIP-0818-표식-2'
   }.freeze
 
   # 그룹#201 직계 자식 → 층 (하단 Z 기준). 그룹#202(4577802)는 분해 대상.
   BLDG_201 = 511546
   EXPLODE_202 = 4577802
-  BLDG_105_WRAPPER = 4905257 # 그룹#160
+  # 그룹#105(1458557)는 별동이 아니라 본동 1층과 겹치는 카페 FF&E 묶음입니다. 별동은 그룹#201 안의 그룹#217.
+  CAFE_105 = 1458557
+  BLDG_105_WRAPPER = 4905257 # 그룹#160 (그룹#105 래퍼)
+  ANNEX_217 = 4577809 # 그룹#217 별동(바닥 약 221 m2), 층 컨테이너로 옮기지 않고 그룹#201 직계로 유지
   TREE_PROXY = [800070, 4577839, 4577840, 4577841].freeze
   INNER_CAD_TAGS = ['도로계획', 'XCLINE', '@0818변경', '@win'].freeze
 
@@ -124,7 +128,7 @@ module ZiumRegroup0914
       containers[lv[:key]] = g
     end
     kids = ents.grep(Sketchup::Group) + ents.grep(Sketchup::ComponentInstance)
-    kids.reject! { |k| LEVELS.any? { |lv| k.name == lv[:name] } }
+    kids.reject! { |k| LEVELS.any? { |lv| k.name == lv[:name] } || k.persistent_id == ANNEX_217 }
     kids.each do |k|
       lv = level_for(k)
       log("  #{label(k)} zmin=#{(k.bounds.min.z / MM).round} → #{lv[:name]}")
@@ -134,7 +138,7 @@ module ZiumRegroup0914
   end
 
   def step_105(model)
-    log('== 4. 그룹#105 래퍼(그룹#160) 분해')
+    log('== 4. 그룹#105(카페 가구) 래퍼(그룹#160) 분해')
     w = find(model, BLDG_105_WRAPPER) or return
     log("  explode #{label(w)}")
     w.explode unless DRY_RUN

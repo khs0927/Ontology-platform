@@ -1,0 +1,257 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:5c9761c9-5595-445d-8095-a69853373851",
+ "basis_ko": "3D Warehouse ModelID 속성이 있는 780×634×879 mm 정의(미사용)",
+ "block": true,
+ "card_kind": "definition",
+ "class": "furniture",
+ "confidence": 0.4,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcFurniture",
+  "entity": "IfcFurniture",
+  "predefined_type": "CHAIR"
+ },
+ "level": null,
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    255,
+    255,
+    255
+   ],
+   "sketchup_material": "[Color_000]",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    38,
+    38,
+    38
+   ],
+   "sketchup_material": "재질70",
+   "texture_file": "24_dark brown wood matte texture.jpg",
+   "texture_size_mm": [
+    100.0,
+    100.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 0,
+  "entity_counts": {
+   "Edge": 5499,
+   "Face": 2603,
+   "Group": 1
+  },
+  "face_area_m2": 0.213,
+  "height_mm": 879.0,
+  "length_mm": 780.0,
+  "thickness_mm": 634.1,
+  "width_mm": 634.1
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹#114"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/furniture.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "grouping-overview",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "rotated-frames",
+    "tools": [
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "definition-origin",
+    "tools": [
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-repeats",
+    "tools": [
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.transform_component",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "furniture",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.find_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "scenes",
+    "tools": [
+     "sketchup-mcp2.export_scene",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "mcp-execution",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.set_material",
+     "sketchup-mcp2.create_layer",
+     "sketchup-mcp2.export_scene",
+     "sketchup-mcp2.eval_ruby",
+     "sketchup-mcp2.undo",
+     "hueflow.execute_ruby",
+     "hueflow.create_box",
+     "hueflow.create_group",
+     "hueflow.place_component",
+     "hueflow.list_materials"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "component"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "Componente",
+  "guid": "su-guid:5c9761c9-5595-445d-8095-a69853373851",
+  "instance_pids": [],
+  "instances": 0,
+  "kind": "component",
+  "source_file": "Componente.skp",
+  "used_instances": 0
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

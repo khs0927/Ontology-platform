@@ -1,0 +1,146 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:0fc7f847-2531-450c-8bb6-a47d453ad18b",
+ "basis_ko": "그룹#219를 담은 지붕 컨테이너",
+ "block": false,
+ "card_kind": "definition",
+ "class": "roof",
+ "confidence": 0.6,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRoof",
+  "entity": "IfcRoof",
+  "predefined_type": "FLAT_ROOF"
+ },
+ "level": {
+  "base_z_mm": 13829.7,
+  "elevation_mm": 14600.0,
+  "matched": false,
+  "name": "RF TOS +14600"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 1,
+   "Group": 1
+  },
+  "face_area_m2": 0.0,
+  "height_mm": 1620.5,
+  "length_mm": 25300.0,
+  "thickness_mm": 1620.5,
+  "width_mm": 24548.9
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹#219"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/roof.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-building-container",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.create_box",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "roof",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "hueflow.create_roof_truss"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#211",
+  "guid": "su-guid:0fc7f847-2531-450c-8bb6-a47d453ad18b",
+  "instance_pids": [
+   4361354
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "A-본동"
+ }
+}

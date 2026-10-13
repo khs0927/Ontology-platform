@@ -1,0 +1,80 @@
+{
+ "block": true,
+ "class": "planter",
+ "definition_count": 3,
+ "examples": [
+  "su-def:0914-meeting:4ac8ba31-641d-4a2f-b621-897f6ac17c93",
+  "su-def:0914-meeting:7988cbf4-9c09-4c68-bd8d-184ca046b14d",
+  "su-def:0914-meeting:d0b7f786-ab3e-4b85-bdbd-52c5f9a14b20"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-landscape-people",
+   "tools": [
+    "hueflow.place_component",
+    "sketchup-mcp2.transform_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "landscape",
+   "tools": [
+    "hueflow.place_component",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "블럭 객체는 내부를 분해하지 않고 한 컴포넌트로 저장·재사용"
+ ],
+ "ifc": {
+  "entity": "IfcGeographicElement",
+  "predefined_type": "USERDEFINED"
+ },
+ "label_ko": "플랜터(화분대)",
+ "material_categories": {},
+ "proposed_zium_tag": "Trees 3D",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 3231.1,
+   "median": 3086.5,
+   "min": 2435.8,
+   "n": 3
+  },
+  "length_mm": {
+   "max": 2814.0,
+   "median": 2812.7,
+   "min": 2249.9,
+   "n": 3
+  },
+  "thickness_mm": {
+   "max": 2813.8,
+   "median": 2435.8,
+   "min": 2245.3,
+   "n": 3
+  },
+  "width_mm": {
+   "max": 2813.8,
+   "median": 2812.5,
+   "min": 2245.3,
+   "n": 3
+  }
+ }
+}

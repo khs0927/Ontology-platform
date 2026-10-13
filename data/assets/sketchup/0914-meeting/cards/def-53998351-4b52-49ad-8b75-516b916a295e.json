@@ -1,0 +1,256 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:53998351-4b52-49ad-8b75-516b916a295e",
+ "basis_ko": "미사용 도곽(84,000×59,400 mm = A1 840×594의 100배), A-FORM·Layer 1·Defpoints 태그",
+ "block": false,
+ "card_kind": "definition",
+ "class": "cad-reference",
+ "confidence": 0.7,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcAnnotation",
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "level": null,
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    255,
+    255,
+    255
+   ],
+   "sketchup_material": "<auto>12",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    132,
+    132,
+    132
+   ],
+   "sketchup_material": "<auto>13",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    255,
+    0,
+    0
+   ],
+   "sketchup_material": "<auto>14",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    102,
+    204,
+    102
+   ],
+   "sketchup_material": "<auto>21",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    223,
+    255,
+    127
+   ],
+   "sketchup_material": "<auto>22",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    63,
+    95,
+    127
+   ],
+   "sketchup_material": "<auto>23",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    190,
+    84,
+    0
+   ],
+   "sketchup_material": "<auto>24",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    91,
+    91,
+    91
+   ],
+   "sketchup_material": "<auto>5",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 0,
+  "entity_counts": {
+   "Edge": 1928,
+   "Face": 9
+  },
+  "face_area_m2": 50.416,
+  "height_mm": 0.0,
+  "length_mm": 84000.0,
+  "thickness_mm": 0.0,
+  "width_mm": 59400.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/cad-reference.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "tags-on-raw-geometry",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "cad-host-nesting",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-cad-host",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-fins",
+    "tools": [
+     "hueflow.place_component",
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-verify-cleanup",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.list_components",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cad-import",
+    "tools": [
+     "hueflow.list_components",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "tags",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "sketchup-mcp2.create_layer",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cleanup",
+    "tools": [
+     "hueflow.list_components",
+     "sketchup-mcp2.find_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "cad-import",
+  "method_ko": "CAD(dwg) 가져오기 컴포넌트를 호스트로 두고 하위 그룹으로 부위를 나눔",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "component"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "ZIUM_sheet_architect",
+  "guid": "su-guid:53998351-4b52-49ad-8b75-516b916a295e",
+  "instance_pids": [],
+  "instances": 0,
+  "kind": "component",
+  "source_file": null,
+  "used_instances": 0
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "A-FORM",
+   "Defpoints",
+   "Layer 1"
+  ],
+  "proposed_zium": "CAD-참조"
+ }
+}

@@ -1,0 +1,147 @@
+{
+ "asset_file": {
+  "bytes": 18341,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "a81db61dcb6842f06d0ed6e4dff569550d67cd0cdbb31f96cc5cd91688bec486",
+  "skp": "objects/exterior-stair/그룹_19__5135415.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/exterior-stair/그룹_19__5135415.png",
+  "thumbnail_sha256": "07200353fa5fa7ade87b54a9f1023f83386b5f0eb601fc89b3100bb94006e09f"
+ },
+ "asset_id": "su-def:0914-meeting:7dc1721f-4ce9-46f9-ab44-b99e287e0da2",
+ "basis_ko": "이름 'Raise', 수평 디딤면 14개가 166.7 mm 간격(167~2333 mm), 1333 mm에 넓은 참(3.28 m²), 총 높이 2500 mm",
+ "block": false,
+ "card_kind": "definition",
+ "class": "exterior-stair",
+ "confidence": 0.8,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcStair",
+  "entity": "IfcStair",
+  "predefined_type": "STRAIGHT_RUN_STAIR"
+ },
+ "level": {
+  "base_z_mm": -2500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    238,
+    238,
+    242
+   ],
+   "sketchup_material": "[Polished Concrete New]",
+   "texture_file": "Polished Concrete New.jpg",
+   "texture_size_mm": [
+    3000.0,
+    3000.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 88,
+   "Face": 29
+  },
+  "face_area_m2": 14.952,
+  "height_mm": 2500.0,
+  "length_mm": 5700.0,
+  "thickness_mm": 1823.4,
+  "width_mm": 1823.4
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/exterior-stair.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "array",
+  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#19",
+  "guid": "su-guid:7dc1721f-4ce9-46f9-ab44-b99e287e0da2",
+  "instance_pids": [
+   5135415
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

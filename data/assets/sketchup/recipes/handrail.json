@@ -1,0 +1,159 @@
+{
+ "block": false,
+ "class": "handrail",
+ "definition_count": 20,
+ "examples": [
+  "su-def:0914-meeting:003f6055-3971-4fd9-8643-449025023e8f",
+  "su-def:0914-meeting:004f2082-52b4-455b-b80f-e5f39e29bc06",
+  "su-def:0914-meeting:0e5c77c1-8973-46c7-ac10-550de79c120c",
+  "su-def:0914-meeting:1c0af707-ccdf-4d42-8293-9631fb92544b",
+  "su-def:0914-meeting:351e618f-d9f5-4f9d-9bb7-81defd4b3c86",
+  "su-def:0914-meeting:36b57b40-7ed8-4d36-a296-ccd74ea0f74f",
+  "su-def:0914-meeting:3efcba87-b20a-45a9-8afd-ad74b11ba965",
+  "su-def:0914-meeting:5bc86336-44b0-472a-974a-8a65f9e7cb88",
+  "su-def:0914-meeting:61784171-cce4-4bf4-ba49-0d5828d30a4b",
+  "su-def:0914-meeting:6b27f60d-7426-48b9-9cde-dfbbc2ec5c3f"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "component-for-repeats",
+   "tools": [
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "sketchup-mcp2.create_component",
+    "hueflow.place_component"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "default-naming",
+   "tools": [
+    "sketchup-mcp2.list_components",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "tags-on-raw-geometry",
+   "tools": [
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_layers",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-site-assemblies",
+   "tools": [
+    "hueflow.create_group",
+    "hueflow.move_entity",
+    "hueflow.rotate_entity",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-repeats",
+   "tools": [
+    "sketchup-mcp2.create_component",
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.transform_component",
+    "hueflow.place_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "tags",
+   "tools": [
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_layers",
+    "sketchup-mcp2.create_layer",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "group-component",
+   "tools": [
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "hueflow.list_components",
+    "hueflow.place_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "exterior-stair",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.create_face",
+    "hueflow.push_pull"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "railing",
+   "tools": [
+    "hueflow.follow_me",
+    "hueflow.execute_ruby",
+    "hueflow.create_circle"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "단면(원/사각)을 경로를 따라 Follow-Me로 쓸어 만듦",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcRailing",
+  "predefined_type": "HANDRAIL"
+ },
+ "label_ko": "난간·핸드레일",
+ "material_categories": {
+  "paint-or-colour": 1
+ },
+ "proposed_zium_tag": "@stair",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 5965.0,
+   "median": 1750.0,
+   "min": 889.0,
+   "n": 20
+  },
+  "length_mm": {
+   "max": 14415.0,
+   "median": 5827.3,
+   "min": 15.0,
+   "n": 20
+  },
+  "thickness_mm": {
+   "max": 2778.0,
+   "median": 37.0,
+   "min": 0.0,
+   "n": 20
+  },
+  "width_mm": {
+   "max": 2778.0,
+   "median": 37.0,
+   "min": 0.0,
+   "n": 20
+  }
+ }
+}

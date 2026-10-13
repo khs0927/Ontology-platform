@@ -1,0 +1,164 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:7920f213-dec1-4cae-b163-7efa9fb0675e",
+ "basis_ko": "225×225 mm 2D 선 블록, 인스턴스 태그 DIM(치수/레벨 심볼로 추정), 미사용 CAD 정의 안에만 배치",
+ "block": false,
+ "card_kind": "definition",
+ "class": "annotation",
+ "confidence": 0.5,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcAnnotation",
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "level": null,
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    255,
+    255,
+    255
+   ],
+   "sketchup_material": "<auto>12",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    255,
+    0,
+    0
+   ],
+   "sketchup_material": "<auto>14",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "auto-generated (purge 후보)",
+   "colour_rgb": [
+    255,
+    0,
+    255
+   ],
+   "sketchup_material": "<auto>8",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 0,
+  "entity_counts": {
+   "Edge": 198
+  },
+  "face_area_m2": 0.0,
+  "height_mm": 0.0,
+  "length_mm": 225.0,
+  "thickness_mm": 0.0,
+  "width_mm": 225.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/annotation.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "tags-on-raw-geometry",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-markup",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.execute_ruby",
+     "hueflow.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cad-import",
+    "tools": [
+     "hueflow.list_components",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "tags",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "sketchup-mcp2.create_layer",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "annotation",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "2d",
+  "method_ko": "선·문자 등 2D 작업 표식",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "component"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "gfhfhgh",
+  "guid": "su-guid:7920f213-dec1-4cae-b163-7efa9fb0675e",
+  "instance_pids": [],
+  "instances": 24,
+  "kind": "component",
+  "source_file": null,
+  "used_instances": 0
+ },
+ "tag": {
+  "current": [
+   "DIM"
+  ],
+  "inner_layers": [
+   "DIM",
+   "Layer0"
+  ],
+  "proposed_zium": "@DIM"
+ }
+}

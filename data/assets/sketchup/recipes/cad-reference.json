@@ -1,0 +1,155 @@
+{
+ "block": false,
+ "class": "cad-reference",
+ "definition_count": 17,
+ "examples": [
+  "su-def:0914-meeting:1915f5dc-6ff6-4b9e-bb30-8db8024bb311",
+  "su-def:0914-meeting:4a3c2fa4-9aab-49f4-8e9b-d83601f5d3b6",
+  "su-def:0914-meeting:53998351-4b52-49ad-8b75-516b916a295e",
+  "su-def:0914-meeting:5ae57ca8-2956-4ca3-a066-f431bd718d6f",
+  "su-def:0914-meeting:5bbbe29c-cadd-432e-b1ef-1dedce0ff289",
+  "su-def:0914-meeting:5bc33628-d6eb-4d32-addd-1655865a374a",
+  "su-def:0914-meeting:5d8b90c7-4d65-4274-b769-b7f736949c7f",
+  "su-def:0914-meeting:8355a196-cc49-4b74-854d-c2b92e2256d7",
+  "su-def:0914-meeting:87179f8a-5dbc-41be-a95a-21b0009b8a2f",
+  "su-def:0914-meeting:a71000c2-e853-4ceb-9748-870c5624f892"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "tags-on-raw-geometry",
+   "tools": [
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_layers",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "cad-host-nesting",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "sketchup-mcp2.get_component_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "working-markup",
+   "tools": [
+    "hueflow.list_layers",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-cad-host",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.rotate_entity",
+    "sketchup-mcp2.get_component_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-fins",
+   "tools": [
+    "hueflow.place_component",
+    "hueflow.rotate_entity",
+    "sketchup-mcp2.get_component_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-verify-cleanup",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.list_components",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.list_layers"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "cad-import",
+   "tools": [
+    "hueflow.list_components",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "tags",
+   "tools": [
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_layers",
+    "sketchup-mcp2.create_layer",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "cleanup",
+   "tools": [
+    "hueflow.list_components",
+    "sketchup-mcp2.find_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "CAD(dwg) 가져오기 컴포넌트를 호스트로 두고 하위 그룹으로 부위를 나눔",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "label_ko": "CAD 2D 참조 정의",
+ "material_categories": {
+  "auto-generated (purge 후보)": 62
+ },
+ "proposed_zium_tag": "CAD-참조",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 3200.0,
+   "median": 0.0,
+   "min": 0.0,
+   "n": 17
+  },
+  "length_mm": {
+   "max": 13681634.0,
+   "median": 5432.6,
+   "min": 203.4,
+   "n": 17
+  },
+  "thickness_mm": {
+   "max": 3200.0,
+   "median": 0.0,
+   "min": 0.0,
+   "n": 17
+  },
+  "width_mm": {
+   "max": 11109666.6,
+   "median": 950.1,
+   "min": 67.0,
+   "n": 17
+  }
+ }
+}

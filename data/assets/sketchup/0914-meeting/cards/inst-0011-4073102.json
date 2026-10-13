@@ -1,0 +1,157 @@
+{
+ "asset_file": {
+  "bytes": 10179,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "d4b569bb8b683760c2c29f4ffc6151deba025cdae128b064794016d736f25a29",
+  "skp": "objects/road-plan-surface/그룹_7__4073102.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/road-plan-surface/그룹_7__4073102.png",
+  "thumbnail_sha256": "1ee8596143ca676063fb46d86e1d45dea43557aea6fffaaf53daf87541464e9f"
+ },
+ "asset_id": "su-inst:0914-meeting:4073102@11",
+ "basis_ko": "정의 카드 su-def:0914-meeting:d7486c8b-d2b7-48ea-97ca-bf1051480cfb 분류 상속: <auto> 재질 면 2개, 도로계획 태그 모서리 21개, 두께 0인 평면 8.9×34.4 m (z 0)",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "road-plan-surface",
+ "confidence": 0.6,
+ "definition_ref": "su-def:0914-meeting:d7486c8b-d2b7-48ea-97ca-bf1051480cfb",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcGeographicElement",
+  "entity": "IfcGeographicElement",
+  "predefined_type": "USERDEFINED"
+ },
+ "level": {
+  "base_z_mm": 0.0,
+  "elevation_mm": 0.0,
+  "matched": true,
+  "name": "GL ±0"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 2,
+  "height_mm": 0.0,
+  "length_mm": 34417.1,
+  "thickness_mm": 0.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   1485.98806,
+   162.11061,
+   0.0,
+   1.0
+  ],
+  "width_mm": 8904.3,
+  "world_bbox_mm": {
+   "max": [
+    47620.1,
+    34323.0,
+    0.0
+   ],
+   "min": [
+    38715.8,
+    -94.0,
+    0.0
+   ],
+   "size": [
+    8904.3,
+    34417.1,
+    0.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/road-plan-surface.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "tags-on-raw-geometry",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "cad-host-nesting",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-parts",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cad-import",
+    "tools": [
+     "hueflow.list_components",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "parking",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   }
+  ],
+  "method": "cad-import",
+  "method_ko": "CAD(dwg) 가져오기 컴포넌트를 호스트로 두고 하위 그룹으로 부위를 나눔",
+  "nesting": "depth-1",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#7",
+  "depth": 1,
+  "hierarchy_locator": "$.nodes[11]",
+  "name": null,
+  "occurrence": 11,
+  "parent_pid": 30598,
+  "path": "학장동 skp.dwg > 그룹#7",
+  "pid": 4073102,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "도로계획"
+ }
+}

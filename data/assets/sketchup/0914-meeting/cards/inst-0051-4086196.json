@@ -1,0 +1,206 @@
+{
+ "asset_file": {
+  "bytes": 37850,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "df1dfa073c052c5233b2ad12d8cf0e3d32fb91ee04c0c6359d18865422b17c8c",
+  "skp": "objects/handrail/그룹359_1__4086196.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/handrail/그룹359_1__4086196.png",
+  "thumbnail_sha256": "593ce93f89df6522308fc05a3fc2c9844f0bf0602b948895f9707639324cf3ad"
+ },
+ "asset_id": "su-inst:0914-meeting:4086196@51",
+ "basis_ko": "정의 카드 su-def:0914-meeting:6b27f60d-7426-48b9-9cde-dfbbc2ec5c3f 분류 상속: 두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "handrail",
+ "confidence": 0.4,
+ "definition_ref": "su-def:0914-meeting:6b27f60d-7426-48b9-9cde-dfbbc2ec5c3f",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRailing",
+  "entity": "IfcRailing",
+  "predefined_type": "HANDRAIL"
+ },
+ "level": {
+  "base_z_mm": 9350.0,
+  "elevation_mm": 10200.0,
+  "matched": false,
+  "name": "2 FL +10200"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 105,
+  "height_mm": 1300.0,
+  "length_mm": 2762.0,
+  "thickness_mm": 44.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   -5689.29134,
+   12891.49606,
+   -47.24409,
+   1.0
+  ],
+  "width_mm": 44.0,
+  "world_bbox_mm": {
+   "max": [
+    84428.3,
+    8813.4,
+    10650.0
+   ],
+   "min": [
+    84384.3,
+    6051.4,
+    9350.0
+   ],
+   "size": [
+    44.0,
+    2762.0,
+    1300.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/handrail.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "tags-on-raw-geometry",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-repeats",
+    "tools": [
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.transform_component",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "tags",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "sketchup-mcp2.create_layer",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "railing",
+    "tools": [
+     "hueflow.follow_me",
+     "hueflow.execute_ruby",
+     "hueflow.create_circle"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "follow-me",
+  "method_ko": "단면(원/사각)을 경로를 따라 Follow-Me로 쓸어 만듦",
+  "nesting": "depth-2",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹359#1",
+  "depth": 2,
+  "hierarchy_locator": "$.nodes[51]",
+  "name": null,
+  "occurrence": 51,
+  "parent_pid": 4577838,
+  "path": "그룹#201 > 그룹#258 > 그룹359#1",
+  "pid": 4086196,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}
