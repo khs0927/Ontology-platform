@@ -47,3 +47,10 @@ python -m sion_ingestion.sketchup_ontology --check
 - 최상위·2단계 객체와 모든 블록 노드는 `stored_as_asset` → `Artifact`(상대경로 `objects/<분류>/<정의>__<pid>.skp`, sha256). 매니페스트가 없으면 `asset_state=planned`.
 - 레벨(+5.0/+10.2/+14.6 m, ±400 mm)과 블록 판정은 `unverified` 후보 + `basis_ko`. 자동 승인 없음 → `/review`.
 - `.skp` 바이너리와 개인 절대경로는 커밋하지 않는다.
+
+## Exception: `regroup_0914.rb` (writes only when explicitly enabled)
+
+`regroup_0914.rb` implements [`docs/sketchup/0914-REGROUP-PLAN.ko.md`](../../docs/sketchup/0914-REGROUP-PLAN.ko.md).
+It defaults to `DRY_RUN = true` and only prints planned operations. With `DRY_RUN = false` it wraps all changes in one
+`model.start_operation` (one Ctrl+Z). `PURGE`, `APPLY_NAMES` and `FIX_INNER_TAGS` are separate flags, off by default.
+Agents must not run it with `DRY_RUN = false`; a human saves a copy of the model first.
