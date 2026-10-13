@@ -138,10 +138,10 @@ def guides(doc_dir: Path):
     return out
 
 
-def build(model: str):
+def build(model: str, hierarchy: Path | None = None):
     d = SRC / model
     dump = load(d / "model_dump.json")
-    hier = load(d / "hierarchy.json")["nodes"]
+    hier = load(hierarchy or d / "hierarchy.json")["nodes"]
     objs = load(d / "objects.json")["objects"]
     sha = {f["file"]: f for f in load(d / "objects_sha.json")["files"]}
     cls_def = {a["definition"]: a for a in load(d / "classification.json")["assignments"]}
@@ -327,9 +327,19 @@ def dumps(o):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="0914-meeting")
+    ap.add_argument("--hierarchy", type=Path, help="alternate hierarchy.json (e.g. fresh re-dump); "
+                    "nodes missing vs the stored hierarchy are written to deleted.json")
     ap.add_argument("--check", action="store_true", help="fail if outputs are stale")
     a = ap.parse_args(argv)
-    cards, dump, hier, gd = build(a.model)
+    cards, dump, hier, gd = build(a.model, a.hierarchy)
+    base_hier = load(SRC / a.model / "hierarchy.json")["nodes"]
+    live = {n["pid"] for n in hier}
+    gone = [n for n in base_hier if n["pid"] not in live]
+    used = {n["definition"] for n in hier}
+    lost = {n["definition"] for n in gone} - used  # definitions whose every placement was deleted
+    n_before = len(cards)
+    cards = [c for c in cards if c["card_kind"] == "instance" or c["source"]["definition"] not in lost]
+    n_lost_def_cards = n_before - len(cards)
     labels = {c["id"]: c["label_ko"] for c in load(SRC / "object-classes.json")["classes"]}
     files = {}
     base = OUT / a.model
@@ -342,17 +352,26 @@ def main(argv=None):
     n_inner_def = sum(all(x.get("inside_block") for x in ns) for ns in
                       [[n for n in hier if n["definition"] == d["name"]] for d in dump["definitions"]] if ns)
     n_inner_occ = sum(bool(n.get("inside_block")) for n in hier)
-    exp = len(dump["definitions"]) - n_inner_def + len(hier) - n_inner_occ
+    exp = len(dump["definitions"]) - n_inner_def - n_lost_def_cards + len(hier) - n_inner_occ
     cov = {"model": a.model, "rule_ko": "블럭(나무·사람·가구 등)=객체 1개=카드 1개, 블럭 내부 정의·부품은 카드 없음",
            "definitions_total": len(dump["definitions"]), "definitions_inside_blocks_only": n_inner_def,
            "definition_cards": nd, "occurrences_total": len(hier), "occurrences_inside_blocks": n_inner_occ,
-           "instance_cards": ni, "expected_cards": exp,
+           "instance_cards": ni, "deleted_occurrences": len(gone), "deleted_definition_cards": n_lost_def_cards,
+           "expected_cards": exp,
            "coverage_pct": round(100.0 * (nd + ni) / exp, 2),
            "with_asset_file": sum(bool(c["asset_file"]) for c in cards),
            "block_cards": sum(c["block"] for c in cards),
            "occurrence_note": "인스턴스 카드는 hierarchy 노드(occurrence) 단위; 같은 pid가 여러 부모 경로에 나타날 수 있음",
            "classes": {k: sum(c["class"] == k for c in cards) for k in sorted({c["class"] for c in cards})}}
     files[base / "coverage.json"] = dumps(cov)
+    if gone:
+        files[base / "deleted.json"] = dumps({
+            "schema": "sion-bim-deleted/1", "model": a.model,
+            "baseline": f"data/sources/sketchup/{a.model}/hierarchy.json",
+            "current": f"data/sources/sketchup/{a.model}/" + (a.hierarchy.name if a.hierarchy else "hierarchy.json"),
+            "note_ko": "기준 계층에는 있었으나 새 계층에서 사라진 객체(사용자 삭제). 카드에서 제외하고 여기 기록",
+            "deleted": [{"pid": n["pid"], "definition": n["definition"], "path": n["path"],
+                         "class_guess": n.get("class_guess"), "world_bbox": n.get("world_bbox")} for n in gone]})
     for cls, r in recipes(cards, gd, labels).items():
         files[OUT / "recipes" / f"{cls}.json"] = dumps(r)
     stale = [p for p, t in files.items() if not p.exists() or p.read_text(encoding="utf-8") != t]
