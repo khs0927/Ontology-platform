@@ -115,6 +115,9 @@ class RawEdge:
     id: str | None = None
     properties: dict[str, Any] = field(default_factory=dict)
     locator: str = ""
+    verification_state: str | None = None
+    source_kind: str | None = None
+    confidence: float | None = None
 
 
 @dataclass
@@ -203,6 +206,9 @@ def _from_sion(doc: dict, locator: str) -> RawGraph:
             id=e.get("stable_key"),
             properties=dict(e.get("properties") or {}),
             locator=f"{locator}edges[{i}]",
+            verification_state=e.get("verification_state"),
+            source_kind=e.get("source_kind"),
+            confidence=e.get("confidence"),
         )
         for i, e in enumerate(doc.get("edges") or [])
     ]
@@ -296,12 +302,23 @@ def _edge_from_plain(item: Any, index: int, locator: str) -> RawEdge | None:
         for k, v in data.items()
         if k not in {"source", "target", "from", "to", "id", "index"} and isinstance(v, (str, int, float, bool))
     }
-    return RawEdge(source=source, target=target, label=label, id=_text(data.get("id")), properties=props, locator=f"{locator}[{index}]")
+    return RawEdge(
+        source=source,
+        target=target,
+        label=label,
+        id=_text(data.get("id")),
+        properties=props,
+        locator=f"{locator}[{index}]",
+    )
 
 
 def _plain_graph(fmt: str, raw_nodes: list, raw_edges: list, locator: str, node_key: str, edge_key: str) -> RawGraph:
-    nodes = [n for i, item in enumerate(raw_nodes) if (n := _node_from_plain(item, i, f"{locator}{node_key}")) is not None]
-    edges = [e for i, item in enumerate(raw_edges) if (e := _edge_from_plain(item, i, f"{locator}{edge_key}")) is not None]
+    nodes = [
+        n for i, item in enumerate(raw_nodes) if (n := _node_from_plain(item, i, f"{locator}{node_key}")) is not None
+    ]
+    edges = [
+        e for i, item in enumerate(raw_edges) if (e := _edge_from_plain(item, i, f"{locator}{edge_key}")) is not None
+    ]
     return RawGraph(fmt, nodes, edges, locator)
 
 
@@ -326,11 +343,30 @@ def graphs_from_json(doc: Any, locator: str = "$.") -> list[RawGraph]:
                 return
             elements = value.get("elements")
             if isinstance(elements, dict) and isinstance(elements.get("edges"), list):
-                found.append(_plain_graph("cytoscape", elements.get("nodes") or [], elements["edges"], f"{path}elements.", "nodes", "edges"))
+                found.append(
+                    _plain_graph(
+                        "cytoscape",
+                        elements.get("nodes") or [],
+                        elements["edges"],
+                        f"{path}elements.",
+                        "nodes",
+                        "edges",
+                    )
+                )
                 return
-            if isinstance(elements, list) and any(isinstance(e, dict) and isinstance(e.get("data"), dict) for e in elements):
-                cy_nodes = [e for e in elements if isinstance(e, dict) and isinstance(e.get("data"), dict) and "source" not in e["data"]]
-                cy_edges = [e for e in elements if isinstance(e, dict) and isinstance(e.get("data"), dict) and "source" in e["data"]]
+            if isinstance(elements, list) and any(
+                isinstance(e, dict) and isinstance(e.get("data"), dict) for e in elements
+            ):
+                cy_nodes = [
+                    e
+                    for e in elements
+                    if isinstance(e, dict) and isinstance(e.get("data"), dict) and "source" not in e["data"]
+                ]
+                cy_edges = [
+                    e
+                    for e in elements
+                    if isinstance(e, dict) and isinstance(e.get("data"), dict) and "source" in e["data"]
+                ]
                 found.append(_plain_graph("cytoscape", cy_nodes, cy_edges, f"{path}elements", "", ""))
                 return
             if isinstance(value.get("nodes"), list) and isinstance(value.get("links"), list):
@@ -352,7 +388,9 @@ def graphs_from_json(doc: Any, locator: str = "$.") -> list[RawGraph]:
 
 
 _MERMAID_HEADER = re.compile(r"^\s*(?:flowchart|graph)\b[^\n]*$", re.IGNORECASE | re.MULTILINE)
-_MERMAID_NODE = r"([A-Za-z0-9_\-가-힣]+)\s*(?:\[\[?\(?\"?([^\]\)\"]*)\"?\)?\]?\]|\(\(?\"?([^\)\"]*)\"?\)?\)|\{\"?([^}\"]*)\"?\})?"
+_MERMAID_NODE = (
+    r"([A-Za-z0-9_\-가-힣]+)\s*(?:\[\[?\(?\"?([^\]\)\"]*)\"?\)?\]?\]|\(\(?\"?([^\)\"]*)\"?\)?\)|\{\"?([^}\"]*)\"?\})?"
+)
 _MERMAID_EDGE = re.compile(
     _MERMAID_NODE
     + r"\s*(?:--\s*([^->|]+?)\s*-->|-->\|([^|]*)\||-\.->\|([^|]*)\||==>\|([^|]*)\||-->|-\.->|==>|---)\s*"
@@ -367,7 +405,14 @@ def graphs_from_mermaid(text: str, locator: str = "mermaid") -> list[RawGraph]:
         start = header.end()
         next_header = _MERMAID_HEADER.search(text, start)
         end_fence = text.find("```", start)
-        end = min(x for x in (next_header.start() if next_header else len(text), end_fence if end_fence >= 0 else len(text), len(text)))
+        end = min(
+            x
+            for x in (
+                next_header.start() if next_header else len(text),
+                end_fence if end_fence >= 0 else len(text),
+                len(text),
+            )
+        )
         body = text[start:end]
         labels: dict[str, str] = {}
         order: list[str] = []
@@ -383,7 +428,9 @@ def graphs_from_mermaid(text: str, locator: str = "mermaid") -> list[RawGraph]:
 
         for line_no, line in enumerate(body.splitlines(), start=1):
             stripped = line.strip()
-            if not stripped or stripped.startswith(("%%", "classDef", "class ", "style ", "linkStyle", "subgraph", "end", "click ", "direction")):
+            if not stripped or stripped.startswith(
+                ("%%", "classDef", "class ", "style ", "linkStyle", "subgraph", "end", "click ", "direction")
+            ):
                 continue
             # chained edges (A --> B --> C) are matched pairwise
             position = 0
@@ -398,7 +445,9 @@ def graphs_from_mermaid(text: str, locator: str = "mermaid") -> list[RawGraph]:
                 remember(src, g[1], g[2], g[3])
                 remember(tgt, g[9], g[10], g[11])
                 label = next((x.strip() for x in g[4:8] if x and x.strip()), None)
-                edges.append(RawEdge(source=src, target=tgt, label=label, locator=f"{locator}[{block_index}]:line:{line_no}"))
+                edges.append(
+                    RawEdge(source=src, target=tgt, label=label, locator=f"{locator}[{block_index}]:line:{line_no}")
+                )
                 position = match.start(9) if match.start(9) > match.start() else match.end()
             if not matched:
                 lone = _MERMAID_LONE_NODE.match(stripped)
@@ -426,11 +475,28 @@ def graphs_from_graphml(text: str, locator: str = "graphml") -> list[RawGraph]:
         for ni, node in enumerate(graph.findall(f"{ns}node")):
             data = {keys.get(d.get("key"), d.get("key")): (d.text or "").strip() for d in node.findall(f"{ns}data")}
             label = data.pop("label", None) or data.pop("name", None) or node.get("id")
-            nodes.append(RawNode(id=node.get("id"), label=label, category=data.pop("category", None), properties=data, locator=f"{locator}[{gi}].node[{ni}]"))
+            nodes.append(
+                RawNode(
+                    id=node.get("id"),
+                    label=label,
+                    category=data.pop("category", None),
+                    properties=data,
+                    locator=f"{locator}[{gi}].node[{ni}]",
+                )
+            )
         for ei, edge in enumerate(graph.findall(f"{ns}edge")):
             data = {keys.get(d.get("key"), d.get("key")): (d.text or "").strip() for d in edge.findall(f"{ns}data")}
             label = data.pop("relation_type_id", None) or data.pop("type", None) or data.pop("label", None)
-            edges.append(RawEdge(source=edge.get("source"), target=edge.get("target"), label=label, id=edge.get("id"), properties=data, locator=f"{locator}[{gi}].edge[{ei}]"))
+            edges.append(
+                RawEdge(
+                    source=edge.get("source"),
+                    target=edge.get("target"),
+                    label=label,
+                    id=edge.get("id"),
+                    properties=data,
+                    locator=f"{locator}[{gi}].edge[{ei}]",
+                )
+            )
         if edges:
             graphs.append(RawGraph("graphml", nodes, edges, f"{locator}[{gi}]"))
     return graphs
@@ -453,7 +519,10 @@ class _ScriptCollector(HTMLParser):
             self._buffer = []
 
     def handle_endtag(self, tag):
-        if self._stack and ((tag == "script" and self._stack[-1][0] == "script") or (self._stack[-1][0] == "mermaid" and tag == self._stack[-1][1])):
+        if self._stack and (
+            (tag == "script" and self._stack[-1][0] == "script")
+            or (self._stack[-1][0] == "mermaid" and tag == self._stack[-1][1])
+        ):
             kind, attr = self._stack.pop()
             self.blocks.append((kind, attr, "".join(self._buffer)))
             self._buffer = []
@@ -533,10 +602,27 @@ def graphs_from_script(script: str, locator: str) -> list[RawGraph]:
         graphs.extend(graphs_from_json(value, f"{locator}:{name}."))
     if not graphs:
         # separate `const nodes = [...]; const edges|links = [...]` declarations
-        node_list = next((variables[k] for k in ("nodes", "graphNodes", "NODES") if isinstance(variables.get(k), list)), None)
-        edge_name = next((k for k in ("edges", "links", "graphEdges", "graphLinks", "EDGES", "LINKS", "relations") if isinstance(variables.get(k), list)), None)
+        node_list = next(
+            (variables[k] for k in ("nodes", "graphNodes", "NODES") if isinstance(variables.get(k), list)), None
+        )
+        edge_name = next(
+            (
+                k
+                for k in ("edges", "links", "graphEdges", "graphLinks", "EDGES", "LINKS", "relations")
+                if isinstance(variables.get(k), list)
+            ),
+            None,
+        )
         if node_list is not None and edge_name is not None:
-            graphs.extend(graphs_from_json({"nodes": node_list, edge_name if edge_name in {"links", "edges", "relations"} else "edges": variables[edge_name]}, f"{locator}:"))
+            graphs.extend(
+                graphs_from_json(
+                    {
+                        "nodes": node_list,
+                        edge_name if edge_name in {"links", "edges", "relations"} else "edges": variables[edge_name],
+                    },
+                    f"{locator}:",
+                )
+            )
         elif len(datasets) >= 2:
             graphs.extend(graphs_from_json({"nodes": datasets[0], "edges": datasets[1]}, f"{locator}:vis.DataSet."))
     return graphs
@@ -623,7 +709,12 @@ def convert_graph(
         properties = dict(node.properties)
         if node.entity_type and node.entity_type not in KNOWN_ENTITY_TYPES:
             properties["source_type"] = node.entity_type
-        properties["provenance"] = {**provenance, "format": graph.format, "locator": node.locator, "source_node_id": node.id}
+        properties["provenance"] = {
+            **provenance,
+            "format": graph.format,
+            "locator": node.locator,
+            "source_node_id": node.id,
+        }
         nodes_out.append(
             {
                 "stable_key": key_for(node.id),
@@ -653,10 +744,33 @@ def convert_graph(
         properties = dict(edge.properties)
         if original:
             properties["source_label"] = original
-        properties["provenance"] = {**provenance, "format": graph.format, "locator": edge.locator, **({"source_edge_id": edge.id} if edge.id else {})}
-        if as_candidates:
+        properties["provenance"] = {
+            **provenance,
+            "format": graph.format,
+            "locator": edge.locator,
+            **({"source_edge_id": edge.id} if edge.id else {}),
+        }
+        # A sion-map-export edge that already states its own origin (e.g. SketchUp ontology builds:
+        # mcp facts vs inferred guesses) is only queued for review when it is an inferred,
+        # unverified guess. Everything else is kept as accepted provenance with its original state.
+        own_origin = graph.format == "sion-map-export" and edge.source_kind not in (None, "imported")
+        is_candidate = as_candidates and (
+            not own_origin or (edge.source_kind == "inferred" and edge.verification_state == "unverified")
+        )
+        if own_origin and not is_candidate:
+            properties.pop("candidate", None)
+            properties["original_source_kind"] = edge.source_kind
+        if is_candidate:
+            if own_origin and properties.get("extractor"):
+                properties["original_extractor"] = properties["extractor"]
             properties["candidate"] = True
             properties["extractor"] = "sion-graph-export/v1"
+        if own_origin:
+            state = "unverified" if is_candidate else (edge.verification_state or "machine_verified")
+            edge_conf = edge.confidence if confidence is None else confidence
+        else:
+            state = "unverified" if as_candidates else "human_verified"
+            edge_conf = confidence
         stable_key = (
             edge.id
             if graph.format == "sion-map-export" and edge.id
@@ -668,8 +782,8 @@ def convert_graph(
                 "source_stable_key": key_for(edge.source),
                 "target_stable_key": key_for(edge.target),
                 "relation_type_id": relation_type,
-                "confidence": confidence,
-                "verification_state": "unverified" if as_candidates else "human_verified",
+                "confidence": edge_conf,
+                "verification_state": state,
                 "source_kind": "imported",
                 "properties": properties,
             }
