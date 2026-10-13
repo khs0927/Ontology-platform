@@ -522,6 +522,45 @@ def write_manifest(meta: dict[str, Any], index_path: Path, out: Path) -> None:
     out.write_text(json.dumps(m, ensure_ascii=False, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
+BLOCK_CLASSES = {"tree", "person", "furniture"}
+
+
+def library_index(card_roots: list[Path]) -> dict[str, dict[str, dict[str, Any]]]:
+    """Per-model ``index.json`` for ``scripts/sketchup/generators/place_block.rb``.
+
+    ``{asset_id: {path, class, ...}}`` where ``path`` is relative to the model's asset library
+    (``asset_file.root``, e.g. ``SketchUp-Assets/ontology-objects/0914-meeting``). Keys are the card
+    ``asset_id`` and the alias ``<model>:<class>:<name>``. Trees, people and furniture are one block =
+    one asset: parts inside a block are never listed separately.
+    """
+    out: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
+    for _, c in iter_cards(card_roots):
+        af = c.get("asset_file") or {}
+        if not af.get("skp") or c.get("inside_block"):
+            continue
+        model, cls = c.get("model") or "", c.get("class") or "unclassified"
+        entry = {"path": af["skp"], "class": cls, "asset_id": c["asset_id"], "card_kind": c.get("card_kind"),
+                 "block": bool(c.get("block")) or cls in BLOCK_CLASSES, "sha256": af.get("sha256"),
+                 "thumbnail": af.get("thumbnail"), "root": af.get("root"),
+                 "ifc": (c.get("ifc") or {}).get("entity"), "review_state": c.get("review_state")}
+        lib = out[model]
+        lib.setdefault(c["asset_id"], entry)
+        alias = f"{model}:{cls}:{_card_name(c)}"
+        if c.get("card_kind") == "definition" or alias not in lib:
+            lib[alias] = entry
+    return {m: dict(sorted(v.items())) for m, v in sorted(out.items())}
+
+
+def write_library_indexes(card_roots: list[Path], out_dir: Path) -> dict[str, int]:
+    counts = {}
+    for model, entries in library_index(card_roots).items():
+        d = Path(out_dir) / model
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "index.json").write_text(json.dumps(entries, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        counts[model] = len(entries)
+    return counts
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="SketchUp BIM asset index (FTS5 + trigram + vectors + graph)")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -531,6 +570,8 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--out", default=None)
     b.add_argument("--manifest", default=None)
     b.add_argument("--no-embed", action="store_true")
+    b.add_argument("--library-index-dir", default=None,
+                   help="write <dir>/<model>/index.json for place_block.rb (e.g. G:/내 드라이브/SketchUp-Assets/ontology-objects)")
     q = sub.add_parser("query")
     q.add_argument("text")
     q.add_argument("--index", default=None)
@@ -544,6 +585,8 @@ def main(argv: list[str] | None = None) -> int:
         out = Path(a.out) if a.out else default_index_path()
         meta = build_index([Path(c) for c in a.cards], out, recipe_dir=Path(a.recipes), embed=not a.no_embed,
                            base=Path.cwd())
+        if a.library_index_dir:
+            meta = {**meta, "library_index": write_library_indexes([Path(c) for c in a.cards], Path(a.library_index_dir))}
         if a.manifest:
             write_manifest(meta, out, Path(a.manifest))
         print(json.dumps({"index": str(out), **meta}, ensure_ascii=False, indent=1))

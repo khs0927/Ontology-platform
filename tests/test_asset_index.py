@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-from sion_ingestion.asset_index import AssetIndex, HashEmbedder, LocalEndpointEmbedder, build_index, main
+from sion_ingestion.asset_index import AssetIndex, HashEmbedder, LocalEndpointEmbedder, build_index, library_index, main
 
 FIX = Path(__file__).parent / "fixtures" / "bim_assets"
 
@@ -74,3 +74,11 @@ def test_cli_and_api(index_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: 
     monkeypatch.setenv("SION_ASSET_INDEX", str(index_path.parent / "missing.sqlite"))
     with TestClient(create_app(database_url="sqlite://", auto_create_schema=True), base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         assert c.get("/api/v1/graphrag/assets", params={"q": "x"}).status_code == 503
+
+
+def test_library_index_for_place_block() -> None:
+    lib = library_index([FIX])["demo"]
+    assert lib["su-def:demo:g1"]["path"] == "objects/glass-railing/유리패널A.skp"
+    assert lib["demo:furniture:카페체어"]["asset_id"] == "su-def:demo:c1"
+    assert lib["demo:furniture:카페체어"]["block"] is True
+    assert "su-inst:demo:11@1" not in lib  # part inside a block is not its own asset
