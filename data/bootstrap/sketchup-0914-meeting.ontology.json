@@ -2,7 +2,7 @@
  "schema": "sion-map-export/v1",
  "source": "sketchup-assets:0914-meeting:0914_담당미팅.skp#sha256=b698c632b9396c37",
  "expected_node_count": 893,
- "expected_edge_count": 3550,
+ "expected_edge_count": 3617,
  "nodes": [
   {
    "stable_key": "sketchup:0914-meeting:asset:0290914232b6ceb3",
@@ -105407,6 +105407,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4073099:IMPLEMENTS:sketchup:class:terrain",
+   "source_stable_key": "sketchup:0914-meeting:obj:4073099",
+   "target_stable_key": "sketchup:class:terrain",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.45,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[0]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 54.23×56.20×10.00 m, 최소 Z -5,000 mm, 깊이 1, 면 623개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4073099:PART_OF:sketchup:0914-meeting:obj:30598",
    "source_stable_key": "sketchup:0914-meeting:obj:4073099",
    "target_stable_key": "sketchup:0914-meeting:obj:30598",
@@ -105704,6 +105725,27 @@
      "locator": "$.hierarchy[11]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4073103:IMPLEMENTS:sketchup:class:terrain",
+   "source_stable_key": "sketchup:0914-meeting:obj:4073103",
+   "target_stable_key": "sketchup:class:terrain",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.45,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[2]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 58.89×61.33×10.50 m, 최소 Z -6,000 mm, 깊이 1, 면 1065개, 재질 없음."
    }
   },
   {
@@ -106417,6 +106459,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577804:IMPLEMENTS:sketchup:class:building",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577804",
+   "target_stable_key": "sketchup:class:building",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[5]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 21.80×22.20×4.58 m, 최소 Z 10,200 mm, 깊이 1, 면 314개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577804:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:obj:4577804",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -106709,6 +106772,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577807:IMPLEMENTS:sketchup:class:building",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577807",
+   "target_stable_key": "sketchup:class:building",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[38]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 2.40×5.28×2.80 m, 최소 Z 7,200 mm, 깊이 1, 면 22개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577807:PART_OF:sketchup:0914-meeting:obj:511546",
    "source_stable_key": "sketchup:0914-meeting:obj:4577807",
    "target_stable_key": "sketchup:0914-meeting:obj:511546",
@@ -106781,6 +106865,27 @@
      "locator": "$.hierarchy[201]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4577808:IMPLEMENTS:sketchup:class:building",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577808",
+   "target_stable_key": "sketchup:class:building",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[39]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 9.25×5.55×5.00 m, 최소 Z 5,000 mm, 깊이 1, 면 146개, 재질 없음."
    }
   },
   {
@@ -107317,6 +107422,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577816:IMPLEMENTS:sketchup:class:person",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577816",
+   "target_stable_key": "sketchup:class:person",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[64]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577816,
+     "entity_path": "그룹#201 > 그룹#139"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'person'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577816:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:obj:4577816",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -107413,6 +107542,30 @@
      "locator": "$.hierarchy[64]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4577817:IMPLEMENTS:sketchup:class:person",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577817",
+   "target_stable_key": "sketchup:class:person",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[61]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577817,
+     "entity_path": "그룹#201 > 그룹#110"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'person'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
    }
   },
   {
@@ -107515,6 +107668,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577818:IMPLEMENTS:sketchup:class:person",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577818",
+   "target_stable_key": "sketchup:class:person",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[202]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577818,
+     "entity_path": "그룹#201 > 그룹#130"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'person'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577818:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:obj:4577818",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -107614,6 +107791,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577819:IMPLEMENTS:sketchup:class:person",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577819",
+   "target_stable_key": "sketchup:class:person",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[183]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577819,
+     "entity_path": "그룹#201 > 그룹#116"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'person'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577819:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:obj:4577819",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -107710,6 +107911,30 @@
      "locator": "$.hierarchy[183]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4577820:IMPLEMENTS:sketchup:class:person",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577820",
+   "target_stable_key": "sketchup:class:person",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[43]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577820,
+     "entity_path": "그룹#201 > CWom0105-HD2-O01P02-S005"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'person'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 0개 생략)."
    }
   },
   {
@@ -107986,6 +108211,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577839:IMPLEMENTS:sketchup:class:planter",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577839",
+   "target_stable_key": "sketchup:class:planter",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[456]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577839,
+     "entity_path": "그룹#201 > 그룹#62"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'planter'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577839:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:obj:4577839",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -108082,6 +108331,30 @@
      "locator": "$.hierarchy[456]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4577840:IMPLEMENTS:sketchup:class:planter",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577840",
+   "target_stable_key": "sketchup:class:planter",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[459]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577840,
+     "entity_path": "그룹#201 > 그룹#72"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'planter'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
    }
   },
   {
@@ -108184,6 +108457,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:4577841:IMPLEMENTS:sketchup:class:planter",
+   "source_stable_key": "sketchup:0914-meeting:obj:4577841",
+   "target_stable_key": "sketchup:class:planter",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[462]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4577841,
+     "entity_path": "그룹#201 > 그룹#73"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'planter'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 2개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:4577841:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:obj:4577841",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -108280,6 +108577,27 @@
      "locator": "$.hierarchy[462]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4580519:IMPLEMENTS:sketchup:class:curtain-wall",
+   "source_stable_key": "sketchup:0914-meeting:obj:4580519",
+   "target_stable_key": "sketchup:class:curtain-wall",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.45,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[4]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "유리 재질의 두께 300 mm, 길이 10 m 이상·높이 3 m 이상 수직판이라 커튼월로 추정(상위 분류 'paving'와 다름). 근거: 월드 크기 0.30×44.26×5.20 m, 최소 Z 5,000 mm, 깊이 1, 면 14개, 재질 [Translucent Glass Gray]."
    }
   },
   {
@@ -108647,6 +108965,30 @@
      "locator": "$.hierarchy[22]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:obj:4905257:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:obj:4905257",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[501]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4905257,
+     "entity_path": "그룹#105 > 그룹#160"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 113개 생략)."
    }
   },
   {
@@ -109736,6 +110078,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:obj:800070:IMPLEMENTS:sketchup:class:tree",
+   "source_stable_key": "sketchup:0914-meeting:obj:800070",
+   "target_stable_key": "sketchup:class:tree",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[465]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 800070,
+     "entity_path": "그룹#65"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'tree'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 26개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:obj:800070:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:obj:800070",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -110371,6 +110737,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:30598.4073099.4066616:IMPLEMENTS:sketchup:class:terrain",
+   "source_stable_key": "sketchup:0914-meeting:occ:30598.4073099.4066616",
+   "target_stable_key": "sketchup:class:terrain",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.45,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[1]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 47.41×55.19×10.00 m, 최소 Z -5,000 mm, 깊이 2, 면 106개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:30598.4073099.4066616:PART_OF:sketchup:0914-meeting:obj:4073099",
    "source_stable_key": "sketchup:0914-meeting:occ:30598.4073099.4066616",
    "target_stable_key": "sketchup:0914-meeting:obj:4073099",
@@ -110748,6 +111135,27 @@
      "locator": "$.hierarchy[17]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:30598.4073103.4072539:IMPLEMENTS:sketchup:class:terrain",
+   "source_stable_key": "sketchup:0914-meeting:occ:30598.4073103.4072539",
+   "target_stable_key": "sketchup:class:terrain",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.45,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[3]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 58.82×60.32×10.50 m, 최소 Z -6,000 mm, 깊이 2, 면 879개, 재질 없음."
    }
   },
   {
@@ -111660,6 +112068,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624.4204575.4204512:IMPLEMENTS:sketchup:class:curtain-wall",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624.4204575.4204512",
+   "target_stable_key": "sketchup:class:curtain-wall",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.5,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[37]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 3단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 6.60×0.26×2.97 m, 최소 Z 5,000 mm, 깊이 4, 면 45개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624.4204575.4204512:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624.4204575.4204512",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -111738,6 +112167,27 @@
      "locator": "$.hierarchy[194]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624.4204575:IMPLEMENTS:sketchup:class:curtain-wall",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624.4204575",
+   "target_stable_key": "sketchup:class:curtain-wall",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.5,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[36]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 2단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 13.50×0.34×5.00 m, 최소 Z 5,000 mm, 깊이 3, 면 65개, 재질 없음."
    }
   },
   {
@@ -112184,6 +112634,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624:IMPLEMENTS:sketchup:class:curtain-wall",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624",
+   "target_stable_key": "sketchup:class:curtain-wall",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[35]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 13.50×0.34×5.00 m, 최소 Z 5,000 mm, 깊이 2, 면 98개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577801.4204624",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -112376,6 +112847,27 @@
      "locator": "$.hierarchy[211]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360588.4238551:IMPLEMENTS:sketchup:class:floor-slab",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360588.4238551",
+   "target_stable_key": "sketchup:class:floor-slab",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[40]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#204'의 분류 'floor-slab'를 상속(부품으로 추정). 근거: 월드 크기 25.40×1.80×0.16 m, 최소 Z 10,160 mm, 깊이 4, 면 26개, 재질 없음."
    }
   },
   {
@@ -112679,6 +113171,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360599:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360599",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[218]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360599,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 1개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360599:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360599",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -112775,6 +113291,30 @@
      "locator": "$.hierarchy[218]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360600:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360600",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[220]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360600,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 1개 생략)."
    }
   },
   {
@@ -112877,6 +113417,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[222]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360601,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 1개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360601",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -112973,6 +113537,30 @@
      "locator": "$.hierarchy[222]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360602:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360602",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[224]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360602,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 1개 생략)."
    }
   },
   {
@@ -113075,6 +113663,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[228]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360603,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 1개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360603",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -113171,6 +113783,30 @@
      "locator": "$.hierarchy[228]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360604:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360604",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[226]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360604,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > c3"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 1개 생략)."
    }
   },
   {
@@ -113273,6 +113909,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360622:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360622",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[230]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360622,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch5"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 10개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360622:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360622",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -113369,6 +114029,30 @@
      "locator": "$.hierarchy[230]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360623:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360623",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[241]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360623,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch5"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 10개 생략)."
    }
   },
   {
@@ -113471,6 +114155,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[252]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360624,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch5"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 10개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360624",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -113567,6 +114275,30 @@
      "locator": "$.hierarchy[252]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360625:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360625",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[263]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360625,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 8개 생략)."
    }
   },
   {
@@ -113669,6 +114401,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[272]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360626,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 8개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360626",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -113765,6 +114521,30 @@
      "locator": "$.hierarchy[272]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360627:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360627",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[281]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360627,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 8개 생략)."
    }
   },
   {
@@ -113867,6 +114647,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[290]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360628,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 8개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360628",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -113963,6 +114767,30 @@
      "locator": "$.hierarchy[290]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360629:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360629",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[299]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360629,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > ch6"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 8개 생략)."
    }
   },
   {
@@ -114065,6 +114893,30 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360630:IMPLEMENTS:sketchup:class:counter-millwork",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360630",
+   "target_stable_key": "sketchup:class:counter-millwork",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[308]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360630,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#226"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'counter-millwork'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 52개 생략)."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360630:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360630",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -114161,6 +115013,30 @@
      "locator": "$.hierarchy[308]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360631:IMPLEMENTS:sketchup:class:furniture",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577802.4361373.4360631",
+   "target_stable_key": "sketchup:class:furniture",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.7,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "collapsed_as_block",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/model_dump.json",
+     "source_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+     "locator": "$.hierarchy[361]",
+     "skp_file": "0914_담당미팅.skp",
+     "persistent_id": 4360631,
+     "entity_path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#232"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "분류 'furniture'은(는) 블록 규칙 대상: 내부 형상은 그래프에 풀지 않고 자산 파일 하나로 기억한다(하위 88개 생략)."
    }
   },
   {
@@ -114786,6 +115662,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192.4088190.4088079:IMPLEMENTS:sketchup:class:curtain-wall",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192.4088190.4088079",
+   "target_stable_key": "sketchup:class:curtain-wall",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[7]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#154'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 1.12×16.80×3.78 m, 최소 Z 10,200 mm, 깊이 4, 면 160개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192.4088190.4088079:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192.4088190.4088079",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -115026,6 +115923,27 @@
      "locator": "$.hierarchy[60]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192:IMPLEMENTS:sketchup:class:building",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577804.4088192",
+   "target_stable_key": "sketchup:class:building",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.5,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[6]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 2단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 21.80×22.20×4.58 m, 최소 Z 10,200 mm, 깊이 2, 면 314개, 재질 없음."
    }
   },
   {
@@ -115386,6 +116304,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163457:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163457",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[9]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,430 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163457:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163457",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -115440,6 +116379,27 @@
      "locator": "$.hierarchy[86]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163458:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163458",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[10]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,530 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -115500,6 +116460,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163459:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163459",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[11]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,630 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163459:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163459",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -115557,6 +116538,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163460:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163460",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[12]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,730 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163460:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163460",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -115611,6 +116613,27 @@
      "locator": "$.hierarchy[89]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163461:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163461",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[13]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,830 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -115695,6 +116718,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163462:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163462",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[14]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,930 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163462:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163462",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -115773,6 +116817,27 @@
      "locator": "$.hierarchy[91]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163463:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163463",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[15]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,030 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -115857,6 +116922,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163464:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163464",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[16]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,130 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163464:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163464",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -115935,6 +117021,27 @@
      "locator": "$.hierarchy[93]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163465:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163465",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[17]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,230 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -116019,6 +117126,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163466:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163466",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[18]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,330 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163466:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163466",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -116097,6 +117225,27 @@
      "locator": "$.hierarchy[95]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163467:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163467",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[19]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,430 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -116181,6 +117330,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163468:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163468",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[20]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,530 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163468:PART_OF:sketchup:0914-meeting:level:L2",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163468",
    "target_stable_key": "sketchup:0914-meeting:level:L2",
@@ -116262,6 +117432,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163469:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163469",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[21]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,630 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163469:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163469",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -116316,6 +117507,27 @@
      "locator": "$.hierarchy[98]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163470:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163470",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[22]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,730 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -116376,6 +117588,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163471:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163471",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[23]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,830 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163471:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163471",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -116430,6 +117663,27 @@
      "locator": "$.hierarchy[100]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163472:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163472",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[24]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,930 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -116490,6 +117744,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163473:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163473",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[25]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,030 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163473:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163473",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -116544,6 +117819,27 @@
      "locator": "$.hierarchy[102]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163474:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163474",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[26]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,130 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -116604,6 +117900,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163475:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163475",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[27]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,230 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163475:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163475",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -116658,6 +117975,27 @@
      "locator": "$.hierarchy[104]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163476:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163476",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[28]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,330 mm, 깊이 6, 면 6개, 재질 없음."
    }
   },
   {
@@ -116718,6 +118056,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163477:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163477",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[29]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,430 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163477:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163477",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -116775,6 +118134,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163478:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163478",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[30]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,530 mm, 깊이 6, 면 6개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163478:PART_OF:sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163478",
    "target_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488",
@@ -116829,6 +118209,27 @@
      "locator": "$.hierarchy[107]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163479:IMPLEMENTS:sketchup:class:window-louver",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146.4164144.4163927.4163488.4163479",
+   "target_stable_key": "sketchup:class:window-louver",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[31]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.07×0.04 m, 최소 Z 11,630 mm, 깊이 6, 면 3개, 재질 없음."
    }
   },
   {
@@ -117850,6 +119251,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146:IMPLEMENTS:sketchup:class:building",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146",
+   "target_stable_key": "sketchup:class:building",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[8]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#161'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 9.00×9.00×3.63 m, 최소 Z 9,150 mm, 깊이 2, 면 589개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146:PART_OF:sketchup:0914-meeting:obj:4577805",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577805.4164146",
    "target_stable_key": "sketchup:0914-meeting:obj:4577805",
@@ -118178,6 +119600,27 @@
    }
   },
   {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577809.4168702:IMPLEMENTS:sketchup:class:building",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577809.4168702",
+   "target_stable_key": "sketchup:class:building",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[34]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#217'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 9.44×23.42×5.00 m, 최소 Z 5,000 mm, 깊이 2, 면 121개, 재질 없음."
+   }
+  },
+  {
    "stable_key": "sketchup:0914-meeting:occ:511546.4577809.4168702:PART_OF:sketchup:0914-meeting:level:L1",
    "source_stable_key": "sketchup:0914-meeting:occ:511546.4577809.4168702",
    "target_stable_key": "sketchup:0914-meeting:level:L1",
@@ -118337,6 +119780,27 @@
      "locator": "$.hierarchy[145]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577813.4168074.4168073.4164435:IMPLEMENTS:sketchup:class:handrail",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577813.4168074.4168073.4164435",
+   "target_stable_key": "sketchup:class:handrail",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[33]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#68'의 분류 'handrail'를 상속(부품으로 추정). 근거: 월드 크기 0.00×5.36×0.90 m, 최소 Z 5,000 mm, 깊이 4, 면 0개, 재질 없음."
    }
   },
   {
@@ -121010,6 +122474,27 @@
      "locator": "$.hierarchy[178]",
      "skp_file": "0914_담당미팅.skp"
     }
+   }
+  },
+  {
+   "stable_key": "sketchup:0914-meeting:occ:511546.4577813.4168075.4168073.4164435:IMPLEMENTS:sketchup:class:handrail",
+   "source_stable_key": "sketchup:0914-meeting:occ:511546.4577813.4168075.4168073.4164435",
+   "target_stable_key": "sketchup:class:handrail",
+   "relation_type_id": "IMPLEMENTS",
+   "confidence": 0.55,
+   "verification_state": "unverified",
+   "source_kind": "inferred",
+   "ontology_version": null,
+   "properties": {
+    "predicate": "classified_as_supplement",
+    "su_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[33]",
+     "skp_file": "0914_담당미팅.skp"
+    },
+    "candidate": true,
+    "extractor": "sion-sketchup-ontology/v1",
+    "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#68'의 분류 'handrail'를 상속(부품으로 추정). 근거: 월드 크기 0.00×5.36×0.90 m, 최소 Z 5,000 mm, 깊이 4, 면 0개, 재질 없음."
    }
   },
   {
