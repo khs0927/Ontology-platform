@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/khs0927/Ontology-platform/contracts/building-regulation-report-1.schema.json",
   "title": "building-regulation-gateway compliance report (evidence-only)",
-  "description": "Producer: building-regulation-gateway POST /api/v1/produce-compliance-report (gateway/engine.py, pinned d2cc08a, v0.1 evidence-only). The gateway never issues a legal permit/deny verdict; decision.status is only insufficient_evidence or conflicting_evidence. Sion treats the report as advisory evidence (canonical:false), never canonical state. Evidence hash/provenance fields are format-checked upstream, not proven authentic.",
+  "description": "Producer: building-regulation-gateway @ 21e146574c2ba173ed436c685b376f5cefa813b0, v0.2. Reports remain advisory evidence (canonical:false). Scoped reviewed rule evaluations may issue permitted/conditionally_permitted/not_permitted; unconfigured or incomplete rules fail closed. Format validation is not proof of legal applicability or snapshot authenticity.",
   "type": "object",
   "required": [
     "request_id",
@@ -171,7 +171,11 @@
         "status": {
           "enum": [
             "insufficient_evidence",
-            "conflicting_evidence"
+            "conflicting_evidence",
+            "outside_scope",
+            "permitted",
+            "conditionally_permitted",
+            "not_permitted"
           ]
         },
         "reason_codes": {
@@ -180,7 +184,42 @@
             "type": "string"
           }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "permitted",
+                  "conditionally_permitted",
+                  "not_permitted"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reviewed_by",
+              "checks",
+              "scope"
+            ],
+            "properties": {
+              "reviewed_by": {
+                "type": "string",
+                "minLength": 1
+              },
+              "checks": {
+                "type": "array",
+                "minItems": 1
+              },
+              "scope": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

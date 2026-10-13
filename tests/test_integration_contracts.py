@@ -602,5 +602,5 @@ def test_building_regulation_report_contract():
         "decision": {"status": "insufficient_evidence", "reason_codes": ["MISSING_REQUIRED_EVIDENCE"]},
     }
     assert contracts.errors("building-regulation-report/1", report) == []
-    report["decision"]["status"] = "permitted"  # the gateway never issues a legal verdict
+    report["decision"]["status"] = "unsupported_verdict"  # unknown statuses are rejected
     assert contracts.errors("building-regulation-report/1", report)

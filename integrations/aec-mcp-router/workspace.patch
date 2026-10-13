@@ -1,0 +1,238 @@
+diff --git a/aec_mcp_router/downstream.py b/aec_mcp_router/downstream.py
+index 471410a..f800b13 100644
+--- a/aec_mcp_router/downstream.py
++++ b/aec_mcp_router/downstream.py
+@@ -2,6 +2,7 @@
+ from __future__ import annotations
+ import asyncio, json, os
+ from datetime import date
++from urllib.parse import quote
+ from typing import Any, Protocol
+ 
+ import httpx
+@@ -85,6 +86,9 @@ class RegulationDownstream:
+          "description": "POST /api/v1/produce-compliance-report -> building-regulation-report/1"},
+         {"name": "health", "description": "GET /health"},
+         {"name": "audit", "description": "GET /api/v1/audit/{run_id}"},
++        *[{"name": name, "description": "Collect or verify regulation evidence"} for name in (
++            "resolve_site", "collect_site_constraints", "collect_building_facts", "collect_legal_basis",
++            "collect_official_interpretations", "verify_spatial_and_legal_conflicts")],
+     ]
+ 
+     def __init__(self, base_url: str = "http://127.0.0.1:8000", token_env: str = "GATEWAY_TOKEN",
+@@ -111,6 +115,8 @@ class RegulationDownstream:
+                 r = await client.get(f"{self.base_url}/health")
+             elif tool == "audit":
+                 r = await client.get(f"{self.base_url}/api/v1/audit/{arguments['run_id']}", headers=headers)
++            elif tool in {t["name"] for t in self.TOOLS}:
++                r = await client.post(f"{self.base_url}/api/v1/{tool.replace('_', '-')}", json=arguments, headers=headers)
+             else:
+                 raise DownstreamError(f"regulation: unknown tool '{tool}'")
+             if r.status_code >= 400:
+@@ -123,6 +129,52 @@ class RegulationDownstream:
+                 await client.aclose()
+ 
+ 
++class OntologyRegulationDownstream(RegulationDownstream):
++    """Project regulation workspace in Sion. Explicit saves/updates are Jev-gated writes."""
++
++    TOOLS = [
++        {"name": "produce_compliance_report", "description": "Collect advisory regulation evidence through Sion"},
++        {"name": "list_regulation_works", "description": "List saved regulation reviews, optionally by project_id"},
++        {"name": "get_regulation_work", "description": "Read a saved review by work_id"},
++        {"name": "get_regulation_briefing", "description": "Read source-cited Markdown briefing by work_id"},
++        {"name": "save_regulation_work", "description": "Save gateway run_id to project_id; supports dry_run"},
++        {"name": "update_regulation_work", "description": "Update notes/tasks/status by work_id; supports dry_run"},
++    ]
++
++    async def call_tool(self, tool: str, arguments: dict) -> Any:
++        headers = {}
++        token = os.environ.get(self.token_env)
++        if token:
++            headers["Authorization"] = f"Bearer {token}"
++        client = self._client or httpx.AsyncClient(timeout=self.timeout_s)
++        body = dict(arguments)
++        root = self.base_url + "/api/v1/regulation"
++        try:
++            if tool == "produce_compliance_report":
++                r = await client.post(root + "/gateway/report", json=body, headers=headers)
++            elif tool == "list_regulation_works":
++                r = await client.get(root + "/works", params=body, headers=headers)
++            elif tool == "save_regulation_work":
++                r = await client.post(root + "/works", json=body, headers=headers)
++            elif tool in {"get_regulation_work", "get_regulation_briefing", "update_regulation_work"}:
++                work_id = quote(str(body.pop("work_id")), safe="")
++                url = root + "/works/" + work_id
++                if tool == "get_regulation_briefing":
++                    url += "/briefing"
++                r = await (client.post(url, json=body, headers=headers) if tool == "update_regulation_work" else client.get(url, headers=headers))
++            else:
++                raise DownstreamError(f"ontology: unknown tool '{tool}'")
++            if r.status_code >= 400:
++                raise DownstreamError(f"ontology.{tool}: HTTP {r.status_code}")
++            result = r.json() if "application/json" in r.headers.get("content-type", "") else r.text
++            return result["report"] if tool == "produce_compliance_report" else result
++        except (httpx.HTTPError, KeyError, ValueError) as e:
++            raise DownstreamError(f"ontology.{tool}: invalid request or unavailable service") from e
++        finally:
++            if self._client is None:
++                await client.aclose()
++
++
+ def build_downstreams(cfg: dict) -> dict[str, Downstream]:
+     out: dict[str, Downstream] = {}
+     for ns, d in cfg.get("downstream", {}).items():
+@@ -134,6 +186,9 @@ def build_downstreams(cfg: dict) -> dict[str, Downstream]:
+         elif kind == "http":
+             out[ns] = RegulationDownstream(d.get("base_url", "http://127.0.0.1:8000"),
+                                            d.get("token_env", "GATEWAY_TOKEN"))
++        elif kind == "ontology-http":
++            out[ns] = OntologyRegulationDownstream(d.get("base_url", "http://127.0.0.1:8020"),
++                                                 d.get("token_env", "SION_API_TOKEN"), d.get("timeout_s", 65))
+         else:
+             out[ns] = StdioDownstream(ns, d["command"], d.get("args"), d.get("env"),
+                                       d.get("timeout_s", 120))
+diff --git a/config/router.example.json b/config/router.example.json
+index b59fe13..4b4da83 100644
+--- a/config/router.example.json
++++ b/config/router.example.json
+@@ -1,6 +1,12 @@
+ {
+   "_comment": "Copy to config/router.<HOSTNAME>.json (gitignored) and fix the paths for this PC. Secrets (GATEWAY_TOKEN) come from the environment, never from this file.",
+-  "jev": { "command": "node", "args": ["C:\\Users\\<user>\\.local\\bin\\jev-mcp-server.mjs"], "timeout_s": 30 },
++  "jev": {
++    "command": "node",
++    "args": [
++      "C:\\Users\\<user>\\.local\\bin\\jev-mcp-server.mjs"
++    ],
++    "timeout_s": 30
++  },
+   "gate_tool": "jev_decide",
+   "require_dry_run_first": true,
+   "report_schema_path": "C:\\CODE\\Ontology-platform\\packages\\core\\sion_core\\contracts\\schemas\\building-regulation-report-1.schema.json",
+@@ -9,20 +15,73 @@
+       "type": "stdio",
+       "command": "C:\\CODE\\power-cad-latest\\dist\\server\\win-x64-new\\power-cad-server.exe",
+       "args": [],
+-      "env": { "POWER_CAD_HS_STEEL_ROOT": "C:\\CODE\\hs-steel-cad", "HS_STEEL_ASSET_ROOT": "C:\\HS-STEEL", "POWERCAD_ASSET_DB": "<drive>\\PowerCad-Assets" },
+-      "read_tools": [], "write_tools": []
++      "env": {
++        "POWER_CAD_HS_STEEL_ROOT": "C:\\CODE\\hs-steel-cad",
++        "HS_STEEL_ASSET_ROOT": "C:\\HS-STEEL",
++        "POWERCAD_ASSET_DB": "<drive>\\PowerCad-Assets"
++      },
++      "read_tools": [],
++      "write_tools": []
++    },
++    "revit": {
++      "type": "stdio",
++      "command": "C:\\Users\\<user>\\AppData\\Local\\Programs\\Horizun\\MCP\\server\\horizun-mcp.exe",
++      "args": []
++    },
++    "rvt": {
++      "type": "stdio",
++      "enabled": false,
++      "command": "C:\\Users\\<user>\\AppData\\Local\\RvtMcp\\rvt\\server\\current\\rvt-mcp.exe",
++      "args": []
++    },
++    "rhino": {
++      "type": "stub"
++    },
++    "sketchup": {
++      "type": "stub"
++    },
++    "regulation": {
++      "type": "http",
++      "base_url": "http://127.0.0.1:8000",
++      "token_env": "GATEWAY_TOKEN",
++      "read_tools": [
++        "resolve_site",
++        "collect_site_constraints",
++        "collect_building_facts",
++        "collect_legal_basis",
++        "collect_official_interpretations",
++        "verify_spatial_and_legal_conflicts",
++        "produce_compliance_report",
++        "health",
++        "audit"
++      ]
+     },
+-    "revit": { "type": "stdio", "command": "C:\\Users\\<user>\\AppData\\Local\\Programs\\Horizun\\MCP\\server\\horizun-mcp.exe", "args": [] },
+-    "rvt": { "type": "stdio", "enabled": false, "command": "C:\\Users\\<user>\\AppData\\Local\\RvtMcp\\rvt\\server\\current\\rvt-mcp.exe", "args": [] },
+-    "rhino": { "type": "stub" },
+-    "sketchup": { "type": "stub" },
+-    "regulation": { "type": "http", "base_url": "http://127.0.0.1:8000", "token_env": "GATEWAY_TOKEN" },
+     "site": {
+       "type": "stdio",
+       "command": "doppler",
+-      "args": ["run", "--project", "mcp-agent-credentials", "--config", "dev", "--", "C:\\CODE\\site-pipeline-mcp\\.venv\\Scripts\\site-pipeline-mcp.exe"],
+-      "env": { "SITE_PIPELINE_WORK": "C:\\CODE\\site-pipeline-mcp\\work", "VWORLD_DOMAIN": "localhost" },
+-      "write_tools": ["contours_to_landxml", "dem_to_landxml"]
++      "args": [
++        "run",
++        "--project",
++        "mcp-agent-credentials",
++        "--config",
++        "dev",
++        "--",
++        "C:\\CODE\\site-pipeline-mcp\\.venv\\Scripts\\site-pipeline-mcp.exe"
++      ],
++      "env": {
++        "SITE_PIPELINE_WORK": "C:\\CODE\\site-pipeline-mcp\\work",
++        "VWORLD_DOMAIN": "localhost"
++      },
++      "write_tools": [
++        "contours_to_landxml",
++        "dem_to_landxml"
++      ]
++    },
++    "regulation_work": {
++      "type": "ontology-http",
++      "base_url": "http://127.0.0.1:8020",
++      "token_env": "SION_API_TOKEN",
++      "timeout_s": 65
+     }
+   }
+ }
+diff --git a/tests/test_ontology_regulation.py b/tests/test_ontology_regulation.py
+new file mode 100644
+index 0000000..a0869f9
+--- /dev/null
++++ b/tests/test_ontology_regulation.py
+@@ -0,0 +1,36 @@
++import json
++
++import httpx
++
++from aec_mcp_router.audit import AuditLog
++from aec_mcp_router.downstream import OntologyRegulationDownstream
++from aec_mcp_router.router import Router
++from test_router import FakeJev
++
++
++async def test_workspace_routes_and_dry_run_gate(tmp_path, monkeypatch):
++    monkeypatch.setenv("SION_API_TOKEN", "synthetic-token")
++    calls = []
++    def handle(request):
++        assert request.headers["authorization"] == "Bearer synthetic-token"
++        body = json.loads(request.content) if request.content else None
++        calls.append((request.method, request.url.path, body))
++        if request.url.path.endswith("/briefing"):
++            return httpx.Response(200, text="# briefing", headers={"content-type": "text/plain"})
++        return httpx.Response(200, json={"saved": not (body or {}).get("dry_run", False)})
++    async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
++        ds = OntologyRegulationDownstream("http://sion", "SION_API_TOKEN", client=client)
++        cfg = {"downstream": {"regulation_work": {}}, "require_dry_run_first": True}
++        router = Router(cfg, {"regulation_work": ds}, FakeJev(), AuditLog(tmp_path))
++        discovered = await router.list_tools()
++        assert {t["name"]: t["kind"] for t in discovered["regulation_work"]}["regulation_work.save_regulation_work"] == "write"
++        args = {"project_id": "p", "run_id": "r", "title": "x"}
++        assert (await router.call("regulation_work.save_regulation_work", {**args, "dry_run": False}))["blocked"]
++        dry = await router.call("regulation_work.save_regulation_work", args)
++        assert not dry["applied"] and calls[-1][2]["dry_run"] is True
++        saved = await router.call("regulation_work.save_regulation_work", {**args, "dry_run": False})
++        assert saved["applied"] and calls[-1][2]["dry_run"] is False
++        brief = await router.call("regulation_work.get_regulation_briefing", {"work_id": "w"})
++        assert brief["result"] == "# briefing" and calls[-1][1].endswith("/w/briefing")
++        await router.call("regulation_work.update_regulation_work", {"work_id": "w", "notes": "memo", "tasks": []})
++        assert "work_id" not in calls[-1][2] and calls[-1][2]["dry_run"] is True

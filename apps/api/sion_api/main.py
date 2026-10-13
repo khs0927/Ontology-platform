@@ -22,7 +22,17 @@ from sion_ingestion.project_contracts import (
 )
 from sqlalchemy.orm import Session
 
-from . import __version__, models, outbox, regulation, repository, review, schemas, vector_repository
+from . import (
+    __version__,
+    models,
+    outbox,
+    regulation,
+    regulation_workspace,
+    repository,
+    review,
+    schemas,
+    vector_repository,
+)
 from .auth import AuthPolicy, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -38,6 +48,7 @@ def create_app(
     graphrag: SionGraphRag | None = None,
     project_contract_catalog: ProjectContractCatalog | None = None,
     ingest_roots: list[Path] | None = None,
+    regulation_transport=None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if database_url is not None:
@@ -93,6 +104,7 @@ def create_app(
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")
     read_aec = require_scope(auth_policy, "read:aec")
+    regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
 
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()
