@@ -42,3 +42,7 @@ def test_sketchup_candidates_listed_pending_not_auto_approved():
         if p in PREDICATES:
             got[p] = got.get(p, 0) + 1
     assert got == PREDICATES
+    inferred = sum(
+        1 for e in data["edges"] if e["source_kind"] == "inferred" and e["verification_state"] == "unverified"
+    )
+    assert len(cands) == inferred  # structural facts are not queued for review
