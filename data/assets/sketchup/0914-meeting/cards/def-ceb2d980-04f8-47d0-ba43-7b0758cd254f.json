@@ -1,0 +1,133 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:ceb2d980-04f8-47d0-ba43-7b0758cd254f",
+ "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,130 mm, 깊이 6, 면 6개, 재질 없음.",
+ "block": false,
+ "card_kind": "definition",
+ "class": "window-louver",
+ "confidence": 0.55,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
+  "entity": "IfcWindow",
+  "predefined_type": "WINDOW"
+ },
+ "level": {
+  "base_z_mm": 10130.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 12,
+   "Face": 6
+  },
+  "face_area_m2": 0.279,
+  "height_mm": 100.0,
+  "length_mm": 940.0,
+  "thickness_mm": 87.7,
+  "width_mm": 87.7
+ },
+ "provenance": {
+  "classification": "classification.supplement.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "rotated-frames",
+    "tools": [
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "glue-and-cut",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-envelope-assemblies",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_group",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "doors-windows",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "array",
+  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹177#1",
+  "guid": "ceb2d980-04f8-47d0-ba43-7b0758cd254f",
+  "instance_pids": [
+   4163464
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@win"
+ }
+}

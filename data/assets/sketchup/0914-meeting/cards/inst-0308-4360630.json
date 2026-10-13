@@ -1,0 +1,137 @@
+{
+ "asset_file": {
+  "bytes": 555611,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "c0ba5e8e50866c7bcc7ff033b66316ef3d808c78753ef0fe0085f3da896fe903",
+  "skp": "objects/counter-millwork/그룹_226__4360630.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/counter-millwork/그룹_226__4360630.png",
+  "thumbnail_sha256": "52e1459ffeed540b0093a332d49349d9e9d9e464aa8ece195423dcffe500d716"
+ },
+ "asset_id": "su-inst:0914-meeting:4360630@308",
+ "basis_ko": "정의 카드 su-def:0914-meeting:26e7e507-9ae0-4019-a601-9fac531c9c57 분류 상속: 2150×17126×650 mm, 하위에 스툴 c3#2 ×8과 수납·상판 그룹 20개",
+ "block": true,
+ "card_kind": "instance",
+ "class": "counter-millwork",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:26e7e507-9ae0-4019-a601-9fac531c9c57",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcFurniture",
+  "entity": "IfcFurniture",
+  "predefined_type": "USERDEFINED"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 10220.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 38305,
+  "height_mm": 650.0,
+  "length_mm": 17126.2,
+  "thickness_mm": 650.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   264.07239,
+   230.96009,
+   12.59843,
+   1.0
+  ],
+  "width_mm": 2150.0,
+  "world_bbox_mm": {
+   "max": [
+    68113.7,
+    42100.0,
+    10870.0
+   ],
+   "min": [
+    65963.7,
+    24973.8,
+    10220.0
+   ],
+   "size": [
+    2150.0,
+    17126.2,
+    650.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/counter-millwork.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "millwork",
+    "tools": [
+     "hueflow.create_box",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "depth-3",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#226",
+  "depth": 3,
+  "hierarchy_locator": "$.nodes[308]",
+  "name": null,
+  "occurrence": 308,
+  "parent_pid": 4361373,
+  "path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#226",
+  "pid": 4360630,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

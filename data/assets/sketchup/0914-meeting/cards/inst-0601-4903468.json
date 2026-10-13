@@ -1,0 +1,129 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4903468@601",
+ "basis_ko": "정의 카드 su-def:0914-meeting:2a5a0434-3d79-44ac-ba3b-98a111905293 분류 상속: [Translucent Glass Gray]1 면 24개, 763×1955×598 mm(카운터 위 진열장으로 추정)",
+ "block": true,
+ "card_kind": "instance",
+ "class": "counter-millwork",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:2a5a0434-3d79-44ac-ba3b-98a111905293",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcFurniture",
+  "entity": "IfcFurniture",
+  "predefined_type": "USERDEFINED"
+ },
+ "inside_block": true,
+ "level": {
+  "base_z_mm": 5502.0,
+  "elevation_mm": 5000.0,
+  "matched": true,
+  "name": "1 FL +5000"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 6,
+  "height_mm": 598.0,
+  "length_mm": 1955.0,
+  "thickness_mm": 598.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   78.14961,
+   2.91339,
+   17.79528,
+   1.0
+  ],
+  "width_mm": 763.0,
+  "world_bbox_mm": {
+   "max": [
+    72669.3,
+    29350.0,
+    6100.0
+   ],
+   "min": [
+    71906.3,
+    27395.0,
+    5502.0
+   ],
+   "size": [
+    763.0,
+    1955.0,
+    598.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/counter-millwork.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "millwork",
+    "tools": [
+     "hueflow.create_box",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "inside-block",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#164",
+  "depth": 3,
+  "hierarchy_locator": "$.nodes[601]",
+  "name": null,
+  "occurrence": 601,
+  "parent_pid": 4905148,
+  "path": "그룹#105 > 그룹#160 > 그룹#61 > 그룹#164",
+  "pid": 4903468,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

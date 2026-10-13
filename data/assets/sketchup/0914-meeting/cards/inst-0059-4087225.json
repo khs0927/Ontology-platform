@@ -1,0 +1,157 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4087225@59",
+ "basis_ko": "정의 카드 su-def:0914-meeting:94ba3cb8-c65b-482a-bd4d-bca61e0eb393 분류 상속: [Color_001]·유리 면, 1077×2663×2600 mm, 수직면 90개(2층)",
+ "block": true,
+ "card_kind": "instance",
+ "class": "door",
+ "confidence": 0.6,
+ "definition_ref": "su-def:0914-meeting:94ba3cb8-c65b-482a-bd4d-bca61e0eb393",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcDoor",
+  "entity": "IfcDoor",
+  "predefined_type": "DOOR"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 10200.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [
+  {
+   "alpha": 0.4,
+   "bim_material_category": "glass",
+   "colour_rgb": [
+    153,
+    153,
+    153
+   ],
+   "sketchup_material": "[Translucent Glass Gray]",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 150,
+  "height_mm": 2600.0,
+  "length_mm": 2663.2,
+  "thickness_mm": 1077.5,
+  "transformation": [
+   0.0,
+   -1.0,
+   0.0,
+   0.0,
+   -1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   43.99544,
+   275.83085,
+   0.0,
+   1.0
+  ],
+  "width_mm": 1077.5,
+  "world_bbox_mm": {
+   "max": [
+    71773.7,
+    29413.5,
+    12800.0
+   ],
+   "min": [
+    70696.3,
+    26750.3,
+    10200.0
+   ],
+   "size": [
+    1077.5,
+    2663.2,
+    2600.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/door.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "glue-and-cut",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-envelope-assemblies",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_group",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "doors-windows",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "depth-5",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#119",
+  "depth": 5,
+  "hierarchy_locator": "$.nodes[59]",
+  "name": null,
+  "occurrence": 59,
+  "parent_pid": 4088079,
+  "path": "그룹#201 > 그룹#71 > 그룹#100 > 그룹#154 > 그룹#135 > 그룹#119",
+  "pid": 4087225,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@door"
+ }
+}

@@ -1,0 +1,162 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/khs0927/Ontology-platform/schemas/sion-bim-asset-1.schema.json",
+ "title": "sion-bim-asset/1",
+ "description": "SketchUp 객체를 재사용 가능한 BIM 자산 카드로 기록한다(형상 파라미터·IFC/bSDD 매핑·재질 매핑·제작 레시피·자산 파일). 모든 매핑은 추론값이며 review_state로 검증 상태를 표시한다.",
+ "type": "object",
+ "required": [
+  "schema",
+  "card_kind",
+  "asset_id",
+  "model",
+  "source",
+  "class",
+  "ifc",
+  "parameters",
+  "level",
+  "tag",
+  "materials",
+  "recipe",
+  "block",
+  "asset_file",
+  "provenance",
+  "review_state",
+  "basis_ko"
+ ],
+ "properties": {
+  "schema": {
+   "const": "sion-bim-asset/1"
+  },
+  "card_kind": {
+   "enum": [
+    "definition",
+    "instance"
+   ]
+  },
+  "asset_id": {
+   "type": "string",
+   "pattern": "^su-(def|inst):"
+  },
+  "model": {
+   "type": "string"
+  },
+  "definition_ref": {
+   "type": "string"
+  },
+  "source": {
+   "type": "object"
+  },
+  "class": {
+   "type": "string"
+  },
+  "ifc": {
+   "type": "object",
+   "required": [
+    "entity",
+    "predefined_type",
+    "bsdd_uri"
+   ],
+   "properties": {
+    "entity": {
+     "type": "string",
+     "pattern": "^Ifc"
+    },
+    "predefined_type": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "bsdd_uri": {
+     "type": "string"
+    }
+   }
+  },
+  "parameters": {
+   "type": "object",
+   "required": [
+    "count"
+   ]
+  },
+  "level": {
+   "type": [
+    "object",
+    "null"
+   ]
+  },
+  "tag": {
+   "type": "object",
+   "required": [
+    "current",
+    "proposed_zium"
+   ]
+  },
+  "materials": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "sketchup_material",
+     "bim_material_category",
+     "colour_rgb",
+     "texture_file"
+    ]
+   }
+  },
+  "recipe": {
+   "type": "object",
+   "required": [
+    "method",
+    "method_ko",
+    "nesting",
+    "guides",
+    "ruby_hint",
+    "class_recipe"
+   ]
+  },
+  "block": {
+   "type": "boolean"
+  },
+  "inside_block": {
+   "type": "boolean"
+  },
+  "asset_file": {
+   "type": [
+    "object",
+    "null"
+   ],
+   "required": [
+    "store",
+    "root",
+    "skp",
+    "sha256"
+   ],
+   "properties": {
+    "sha256": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    }
+   }
+  },
+  "provenance": {
+   "type": "object"
+  },
+  "review_state": {
+   "enum": [
+    "unverified",
+    "approved",
+    "rejected"
+   ]
+  },
+  "confidence": {
+   "type": [
+    "number",
+    "null"
+   ]
+  },
+  "basis_ko": {
+   "type": "string",
+   "minLength": 1
+  }
+ }
+}

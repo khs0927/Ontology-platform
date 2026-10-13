@@ -1,0 +1,174 @@
+{
+ "asset_file": {
+  "bytes": 3261746,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "a389cd85d65558479a8dac018742624e53e980363a04c68a5a4658e94d5b2194",
+  "skp": "objects/person/그룹_116__4577819.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/person/그룹_116__4577819.png",
+  "thumbnail_sha256": "bf464edb2590022610f74b211d831fc92dcccec870568ac77eb238b493234f84"
+ },
+ "asset_id": "su-inst:0914-meeting:4577819@183",
+ "basis_ko": "정의 카드 su-def:0914-meeting:fd42e537-1b0d-4209-a95f-95d683b81896 분류 상속: Humano4_* 구성 요소 2개를 묶은 인물 그룹, 높이 약 1.3 m(앉은 자세로 추정)",
+ "block": true,
+ "card_kind": "instance",
+ "class": "person",
+ "confidence": 0.7,
+ "definition_ref": "su-def:0914-meeting:fd42e537-1b0d-4209-a95f-95d683b81896",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuildingElementProxy",
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "USERDEFINED"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 5017.9,
+  "elevation_mm": 5000.0,
+  "matched": true,
+  "name": "1 FL +5000"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 11740,
+  "height_mm": 1330.9,
+  "length_mm": 841.7,
+  "thickness_mm": 684.7,
+  "transformation": [
+   -0.9998,
+   0.01984,
+   0.0,
+   0.0,
+   -0.01984,
+   -0.9998,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   508.45913,
+   973.00636,
+   8.57686,
+   1.0
+  ],
+  "width_mm": 684.7,
+  "world_bbox_mm": {
+   "max": [
+    62631.5,
+    23850.0,
+    6348.7
+   ],
+   "min": [
+    61789.8,
+    23165.3,
+    5017.9
+   ],
+   "size": [
+    841.7,
+    684.7,
+    1330.9
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/person.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "definition-origin",
+    "tools": [
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-landscape-people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "depth-1",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#116",
+  "depth": 1,
+  "hierarchy_locator": "$.nodes[183]",
+  "name": null,
+  "occurrence": 183,
+  "parent_pid": 511546,
+  "path": "그룹#201 > 그룹#116",
+  "pid": 4577819,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

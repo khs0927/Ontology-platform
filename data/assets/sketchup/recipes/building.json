@@ -1,0 +1,259 @@
+{
+ "block": false,
+ "class": "building",
+ "definition_count": 10,
+ "examples": [
+  "su-def:0914-meeting:01ad487f-c654-4768-b277-11544df5864b",
+  "su-def:0914-meeting:1029d603-85b6-4c35-881f-9d81e2d13779",
+  "su-def:0914-meeting:27658f46-a08f-4a9c-a681-47c1d80967cc",
+  "su-def:0914-meeting:35062da6-c68c-4189-bedc-5e3ba378237d",
+  "su-def:0914-meeting:4211d1c9-886c-43ad-9327-65adb7d11977",
+  "su-def:0914-meeting:9d0911a1-39e3-43fc-8403-a86748cecd07",
+  "su-def:0914-meeting:aef8cb9a-1868-495d-b560-acfb05851daa",
+  "su-def:0914-meeting:d3e08038-76b5-4ecf-b165-5d5149e74b68",
+  "su-def:0914-meeting:d6d4194b-4850-47a4-9ea0-75f0f3a4ce9b",
+  "su-def:0914-meeting:dd8d434f-ba82-4c34-8327-a18c6c6a221c"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "grouping-overview",
+   "tools": [
+    "hueflow.list_entities",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "top-split-by-part",
+   "tools": [
+    "hueflow.list_entities",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "nest-by-assembly",
+   "tools": [
+    "hueflow.list_entities",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "rotated-frames",
+   "tools": [
+    "hueflow.rotate_entity",
+    "sketchup-mcp2.transform_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "level-stacking",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-inspect",
+   "tools": [
+    "hueflow.get_model_info",
+    "sketchup-mcp2.get_model_info",
+    "hueflow.list_entities",
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-building-container",
+   "tools": [
+    "hueflow.create_group",
+    "hueflow.create_box",
+    "hueflow.push_pull",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-envelope-assemblies",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.create_group",
+    "sketchup-mcp2.create_component"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-interior",
+   "tools": [
+    "hueflow.create_group",
+    "hueflow.rotate_entity",
+    "hueflow.place_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-verify-cleanup",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.list_components",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.list_layers"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "overview",
+   "tools": [
+    "hueflow.get_model_info",
+    "sketchup-mcp2.get_model_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "workflow",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "units-origin",
+   "tools": [
+    "hueflow.get_model_info",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.get_model_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "group-component",
+   "tools": [
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "hueflow.list_components",
+    "hueflow.place_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "levels",
+   "tools": [
+    "sketchup-mcp2.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "building-mass",
+   "tools": [
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.get_component_info",
+    "hueflow.create_group",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "scenes",
+   "tools": [
+    "sketchup-mcp2.export_scene",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "qa",
+   "tools": [
+    "sketchup-mcp2.get_model_info",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.get_component_info",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.export_scene"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "mcp-execution",
+   "tools": [
+    "sketchup-mcp2.get_model_info",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "sketchup-mcp2.create_component",
+    "sketchup-mcp2.transform_component",
+    "sketchup-mcp2.set_material",
+    "sketchup-mcp2.create_layer",
+    "sketchup-mcp2.export_scene",
+    "sketchup-mcp2.eval_ruby",
+    "sketchup-mcp2.undo",
+    "hueflow.execute_ruby",
+    "hueflow.create_box",
+    "hueflow.create_group",
+    "hueflow.place_component",
+    "hueflow.list_materials"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "층·부위 하위 그룹을 중첩해 조립한 건물 컨테이너",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcBuilding",
+  "predefined_type": null
+ },
+ "label_ko": "건물 매스(동)",
+ "material_categories": {
+  "glass": 1,
+  "paint-or-colour": 7
+ },
+ "proposed_zium_tag": "A-본동",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 10650.3,
+   "median": 4788.9,
+   "min": 2800.0,
+   "n": 10
+  },
+  "length_mm": {
+   "max": 40830.0,
+   "median": 22200.0,
+   "min": 5280.0,
+   "n": 10
+  },
+  "thickness_mm": {
+   "max": 10650.3,
+   "median": 4788.9,
+   "min": 2400.0,
+   "n": 10
+  },
+  "width_mm": {
+   "max": 26560.0,
+   "median": 9440.0,
+   "min": 2400.0,
+   "n": 10
+  }
+ }
+}

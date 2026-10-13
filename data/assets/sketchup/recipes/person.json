@@ -1,0 +1,128 @@
+{
+ "block": true,
+ "class": "person",
+ "definition_count": 14,
+ "examples": [
+  "su-def:0914-meeting:014eadb8-a5ab-4579-9d20-3e0c0491a516",
+  "su-def:0914-meeting:3e2593fb-778f-4655-978b-1203885380ec",
+  "su-def:0914-meeting:4b58f276-ac43-445a-85d3-6dbfd81555e0",
+  "su-def:0914-meeting:70babda9-a73b-4753-a1cc-d8a9bfccd7df",
+  "su-def:0914-meeting:7b728472-fa3c-4146-8125-2ef35ec8c690",
+  "su-def:0914-meeting:8d4a616b-e04a-c241-b203-41b693a9aedd",
+  "su-def:0914-meeting:8f2248c3-0af1-40b9-8efb-3f9bcc217ea6",
+  "su-def:0914-meeting:996d4f3f-930e-465f-8bc2-619e4f8804c3",
+  "su-def:0914-meeting:af65e514-836e-4fec-8a99-207e28502185",
+  "su-def:0914-meeting:b951a0bd-dba4-4595-b933-dd887fe60e62"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "component-for-repeats",
+   "tools": [
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "sketchup-mcp2.create_component",
+    "hueflow.place_component"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "default-naming",
+   "tools": [
+    "sketchup-mcp2.list_components",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "definition-origin",
+   "tools": [
+    "sketchup-mcp2.get_component_info",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-landscape-people",
+   "tools": [
+    "hueflow.place_component",
+    "sketchup-mcp2.transform_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "group-component",
+   "tools": [
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "hueflow.list_components",
+    "hueflow.place_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "people",
+   "tools": [
+    "hueflow.place_component",
+    "sketchup-mcp2.transform_component",
+    "sketchup-mcp2.get_component_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "블럭 객체는 내부를 분해하지 않고 한 컴포넌트로 저장·재사용"
+ ],
+ "ifc": {
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "USERDEFINED"
+ },
+ "label_ko": "인물(스케일 피겨)",
+ "material_categories": {
+  "paint-or-colour": 21,
+  "textile-or-figure": 3
+ },
+ "proposed_zium_tag": "@FUR",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 23043.4,
+   "median": 1959.8,
+   "min": 1299.7,
+   "n": 14
+  },
+  "length_mm": {
+   "max": 34832.7,
+   "median": 2365.2,
+   "min": 601.2,
+   "n": 14
+  },
+  "thickness_mm": {
+   "max": 14514.3,
+   "median": 1465.9,
+   "min": 0.0,
+   "n": 14
+  },
+  "width_mm": {
+   "max": 14514.3,
+   "median": 1466.5,
+   "min": 0.0,
+   "n": 14
+  }
+ }
+}

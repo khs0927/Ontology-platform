@@ -1,0 +1,177 @@
+{
+ "asset_file": {
+  "bytes": 19790,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "343deabdbdc70eb85bc3accae0638b8eb2341531b66f00588574d79f5f85e625",
+  "skp": "objects/handrail/그룹_26__5135289.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/handrail/그룹_26__5135289.png",
+  "thumbnail_sha256": "46fcbab3a69b1cf922b8c6d096492d10e119b16646c0a2032e1c23de85074f06"
+ },
+ "asset_id": "su-def:0914-meeting:c286a82e-95c4-4af4-a57e-ad0e1b16beba",
+ "basis_ko": "이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상",
+ "block": false,
+ "card_kind": "definition",
+ "class": "handrail",
+ "confidence": 0.7,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRailing",
+  "entity": "IfcRailing",
+  "predefined_type": "HANDRAIL"
+ },
+ "level": {
+  "base_z_mm": 1053.6,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 227,
+   "Face": 98
+  },
+  "face_area_m2": 0.982,
+  "height_mm": 4359.6,
+  "length_mm": 9314.6,
+  "thickness_mm": 30.0,
+  "width_mm": 30.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/handrail.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "tags-on-raw-geometry",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-repeats",
+    "tools": [
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.transform_component",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "tags",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "sketchup-mcp2.create_layer",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "railing",
+    "tools": [
+     "hueflow.follow_me",
+     "hueflow.execute_ruby",
+     "hueflow.create_circle"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "follow-me",
+  "method_ko": "단면(원/사각)을 경로를 따라 Follow-Me로 쓸어 만듦",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#26",
+  "guid": "c286a82e-95c4-4af4-a57e-ad0e1b16beba",
+  "instance_pids": [
+   5135289
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0",
+   "XCLINE"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

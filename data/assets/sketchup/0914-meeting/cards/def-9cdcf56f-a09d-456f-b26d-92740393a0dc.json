@@ -1,0 +1,143 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:9cdcf56f-a09d-456f-b26d-92740393a0dc",
+ "basis_ko": "3400×10025×1100 mm, 상판 그룹#158(40 mm) + 타일·오크 수납 그룹#165(960 mm)",
+ "block": true,
+ "card_kind": "definition",
+ "class": "counter-millwork",
+ "confidence": 0.7,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcFurniture",
+  "entity": "IfcFurniture",
+  "predefined_type": "USERDEFINED"
+ },
+ "level": {
+  "base_z_mm": 5000.0,
+  "elevation_mm": 5000.0,
+  "matched": true,
+  "name": "1 FL +5000"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "glass",
+   "colour_rgb": [
+    42,
+    63,
+    50
+   ],
+   "sketchup_material": "Victorian Glazed, Stack (NQNK3I)",
+   "texture_file": "Victorian Glazed, Stack (NQNK3I).jpg",
+   "texture_size_mm": [
+    804.0,
+    1008.2
+   ]
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    58,
+    58,
+    58
+   ],
+   "sketchup_material": "[Color M07]",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    122,
+    58,
+    58
+   ],
+   "sketchup_material": "바닥1",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 44,
+   "Face": 20,
+   "Group": 2
+  },
+  "face_area_m2": 49.86,
+  "height_mm": 1100.0,
+  "length_mm": 10025.0,
+  "thickness_mm": 1100.0,
+  "width_mm": 3400.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹#158",
+   "그룹#165"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/counter-millwork.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "millwork",
+    "tools": [
+     "hueflow.create_box",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#155",
+  "guid": "9cdcf56f-a09d-456f-b26d-92740393a0dc",
+  "instance_pids": [
+   4905147
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

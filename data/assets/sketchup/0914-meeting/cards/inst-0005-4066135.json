@@ -1,0 +1,169 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4066135@5",
+ "basis_ko": "정의 카드 su-def:0914-meeting:8ae2cda4-1d1c-432d-a435-d4b3984ac528 분류 상속: 수평면 레벨 0/67/139·143/283·287/426/498/500 mm의 계단식 단차, 크기 7.9×18.5×0.5 m, 재질 [Polished Concrete New]",
+ "block": false,
+ "card_kind": "instance",
+ "class": "exterior-stair",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:8ae2cda4-1d1c-432d-a435-d4b3984ac528",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcStair",
+  "entity": "IfcStair",
+  "predefined_type": "STRAIGHT_RUN_STAIR"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 0.0,
+  "elevation_mm": 0.0,
+  "matched": true,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    238,
+    238,
+    242
+   ],
+   "sketchup_material": "[Polished Concrete New]",
+   "texture_file": "Polished Concrete New.jpg",
+   "texture_size_mm": [
+    3000.0,
+    3000.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 9,
+  "height_mm": 500.0,
+  "length_mm": 18525.0,
+  "thickness_mm": 500.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   488.18898,
+   950.33659,
+   196.85039,
+   1.0
+  ],
+  "width_mm": 7875.5,
+  "world_bbox_mm": {
+   "max": [
+    39875.3,
+    36981.6,
+    500.0
+   ],
+   "min": [
+    31999.8,
+    18456.5,
+    0.0
+   ],
+   "size": [
+    7875.5,
+    18525.0,
+    500.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/exterior-stair.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "array",
+  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "nesting": "depth-3",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#31",
+  "depth": 3,
+  "hierarchy_locator": "$.nodes[5]",
+  "name": null,
+  "occurrence": 5,
+  "parent_pid": 4066616,
+  "path": "학장동 skp.dwg > 그룹#1 > 그룹#17 > 그룹#31",
+  "pid": 4066135,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

@@ -1,0 +1,161 @@
+{
+ "asset_file": {
+  "bytes": 1405465,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "5d861ca78aace9d7705e189483ec6c7918e94a82d05967e08a59c92879bcec77",
+  "skp": "objects/exterior-stair/그룹_18__47944.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/exterior-stair/그룹_18__47944.png",
+  "thumbnail_sha256": "f3c64679b2d4fc4a99e9343d69e6cd8e5a1ee2a6da5bcd55deb1d6e0c6d04d3e"
+ },
+ "asset_id": "su-inst:0914-meeting:47944@22",
+ "basis_ko": "정의 카드 su-def:0914-meeting:ca07889e-af21-44ff-841c-ef1b09a876a5 분류 상속: 하위에 이름 'Raise' 그룹 2개, 'Handrail' 그룹 2개, 벽돌 측벽 4개를 묶은 외부계단 조립체, 크기 30.5×4.6×8.2 m",
+ "block": false,
+ "card_kind": "instance",
+ "class": "exterior-stair",
+ "confidence": 0.7,
+ "definition_ref": "su-def:0914-meeting:ca07889e-af21-44ff-841c-ef1b09a876a5",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcStair",
+  "entity": "IfcStair",
+  "predefined_type": "STRAIGHT_RUN_STAIR"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": -2500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 532,
+  "height_mm": 8200.0,
+  "length_mm": 30495.4,
+  "thickness_mm": 4587.8,
+  "transformation": [
+   0.99745,
+   0.0714,
+   -0.0,
+   0.0,
+   -0.0714,
+   0.99745,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   634.23405,
+   582.55439,
+   -98.4252,
+   1.0
+  ],
+  "width_mm": 4587.8,
+  "world_bbox_mm": {
+   "max": [
+    46432.0,
+    19384.7,
+    5700.0
+   ],
+   "min": [
+    15936.5,
+    14796.9,
+    -2500.0
+   ],
+   "size": [
+    30495.4,
+    4587.8,
+    8200.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/exterior-stair.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "array",
+  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "nesting": "depth-0",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#18",
+  "depth": 0,
+  "hierarchy_locator": "$.nodes[22]",
+  "name": null,
+  "occurrence": 22,
+  "parent_pid": null,
+  "path": "그룹#18",
+  "pid": 47944,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

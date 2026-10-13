@@ -1,0 +1,206 @@
+{
+ "asset_file": {
+  "bytes": 19790,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "343deabdbdc70eb85bc3accae0638b8eb2341531b66f00588574d79f5f85e625",
+  "skp": "objects/handrail/그룹_26__5135289.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/handrail/그룹_26__5135289.png",
+  "thumbnail_sha256": "46fcbab3a69b1cf922b8c6d096492d10e119b16646c0a2032e1c23de85074f06"
+ },
+ "asset_id": "su-inst:0914-meeting:5135289@31",
+ "basis_ko": "정의 카드 su-def:0914-meeting:c286a82e-95c4-4af4-a57e-ad0e1b16beba 분류 상속: 이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상",
+ "block": false,
+ "card_kind": "instance",
+ "class": "handrail",
+ "confidence": 0.7,
+ "definition_ref": "su-def:0914-meeting:c286a82e-95c4-4af4-a57e-ad0e1b16beba",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRailing",
+  "entity": "IfcRailing",
+  "predefined_type": "HANDRAIL"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 1053.6,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 98,
+  "height_mm": 4359.6,
+  "length_mm": 9292.9,
+  "thickness_mm": 695.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   1300.56816,
+   895.98939,
+   41.99475,
+   1.0
+  ],
+  "width_mm": 695.0,
+  "world_bbox_mm": {
+   "max": [
+    44402.3,
+    18842.2,
+    5413.1
+   ],
+   "min": [
+    35109.4,
+    18147.2,
+    1053.6
+   ],
+   "size": [
+    9292.9,
+    695.0,
+    4359.6
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/handrail.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "tags-on-raw-geometry",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-repeats",
+    "tools": [
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.transform_component",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "tags",
+    "tools": [
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_layers",
+     "sketchup-mcp2.create_layer",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "railing",
+    "tools": [
+     "hueflow.follow_me",
+     "hueflow.execute_ruby",
+     "hueflow.create_circle"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "follow-me",
+  "method_ko": "단면(원/사각)을 경로를 따라 Follow-Me로 쓸어 만듦",
+  "nesting": "depth-2",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#26",
+  "depth": 2,
+  "hierarchy_locator": "$.nodes[31]",
+  "name": "D=30 mm",
+  "occurrence": 31,
+  "parent_pid": 5135552,
+  "path": "그룹#18 > Handrail > D=30 mm",
+  "pid": 5135289,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

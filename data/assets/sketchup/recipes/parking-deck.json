@@ -1,0 +1,90 @@
+{
+ "block": false,
+ "class": "parking-deck",
+ "definition_count": 2,
+ "examples": [
+  "su-def:0914-meeting:279ad43c-8dbb-4c58-806a-a633f903d5bc",
+  "su-def:0914-meeting:a0283f2e-7590-45b2-9022-3d2bf4e81c80"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "workflow",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "parking",
+   "tools": [
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "materials",
+   "tools": [
+    "hueflow.list_materials",
+    "sketchup-mcp2.set_material",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcSlab",
+  "predefined_type": "FLOOR"
+ },
+ "label_ko": "주차장 데크·경사로",
+ "material_categories": {
+  "auto-generated (purge 후보)": 2,
+  "concrete": 2
+ },
+ "proposed_zium_tag": "@3D-대지",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 3500.0,
+   "median": 3250.0,
+   "min": 3000.0,
+   "n": 2
+  },
+  "length_mm": {
+   "max": 19800.0,
+   "median": 18600.0,
+   "min": 17400.0,
+   "n": 2
+  },
+  "thickness_mm": {
+   "max": 3500.0,
+   "median": 3250.0,
+   "min": 3000.0,
+   "n": 2
+  },
+  "width_mm": {
+   "max": 12615.7,
+   "median": 11863.2,
+   "min": 11110.8,
+   "n": 2
+  }
+ }
+}

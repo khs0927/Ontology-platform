@@ -1,0 +1,127 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:892fe590-ff0b-4baf-9e93-abc38900c24f",
+ "basis_ko": "그룹 재질 바닥1, 1000×7522×40 mm 상판",
+ "block": true,
+ "card_kind": "definition",
+ "class": "counter-millwork",
+ "confidence": 0.6,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcFurniture",
+  "entity": "IfcFurniture",
+  "predefined_type": "USERDEFINED"
+ },
+ "level": {
+  "base_z_mm": 6060.0,
+  "elevation_mm": 5000.0,
+  "matched": false,
+  "name": "1 FL +5000"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "stone",
+   "colour_rgb": [
+    224,
+    218,
+    209
+   ],
+   "sketchup_material": "Limestone (X9W4RQ)",
+   "texture_file": "Limestone (X9W4RQ).jpg",
+   "texture_size_mm": [
+    600.0,
+    584.5
+   ]
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    122,
+    58,
+    58
+   ],
+   "sketchup_material": "바닥1",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 21,
+   "Face": 9
+  },
+  "face_area_m2": 15.727,
+  "height_mm": 40.0,
+  "length_mm": 7522.4,
+  "thickness_mm": 40.0,
+  "width_mm": 1000.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/counter-millwork.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "millwork",
+    "tools": [
+     "hueflow.create_box",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#158",
+  "guid": "892fe590-ff0b-4baf-9e93-abc38900c24f",
+  "instance_pids": [
+   4903790
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

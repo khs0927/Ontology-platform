@@ -1,0 +1,243 @@
+{
+ "asset_file": {
+  "bytes": 13086,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "ca812c6d7fcae22840c3b11af30220eebaa85f49fcb93c85b423b4ee83c18f9f",
+  "skp": "objects/column/col__2004749.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/column/col__2004749.png",
+  "thumbnail_sha256": "99e4468aad98602dc1caab90ca747cdf9aae679bef82fa501f1f0e906ee84993"
+ },
+ "asset_id": "su-inst:0914-meeting:2004749@615",
+ "basis_ko": "정의 카드 su-def:0914-meeting:0f8124c1-2706-4e22-9ee4-13c9fc89dd1c 분류 상속: 이름 'col', 반경 240 mm 호(지름 480 원형), 높이 4200 mm, 인스턴스 4개(x 70273.7, z 5000)",
+ "block": true,
+ "card_kind": "instance",
+ "class": "column",
+ "confidence": 0.9,
+ "definition_ref": "su-def:0914-meeting:0f8124c1-2706-4e22-9ee4-13c9fc89dd1c",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcColumn",
+  "entity": "IfcColumn",
+  "predefined_type": "COLUMN"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 5000.0,
+  "elevation_mm": 5000.0,
+  "matched": true,
+  "name": "1 FL +5000"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    252,
+    248,
+    244
+   ],
+   "sketchup_material": "Polished Concrete None 3000 x 2152 mm (15DBUL)",
+   "texture_file": "Polished Concrete None 3000 x 2152 mm (15DBUL).jpg",
+   "texture_size_mm": [
+    3000.0,
+    2150.4
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 41,
+  "height_mm": 4200.0,
+  "length_mm": 480.0,
+  "thickness_mm": 480.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   2766.68116,
+   1118.30649,
+   196.85039,
+   1.0
+  ],
+  "width_mm": 480.0,
+  "world_bbox_mm": {
+   "max": [
+    70753.7,
+    28885.0,
+    9200.0
+   ],
+   "min": [
+    70273.7,
+    28405.0,
+    5000.0
+   ],
+   "size": [
+    480.0,
+    480.0,
+    4200.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/column.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "definition-origin",
+    "tools": [
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-repeats",
+    "tools": [
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.transform_component",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-landscape-people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "column-beam",
+    "tools": [
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "mcp-execution",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.set_material",
+     "sketchup-mcp2.create_layer",
+     "sketchup-mcp2.export_scene",
+     "sketchup-mcp2.eval_ruby",
+     "sketchup-mcp2.undo",
+     "hueflow.execute_ruby",
+     "hueflow.create_box",
+     "hueflow.create_group",
+     "hueflow.place_component",
+     "hueflow.list_materials"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "depth-0",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "ComponentInstance"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "col",
+  "depth": 0,
+  "hierarchy_locator": "$.nodes[615]",
+  "name": null,
+  "occurrence": 615,
+  "parent_pid": null,
+  "path": "col",
+  "pid": 2004749,
+  "type": "ComponentInstance"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "S-STEEL COLUMN"
+ }
+}

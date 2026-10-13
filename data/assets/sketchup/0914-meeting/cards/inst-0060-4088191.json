@@ -1,0 +1,174 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4088191@60",
+ "basis_ko": "정의 카드 su-def:0914-meeting:03834750-77d9-46f9-841c-5c263529bbbd 분류 상속: 수평 레벨 2719/3050/3150 mm + 5.9~6.2° 경사면, 21.8×22.2×1.9 m(월드 z 12919)",
+ "block": false,
+ "card_kind": "instance",
+ "class": "roof",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:03834750-77d9-46f9-841c-5c263529bbbd",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRoof",
+  "entity": "IfcRoof",
+  "predefined_type": "FLAT_ROOF"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 12918.6,
+  "elevation_mm": 14600.0,
+  "matched": false,
+  "name": "RF TOS +14600"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 23,
+  "height_mm": 1864.1,
+  "length_mm": 22200.0,
+  "thickness_mm": 1864.1,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ],
+  "width_mm": 21800.0,
+  "world_bbox_mm": {
+   "max": [
+    84656.3,
+    44607.4,
+    14782.7
+   ],
+   "min": [
+    62856.3,
+    22407.4,
+    12918.6
+   ],
+   "size": [
+    21800.0,
+    22200.0,
+    1864.1
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/roof.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-building-container",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.create_box",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "roof",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "hueflow.create_roof_truss"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "depth-3",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#156",
+  "depth": 3,
+  "hierarchy_locator": "$.nodes[60]",
+  "name": null,
+  "occurrence": 60,
+  "parent_pid": 4088192,
+  "path": "그룹#201 > 그룹#71 > 그룹#100 > 그룹#156",
+  "pid": 4088191,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "A-본동"
+ }
+}

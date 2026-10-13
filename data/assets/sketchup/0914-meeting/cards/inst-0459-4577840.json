@@ -1,0 +1,136 @@
+{
+ "asset_file": {
+  "bytes": 1827000,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "72d98ebf19488838145df539984d95687ba8a714a7ca9c05c45e1219803c5b5b",
+  "skp": "objects/planter/그룹_72__4577840.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/planter/그룹_72__4577840.png",
+  "thumbnail_sha256": "a10f033c01f0f4502520673153d838a69068c332686e8b4530cb9f503ac9a5e6"
+ },
+ "asset_id": "su-inst:0914-meeting:4577840@459",
+ "basis_ko": "정의 카드 su-def:0914-meeting:d0b7f786-ab3e-4b85-bdbd-52c5f9a14b20 분류 상속: 2.2~2.8 m 정사각 박스, 수평 레벨 0/450 mm, 하위에 수목 그룹#74 1개",
+ "block": true,
+ "card_kind": "instance",
+ "class": "planter",
+ "confidence": 0.7,
+ "definition_ref": "su-def:0914-meeting:d0b7f786-ab3e-4b85-bdbd-52c5f9a14b20",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcGeographicElement",
+  "entity": "IfcGeographicElement",
+  "predefined_type": "USERDEFINED"
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 5000.0,
+  "elevation_mm": 5000.0,
+  "matched": true,
+  "name": "1 FL +5000"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 942,
+  "height_mm": 3231.1,
+  "length_mm": 2249.9,
+  "thickness_mm": 2245.3,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   591.8046,
+   532.11923,
+   7.87402,
+   1.0
+  ],
+  "width_mm": 2245.3,
+  "world_bbox_mm": {
+   "max": [
+    66833.6,
+    14665.2,
+    8231.1
+   ],
+   "min": [
+    64588.3,
+    12415.3,
+    5000.0
+   ],
+   "size": [
+    2245.3,
+    2249.9,
+    3231.1
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/planter.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-landscape-people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "landscape",
+    "tools": [
+     "hueflow.place_component",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "depth-1",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#72",
+  "depth": 1,
+  "hierarchy_locator": "$.nodes[459]",
+  "name": null,
+  "occurrence": 459,
+  "parent_pid": 511546,
+  "path": "그룹#201 > 그룹#72",
+  "pid": 4577840,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "Trees 3D"
+ }
+}

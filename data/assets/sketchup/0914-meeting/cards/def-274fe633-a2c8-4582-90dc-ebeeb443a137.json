@@ -1,0 +1,115 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:274fe633-a2c8-4582-90dc-ebeeb443a137",
+ "basis_ko": "[Quartz Light Grey] 면, 도로계획 태그 모서리 12개, 수평면 33.8 m², 그룹#9(바닥) 위에 겹친 구획 표시면",
+ "block": true,
+ "card_kind": "definition",
+ "class": "parking-stall",
+ "confidence": 0.5,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcAnnotation",
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "level": {
+  "base_z_mm": -2500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "stone",
+   "colour_rgb": [
+    251,
+    251,
+    252
+   ],
+   "sketchup_material": "[Quartz Light Grey]",
+   "texture_file": "Quartz Light Grey.jpg",
+   "texture_size_mm": [
+    276.7,
+    304.8
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 138,
+   "Face": 3
+  },
+  "face_area_m2": 33.825,
+  "height_mm": 0.0,
+  "length_mm": 41627.3,
+  "thickness_mm": 0.0,
+  "width_mm": 16800.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/parking-stall.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cad-import",
+    "tools": [
+     "hueflow.list_components",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "parking",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "annotation",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "2d-block",
+  "method_ko": "2D 기호 블럭을 바닥에 배치",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#8",
+  "guid": "274fe633-a2c8-4582-90dc-ebeeb443a137",
+  "instance_pids": [
+   4068649
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0",
+   "도로계획"
+  ],
+  "proposed_zium": "@3D-대지"
+ }
+}

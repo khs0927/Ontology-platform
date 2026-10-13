@@ -1,0 +1,180 @@
+{
+ "asset_file": {
+  "bytes": 68705,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "fa326c1cffb04bbd66773bea1c3270f9279838d720089f848c80e3e852cc1faa",
+  "skp": "objects/retaining-wall/그룹_34__90359.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/retaining-wall/그룹_34__90359.png",
+  "thumbnail_sha256": "2ab83ab6caf0d219731975c8c11e5925132662d2db8ca493ff5c2d23da133add"
+ },
+ "asset_id": "su-def:0914-meeting:060742b4-403c-438b-872d-17dae84f233a",
+ "basis_ko": "그룹 재질 Travertine Stretcher, 수직면 270개, 5.6~7.5° 경사면(경사로로 추정), 수평 레벨 -6500/3374/7500 mm, 크기 54.9×17.9×16.7 m",
+ "block": false,
+ "card_kind": "definition",
+ "class": "retaining-wall",
+ "confidence": 0.5,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWall",
+  "entity": "IfcWall",
+  "predefined_type": "RETAININGWALL"
+ },
+ "level": {
+  "base_z_mm": -11660.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "stone",
+   "colour_rgb": [
+    204,
+    202,
+    197
+   ],
+   "sketchup_material": "Travertine Stretcher 3260 x 2660 mm (UMXUG9)",
+   "texture_file": "Travertine Stretcher 3260 x 2660 mm (UMXUG9).jpg",
+   "texture_size_mm": [
+    1500.0,
+    1224.6
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 1221,
+   "Face": 681
+  },
+  "face_area_m2": 1456.555,
+  "height_mm": 16660.0,
+  "length_mm": 54008.9,
+  "thickness_mm": 14076.6,
+  "width_mm": 14076.6
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/retaining-wall.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "cad-host-nesting",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-parts",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "retaining-wall",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#34",
+  "guid": "060742b4-403c-438b-872d-17dae84f233a",
+  "instance_pids": [
+   90359
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "옹벽"
+ }
+}

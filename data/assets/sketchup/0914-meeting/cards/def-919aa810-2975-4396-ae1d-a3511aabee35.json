@@ -1,0 +1,211 @@
+{
+ "asset_file": {
+  "bytes": 319602,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "2e07030a5a85016d4b72a60692bb938718e0533470de2b134b9e8fca8ebcfca8",
+  "skp": "objects/retaining-wall/그룹_14__4073106.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/retaining-wall/그룹_14__4073106.png",
+  "thumbnail_sha256": "67b73b0930340acf69166f1ef7792f000e67567e6fdfc004ac3f216f2f2ffa3d"
+ },
+ "asset_id": "su-def:0914-meeting:919aa810-2975-4396-ae1d-a3511aabee35",
+ "basis_ko": "Travertine Stretcher 면 123개 + 기존조경 면 47개, 수평 레벨 -5500/0/4500 mm, 크기 64.1×10.1×22.0 m",
+ "block": false,
+ "card_kind": "definition",
+ "class": "retaining-wall",
+ "confidence": 0.5,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWall",
+  "entity": "IfcWall",
+  "predefined_type": "RETAININGWALL"
+ },
+ "level": {
+  "base_z_mm": -9500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "stone",
+   "colour_rgb": [
+    204,
+    202,
+    197
+   ],
+   "sketchup_material": "Travertine Stretcher 3260 x 2660 mm (UMXUG9)",
+   "texture_file": "Travertine Stretcher 3260 x 2660 mm (UMXUG9).jpg",
+   "texture_size_mm": [
+    1500.0,
+    1224.6
+   ]
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    238,
+    238,
+    242
+   ],
+   "sketchup_material": "[Polished Concrete New]",
+   "texture_file": "Polished Concrete New.jpg",
+   "texture_size_mm": [
+    3000.0,
+    3000.0
+   ]
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    166,
+    173,
+    136
+   ],
+   "sketchup_material": "기존조경",
+   "texture_file": "Vegetation_Grass1.jpg",
+   "texture_size_mm": [
+    609.6,
+    609.6
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 138,
+   "Face": 52
+  },
+  "face_area_m2": 1699.796,
+  "height_mm": 21994.9,
+  "length_mm": 63868.3,
+  "thickness_mm": 5582.3,
+  "width_mm": 5582.3
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/retaining-wall.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "cad-host-nesting",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-parts",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "retaining-wall",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#14",
+  "guid": "919aa810-2975-4396-ae1d-a3511aabee35",
+  "instance_pids": [
+   4073106
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0",
+   "도로계획"
+  ],
+  "proposed_zium": "옹벽"
+ }
+}

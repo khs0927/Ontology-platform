@@ -1,0 +1,182 @@
+{
+ "block": false,
+ "class": "site-container",
+ "definition_count": 1,
+ "examples": [
+  "su-def:0914-meeting:9dd020dc-3206-4373-86cf-487555f57491"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "grouping-overview",
+   "tools": [
+    "hueflow.list_entities",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "top-split-by-part",
+   "tools": [
+    "hueflow.list_entities",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "cad-host-nesting",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "sketchup-mcp2.get_component_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "rotated-frames",
+   "tools": [
+    "hueflow.rotate_entity",
+    "sketchup-mcp2.transform_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "definition-origin",
+   "tools": [
+    "sketchup-mcp2.get_component_info",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-inspect",
+   "tools": [
+    "hueflow.get_model_info",
+    "sketchup-mcp2.get_model_info",
+    "hueflow.list_entities",
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-cad-host",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.rotate_entity",
+    "sketchup-mcp2.get_component_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-verify-cleanup",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.list_components",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.list_layers"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "overview",
+   "tools": [
+    "hueflow.get_model_info",
+    "sketchup-mcp2.get_model_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "workflow",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "units-origin",
+   "tools": [
+    "hueflow.get_model_info",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.get_model_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "cad-import",
+   "tools": [
+    "hueflow.list_components",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "terrain",
+   "tools": [
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "CAD(dwg) 가져오기 컴포넌트를 호스트로 두고 하위 그룹으로 부위를 나눔",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcSite",
+  "predefined_type": null
+ },
+ "label_ko": "대지 컨테이너(CAD 기반)",
+ "material_categories": {
+  "auto-generated (purge 후보)": 1,
+  "concrete": 2,
+  "stone": 2
+ },
+ "proposed_zium_tag": "Layer0→CAD-참조",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 21994.9,
+   "median": 21994.9,
+   "min": 21994.9,
+   "n": 1
+  },
+  "length_mm": {
+   "max": 93986.3,
+   "median": 93986.3,
+   "min": 93986.3,
+   "n": 1
+  },
+  "thickness_mm": {
+   "max": 21994.9,
+   "median": 21994.9,
+   "min": 21994.9,
+   "n": 1
+  },
+  "width_mm": {
+   "max": 57552.2,
+   "median": 57552.2,
+   "min": 57552.2,
+   "n": 1
+  }
+ }
+}

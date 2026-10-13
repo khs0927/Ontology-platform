@@ -1,0 +1,172 @@
+{
+ "asset_file": {
+  "bytes": 1405465,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "5d861ca78aace9d7705e189483ec6c7918e94a82d05967e08a59c92879bcec77",
+  "skp": "objects/exterior-stair/그룹_18__47944.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/exterior-stair/그룹_18__47944.png",
+  "thumbnail_sha256": "f3c64679b2d4fc4a99e9343d69e6cd8e5a1ee2a6da5bcd55deb1d6e0c6d04d3e"
+ },
+ "asset_id": "su-def:0914-meeting:ca07889e-af21-44ff-841c-ef1b09a876a5",
+ "basis_ko": "하위에 이름 'Raise' 그룹 2개, 'Handrail' 그룹 2개, 벽돌 측벽 4개를 묶은 외부계단 조립체, 크기 30.5×4.6×8.2 m",
+ "block": false,
+ "card_kind": "definition",
+ "class": "exterior-stair",
+ "confidence": 0.7,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcStair",
+  "entity": "IfcStair",
+  "predefined_type": "STRAIGHT_RUN_STAIR"
+ },
+ "level": {
+  "base_z_mm": -2500.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "masonry-brick",
+   "colour_rgb": [
+    163,
+    153,
+    145
+   ],
+   "sketchup_material": "Even Drag Brick Staggered (6B2XZN)",
+   "texture_file": "Even Drag Brick Staggered (6B2XZN).jpg",
+   "texture_size_mm": [
+    1620.0,
+    1349.5
+   ]
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    238,
+    238,
+    242
+   ],
+   "sketchup_material": "[Polished Concrete New]",
+   "texture_file": "Polished Concrete New.jpg",
+   "texture_size_mm": [
+    3000.0,
+    3000.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Edge": 95,
+   "Face": 30,
+   "Group": 8
+  },
+  "face_area_m2": 54.586,
+  "height_mm": 8200.0,
+  "length_mm": 30400.0,
+  "thickness_mm": 2423.4,
+  "width_mm": 2423.4
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹#166",
+   "그룹#19",
+   "그룹#21",
+   "그룹#23",
+   "그룹#24",
+   "그룹#37",
+   "그룹36#1",
+   "그룹53#1"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/exterior-stair.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "exterior-stair",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_face",
+     "hueflow.push_pull"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "array",
+  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#18",
+  "guid": "ca07889e-af21-44ff-841c-ef1b09a876a5",
+  "instance_pids": [
+   47944
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

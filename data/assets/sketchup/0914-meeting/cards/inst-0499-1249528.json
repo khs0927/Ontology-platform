@@ -1,0 +1,144 @@
+{
+ "asset_file": {
+  "bytes": 11342,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "8e4a827012d75184d055c95ab80120fd4b268cb42db3cd6d0c1fe1e558ebdd23",
+  "skp": "objects/marker/그룹_12__1249504.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/marker/그룹_12__1249504.png",
+  "thumbnail_sha256": "3b522b476e97fbac902a029cd7c44ceda2b892c7d3742cb8ff8e9014cdbf8b9d"
+ },
+ "asset_id": "su-inst:0914-meeting:1249528@499",
+ "basis_ko": "정의 카드 su-def:0914-meeting:d02f928a-ff38-4f28-9646-725438fbadc2 분류 상속: [Color A06](빨강) 250×250 mm 판, 63.4° 경사면, 최상위 인스턴스 2개(z 9819, 12364)",
+ "block": false,
+ "card_kind": "instance",
+ "class": "marker",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:d02f928a-ff38-4f28-9646-725438fbadc2",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcAnnotation",
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "inside_block": false,
+ "level": {
+  "base_z_mm": 12364.3,
+  "elevation_mm": 10200.0,
+  "matched": false,
+  "name": "2 FL +10200"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 5,
+  "height_mm": 250.0,
+  "length_mm": 249.8,
+  "thickness_mm": 33.9,
+  "transformation": [
+   0.09585,
+   -0.9954,
+   0.0,
+   0.0,
+   0.9954,
+   0.09585,
+   -0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   2476.94205,
+   1713.24145,
+   486.78331,
+   1.0
+  ],
+  "width_mm": 33.9,
+  "world_bbox_mm": {
+   "max": [
+    62948.2,
+    43517.3,
+    12614.3
+   ],
+   "min": [
+    62914.3,
+    43267.5,
+    12364.3
+   ],
+   "size": [
+    33.9,
+    249.8,
+    250.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/marker.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-markup",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.execute_ruby",
+     "hueflow.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "annotation",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "2d",
+  "method_ko": "선·문자 등 2D 작업 표식",
+  "nesting": "depth-0",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#12",
+  "depth": 0,
+  "hierarchy_locator": "$.nodes[499]",
+  "name": null,
+  "occurrence": 499,
+  "parent_pid": null,
+  "path": "그룹#12",
+  "pid": 1249528,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "WIP"
+ }
+}
