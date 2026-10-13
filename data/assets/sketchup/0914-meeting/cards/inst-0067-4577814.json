@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577814@67",
  "basis_ko": "정의 카드 su-def:0914-meeting:8101af3a-3302-44c7-9d7d-7d9834228b29 분류 상속: 그룹 재질 [Color M06], 450×30×4000 mm 막대 — 멀리언/핀 부재로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.4,
@@ -20,7 +21,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

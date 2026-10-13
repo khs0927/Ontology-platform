@@ -192,8 +192,22 @@ def build(model: str):
     cards, def_ids = [], {}
     for df in dump["definitions"]:
         def_ids[df["name"]] = f"su-def:{model}:{df['guid']}"
+    inner_defs = {k for k, ns in nodes_by_def.items() if ns and all(n.get("inside_block") for n in ns)}
+    children = defaultdict(list)
+    for i, n in enumerate(hier):
+        children[n.get("parent_pid")].append(i)
+
+    def inner_of(pid):
+        out, stack = [], list(children.get(pid, []))
+        while stack:
+            i = stack.pop()
+            out.append(i)
+            stack += children.get(hier[i]["pid"], [])
+        return out
     for df in sorted(dump["definitions"], key=lambda x: x["guid"]):
         name = df["name"]
+        if name in inner_defs:
+            continue  # 사용자 규칙: 블럭 내부 정의는 별도 자산이 아님(블럭 카드에서 참조)
         a = cls_def.get(name)
         nodes = nodes_by_def.get(name, [])
         if a:
@@ -209,7 +223,7 @@ def build(model: str):
         layers = df.get("instance_layers") or {}
         cards.append({
             "schema": SCHEMA, "card_kind": "definition", "asset_id": def_ids[name], "model": model,
-            "source": {"definition": name, "guid": df["guid"], "kind": df["kind"],
+            "source": {"definition": name, "guid": "su-guid:" + df["guid"], "kind": df["kind"],
                        "source_file": basename(df.get("path")), "instances": df.get("instances"),
                        "used_instances": df.get("used_instances"),
                        "instance_pids": sorted(n["pid"] for n in nodes)},
@@ -232,6 +246,8 @@ def build(model: str):
             "review_state": "unverified", "confidence": conf, "basis_ko": basis,
         })
     for idx, n in enumerate(hier):
+        if n.get("inside_block"):
+            continue  # 블럭 = 객체 1개 = 카드 1개
         a = cls_pid.get(n["pid"])
         dcard = next(c for c in cards if c["asset_id"] == def_ids[n["definition"]])
         cls = (a or {}).get("class") or n.get("class_guess") or dcard["class"]
@@ -253,7 +269,10 @@ def build(model: str):
             "recipe": recipe(cls, "inside-block" if n.get("inside_block") else f"depth-{n['depth']}",
                              [], n["type"]),
             "block": bool(n.get("block_node") or (blk and not n.get("inside_block"))),
-            "inside_block": bool(n.get("inside_block")),
+            "block_contents": ({"inner_occurrences": len(inner_of(n["pid"])),
+                                "inner_definitions": sorted({hier[i]["definition"] for i in inner_of(n["pid"])}),
+                                "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"}
+                               if n.get("block_node") else None),
             "asset_file": asset_file(file_by_pid.get(n["pid"])) or dcard["asset_file"],
             "provenance": {"hierarchy": f"data/sources/sketchup/{model}/hierarchy.json",
                            "classification": "classification.supplement.json" if a else "hierarchy class_guess / definition card",
@@ -315,14 +334,20 @@ def main(argv=None):
     files = {}
     base = OUT / a.model
     for c in cards:
-        stem = ("def-" + c["source"]["guid"]) if c["card_kind"] == "definition" else f"inst-{c['source']['occurrence']:04d}-{c['source']['pid']}"
+        stem = ("def-" + c["source"]["guid"].removeprefix("su-guid:")) if c["card_kind"] == "definition" else f"inst-{c['source']['occurrence']:04d}-{c['source']['pid']}"
         files[base / "cards" / f"{stem}.json"] = dumps(c)
     files[base / "cards.jsonl"] = "".join(json.dumps(c, ensure_ascii=False, sort_keys=True) + "\n" for c in cards)
     nd = sum(c["card_kind"] == "definition" for c in cards)
     ni = len(cards) - nd
-    cov = {"model": a.model, "definitions_total": len(dump["definitions"]), "definition_cards": nd,
-           "instances_total": len(hier), "instance_cards": ni,
-           "coverage_pct": round(100.0 * (nd + ni) / (len(dump["definitions"]) + len(hier)), 2),
+    n_inner_def = sum(all(x.get("inside_block") for x in ns) for ns in
+                      [[n for n in hier if n["definition"] == d["name"]] for d in dump["definitions"]] if ns)
+    n_inner_occ = sum(bool(n.get("inside_block")) for n in hier)
+    exp = len(dump["definitions"]) - n_inner_def + len(hier) - n_inner_occ
+    cov = {"model": a.model, "rule_ko": "블럭(나무·사람·가구 등)=객체 1개=카드 1개, 블럭 내부 정의·부품은 카드 없음",
+           "definitions_total": len(dump["definitions"]), "definitions_inside_blocks_only": n_inner_def,
+           "definition_cards": nd, "occurrences_total": len(hier), "occurrences_inside_blocks": n_inner_occ,
+           "instance_cards": ni, "expected_cards": exp,
+           "coverage_pct": round(100.0 * (nd + ni) / exp, 2),
            "with_asset_file": sum(bool(c["asset_file"]) for c in cards),
            "block_cards": sum(c["block"] for c in cards),
            "occurrence_note": "인스턴스 카드는 hierarchy 노드(occurrence) 단위; 같은 pid가 여러 부모 경로에 나타날 수 있음",
@@ -335,12 +360,12 @@ def main(argv=None):
         if stale:
             print(f"stale: {len(stale)} files, e.g. {stale[0]}", file=sys.stderr)
             return 1
-        print("up to date", json.dumps(cov, ensure_ascii=False))
+        print("up to date", json.dumps(cov))
         return 0
     for p, t in files.items():
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(t, encoding="utf-8")
-    print(json.dumps(cov, ensure_ascii=False))
+    print(json.dumps(cov))
     return 0
 
 

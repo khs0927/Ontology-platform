@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4204587@187",
  "basis_ko": "정의 카드 su-def:0914-meeting:89f9bc36-2de9-4ab9-965a-76c135643826 분류 상속: [Translucent Glass Gray] 면 73개, 수직면 10개, 크기 1.9×22.2×5.0 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.7,
@@ -20,7 +21,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

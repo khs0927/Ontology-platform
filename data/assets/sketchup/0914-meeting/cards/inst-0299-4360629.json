@@ -11,6 +11,20 @@
  "asset_id": "su-inst:0914-meeting:4360629@299",
  "basis_ko": "정의 카드 su-def:0914-meeting:0a25473a-6916-48b3-b63b-1ded8234d7fe 분류 상속: 837×1874×577 mm 가죽 좌석 + 스테인리스 레일, 인스턴스 5개(2층)",
  "block": true,
+ "block_contents": {
+  "inner_definitions": [
+   "그룹#174",
+   "그룹#176",
+   "그룹#177",
+   "그룹#178",
+   "그룹#179",
+   "그룹#188",
+   "그룹#193",
+   "그룹#195"
+  ],
+  "inner_occurrences": 24,
+  "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"
+ },
  "card_kind": "instance",
  "class": "furniture",
  "confidence": 0.8,
@@ -20,7 +34,6 @@
   "entity": "IfcFurniture",
   "predefined_type": "CHAIR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10220.0,
   "elevation_mm": 10200.0,

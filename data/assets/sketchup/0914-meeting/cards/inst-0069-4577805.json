@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577805@69",
  "basis_ko": "정의 카드 su-def:0914-meeting:1029d603-85b6-4c35-881f-9d81e2d13779 분류 상속: 9.0×9.0×3.6 m 박스(월드 z 9150), 흰 벽 그룹#88 + DimGray 창틀·Blue Glass 그룹#76 — 별동 상부 매스로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "building",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcBuilding",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9150.0,
   "elevation_mm": 10200.0,

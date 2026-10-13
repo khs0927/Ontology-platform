@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:5135415@23",
  "basis_ko": "정의 카드 su-def:0914-meeting:7dc1721f-4ce9-46f9-ab44-b99e287e0da2 분류 상속: 이름 'Raise', 수평 디딤면 14개가 166.7 mm 간격(167~2333 mm), 1333 mm에 넓은 참(3.28 m²), 총 높이 2500 mm",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "exterior-stair",
  "confidence": 0.8,
@@ -20,7 +21,6 @@
   "entity": "IfcStair",
   "predefined_type": "STRAIGHT_RUN_STAIR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -2500.0,
   "elevation_mm": 0.0,

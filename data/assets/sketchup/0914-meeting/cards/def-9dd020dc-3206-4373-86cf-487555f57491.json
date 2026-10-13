@@ -268,7 +268,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "학장동 skp.dwg",
-  "guid": "9dd020dc-3206-4373-86cf-487555f57491",
+  "guid": "su-guid:9dd020dc-3206-4373-86cf-487555f57491",
   "instance_pids": [
    30598
   ],

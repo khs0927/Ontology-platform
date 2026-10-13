@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4580639@37",
  "basis_ko": "정의 카드 su-def:0914-meeting:961a79cb-94f6-4235-b19d-a23238de4a66 분류 상속: @0818변경 태그 모서리 4개, 재질 <auto>2(@0818변경 태그 색 255,218,113과 동일), 경사면 4개 — 8월 18일 변경 표시면으로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.4,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

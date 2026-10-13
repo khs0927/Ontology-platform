@@ -207,7 +207,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "Niraj",
-  "guid": "8d4a616b-e04a-c241-b203-41b693a9aedd",
+  "guid": "su-guid:8d4a616b-e04a-c241-b203-41b693a9aedd",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

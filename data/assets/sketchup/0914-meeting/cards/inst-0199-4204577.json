@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4204577@199",
  "basis_ko": "정의 카드 su-def:0914-meeting:b3157e6b-7a7c-4113-8a65-cd74020d7164 분류 상속: 문틀 1200×60×2770 mm + 유리 문짝 그룹#256(1100×2670)",
  "block": true,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "door",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcDoor",
   "predefined_type": "DOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

@@ -223,7 +223,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "ch5",
-  "guid": "91051e0d-e839-4d1b-bd50-77cb9f8126b1",
+  "guid": "su-guid:91051e0d-e839-4d1b-bd50-77cb9f8126b1",
   "instance_pids": [
    4360580,
    4360581,

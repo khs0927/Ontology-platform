@@ -88,7 +88,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "그룹#73",
-  "guid": "7988cbf4-9c09-4c68-bd8d-184ca046b14d",
+  "guid": "su-guid:7988cbf4-9c09-4c68-bd8d-184ca046b14d",
   "instance_pids": [
    4577841
   ],

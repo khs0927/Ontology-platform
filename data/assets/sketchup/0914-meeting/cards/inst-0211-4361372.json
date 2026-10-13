@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4361372@211",
  "basis_ko": "정의 카드 su-def:0914-meeting:12bcd2ff-a60d-4066-a5fd-8d4a32fa29bd 분류 상속: Barham & Sons Benchmark Oak 면, 수평 레벨 -800/0 mm + 29.7° 경사면, 17.4×22.2×2.0 m(월드 z 8100) — 1층 접힌 천장/2층 바닥 하부",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 8100.0,
   "elevation_mm": 10200.0,

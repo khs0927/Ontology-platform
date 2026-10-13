@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:1181414@493",
  "basis_ko": "정의 카드 su-def:0914-meeting:7bf3d12c-3360-4279-a09e-b4d91085a3d4 분류 상속: CAD 블록 이름(.dwg), Z축 -90° 회전 배치, 하위 그룹#54 1개, 월드 z 10200(2층)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10200.0,
   "elevation_mm": 10200.0,

@@ -150,7 +150,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "w",
-  "guid": "a71000c2-e853-4ceb-9748-870c5624f892",
+  "guid": "su-guid:a71000c2-e853-4ceb-9748-870c5624f892",
   "instance_pids": [],
   "instances": 2,
   "kind": "component",

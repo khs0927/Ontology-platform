@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577813@112",
  "basis_ko": "정의 카드 su-def:0914-meeting:004f2082-52b4-455b-b80f-e5f39e29bc06 분류 상속: 그룹 재질 [Color M06], 하위에 'D=15 mm' 난간동자 58개(그룹#57 ×29 ×2)와 'D=30 mm' 핸드레일, 30×13015×915 mm",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

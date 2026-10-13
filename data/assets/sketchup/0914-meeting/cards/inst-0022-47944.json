@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:47944@22",
  "basis_ko": "정의 카드 su-def:0914-meeting:ca07889e-af21-44ff-841c-ef1b09a876a5 분류 상속: 하위에 이름 'Raise' 그룹 2개, 'Handrail' 그룹 2개, 벽돌 측벽 4개를 묶은 외부계단 조립체, 크기 30.5×4.6×8.2 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "exterior-stair",
  "confidence": 0.7,
@@ -20,7 +21,6 @@
   "entity": "IfcStair",
   "predefined_type": "STRAIGHT_RUN_STAIR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -2500.0,
   "elevation_mm": 0.0,

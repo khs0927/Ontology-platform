@@ -154,7 +154,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "우리필지배경",
-  "guid": "acd5580c-2218-4889-bdc0-a5e769d4b798",
+  "guid": "su-guid:acd5580c-2218-4889-bdc0-a5e769d4b798",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

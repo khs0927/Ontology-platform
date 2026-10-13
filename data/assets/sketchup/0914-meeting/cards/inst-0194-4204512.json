@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4204512@194",
  "basis_ko": "이름 없는 하위 그룹으로, 3단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 6.60×0.26×2.97 m, 최소 Z 5,000 mm, 깊이 4, 면 45개, 재질 없음.",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.5,
@@ -12,7 +13,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

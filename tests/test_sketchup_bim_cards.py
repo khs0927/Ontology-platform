@@ -53,8 +53,9 @@ def test_full_coverage():
     cards = _cards()
     guids = {c["source"]["guid"] for c in cards if c["card_kind"] == "definition"}
     occ = sorted(c["source"]["occurrence"] for c in cards if c["card_kind"] == "instance")
-    assert guids == {d["guid"] for d in dump["definitions"]}
-    assert occ == list(range(len(hier)))
+    inner = {n["definition"] for n in hier if n.get("inside_block")} - {n["definition"] for n in hier if not n.get("inside_block")}
+    assert guids == {"su-guid:" + d["guid"] for d in dump["definitions"] if d["name"] not in inner}
+    assert occ == [i for i, n in enumerate(hier) if not n.get("inside_block")]
     assert len(ids_all := {c["asset_id"] for c in cards}) == len(cards), "duplicate asset_id"
     assert ids_all
     ids = {c["asset_id"] for c in cards}
@@ -66,6 +67,8 @@ def test_full_coverage():
 
 def test_blocks_and_recipes():
     cards = _cards()
+    blocks = [c for c in cards if c["card_kind"] == "instance" and c["block_contents"]]
+    assert blocks and all(c["block"] for c in blocks)
     for c in cards:
         if c["card_kind"] == "definition" and c["class"] in {"tree", "person", "furniture"}:
             assert c["block"], c["asset_id"]

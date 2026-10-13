@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4915226@494",
  "basis_ko": "정의 카드 su-def:0914-meeting:1174c5e4-18e4-4d4b-8998-17ed1d8c32b6 분류 상속: [Color M06] 면 5156개, 수직면 1728개·수평면 1개, 크기 21.6×21.8×4.56 m(월드 z 10200) — 2층 수직 핀/멀리언으로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10200.0,
   "elevation_mm": 10200.0,

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4361373@213",
  "basis_ko": "정의 카드 su-def:0914-meeting:2e6072fe-1978-47e6-b549-0af755892264 분류 상속: 2층 바닥판(그룹#204·#213)과 2층 가구 인스턴스를 담은 컨테이너, 25.7×27.3×1.2 m(월드 z 9750)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9750.0,
   "elevation_mm": 10200.0,

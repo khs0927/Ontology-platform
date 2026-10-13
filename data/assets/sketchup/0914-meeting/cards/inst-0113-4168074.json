@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4168074@113",
  "basis_ko": "정의 카드 su-def:0914-meeting:707d3f1f-f7f5-453e-aa75-aa6255f42b12 분류 상속: 난간 반쪽 조립체(그룹#67에 2개), 30×5986×915 mm",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

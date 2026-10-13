@@ -139,7 +139,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "*U21",
-  "guid": "eec19773-6414-47a8-a730-e144cfd3652f",
+  "guid": "su-guid:eec19773-6414-47a8-a730-e144cfd3652f",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

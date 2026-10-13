@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:30598@0",
  "basis_ko": "정의 카드 su-def:0914-meeting:9dd020dc-3206-4373-86cf-487555f57491 분류 상속: 정의 이름이 .dwg로 끝나는 CAD 가져오기 컴포넌트, 도로계획 태그 모서리 88개, 하위 그룹 8개(지형·포장·옹벽), 월드 크기 97.9×64.1×22.0 m로 모델 대부분을 차지, Z축 4.09° 회전 배치",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "site-container",
  "confidence": 0.8,
@@ -20,7 +21,6 @@
   "entity": "IfcSite",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -9500.0,
   "elevation_mm": 0.0,

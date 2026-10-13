@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4168073@114",
  "basis_ko": "정의 카드 su-def:0914-meeting:61784171-cce4-4bf4-ba49-0d5828d30a4b 분류 상속: 난간동자 그룹#57 29개 + 보조선 그룹#55 1개",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

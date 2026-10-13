@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577801@186",
  "basis_ko": "정의 카드 su-def:0914-meeting:c07e213d-5f02-4c12-a9eb-e9b774f73fae 분류 상속: 그룹 재질 [Color M06], 하위에 유리 외피 그룹#134와 출입구 그룹#159, 크기 18.5×22.5×5.0 m (1층)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

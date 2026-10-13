@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4164139@73",
  "basis_ko": "정의 카드 su-def:0914-meeting:eb8bf665-d5ce-4dd7-bba4-e0662e1eb855 분류 상속: DimGray 면 34개, 깊이 250 mm 프레임 박스",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "window-louver",
  "confidence": 0.5,
@@ -12,7 +13,6 @@
   "entity": "IfcWindow",
   "predefined_type": "WINDOW"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10200.0,
   "elevation_mm": 10200.0,

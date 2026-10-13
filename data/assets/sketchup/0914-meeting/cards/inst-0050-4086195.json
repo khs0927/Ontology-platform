@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4086195@50",
  "basis_ko": "정의 카드 su-def:0914-meeting:5bc86336-44b0-472a-974a-8a65f9e7cb88 분류 상속: 두께 44 mm 판(난간 패널로 추정), 그룹#258의 하위",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.4,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5700.0,
   "elevation_mm": 5000.0,

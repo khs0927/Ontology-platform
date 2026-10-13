@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4164445@125",
  "basis_ko": "정의 카드 su-def:0914-meeting:c305bfe8-d89f-4ff7-9ec4-947dec42e27e 분류 상속: 이름 'D=15 mm', 15×13.5×889 mm 난간동자, XCLINE 태그 모서리 1개, 인스턴스(그룹 복사본) 29개",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.7,
@@ -12,7 +13,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

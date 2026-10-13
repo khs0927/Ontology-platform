@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4360588@214",
  "basis_ko": "정의 카드 su-def:0914-meeting:b79eb969-4a1a-4a52-b865-2a9878c2c7ec 분류 상속: 지붕 재질 면 167개, 두께 160 mm, 2.8° 경사면 26개, 25.4×27.3 m(월드 z 10160)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.4,
@@ -12,7 +13,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10160.0,
   "elevation_mm": 10200.0,

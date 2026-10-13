@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577838@47",
  "basis_ko": "정의 카드 su-def:0914-meeting:36b57b40-7ed8-4d36-a296-ccd74ea0f74f 분류 상속: 두께 44 mm 패널 6개 + 'D=30 mm' 핸드레일 그룹#259, 7.1×2.8×6.0 m — 계단 난간으로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 4800.0,
   "elevation_mm": 5000.0,

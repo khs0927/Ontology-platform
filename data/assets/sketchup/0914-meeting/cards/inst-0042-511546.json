@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:511546@42",
  "basis_ko": "정의 카드 su-def:0914-meeting:4211d1c9-886c-43ad-9327-65adb7d11977 분류 상속: 건물 레벨(z 4800~15450)에 놓인 최상위 그룹, 하위에 그룹 22개 + 컴포넌트 1개(인물·가구·커튼월·지붕·난간·별동), 크기 26.6×40.8×10.7 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "building",
  "confidence": 0.7,
@@ -20,7 +21,6 @@
   "entity": "IfcBuilding",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 4800.0,
   "elevation_mm": 5000.0,

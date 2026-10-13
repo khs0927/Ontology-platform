@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4204509@196",
  "basis_ko": "정의 카드 su-def:0914-meeting:7e457969-116d-4799-a297-e6e2bcb63222 분류 상속: 미서기 패널 2개를 묶은 3261×260×2910 mm",
  "block": true,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "door",
  "confidence": 0.4,
@@ -12,7 +13,6 @@
   "entity": "IfcDoor",
   "predefined_type": "DOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:1171922@492",
  "basis_ko": "정의 카드 su-def:0914-meeting:536824bd-8c36-4b8d-b82e-b18c38192e72 분류 상속: 그룹 재질 DimGray, 250×8050×450 mm, 월드 z 6250(그룹#225와 같은 높이)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "beam",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcBeam",
   "predefined_type": "BEAM"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 6250.0,
   "elevation_mm": 5000.0,

@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4164144@72",
  "basis_ko": "정의 카드 su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14 분류 상속: DimGray 184·Blue Glass 면, 하위 창틀·루버 그룹 12개, 9.0×9.0×2.6 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "window-louver",
  "confidence": 0.5,
@@ -12,7 +13,6 @@
   "entity": "IfcWindow",
   "predefined_type": "WINDOW"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9300.0,
   "elevation_mm": 10200.0,

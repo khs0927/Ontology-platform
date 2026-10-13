@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:1458557@500",
  "basis_ko": "정의 카드 su-def:0914-meeting:9d0911a1-39e3-43fc-8403-a86748cecd07 분류 상속: 1층 실내(그룹#160)를 감싸는 최상위 그룹, 크기 24.0×25.8×5.4 m, 월드 z 4847",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "building",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcBuilding",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 4847.1,
   "elevation_mm": 5000.0,

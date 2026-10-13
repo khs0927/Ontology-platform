@@ -255,7 +255,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "ch6",
-  "guid": "0a25473a-6916-48b3-b63b-1ded8234d7fe",
+  "guid": "su-guid:0a25473a-6916-48b3-b63b-1ded8234d7fe",
   "instance_pids": [
    4360625,
    4360626,

@@ -1,18 +1,14 @@
 {
  "block": true,
  "class": "person",
- "definition_count": 14,
+ "definition_count": 6,
  "examples": [
   "su-def:0914-meeting:014eadb8-a5ab-4579-9d20-3e0c0491a516",
-  "su-def:0914-meeting:3e2593fb-778f-4655-978b-1203885380ec",
-  "su-def:0914-meeting:4b58f276-ac43-445a-85d3-6dbfd81555e0",
-  "su-def:0914-meeting:70babda9-a73b-4753-a1cc-d8a9bfccd7df",
   "su-def:0914-meeting:7b728472-fa3c-4146-8125-2ef35ec8c690",
   "su-def:0914-meeting:8d4a616b-e04a-c241-b203-41b693a9aedd",
   "su-def:0914-meeting:8f2248c3-0af1-40b9-8efb-3f9bcc217ea6",
-  "su-def:0914-meeting:996d4f3f-930e-465f-8bc2-619e4f8804c3",
-  "su-def:0914-meeting:af65e514-836e-4fec-8a99-207e28502185",
-  "su-def:0914-meeting:b951a0bd-dba4-4595-b933-dd887fe60e62"
+  "su-def:0914-meeting:c43a3466-2c7a-4598-bd6c-aed4504cd510",
+  "su-def:0914-meeting:fd42e537-1b0d-4209-a95f-95d683b81896"
  ],
  "guides": [
   {
@@ -92,7 +88,7 @@
  },
  "label_ko": "인물(스케일 피겨)",
  "material_categories": {
-  "paint-or-colour": 21,
+  "paint-or-colour": 13,
   "textile-or-figure": 3
  },
  "proposed_zium_tag": "@FUR",
@@ -101,28 +97,28 @@
  "source_model": "0914-meeting",
  "typical_params_mm": {
   "height_mm": {
-   "max": 23043.4,
-   "median": 1959.8,
+   "max": 4451.1,
+   "median": 1351.2,
    "min": 1299.7,
-   "n": 14
+   "n": 6
   },
   "length_mm": {
-   "max": 34832.7,
-   "median": 2365.2,
+   "max": 1833.5,
+   "median": 912.0,
    "min": 601.2,
-   "n": 14
+   "n": 6
   },
   "thickness_mm": {
-   "max": 14514.3,
-   "median": 1465.9,
+   "max": 1393.8,
+   "median": 809.3,
    "min": 0.0,
-   "n": 14
+   "n": 6
   },
   "width_mm": {
-   "max": 14514.3,
-   "median": 1466.5,
+   "max": 1393.8,
+   "median": 809.3,
    "min": 0.0,
-   "n": 14
+   "n": 6
   }
  }
 }

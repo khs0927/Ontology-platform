@@ -1,17 +1,9 @@
 {
  "block": true,
  "class": "counter-millwork",
- "definition_count": 9,
+ "definition_count": 1,
  "examples": [
-  "su-def:0914-meeting:26e7e507-9ae0-4019-a601-9fac531c9c57",
-  "su-def:0914-meeting:2a5a0434-3d79-44ac-ba3b-98a111905293",
-  "su-def:0914-meeting:3897f460-17c6-463f-8663-f5d7a15c80d5",
-  "su-def:0914-meeting:892fe590-ff0b-4baf-9e93-abc38900c24f",
-  "su-def:0914-meeting:9cdcf56f-a09d-456f-b26d-92740393a0dc",
-  "su-def:0914-meeting:a991354e-5706-48d9-af79-a659dc1645e0",
-  "su-def:0914-meeting:dc9d334f-c76a-4c01-89d8-49e17b1af90e",
-  "su-def:0914-meeting:df00435c-a414-4139-868c-e1bd4164fd34",
-  "su-def:0914-meeting:eb83b280-b0af-44ee-baa5-ad9baef64e15"
+  "su-def:0914-meeting:26e7e507-9ae0-4019-a601-9fac531c9c57"
  ],
  "guides": [
   {
@@ -54,11 +46,7 @@
  },
  "label_ko": "카운터·붙박이 가구",
  "material_categories": {
-  "concrete": 1,
-  "glass": 3,
-  "paint-or-colour": 4,
-  "stone": 5,
-  "wood": 2
+  "concrete": 1
  },
  "proposed_zium_tag": "@FUR",
  "review_state": "unverified",
@@ -66,28 +54,28 @@
  "source_model": "0914-meeting",
  "typical_params_mm": {
   "height_mm": {
-   "max": 1200.0,
+   "max": 650.0,
    "median": 650.0,
-   "min": 40.0,
-   "n": 9
+   "min": 650.0,
+   "n": 1
   },
   "length_mm": {
    "max": 17126.2,
-   "median": 7522.4,
-   "min": 1955.0,
-   "n": 9
+   "median": 17126.2,
+   "min": 17126.2,
+   "n": 1
   },
   "thickness_mm": {
-   "max": 1200.0,
+   "max": 650.0,
    "median": 650.0,
-   "min": 40.0,
-   "n": 9
+   "min": 650.0,
+   "n": 1
   },
   "width_mm": {
-   "max": 3400.0,
-   "median": 1000.0,
-   "min": 400.0,
-   "n": 9
+   "max": 2150.0,
+   "median": 2150.0,
+   "min": 2150.0,
+   "n": 1
   }
  }
 }

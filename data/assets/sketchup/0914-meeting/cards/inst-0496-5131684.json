@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:5131684@496",
  "basis_ko": "정의 카드 su-def:0914-meeting:b749352e-cf12-4899-bdad-48ea80073a0c 분류 상속: [Vegetation Grass] 면, 수평 레벨 0/1000/2000 mm, 크기 13.4×39.8×4.4 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 200.0,
   "elevation_mm": 0.0,

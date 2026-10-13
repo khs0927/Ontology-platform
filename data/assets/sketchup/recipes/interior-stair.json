@@ -1,12 +1,8 @@
 {
  "block": false,
  "class": "interior-stair",
- "definition_count": 3,
- "examples": [
-  "su-def:0914-meeting:2841be43-926a-4039-9435-2eb0484fa22e",
-  "su-def:0914-meeting:9b6d03fb-0543-4c62-879f-acbee01418c0",
-  "su-def:0914-meeting:baefe80b-7692-451c-81f5-766a9f5d491e"
- ],
+ "definition_count": 0,
+ "examples": [],
  "guides": [
   {
    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -55,38 +51,15 @@
   "predefined_type": "STRAIGHT_RUN_STAIR"
  },
  "label_ko": "내부계단",
- "material_categories": {
-  "stone": 1,
-  "wood": 1
- },
+ "material_categories": {},
  "proposed_zium_tag": "@stair",
  "review_state": "unverified",
  "schema": "sion-bim-recipe/1",
  "source_model": "0914-meeting",
  "typical_params_mm": {
-  "height_mm": {
-   "max": 5352.9,
-   "median": 5200.0,
-   "min": 4935.0,
-   "n": 3
-  },
-  "length_mm": {
-   "max": 8985.0,
-   "median": 5650.0,
-   "min": 5650.0,
-   "n": 3
-  },
-  "thickness_mm": {
-   "max": 5352.9,
-   "median": 3200.0,
-   "min": 3200.0,
-   "n": 3
-  },
-  "width_mm": {
-   "max": 5650.0,
-   "median": 3200.0,
-   "min": 3200.0,
-   "n": 3
-  }
+  "height_mm": null,
+  "length_mm": null,
+  "thickness_mm": null,
+  "width_mm": null
  }
 }

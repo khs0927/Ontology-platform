@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4073101@10",
  "basis_ko": "정의 카드 su-def:0914-meeting:e50b716f-2de0-4004-ad9f-08609c519f3c 분류 상속: Even Drag Brick 면 644개, 반경 800~2000 mm 호 12개(곡선 벽), 수평 레벨 -5000/-50/0 mm, 크기 7.7×43.5×5.0 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "retaining-wall",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcWall",
   "predefined_type": "RETAININGWALL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 0.0,
   "elevation_mm": 0.0,

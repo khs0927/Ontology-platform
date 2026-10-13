@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4086199@54",
  "basis_ko": "정의 카드 su-def:0914-meeting:cfd930c9-40c3-4f69-ac52-a307bf9d374b 분류 상속: 이름 'D=30 mm', 수평 레벨 885/915/4535/4565 mm, 경사 관형 형상",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 6186.6,
   "elevation_mm": 5000.0,

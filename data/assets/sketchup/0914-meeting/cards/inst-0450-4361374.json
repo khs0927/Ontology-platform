@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4361374@450",
  "basis_ko": "정의 카드 su-def:0914-meeting:af618abe-acfc-4b3c-b047-7fceaf5e0ea4 분류 상속: 월드 z 13363~15450, 하위 그룹#214·#211·#223, 크기 24.6×25.3×2.1 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "roof",
  "confidence": 0.7,
@@ -20,7 +21,6 @@
   "entity": "IfcRoof",
   "predefined_type": "FLAT_ROOF"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 13362.6,
   "elevation_mm": 14600.0,

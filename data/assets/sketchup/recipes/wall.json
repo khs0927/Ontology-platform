@@ -1,7 +1,7 @@
 {
  "block": false,
  "class": "wall",
- "definition_count": 11,
+ "definition_count": 10,
  "examples": [
   "su-def:0914-meeting:0c1c909c-ae2a-4c6b-9ced-f8d87360dc04",
   "su-def:0914-meeting:2ef33079-7f16-4911-af6b-d9273012109c",
@@ -10,9 +10,9 @@
   "su-def:0914-meeting:444e78b4-1dc5-44c3-84d3-f48e04a44bd5",
   "su-def:0914-meeting:6d1eb6f4-e0f5-4819-86fa-8f97800c3f14",
   "su-def:0914-meeting:8c269024-f15c-44e0-8564-24f02d324605",
-  "su-def:0914-meeting:969e5931-1d33-4ec0-bbf1-be9bdd627867",
   "su-def:0914-meeting:bf604730-b126-4018-bb92-70f96a964bb7",
-  "su-def:0914-meeting:ca1f59bc-aa5b-4f7c-afbb-99177fd8f2d5"
+  "su-def:0914-meeting:ca1f59bc-aa5b-4f7c-afbb-99177fd8f2d5",
+  "su-def:0914-meeting:cb2ec378-85d4-43c7-90d8-5a2220f41ba4"
  ],
  "guides": [
   {
@@ -124,11 +124,9 @@
  },
  "label_ko": "벽체",
  "material_categories": {
-  "auto-generated (purge 후보)": 1,
   "glass": 1,
   "masonry-brick": 6,
-  "paint-or-colour": 3,
-  "stone": 1
+  "paint-or-colour": 3
  },
  "proposed_zium_tag": "A-본동",
  "review_state": "unverified",
@@ -137,27 +135,27 @@
  "typical_params_mm": {
   "height_mm": {
    "max": 5700.0,
-   "median": 3700.0,
+   "median": 3665.0,
    "min": 150.0,
-   "n": 11
+   "n": 10
   },
   "length_mm": {
    "max": 44256.2,
-   "median": 10600.0,
-   "min": 4840.0,
-   "n": 11
+   "median": 11800.0,
+   "min": 6600.0,
+   "n": 10
   },
   "thickness_mm": {
    "max": 3630.0,
    "median": 300.0,
    "min": 150.0,
-   "n": 11
+   "n": 10
   },
   "width_mm": {
    "max": 8940.0,
    "median": 300.0,
    "min": 180.0,
-   "n": 11
+   "n": 10
   }
  }
 }

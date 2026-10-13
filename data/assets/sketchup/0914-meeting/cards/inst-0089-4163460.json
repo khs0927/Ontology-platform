@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4163460@89",
  "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,730 mm, 깊이 6, 면 6개, 재질 없음.",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "window-louver",
  "confidence": 0.55,
@@ -12,7 +13,6 @@
   "entity": "IfcWindow",
   "predefined_type": "WINDOW"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9730.0,
   "elevation_mm": 10200.0,

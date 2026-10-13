@@ -11,6 +11,23 @@
  "asset_id": "su-inst:0914-meeting:4360631@361",
  "basis_ko": "정의 카드 su-def:0914-meeting:76af957d-3b23-4653-a50a-da84729e5586 분류 상속: ch5 인스턴스 8개를 일렬로 묶은 그룹, 630×19390×745 mm",
  "block": true,
+ "block_contents": {
+  "inner_definitions": [
+   "ch5",
+   "그룹#117",
+   "그룹#171",
+   "그룹#172",
+   "그룹#173",
+   "그룹#175",
+   "그룹#197",
+   "그룹#198",
+   "그룹#199",
+   "그룹#200",
+   "그룹#98"
+  ],
+  "inner_occurrences": 648,
+  "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"
+ },
  "card_kind": "instance",
  "class": "furniture",
  "confidence": 0.6,
@@ -20,7 +37,6 @@
   "entity": "IfcFurniture",
   "predefined_type": "CHAIR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10220.0,
   "elevation_mm": 10200.0,

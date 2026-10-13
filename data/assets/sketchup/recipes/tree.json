@@ -1,13 +1,9 @@
 {
  "block": true,
  "class": "tree",
- "definition_count": 5,
+ "definition_count": 1,
  "examples": [
-  "su-def:0914-meeting:55be4945-143e-4ef0-ae25-26a9e9b54bc6",
-  "su-def:0914-meeting:8a203aeb-c116-4659-a488-30ac4979538b",
-  "su-def:0914-meeting:ef58cebd-5881-4137-bf40-311b3e235c10",
-  "su-def:0914-meeting:f04dc858-0d05-4d2c-aa31-0b52ad8838da",
-  "su-def:0914-meeting:f37046db-2089-44c7-896c-a6cc29d2b462"
+  "su-def:0914-meeting:8a203aeb-c116-4659-a488-30ac4979538b"
  ],
  "guides": [
   {
@@ -157,38 +153,35 @@
   "predefined_type": "VEGETATION"
  },
  "label_ko": "수목",
- "material_categories": {
-  "paint-or-colour": 9,
-  "vegetation": 4
- },
+ "material_categories": {},
  "proposed_zium_tag": "Trees 3D",
  "review_state": "unverified",
  "schema": "sion-bim-recipe/1",
  "source_model": "0914-meeting",
  "typical_params_mm": {
   "height_mm": {
-   "max": 8296.8,
-   "median": 8113.4,
+   "max": 3707.8,
+   "median": 3707.8,
    "min": 3707.8,
-   "n": 5
+   "n": 1
   },
   "length_mm": {
    "max": 44946.9,
-   "median": 6220.9,
-   "min": 368.2,
-   "n": 5
+   "median": 44946.9,
+   "min": 44946.9,
+   "n": 1
   },
   "thickness_mm": {
-   "max": 6204.1,
-   "median": 6204.1,
-   "min": 324.3,
-   "n": 5
+   "max": 3707.8,
+   "median": 3707.8,
+   "min": 3707.8,
+   "n": 1
   },
   "width_mm": {
    "max": 18767.1,
-   "median": 6204.1,
-   "min": 324.3,
-   "n": 5
+   "median": 18767.1,
+   "min": 18767.1,
+   "n": 1
   }
  }
 }

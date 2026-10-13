@@ -192,7 +192,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "col",
-  "guid": "0f8124c1-2706-4e22-9ee4-13c9fc89dd1c",
+  "guid": "su-guid:0f8124c1-2706-4e22-9ee4-13c9fc89dd1c",
   "instance_pids": [
    2004749,
    2004982,

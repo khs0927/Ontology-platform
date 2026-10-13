@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4088191@60",
  "basis_ko": "정의 카드 su-def:0914-meeting:03834750-77d9-46f9-841c-5c263529bbbd 분류 상속: 수평 레벨 2719/3050/3150 mm + 5.9~6.2° 경사면, 21.8×22.2×1.9 m(월드 z 12919)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "roof",
  "confidence": 0.5,
@@ -12,7 +13,6 @@
   "entity": "IfcRoof",
   "predefined_type": "FLAT_ROOF"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 12918.6,
   "elevation_mm": 14600.0,

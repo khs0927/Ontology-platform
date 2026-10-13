@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4163488@84",
  "basis_ko": "정의 카드 su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72 분류 상속: 그룹 재질 DimGray, 940×100×87.7 mm 살 24개가 100 mm 간격으로 수직 적층(23개 + 마감 1개)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "window-louver",
  "confidence": 0.7,
@@ -12,7 +13,6 @@
   "entity": "IfcWindow",
   "predefined_type": "WINDOW"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9330.0,
   "elevation_mm": 10200.0,

@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4088190@57",
  "basis_ko": "정의 카드 su-def:0914-meeting:7eb1963b-5ad8-45d9-8e0f-3a95927924ee 분류 상속: [Color_001] 209 + [Translucent Glass Gray] 66 면, 수직면 101개, 크기 21.8×22.2×4.58 m(월드 z 10200) — 2층 외피",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10200.0,
   "elevation_mm": 10200.0,

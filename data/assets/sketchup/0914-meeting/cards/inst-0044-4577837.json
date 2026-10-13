@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577837@44",
  "basis_ko": "정의 카드 su-def:0914-meeting:0cc183cf-e561-4f14-9916-c48860ff0a03 분류 상속: 지붕 재질 면 46개, 300×8050×450 mm, 수평 레벨 0/30/420/450 mm, 월드 z 6250",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "beam",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcBeam",
   "predefined_type": "BEAM"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 6250.0,
   "elevation_mm": 5000.0,

@@ -238,7 +238,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "Componente",
-  "guid": "5c9761c9-5595-445d-8095-a69853373851",
+  "guid": "su-guid:5c9761c9-5595-445d-8095-a69853373851",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

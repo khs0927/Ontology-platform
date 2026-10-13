@@ -11,6 +11,16 @@
  "asset_id": "su-inst:0914-meeting:800070@465",
  "basis_ko": "정의 카드 su-def:0914-meeting:8a203aeb-c116-4659-a488-30ac4979538b 분류 상속: 수목 그룹 13개(그룹#74 ×11, #53, #56)를 묶은 컨테이너, 월드 z 5000",
  "block": true,
+ "block_contents": {
+  "inner_definitions": [
+   "Component#28",
+   "그룹#53",
+   "그룹#56",
+   "그룹#74"
+  ],
+  "inner_occurrences": 26,
+  "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"
+ },
  "card_kind": "instance",
  "class": "tree",
  "confidence": 0.7,
@@ -20,7 +30,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "VEGETATION"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

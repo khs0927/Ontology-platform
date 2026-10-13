@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4238551@215",
  "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#204'의 분류 'floor-slab'를 상속(부품으로 추정). 근거: 월드 크기 25.40×1.80×0.16 m, 최소 Z 10,160 mm, 깊이 4, 면 26개, 재질 없음.",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.55,
@@ -12,7 +13,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10160.0,
   "elevation_mm": 10200.0,

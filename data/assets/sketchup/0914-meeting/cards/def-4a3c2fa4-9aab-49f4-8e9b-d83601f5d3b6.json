@@ -174,7 +174,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "새 블럭.dwg#2",
-  "guid": "4a3c2fa4-9aab-49f4-8e9b-d83601f5d3b6",
+  "guid": "su-guid:4a3c2fa4-9aab-49f4-8e9b-d83601f5d3b6",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

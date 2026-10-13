@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:1245859@497",
  "basis_ko": "정의 카드 su-def:0914-meeting:58e2c4df-5eb5-49fe-b7a7-b15a525388b2 분류 상속: [Vegetation Grass] 면, 19.6~49.2° 경사면, 크기 13.4×39.8×4.4 m (월드 z 10200)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10200.0,
   "elevation_mm": 10200.0,

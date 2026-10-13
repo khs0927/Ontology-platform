@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4066617@8",
  "basis_ko": "정의 카드 su-def:0914-meeting:ec5629a1-edb0-406a-a06f-cc7ccc2e3672 분류 상속: 그룹 재질 [Vegetation Grass], 10.6~12.6° 경사면만으로 구성, 크기 13.3×6.5×3.4 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 556.5,
   "elevation_mm": 0.0,

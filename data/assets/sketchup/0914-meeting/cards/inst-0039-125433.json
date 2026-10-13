@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:125433@39",
  "basis_ko": "정의 카드 su-def:0914-meeting:9873950e-de97-48e3-864e-598494184f35 분류 상속: 단일 수평면 1069.5 m²(반경 1000 mm 호 포함), 월드 z 5000 — 건물 1층 레벨의 외부 바닥판으로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "paving",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcSlab",
   "predefined_type": "PAVING"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

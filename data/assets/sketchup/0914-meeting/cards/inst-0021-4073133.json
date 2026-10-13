@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4073133@21",
  "basis_ko": "정의 카드 su-def:0914-meeting:0200c4c4-7cad-4249-bf75-778dc2534d17 분류 상속: 그룹 재질 Travertine Stretcher, 길이 57.2 m × 두께 방향 4.6 m × 높이 18.0 m 바운딩, 수평 레벨 3719/13719 mm",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "retaining-wall",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcWall",
   "predefined_type": "RETAININGWALL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -5500.0,
   "elevation_mm": 0.0,

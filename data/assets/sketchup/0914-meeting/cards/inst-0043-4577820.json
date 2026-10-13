@@ -11,6 +11,11 @@
  "asset_id": "su-inst:0914-meeting:4577820@43",
  "basis_ko": "정의 카드 su-def:0914-meeting:7b728472-fa3c-4146-8125-2ef35ec8c690 분류 상속: 인스턴스 이름 'CWom0105-HD2-O01P02-S005', 높이 1752 mm, 축척 0.3937",
  "block": true,
+ "block_contents": {
+  "inner_definitions": [],
+  "inner_occurrences": 0,
+  "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"
+ },
  "card_kind": "instance",
  "class": "person",
  "confidence": 0.8,
@@ -20,7 +25,6 @@
   "entity": "IfcBuildingElementProxy",
   "predefined_type": "USERDEFINED"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

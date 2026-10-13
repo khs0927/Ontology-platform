@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4087225@59",
  "basis_ko": "정의 카드 su-def:0914-meeting:94ba3cb8-c65b-482a-bd4d-bca61e0eb393 분류 상속: [Color_001]·유리 면, 1077×2663×2600 mm, 수직면 90개(2층)",
  "block": true,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "door",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcDoor",
   "predefined_type": "DOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10200.0,
   "elevation_mm": 10200.0,

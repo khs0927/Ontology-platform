@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4073102@11",
  "basis_ko": "정의 카드 su-def:0914-meeting:d7486c8b-d2b7-48ea-97ca-bf1051480cfb 분류 상속: <auto> 재질 면 2개, 도로계획 태그 모서리 21개, 두께 0인 평면 8.9×34.4 m (z 0)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "road-plan-surface",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "USERDEFINED"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 0.0,
   "elevation_mm": 0.0,

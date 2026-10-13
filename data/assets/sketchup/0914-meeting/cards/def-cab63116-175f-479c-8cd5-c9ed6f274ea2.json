@@ -96,7 +96,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "장애인주차",
-  "guid": "cab63116-175f-479c-8cd5-c9ed6f274ea2",
+  "guid": "su-guid:cab63116-175f-479c-8cd5-c9ed6f274ea2",
   "instance_pids": [],
   "instances": 4,
   "kind": "component",

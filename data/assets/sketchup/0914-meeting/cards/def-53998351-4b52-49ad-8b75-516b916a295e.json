@@ -235,7 +235,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "ZIUM_sheet_architect",
-  "guid": "53998351-4b52-49ad-8b75-516b916a295e",
+  "guid": "su-guid:53998351-4b52-49ad-8b75-516b916a295e",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

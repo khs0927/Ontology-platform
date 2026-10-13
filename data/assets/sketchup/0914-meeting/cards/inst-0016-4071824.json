@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4071824@16",
  "basis_ko": "정의 카드 su-def:0914-meeting:44e4ea8e-fea5-4cd8-8ebc-8f8b9793b456 분류 상속: 그룹 재질 기존조경, 수평 레벨 0/4400 mm, 크기 5.0×56.5×4.4 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.5,
@@ -12,7 +13,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -6000.0,
   "elevation_mm": 0.0,

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4072538@13",
  "basis_ko": "정의 카드 su-def:0914-meeting:ea732e8a-9711-49e5-a354-99a8ac711aea 분류 상속: [Polished Concrete New] 면 180개, 단일 수평면 341.9 m², 월드 z -2500, 하위 그룹#8 포함",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "paving",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcSlab",
   "predefined_type": "PAVING"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -2500.0,
   "elevation_mm": 0.0,

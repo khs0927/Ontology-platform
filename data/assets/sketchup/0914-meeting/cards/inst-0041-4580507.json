@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4580507@41",
  "basis_ko": "정의 카드 su-def:0914-meeting:444e78b4-1dc5-44c3-84d3-f48e04a44bd5 분류 상속: 그룹 재질 [Translucent Glass Gray], 내부 면은 Non Slip Vinyl, 두께 300 mm × 길이 44.3 m × 높이 5.2 m의 선형 매스 — 용도 미확정(유리 스크린 벽으로 추정)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "wall",
  "confidence": 0.4,
@@ -20,7 +21,6 @@
   "entity": "IfcWall",
   "predefined_type": "STANDARD"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

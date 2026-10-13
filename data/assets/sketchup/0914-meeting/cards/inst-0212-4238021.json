@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4238021@212",
  "basis_ko": "정의 카드 su-def:0914-meeting:c84e0e51-c01e-447f-aba8-61fadbd980ee 분류 상속: Polished Concrete 15DBUL 면 83개, 수평 레벨 -2000/0 mm + 29.7° 경사면 6개, 7.0×21.8×2.0 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 8100.0,
   "elevation_mm": 10200.0,

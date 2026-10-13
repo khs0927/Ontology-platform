@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:1249504@498",
  "basis_ko": "정의 카드 su-def:0914-meeting:d02f928a-ff38-4f28-9646-725438fbadc2 분류 상속: [Color A06](빨강) 250×250 mm 판, 63.4° 경사면, 최상위 인스턴스 2개(z 9819, 12364)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "marker",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcAnnotation",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9819.0,
   "elevation_mm": 10200.0,

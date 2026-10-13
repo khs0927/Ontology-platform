@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4073106@19",
  "basis_ko": "정의 카드 su-def:0914-meeting:919aa810-2975-4396-ae1d-a3511aabee35 분류 상속: Travertine Stretcher 면 123개 + 기존조경 면 47개, 수평 레벨 -5500/0/4500 mm, 크기 64.1×10.1×22.0 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "retaining-wall",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcWall",
   "predefined_type": "RETAININGWALL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -9500.0,
   "elevation_mm": 0.0,

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4082704@46",
  "basis_ko": "정의 카드 su-def:0914-meeting:6d1eb6f4-e0f5-4819-86fa-8f97800c3f14 분류 상속: Even Drag Brick Staggered (2OE7HP) 면, 650×22500×150 mm, 45° 경사면 9개",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "wall",
  "confidence": 0.4,
@@ -20,7 +21,6 @@
   "entity": "IfcWall",
   "predefined_type": "STANDARD"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5450.0,
   "elevation_mm": 5000.0,

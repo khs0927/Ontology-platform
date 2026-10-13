@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:5135288@30",
  "basis_ko": "정의 카드 su-def:0914-meeting:e9f1afce-7001-4502-8c6a-35297513ee61 분류 상속: 이름 'D=30 mm'(지름 30 mm 파이프 표기), XCLINE 태그 모서리 3개, 경사면만으로 된 관형 형상",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.7,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 1053.6,
   "elevation_mm": 0.0,

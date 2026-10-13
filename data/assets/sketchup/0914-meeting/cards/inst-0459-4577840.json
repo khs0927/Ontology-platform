@@ -11,6 +11,14 @@
  "asset_id": "su-inst:0914-meeting:4577840@459",
  "basis_ko": "정의 카드 su-def:0914-meeting:d0b7f786-ab3e-4b85-bdbd-52c5f9a14b20 분류 상속: 2.2~2.8 m 정사각 박스, 수평 레벨 0/450 mm, 하위에 수목 그룹#74 1개",
  "block": true,
+ "block_contents": {
+  "inner_definitions": [
+   "Component#28",
+   "그룹#74"
+  ],
+  "inner_occurrences": 2,
+  "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"
+ },
  "card_kind": "instance",
  "class": "planter",
  "confidence": 0.7,
@@ -20,7 +28,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "USERDEFINED"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

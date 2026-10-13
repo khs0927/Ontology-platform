@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4204480@197",
  "basis_ko": "정의 카드 su-def:0914-meeting:a0cfd80b-0041-4e7f-a53d-d4f1084b0604 분류 상속: 3255×70×2910 mm 유리 패널(수평 레벨 0/30/2880/2910)",
  "block": true,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "door",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcDoor",
   "predefined_type": "DOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577803@68",
  "basis_ko": "정의 카드 su-def:0914-meeting:fdbb2613-d0d7-4a8d-9ba4-b703fcf42a5c 분류 상속: [Translucent Glass Gray] 면 22개, 두께 0, 길이 14,960 mm × 높이 1100 mm, 월드 z 10300(2층)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "glass-railing",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "GUARDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10300.0,
   "elevation_mm": 10200.0,

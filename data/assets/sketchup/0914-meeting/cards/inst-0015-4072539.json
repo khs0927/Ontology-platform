@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4072539@15",
  "basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 58.82×60.32×10.50 m, 최소 Z -6,000 mm, 깊이 2, 면 879개, 재질 없음.",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.45,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -6000.0,
   "elevation_mm": 0.0,

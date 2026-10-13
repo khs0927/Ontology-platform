@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4204510@192",
  "basis_ko": "정의 카드 su-def:0914-meeting:c5880fd0-efed-44b6-bf72-04c8c2d7bf5c 분류 상속: [Translucent Glass Gray] 면 20개, 두께 0, 길이 13.5 m × 높이 5.0 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "curtain-wall",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcCurtainWall",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

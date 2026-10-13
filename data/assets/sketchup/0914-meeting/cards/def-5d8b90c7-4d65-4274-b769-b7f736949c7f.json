@@ -150,7 +150,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "*U20",
-  "guid": "5d8b90c7-4d65-4274-b769-b7f736949c7f",
+  "guid": "su-guid:5d8b90c7-4d65-4274-b769-b7f736949c7f",
   "instance_pids": [],
   "instances": 96,
   "kind": "component",

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4072540@18",
  "basis_ko": "정의 카드 su-def:0914-meeting:1cb2e7a2-9515-436c-90be-57b33d63b1a0 분류 상속: [Vegetation Grass] 면 100개, 12.6~16.4° 경사면, 크기 10.9×4.7×3.0 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -2500.0,
   "elevation_mm": 0.0,

@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4580640@38",
  "basis_ko": "정의 카드 su-def:0914-meeting:58604dcf-67b1-4fe9-a031-fd7d213b759c 분류 상속: 재질 <auto>2(@0818변경 태그 색과 동일), 18~27° 경사면 5개",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "terrain",
  "confidence": 0.4,
@@ -20,7 +21,6 @@
   "entity": "IfcGeographicElement",
   "predefined_type": "TERRAIN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9000.0,
   "elevation_mm": 10200.0,

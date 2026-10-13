@@ -1,18 +1,14 @@
 {
  "block": true,
  "class": "furniture",
- "definition_count": 45,
+ "definition_count": 6,
  "examples": [
-  "su-def:0914-meeting:006302c0-1545-4a65-a69f-8a8cc71acba0",
-  "su-def:0914-meeting:04147152-5182-4881-ae85-0279d2dfa664",
-  "su-def:0914-meeting:07557427-16ea-47e1-a8be-20ebdfc69ed1",
   "su-def:0914-meeting:0a25473a-6916-48b3-b63b-1ded8234d7fe",
-  "su-def:0914-meeting:0f4615cb-8f55-49ee-8ce4-8bc594de6cf7",
-  "su-def:0914-meeting:10409791-d547-4976-a18b-4eb803754823",
-  "su-def:0914-meeting:1b042fae-2ebe-4fec-b798-f3ecdaeb78d4",
-  "su-def:0914-meeting:1e8bff50-bc36-41f0-9146-478f90a79d89",
-  "su-def:0914-meeting:1ec1fa08-e21e-4f06-9231-ed339cbaa3b0",
-  "su-def:0914-meeting:1f4354ac-f91c-46f1-b85c-fba2648e1137"
+  "su-def:0914-meeting:5c9761c9-5595-445d-8095-a69853373851",
+  "su-def:0914-meeting:76af957d-3b23-4653-a50a-da84729e5586",
+  "su-def:0914-meeting:91051e0d-e839-4d1b-bd50-77cb9f8126b1",
+  "su-def:0914-meeting:947cd90a-cc6f-4325-8cff-8d37fa7385eb",
+  "su-def:0914-meeting:b485371c-4acb-4d2a-b31a-e3a05b5cdfe4"
  ],
  "guides": [
   {
@@ -189,12 +185,10 @@
  },
  "label_ko": "가구",
  "material_categories": {
-  "concrete": 3,
-  "metal": 4,
-  "paint-or-colour": 14,
-  "stone": 2,
-  "textile-or-figure": 4,
-  "wood": 13
+  "metal": 1,
+  "paint-or-colour": 4,
+  "stone": 1,
+  "wood": 2
  },
  "proposed_zium_tag": "@FUR",
  "review_state": "unverified",
@@ -203,27 +197,27 @@
  "typical_params_mm": {
   "height_mm": {
    "max": 5352.9,
-   "median": 550.0,
-   "min": 0.0,
-   "n": 45
+   "median": 745.4,
+   "min": 576.8,
+   "n": 6
   },
   "length_mm": {
    "max": 25835.0,
-   "median": 630.0,
-   "min": 280.0,
-   "n": 45
+   "median": 1732.0,
+   "min": 510.0,
+   "n": 6
   },
   "thickness_mm": {
    "max": 5352.9,
-   "median": 450.0,
-   "min": 0.0,
-   "n": 45
+   "median": 630.0,
+   "min": 480.0,
+   "n": 6
   },
   "width_mm": {
    "max": 23994.6,
-   "median": 480.0,
-   "min": 30.0,
-   "n": 45
+   "median": 632.0,
+   "min": 480.0,
+   "n": 6
   }
  }
 }

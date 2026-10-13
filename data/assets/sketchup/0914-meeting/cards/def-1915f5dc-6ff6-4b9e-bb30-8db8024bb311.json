@@ -154,7 +154,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "ST_D#2",
-  "guid": "1915f5dc-6ff6-4b9e-bb30-8db8024bb311",
+  "guid": "su-guid:1915f5dc-6ff6-4b9e-bb30-8db8024bb311",
   "instance_pids": [],
   "instances": 1,
   "kind": "component",

@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4238795@217",
  "basis_ko": "정의 카드 su-def:0914-meeting:74825920-78d4-4797-83f1-b8fd439cfc70 분류 상속: 두께 0 평면 22.1×22.2 m(월드 z 10220), 지붕·Aluminium·Limestone 면 — 2층 마감 바닥면",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.5,
@@ -12,7 +13,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10220.0,
   "elevation_mm": 10200.0,

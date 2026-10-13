@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4164137@109",
  "basis_ko": "정의 카드 su-def:0914-meeting:d322afe0-3fbd-475d-a6ab-6ec1acef78ac 분류 상속: DimGray 프레임 + Blue Glass, 200×3400×1450 mm, 하위 그룹#86",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "window-louver",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcWindow",
   "predefined_type": "WINDOW"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10450.0,
   "elevation_mm": 10200.0,

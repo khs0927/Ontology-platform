@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4360589@216",
  "basis_ko": "정의 카드 su-def:0914-meeting:c187ac0d-d871-4a77-9646-ae31472208d1 분류 상속: 수평면 618.6 m²(레벨 10 mm), 지붕·Douglas Fir 면, 25.7×27.3×0.47 m(월드 z 9750)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9750.0,
   "elevation_mm": 10200.0,

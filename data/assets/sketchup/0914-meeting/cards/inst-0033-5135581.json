@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:5135581@33",
  "basis_ko": "정의 카드 su-def:0914-meeting:bf604730-b126-4018-bb92-70f96a964bb7 분류 상속: 그룹 재질 Even Drag Brick Staggered (6B2XZN), 외부계단 그룹#18의 측벽, 13.0×1.2×5.7 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "wall",
  "confidence": 0.6,
@@ -20,7 +21,6 @@
   "entity": "IfcWall",
   "predefined_type": "STANDARD"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 0.0,
   "elevation_mm": 0.0,

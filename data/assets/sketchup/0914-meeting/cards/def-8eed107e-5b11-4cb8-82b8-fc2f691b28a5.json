@@ -88,7 +88,7 @@
  "schema": "sion-bim-asset/1",
  "source": {
   "definition": "3DGeom~1_Defintion",
-  "guid": "8eed107e-5b11-4cb8-82b8-fc2f691b28a5",
+  "guid": "su-guid:8eed107e-5b11-4cb8-82b8-fc2f691b28a5",
   "instance_pids": [],
   "instances": 0,
   "kind": "component",

@@ -11,6 +11,13 @@
  "asset_id": "su-inst:0914-meeting:4360604@226",
  "basis_ko": "정의 카드 su-def:0914-meeting:b485371c-4acb-4d2a-b31a-e3a05b5cdfe4 분류 상속: 스툴 510×480×700 mm, 인스턴스 6개(2층)",
  "block": true,
+ "block_contents": {
+  "inner_definitions": [
+   "그룹#182"
+  ],
+  "inner_occurrences": 1,
+  "note_ko": "블럭은 하나의 객체로만 기억 — 내부 부품은 별도 카드·분석 없음"
+ },
  "card_kind": "instance",
  "class": "furniture",
  "confidence": 0.8,
@@ -20,7 +27,6 @@
   "entity": "IfcFurniture",
   "predefined_type": "CHAIR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 10220.0,
   "elevation_mm": 10200.0,

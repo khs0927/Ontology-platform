@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4361178@453",
  "basis_ko": "정의 카드 su-def:0914-meeting:ad591560-2c19-4082-ab9f-1aa8766867e0 분류 상속: 지붕 재질 144 + 재질3 48 면, 5.9° 경사면 40개, 수평면 71.2 m², 24.5×25.3×1.6 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "roof",
  "confidence": 0.7,
@@ -12,7 +13,6 @@
   "entity": "IfcRoof",
   "predefined_type": "FLAT_ROOF"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 13829.7,
   "elevation_mm": 14600.0,

@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4168619@181",
  "basis_ko": "정의 카드 su-def:0914-meeting:63554913-b02d-4109-b630-a91ca9e6b604 분류 상속: 그룹 재질 재질2, 두께 30 mm 판 9.44×14.44 m(월드 z 9350)",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9350.0,
   "elevation_mm": 10200.0,

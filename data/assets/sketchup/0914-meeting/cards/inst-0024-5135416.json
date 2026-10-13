@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:5135416@24",
  "basis_ko": "정의 카드 su-def:0914-meeting:1c0af707-ccdf-4d42-8293-9631fb92544b 분류 상속: 이름 'Handrail', 하위 'D=30 mm' 파이프 그룹 2개",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "handrail",
  "confidence": 0.8,
@@ -20,7 +21,6 @@
   "entity": "IfcRailing",
   "predefined_type": "HANDRAIL"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": -1446.4,
   "elevation_mm": 0.0,

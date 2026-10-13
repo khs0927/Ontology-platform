@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4361353@451",
  "basis_ko": "정의 카드 su-def:0914-meeting:2a9cb87b-c401-4b46-a1c7-a019b9e943bc 분류 상속: 재질3 면 32개, 5.9° 경사면 16개, 4.1×9.5×0.7 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "roof",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcRoof",
   "predefined_type": "FLAT_ROOF"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 13508.3,
   "elevation_mm": 14600.0,

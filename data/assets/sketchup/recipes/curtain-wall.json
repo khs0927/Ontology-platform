@@ -1,10 +1,9 @@
 {
  "block": false,
  "class": "curtain-wall",
- "definition_count": 14,
+ "definition_count": 12,
  "examples": [
   "su-def:0914-meeting:1174c5e4-18e4-4d4b-8998-17ed1d8c32b6",
-  "su-def:0914-meeting:2916c792-21b7-4cfa-a91b-b3edfcfe57d5",
   "su-def:0914-meeting:3717852b-6804-4518-8280-6308216c95e2",
   "su-def:0914-meeting:5cc0105a-317b-4d7a-8a27-2976269af272",
   "su-def:0914-meeting:7bf3d12c-3360-4279-a09e-b4d91085a3d4",
@@ -12,7 +11,8 @@
   "su-def:0914-meeting:8101af3a-3302-44c7-9d7d-7d9834228b29",
   "su-def:0914-meeting:89f9bc36-2de9-4ab9-965a-76c135643826",
   "su-def:0914-meeting:c07e213d-5f02-4c12-a9eb-e9b774f73fae",
-  "su-def:0914-meeting:c5880fd0-efed-44b6-bf72-04c8c2d7bf5c"
+  "su-def:0914-meeting:c5880fd0-efed-44b6-bf72-04c8c2d7bf5c",
+  "su-def:0914-meeting:ccc39daf-74eb-45b9-b98f-8d9d6406d3cc"
  ],
  "guides": [
   {
@@ -157,7 +157,7 @@
  "label_ko": "커튼월·유리 외피·멀리언",
  "material_categories": {
   "glass": 6,
-  "paint-or-colour": 6
+  "paint-or-colour": 4
  },
  "proposed_zium_tag": "@win",
  "review_state": "unverified",
@@ -166,27 +166,27 @@
  "typical_params_mm": {
   "height_mm": {
    "max": 5200.0,
-   "median": 5000.0,
+   "median": 4791.4,
    "min": 2970.0,
-   "n": 14
+   "n": 12
   },
   "length_mm": {
    "max": 44256.2,
-   "median": 21800.0,
+   "median": 19300.0,
    "min": 450.0,
-   "n": 14
+   "n": 12
   },
   "thickness_mm": {
-   "max": 5050.0,
-   "median": 1493.3,
+   "max": 5000.0,
+   "median": 728.8,
    "min": 0.0,
-   "n": 14
+   "n": 12
   },
   "width_mm": {
-   "max": 22000.0,
-   "median": 1493.3,
+   "max": 21800.0,
+   "median": 728.8,
    "min": 0.0,
-   "n": 14
+   "n": 12
   }
  }
 }

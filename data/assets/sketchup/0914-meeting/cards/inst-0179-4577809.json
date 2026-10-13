@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577809@179",
  "basis_ko": "정의 카드 su-def:0914-meeting:01ad487f-c654-4768-b277-11544df5864b 분류 상속: 재질2(흰색)·지붕·Non Slip Vinyl 면, 수평 레벨 0~5000 mm 13개, 크기 9.4×23.4×5.0 m(월드 z 5000) — 별동 하부 매스로 추정",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "building",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcBuilding",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,

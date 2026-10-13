@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577802@210",
  "basis_ko": "정의 카드 su-def:0914-meeting:15485cb4-35d0-41e4-a253-4f6cb3e20ede 분류 상속: 2층 바닥·접힌 천장(그룹#203)·2층 가구(그룹#205)·지붕(그룹#207)을 묶은 컨테이너, 26.4×27.3×7.4 m",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "floor-slab",
  "confidence": 0.5,
@@ -20,7 +21,6 @@
   "entity": "IfcSlab",
   "predefined_type": "FLOOR"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 8100.0,
   "elevation_mm": 10200.0,

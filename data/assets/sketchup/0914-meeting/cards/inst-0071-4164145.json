@@ -3,6 +3,7 @@
  "asset_id": "su-inst:0914-meeting:4164145@71",
  "basis_ko": "정의 카드 su-def:0914-meeting:2ef33079-7f16-4911-af6b-d9273012109c 분류 상속: 재질2 면 235개, 8.94×8.94 m 박스, 바닥 0과 상부 3550~3630 mm 수평면, 개구부 레벨 다수",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "wall",
  "confidence": 0.6,
@@ -12,7 +13,6 @@
   "entity": "IfcWall",
   "predefined_type": "STANDARD"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 9150.0,
   "elevation_mm": 10200.0,

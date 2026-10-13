@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:4577807@201",
  "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 2.40×5.28×2.80 m, 최소 Z 7,200 mm, 깊이 1, 면 22개, 재질 없음.",
  "block": false,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "building",
  "confidence": 0.55,
@@ -20,7 +21,6 @@
   "entity": "IfcBuilding",
   "predefined_type": null
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 7200.0,
   "elevation_mm": 5000.0,

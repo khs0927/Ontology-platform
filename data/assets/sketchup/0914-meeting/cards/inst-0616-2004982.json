@@ -11,6 +11,7 @@
  "asset_id": "su-inst:0914-meeting:2004982@616",
  "basis_ko": "정의 카드 su-def:0914-meeting:0f8124c1-2706-4e22-9ee4-13c9fc89dd1c 분류 상속: 이름 'col', 반경 240 mm 호(지름 480 원형), 높이 4200 mm, 인스턴스 4개(x 70273.7, z 5000)",
  "block": true,
+ "block_contents": null,
  "card_kind": "instance",
  "class": "column",
  "confidence": 0.9,
@@ -20,7 +21,6 @@
   "entity": "IfcColumn",
   "predefined_type": "COLUMN"
  },
- "inside_block": false,
  "level": {
   "base_z_mm": 5000.0,
   "elevation_mm": 5000.0,
