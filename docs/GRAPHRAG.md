@@ -88,10 +88,40 @@ Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 - `GET /api/v1/graphrag/status` (`read:knowledge`)
 - `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph
 - `POST /api/v1/graphrag/query` (`read:knowledge`) `{"question", "mode": "mix|local|global|hybrid|naive", "top_k"}`
+- `GET /api/v1/graphrag/assets` (`read:knowledge`) SketchUp BIM asset Graph RAG (see below)
 
 Install with `pip install -e ".[graphrag]"`. Note that importing LightRAG can
 install missing provider packages at runtime, so the package is imported only
 when the engine starts.
+
+## SketchUp BIM asset index (`sion-bim-asset-index/1`)
+
+`sion_ingestion.asset_index` turns the SketchUp BIM asset cards (`sion-bim-asset/1`,
+`data/assets/sketchup/<model>/cards.jsonl` + `data/assets/sketchup/recipes/*.json`) into one
+read-only SQLite file: knowledge graph (`node`/`edge`), FTS5 `unicode61` + `trigram` (Korean
+substrings) and float32 vectors. It needs no LightRAG, PostgreSQL or network.
+
+* Graph edges: `instance_of` (instance → definition), `in_class`, `maps_to_ifc`, `uses_material`,
+  `on_level`, `made_by` (asset/class → recipe), `contains` (parent → child), `tagged`, `in_model`.
+* Embeddings: a local OpenAI-compatible endpoint when `SION_ASSET_EMBED_URL` is set (for example
+  text-embeddings-inference serving `BAAI/bge-m3`, model from `SION_ASSET_EMBED_MODEL`); the URL must be
+  loopback/private or the build fails. Otherwise the deterministic `hash-chargram-384-v1` embedder is
+  used. The model name is stored in `meta` and the query is embedded with the same model.
+* Query: BM25 + trigram + vector + Korean/English class lexicon + dimension match (`1.2m`, `450mm`)
+  fused with RRF, then 1–2 graph hops (recipe, materials, IFC class, level, definition, children)
+  returned as `context`. Parts inside blocks (`inside_block`) are hidden unless asked for.
+* Index location: `SION_ASSET_INDEX`, else `$SION_STORAGE_ROOT/SketchUp-Assets/_index/sketchup-assets.sqlite`
+  (Google Drive: `G:\내 드라이브\SketchUp-Assets\_index\`), else `data/assets/sketchup/_index/`.
+  The SQLite file is derived data and is not committed; `data/assets/sketchup/_index/manifest.json` records counts and hashes.
+
+```
+python -m sion_ingestion.asset_index build --manifest data/assets/sketchup/_index/manifest.json
+python -m sion_ingestion.asset_index query "유리난간 1.2m" -k 5
+curl "http://localhost:8000/api/v1/graphrag/assets?q=카페%20의자&k=5"
+```
+
+`GET /api/v1/graphrag/assets?q=&k=&expand=&class=&model=&include_inside_block=` (read scope) answers from the
+same file and reloads it when its mtime changes; 503 when the index has not been built.
 
 ## Verified
 

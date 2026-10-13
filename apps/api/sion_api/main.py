@@ -529,6 +529,33 @@ def create_app(
             raise HTTPException(status_code=500, detail=drive_exporter.last_error or "export failed")
         return result
 
+    asset_index_cache: dict[str, object] = {}
+
+    @app.get("/api/v1/graphrag/assets", dependencies=[Depends(read_knowledge)])
+    def graphrag_assets(
+        q: str = Query(..., min_length=1, max_length=500),
+        k: int = Query(10, ge=1, le=50),
+        expand: int = Query(2, ge=0, le=2),
+        asset_class: str | None = Query(None, alias="class"),
+        model: str | None = None,
+        include_inside_block: bool = False,
+    ):
+        """Graph RAG over SketchUp BIM asset cards (read-only derived index, see docs/GRAPHRAG.md)."""
+        from sion_ingestion.asset_index import AssetIndex, default_index_path
+
+        path = default_index_path()
+        if not path.exists():
+            raise HTTPException(status_code=503, detail="asset index not built (python -m sion_ingestion.asset_index build)")
+        stamp = f"{path}:{path.stat().st_mtime_ns}"
+        index = asset_index_cache.get(stamp)
+        if index is None:
+            for old in asset_index_cache.values():
+                old.close()
+            asset_index_cache.clear()
+            index = asset_index_cache[stamp] = AssetIndex(path)
+        result = index.search(q, k, expand=expand, cls=asset_class, model=model, include_inside_block=include_inside_block)
+        return {"canonical": False, "index": path.name, **result}
+
     @app.get("/api/v1/graphrag/status", dependencies=[Depends(read_knowledge)])
     def graphrag_status():
         if graphrag is None:

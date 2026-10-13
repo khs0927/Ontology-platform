@@ -1,0 +1,42 @@
+{
+ "card_schema": "sion-bim-asset/1",
+ "cards_sha256": "6b8e10a4e731f23e95f5df62fd39002e90e6ea870199afaa3b7ca06054e6f3b4",
+ "counts": {
+  "by_kind": {
+   "asset": 482,
+   "class": 29,
+   "ifc": 23,
+   "level": 4,
+   "material": 83,
+   "model": 1,
+   "recipe": 30,
+   "tag": 5
+  },
+  "by_rel": {
+   "contains": 420,
+   "in_class": 482,
+   "in_model": 482,
+   "instance_of": 250,
+   "made_by": 511,
+   "maps_to_ifc": 511,
+   "on_level": 423,
+   "tagged": 483,
+   "uses_material": 309
+  },
+  "cards": 482,
+  "edges": 3871,
+  "models": [
+   "0914-meeting"
+  ],
+  "nodes": 657,
+  "vectors": 482
+ },
+ "embedding_model": "hash-chargram-384-v1",
+ "index_bytes": 4321280,
+ "index_file": "sketchup-assets.sqlite",
+ "index_sha256": "e8b5bd98f04ae560f51688e1921c5743f18a045af5442ac23a222260cf49ae92",
+ "library_index": {
+  "0914-meeting": 305
+ },
+ "schema": "sion-bim-asset-index/1"
+}
