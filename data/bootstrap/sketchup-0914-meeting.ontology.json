@@ -170,7 +170,7 @@
     "sha256": null,
     "asset_state": "exported",
     "definition_name": "그룹#1",
-    "class_guess": "unclassified"
+    "class_guess": "terrain"
    },
    "ontology_version": null
   },
@@ -408,7 +408,7 @@
     "sha256": null,
     "asset_state": "exported",
     "definition_name": "그룹#43",
-    "class_guess": "unclassified"
+    "class_guess": "curtain-wall"
    },
    "ontology_version": null
   },
@@ -646,7 +646,7 @@
     "sha256": null,
     "asset_state": "exported",
     "definition_name": "그룹#2",
-    "class_guess": "unclassified"
+    "class_guess": "terrain"
    },
    "ontology_version": null
   },
@@ -884,7 +884,7 @@
     "sha256": null,
     "asset_state": "exported",
     "definition_name": "그룹#125",
-    "class_guess": "unclassified"
+    "class_guess": "building"
    },
    "ontology_version": null
   },
@@ -901,7 +901,7 @@
     "sha256": null,
     "asset_state": "exported",
     "definition_name": "그룹#90",
-    "class_guess": "unclassified"
+    "class_guess": "building"
    },
    "ontology_version": null
   },
@@ -1071,7 +1071,7 @@
     "sha256": null,
     "asset_state": "exported",
     "definition_name": "그룹#71",
-    "class_guess": "unclassified"
+    "class_guess": "building"
    },
    "ontology_version": null
   },
@@ -41655,6 +41655,16 @@
       "locator": "$.nodes[1]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "terrain",
+    "class_candidate_confidence": 0.45,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 54.23×56.20×10.00 m, 최소 Z -5,000 mm, 깊이 1, 면 623개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[0]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -42050,6 +42060,16 @@
       "locator": "$.nodes[12]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "terrain",
+    "class_candidate_confidence": 0.45,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 58.89×61.33×10.50 m, 최소 Z -6,000 mm, 깊이 1, 면 1065개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[2]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -42841,6 +42861,16 @@
       "locator": "$.nodes[55]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "building",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 21.80×22.20×4.58 m, 최소 Z 10,200 mm, 깊이 1, 면 314개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[5]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -43137,6 +43167,16 @@
       "locator": "$.nodes[201]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "building",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 2.40×5.28×2.80 m, 최소 Z 7,200 mm, 깊이 1, 면 22개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[38]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -43237,6 +43277,16 @@
       "locator": "$.nodes[205]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "building",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 9.25×5.55×5.00 m, 최소 Z 5,000 mm, 깊이 1, 면 146개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[39]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -44751,6 +44801,16 @@
       "locator": "$.nodes[40]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "curtain-wall",
+    "class_candidate_confidence": 0.45,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "유리 재질의 두께 300 mm, 길이 10 m 이상·높이 3 m 이상 수직판이라 커튼월로 추정(상위 분류 'paving'와 다름). 근거: 월드 크기 0.30×44.26×5.20 m, 최소 Z 5,000 mm, 깊이 1, 면 14개, 재질 [Translucent Glass Gray].",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[4]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -46840,6 +46900,16 @@
       "locator": "$.nodes[4]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "terrain",
+    "class_candidate_confidence": 0.45,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 47.41×55.19×10.00 m, 최소 Z -5,000 mm, 깊이 2, 면 106개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[1]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -47544,6 +47614,16 @@
       "locator": "$.nodes[15]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "terrain",
+    "class_candidate_confidence": 0.45,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "대지 CAD 컨테이너 하위의 30 m 이상 넓은 판형 그룹(Z 범위 ±5 m)이라 지형으로 추정. 근거: 월드 크기 58.82×60.32×10.50 m, 최소 Z -6,000 mm, 깊이 2, 면 879개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[3]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -48445,6 +48525,16 @@
       "locator": "$.nodes[188]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "curtain-wall",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 13.50×0.34×5.00 m, 최소 Z 5,000 mm, 깊이 2, 면 98개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[35]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -48545,6 +48635,16 @@
       "locator": "$.nodes[191]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "curtain-wall",
+    "class_candidate_confidence": 0.5,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 2단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 13.50×0.34×5.00 m, 최소 Z 5,000 mm, 깊이 3, 면 65개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[36]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -48850,6 +48950,16 @@
       "locator": "$.nodes[194]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "curtain-wall",
+    "class_candidate_confidence": 0.5,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 3단계 위 '그룹#129'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 6.60×0.26×2.97 m, 최소 Z 5,000 mm, 깊이 4, 면 45개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[37]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -50184,6 +50294,16 @@
       "locator": "$.nodes[215]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "floor-slab",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#204'의 분류 'floor-slab'를 상속(부품으로 추정). 근거: 월드 크기 25.40×1.80×0.16 m, 최소 Z 10,160 mm, 깊이 4, 면 26개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[40]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -52770,6 +52890,16 @@
       "locator": "$.nodes[56]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "building",
+    "class_candidate_confidence": 0.5,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 2단계 위 '그룹#201'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 21.80×22.20×4.58 m, 최소 Z 10,200 mm, 깊이 2, 면 314개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[6]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -52975,6 +53105,16 @@
       "locator": "$.nodes[58]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "curtain-wall",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#154'의 분류 'curtain-wall'를 상속(부품으로 추정). 근거: 월드 크기 1.12×16.80×3.78 m, 최소 Z 10,200 mm, 깊이 4, 면 160개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[7]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -53278,6 +53418,16 @@
       "locator": "$.nodes[70]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "building",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#161'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 9.00×9.00×3.63 m, 최소 Z 9,150 mm, 깊이 2, 면 589개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[8]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54098,6 +54248,16 @@
       "locator": "$.nodes[86]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,430 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[9]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54202,6 +54362,16 @@
       "locator": "$.nodes[87]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,530 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[10]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54306,6 +54476,16 @@
       "locator": "$.nodes[88]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,630 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[11]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54410,6 +54590,16 @@
       "locator": "$.nodes[89]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,730 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[12]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54514,6 +54704,16 @@
       "locator": "$.nodes[90]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,830 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[13]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54618,6 +54818,16 @@
       "locator": "$.nodes[91]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 9,930 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[14]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54722,6 +54932,16 @@
       "locator": "$.nodes[92]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,030 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[15]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54826,6 +55046,16 @@
       "locator": "$.nodes[93]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,130 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[16]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -54930,6 +55160,16 @@
       "locator": "$.nodes[94]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,230 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[17]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55034,6 +55274,16 @@
       "locator": "$.nodes[95]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,330 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[18]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55138,6 +55388,16 @@
       "locator": "$.nodes[96]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,430 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[19]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55242,6 +55502,16 @@
       "locator": "$.nodes[97]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,530 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[20]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55346,6 +55616,16 @@
       "locator": "$.nodes[98]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,630 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[21]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55450,6 +55730,16 @@
       "locator": "$.nodes[99]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,730 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[22]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55554,6 +55844,16 @@
       "locator": "$.nodes[100]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,830 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[23]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55658,6 +55958,16 @@
       "locator": "$.nodes[101]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,930 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[24]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55762,6 +56072,16 @@
       "locator": "$.nodes[102]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,030 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[25]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55866,6 +56186,16 @@
       "locator": "$.nodes[103]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,130 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[26]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -55970,6 +56300,16 @@
       "locator": "$.nodes[104]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,230 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[27]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -56074,6 +56414,16 @@
       "locator": "$.nodes[105]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,330 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[28]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -56178,6 +56528,16 @@
       "locator": "$.nodes[106]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,430 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[29]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -56282,6 +56642,16 @@
       "locator": "$.nodes[107]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 11,530 mm, 깊이 6, 면 6개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[30]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -56386,6 +56756,16 @@
       "locator": "$.nodes[108]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "window-louver",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.07×0.04 m, 최소 Z 11,630 mm, 깊이 6, 면 3개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[31]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -57814,6 +58194,16 @@
       "locator": "$.nodes[180]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "building",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#217'의 분류 'building'를 상속(부품으로 추정). 근거: 월드 크기 9.44×23.42×5.00 m, 최소 Z 5,000 mm, 깊이 2, 면 121개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[34]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -58417,6 +58807,16 @@
       "locator": "$.nodes[115]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "handrail",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#68'의 분류 'handrail'를 상속(부품으로 추정). 근거: 월드 크기 0.00×5.36×0.90 m, 최소 Z 5,000 mm, 깊이 4, 면 0개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[33]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null
@@ -61776,6 +62176,16 @@
       "locator": "$.nodes[148]",
       "skp_file": "0914_담당미팅.skp"
      }
+    },
+    "class_candidate": "handrail",
+    "class_candidate_confidence": 0.55,
+    "class_candidate_state": "unverified",
+    "class_candidate_source_kind": "inferred",
+    "class_candidate_basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#68'의 분류 'handrail'를 상속(부품으로 추정). 근거: 월드 크기 0.00×5.36×0.90 m, 최소 Z 5,000 mm, 깊이 4, 면 0개, 재질 없음.",
+    "class_candidate_evidence": {
+     "source_file": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+     "locator": "$.assignments[33]",
+     "skp_file": "0914_담당미팅.skp"
     }
    },
    "ontology_version": null

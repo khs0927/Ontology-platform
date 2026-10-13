@@ -36,6 +36,9 @@ def _build(**kw):
     kw.setdefault("hashes", json.loads(HASHES.read_text(encoding="utf-8")) if HASHES.exists() else None)
     kw.setdefault("hierarchy_ref", "data/sources/sketchup/0914-meeting/hierarchy.json")
     kw.setdefault("objects_ref", "data/sources/sketchup/0914-meeting/objects.json")
+    _sup = HIERARCHY.parent / "classification.supplement.json"
+    kw.setdefault("supplement", json.loads(_sup.read_text(encoding="utf-8")) if _sup.exists() else None)
+    kw.setdefault("supplement_ref", "data/sources/sketchup/0914-meeting/classification.supplement.json")
     return build_ontology(base, classification=cls, **kw), cls
 
 
@@ -100,3 +103,16 @@ def test_hashes_fill_asset_sha():
     a = next(n for n in exp.nodes if n.properties.get("node_kind") == "su_asset")
     exp2, _ = _build(hashes={"files": [{"file": a.properties["asset_path"], "sha256": "f" * 64}]})
     assert next(n for n in exp2.nodes if n.stable_key == a.stable_key).properties["sha256"] == "f" * 64
+
+
+def test_supplement_candidates_are_unverified():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    sup = json.loads((root / "data/sources/sketchup/0914-meeting/classification.supplement.json").read_text(encoding="utf-8"))
+    assert len(sup["assignments"]) == 248
+    assert all(a["verification_state"] == "unverified" and a["basis_ko"] for a in sup["assignments"])
+    d = json.loads((root / "data/bootstrap/sketchup-0914-meeting.ontology.json").read_text(encoding="utf-8"))
+    cands = [n for n in d["nodes"] if n["properties"].get("class_candidate")]
+    assert cands and all(n["properties"]["class_candidate_state"] == "unverified" for n in cands)

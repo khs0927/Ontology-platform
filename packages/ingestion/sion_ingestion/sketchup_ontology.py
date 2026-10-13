@@ -38,6 +38,7 @@ TOP_LEVEL_CLASSES = ("roof",)
 OUTPUT = ROOT / "data/bootstrap/sketchup-0914-meeting.ontology.json"
 HIERARCHY = ROOT / "data/sources/sketchup/0914-meeting/hierarchy.json"
 OBJECTS = ROOT / "data/sources/sketchup/0914-meeting/objects.json"
+SUPPLEMENT = ROOT / "data/sources/sketchup/0914-meeting/classification.supplement.json"
 HASHES = ROOT / "data/sources/sketchup/0914-meeting/objects_sha.json"
 EXTRACTOR = "sion-sketchup-ontology/v1"
 _ABS = re.compile(r"^(?:[A-Za-z]:[\\/]|/)")
@@ -70,6 +71,8 @@ def build_ontology(
     hierarchy_ref: str = "hierarchy.json",
     objects_ref: str = "objects.json",
     hashes: dict[str, Any] | None = None,
+    supplement: dict[str, Any] | None = None,
+    supplement_ref: str = "classification.supplement.json",
 ) -> MapExport:
     data = base.model_dump(by_alias=True) if isinstance(base, MapExport) else json.loads(json.dumps(base))
     pfx = f"sketchup:{NS}"
@@ -238,6 +241,23 @@ def build_ontology(
                     f"(최소 Z {zmin:,.1f} mm는 레벨 밖이라 상단 기준으로 연결)",
                 )
 
+    # 3c) supplement: candidate classes for unclassified occurrences (never approved here)
+    sup = {a["pid"]: (i, a) for i, a in enumerate((supplement or {}).get("assignments", []))}
+    for k in by_path.values():
+        props = nodes[k]["properties"]
+        hit = sup.get(props.get("persistent_id"))
+        if not hit or props.get("definition_name") in cls_of:
+            continue
+        i, a = hit
+        props.update(
+            class_candidate=a["class"],
+            class_candidate_confidence=a["confidence"],
+            class_candidate_state="unverified",
+            class_candidate_source_kind="inferred",
+            class_candidate_basis_ko=a["basis_ko"],
+            class_candidate_evidence=_ev(supplement_ref, f"$.assignments[{i}]"),
+        )
+
     # 4) assets
     sha_of = {f["file"]: f["sha256"] for f in (hashes or {}).get("files", [])}
     manifest = {}
@@ -249,7 +269,7 @@ def build_ontology(
         if not (len(p) <= 2 or props.get("block_node")):
             continue
         dname = props.get("definition_name") or ""
-        c = cls_of.get(dname, "unclassified")
+        c = cls_of.get(dname) or props.get("class_candidate") or "unclassified"
         hit = manifest.get(p[-1])
         if hit:
             i, o = hit
@@ -329,6 +349,8 @@ def main(argv: list[str] | None = None) -> int:
         hierarchy=load(a.hierarchy or (HIERARCHY if HIERARCHY.exists() else None)),
         objects=load(a.objects or (OBJECTS if OBJECTS.exists() else None)),
         hashes=load(HASHES if HASHES.exists() else None),
+        supplement=load(SUPPLEMENT if SUPPLEMENT.exists() else None),
+        supplement_ref=f"data/sources/sketchup/{NS}/classification.supplement.json",
         hierarchy_ref=f"data/sources/sketchup/{NS}/hierarchy.json",
         objects_ref=f"data/sources/sketchup/{NS}/objects.json",
     )
