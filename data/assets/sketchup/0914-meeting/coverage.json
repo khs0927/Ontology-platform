@@ -35,6 +35,8 @@
  "definition_cards": 232,
  "definitions_inside_blocks_only": 65,
  "definitions_total": 297,
+ "deleted_definition_cards": 0,
+ "deleted_occurrences": 0,
  "expected_cards": 482,
  "instance_cards": 250,
  "model": "0914-meeting",
