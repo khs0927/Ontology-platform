@@ -110,7 +110,9 @@ def test_supplement_candidates_are_unverified():
     from pathlib import Path
 
     root = Path(__file__).resolve().parents[1]
-    sup = json.loads((root / "data/sources/sketchup/0914-meeting/classification.supplement.json").read_text(encoding="utf-8"))
+    sup = json.loads(
+        (root / "data/sources/sketchup/0914-meeting/classification.supplement.json").read_text(encoding="utf-8")
+    )
     assert len(sup["assignments"]) == 248
     assert all(a["verification_state"] == "unverified" and a["basis_ko"] for a in sup["assignments"])
     d = json.loads((root / "data/bootstrap/sketchup-0914-meeting.ontology.json").read_text(encoding="utf-8"))
