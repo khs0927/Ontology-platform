@@ -1,0 +1,42 @@
+{
+ "schema": "sion-sketchup-object-subclasses/v1",
+ "description": "object-classes.json의 window-louver를 세분화한 하위 클래스(부트스트랩 해시 보존을 위해 별도 파일).",
+ "subclasses": [
+  {
+   "id": "window",
+   "parent": "window-louver",
+   "label_ko": "창",
+   "label_en": "Window",
+   "ifc": [
+    "IfcWindow",
+    "WINDOW"
+   ],
+   "zium_tag": "WIN",
+   "description_ko": "벽에 호스트된 일반 창(프레임+유리). 고정·여닫이·미서기·틸트."
+  },
+  {
+   "id": "fire-entry-window",
+   "parent": "window-louver",
+   "label_ko": "소방관 진입창",
+   "label_en": "Firefighter entry window",
+   "ifc": [
+    "IfcWindow",
+    "WINDOW"
+   ],
+   "zium_tag": "WIN-FIRE",
+   "description_ko": "건축법 시행령 제51조제4항·피난방화규칙 제18조의2 대상 창. 붉은 역삼각형·타격지점 표시."
+  },
+  {
+   "id": "louver",
+   "parent": "window-louver",
+   "label_ko": "루버",
+   "label_en": "Louver",
+   "ifc": [
+    "IfcShadingDevice",
+    "LOUVER"
+   ],
+   "zium_tag": "LOUVER",
+   "description_ko": "수평·수직 루버 살 배열(차양/외장)."
+  }
+ ]
+}

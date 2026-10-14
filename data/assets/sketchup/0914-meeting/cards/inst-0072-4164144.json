@@ -1,17 +1,25 @@
 {
- "asset_file": null,
+ "asset_file": {
+  "bytes": 62603,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "sha256": "6b91bb026ce2843a59584225221eb41897adf36c9400a8ddea66b689762b2114",
+  "skp": "window-louver/그룹_76__4164144.skp",
+  "store": "google-drive",
+  "thumbnail": "window-louver/그룹_76__4164144.png",
+  "thumbnail_sha256": "8d54b3912972740b19438789addfdf7d40fbe22e21aa2774541365f6619e64b0"
+ },
  "asset_id": "su-inst:0914-meeting:4164144@72",
- "basis_ko": "정의 카드 su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14 분류 상속: DimGray 184·Blue Glass 면, 하위 창틀·루버 그룹 12개, 9.0×9.0×2.6 m",
+ "basis_ko": "정의 카드 su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14 분류 상속: DimGray 184·Blue Glass 면, 하위 창틀·루버 그룹 12개, 9.0×9.0×2.6 m | 주택 창호 세분화: SET opening-set (주택 2층 창호 묶음 컨테이너. 그룹 없이 놓인 유리 2장: 남측 780×330(그룹#94 개구부, W5 후보)·동측 540×1390(W6 후보) — 그룹화 권장)",
  "block": false,
  "block_contents": null,
  "card_kind": "instance",
- "class": "window-louver",
+ "class": "window",
  "confidence": 0.5,
  "definition_ref": "su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14",
  "ifc": {
-  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
-  "entity": "IfcWindow",
-  "predefined_type": "WINDOW"
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcElementAssembly",
+  "entity": "IfcElementAssembly",
+  "predefined_type": "USERDEFINED"
  },
  "level": {
   "base_z_mm": 9300.0,
@@ -21,6 +29,38 @@
  },
  "materials": [],
  "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "head_height_mm": 2520,
+   "height_mm": 2600,
+   "sill_height_mm": -80,
+   "width_mm": 9000
+  },
+  "ifc": {
+   "entity": "IfcElementAssembly",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": null,
+   "partitioning_type": "SINGLE_PANEL",
+   "predefined_type": "USERDEFINED"
+  },
+  "kind": "window",
+  "louver": null,
+  "note_ko": "주택 2층 창호 묶음 컨테이너. 그룹 없이 놓인 유리 2장: 남측 780×330(그룹#94 개구부, W5 후보)·동측 540×1390(W6 후보) — 그룹화 권장",
+  "orientation": null,
+  "role": "opening-set",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "SET",
+  "wall_host": {
+   "wall_definition": "그룹#88"
+  }
+ },
  "parameters": {
   "count": 1,
   "faces_recursive": 525,
@@ -71,7 +111,8 @@
  },
  "recipe": {
   "child_definitions": [],
-  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "class_recipe": "data/assets/sketchup/recipes/window.json",
+  "generator": "scripts/sketchup/generators/window.rb",
   "guides": [
    {
     "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -135,8 +176,8 @@
     ]
    }
   ],
-  "method": "array",
-  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "method": "frame-glass",
+  "method_ko": "벽 개구부(보이드)에 틀 4변+멀리언/트랜섬 박스를 만들고 유리 판을 별도 그룹으로 넣음(generators/window.rb)",
   "nesting": "depth-3",
   "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
   "sketchup_kind": "Group"
@@ -158,6 +199,6 @@
   "current": [
    "Layer0"
   ],
-  "proposed_zium": "@win"
+  "proposed_zium": "WIN"
  }
 }

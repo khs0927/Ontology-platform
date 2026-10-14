@@ -79,6 +79,9 @@ LEXICON: dict[str, list[str]] = {
     "unused-definition": ["미사용", "안쓰는", "unused"],
     "wall": ["벽", "벽체", "외벽", "내벽", "wall"],
     "window-louver": ["창", "창문", "창호", "루버", "window", "louver"],
+    "window": ["창", "창문", "창호", "미서기", "고창", "띠창", "window", "sliding window"],
+    "fire-entry-window": ["소방관진입창", "소방관 진입창", "진입창", "소방", "역삼각형", "fire entry window", "firefighter window"],
+    "louver": ["루버", "차양", "살", "louver", "louvre", "shading"],
 }
 
 _DIM_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(mm|cm|m)\b", re.I)
@@ -221,6 +224,14 @@ def card_text(card: dict[str, Any]) -> str:
         " ".join(m.get("bim_material_category") or "" for m in card.get("materials") or []),
         "블럭 block" if card.get("block") else "",
     ]
+    op = card.get("opening") or {}
+    if op:
+        g = op.get("geometry") or {}
+        parts += [op.get("type_code") or "", op.get("role") or "", op.get("orientation") or "",
+                  g.get("operation_type") or "", g.get("panel_layout") or "", op.get("note_ko") or "",
+                  (op.get("compliance") or {}).get("status") or ""]
+        if g.get("width_mm") and g.get("height_mm"):
+            parts.append(f"{g['width_mm']}x{g['height_mm']} W{g['width_mm']} H{g['height_mm']}")
     for k in ("height_mm", "length_mm", "width_mm", "thickness_mm"):
         if isinstance(p.get(k), (int, float)):
             parts.append(f"{k}={round(p[k])}mm {round(p[k] / 1000, 2)}m")

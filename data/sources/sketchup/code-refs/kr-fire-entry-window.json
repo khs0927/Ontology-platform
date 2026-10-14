@@ -1,0 +1,88 @@
+{
+ "schema": "sion-code-ref/1",
+ "id": "kr-fire-entry-window",
+ "verified_on": "2026-10-14",
+ "verification": "웹 원문 대조(law.go.kr 연계정보, lawplayer, govbrief) — 시행 2026.10.6 국토교통부령 제1631호 기준 본문. 실무 적용 전 국가법령정보센터 최신 원문 재확인 필요(확인 필요).",
+ "refs": [
+  {
+   "law": "건축법",
+   "article": "제49조제3항",
+   "summary_ko": "대통령령으로 정하는 건축물에 국토교통부령 기준에 따라 소방관이 진입할 수 있는 창을 설치하고 표시"
+  },
+  {
+   "law": "건축법 시행령",
+   "article": "제51조제4항",
+   "summary_ko": "건축물의 11층 이하의 층에는 소방관 진입창을 설치하고 외부에서 주야간 식별 표시. 단, 대피공간 등을 설치한 아파트·비상용승강기를 설치한 아파트는 제외",
+   "url": "https://govbrief.kr/scan/002118/51/"
+  },
+  {
+   "law": "건축물의 피난ㆍ방화구조 등의 기준에 관한 규칙",
+   "article": "제18조의2",
+   "url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lspttninfSeq=105112",
+   "items": [
+    {
+     "no": "1",
+     "check": "floor_scope",
+     "text_ko": "2층 이상 11층 이하인 층에 각각 1개소 이상. 직접 지상으로 통하는 출입구가 있는 층, 바닥 윗면이 지표면에서 44m 초과인 층은 제외 가능",
+     "params": {
+      "floor_min": 2,
+      "floor_max": 11,
+      "exempt_floor_height_over_m": 44
+     }
+    },
+    {
+     "no": "1의2",
+     "check": "spacing",
+     "text_ko": "창 가운데에서 벽면 끝까지 수평거리 40m 이상이면 40m 이내마다 추가 설치(소방서장 검토로 완화 가능)",
+     "params": {
+      "max_spacing_m": 40
+     }
+    },
+    {
+     "no": "2",
+     "check": "faces_fire_access",
+     "text_ko": "소방차 진입로 또는 소방차 진입이 가능한 공터에 면할 것",
+     "params": {}
+    },
+    {
+     "no": "3",
+     "check": "marking_triangle",
+     "text_ko": "창 가운데에 지름 20cm 이상 역삼각형을 야간 식별 가능하게 빛 반사 등 붉은색으로 표시",
+     "params": {
+      "triangle_min_mm": 200
+     }
+    },
+    {
+     "no": "4",
+     "check": "marking_strike_point",
+     "text_ko": "창 한쪽 모서리에 타격지점을 지름 3cm 이상 원형으로 표시",
+     "params": {
+      "strike_circle_min_mm": 30
+     }
+    },
+    {
+     "no": "5",
+     "check": "size_and_sill",
+     "text_ko": "창문 유리 크기 폭 90cm 이상·높이 1m 이상, 실내 바닥에서 창 아랫부분까지 80cm 이내(난간 있는 노대등에 불가피하게 설치 시 120cm)",
+     "params": {
+      "glass_width_min_mm": 900,
+      "glass_height_min_mm": 1000,
+      "sill_max_mm": 800,
+      "sill_max_balcony_mm": 1200
+     }
+    },
+    {
+     "no": "6",
+     "check": "glass_type",
+     "text_ko": "플로트판유리 6mm 이하, 강화·배강도유리 5mm 이하, 또는 이들로 구성된 이중·삼중유리(삼중유리 비산방지필름 50μm 이하)",
+     "params": {
+      "float_max_mm": 6,
+      "tempered_max_mm": 5,
+      "film_max_um": 50
+     }
+    }
+   ]
+  }
+ ],
+ "applicability_note_ko": "시행령 제51조제4항 문언상 제외 대상은 특정 아파트뿐이므로 단독주택도 2층 이상 층은 대상일 수 있으나, 제18조의2 제1호 단서(직접 지상 출입구가 있는 층 제외)가 경사지 주택에 적용될 수 있음 — 추정, 확인 필요."
+}

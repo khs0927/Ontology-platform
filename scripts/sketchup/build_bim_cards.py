@@ -43,6 +43,9 @@ IFC = {
     "curtain-wall": ("IfcCurtainWall", None, "@win", False, "array"),
     "door": ("IfcDoor", "DOOR", "@door", True, "component"),
     "window-louver": ("IfcWindow", "WINDOW", "@win", False, "array"),
+    "window": ("IfcWindow", "WINDOW", "WIN", False, "frame-glass"),
+    "fire-entry-window": ("IfcWindow", "WINDOW", "WIN-FIRE", False, "frame-glass"),
+    "louver": ("IfcShadingDevice", "LOUVER", "LOUVER", False, "array"),
     "column": ("IfcColumn", "COLUMN", "S-STEEL COLUMN", True, "extrude"),
     "beam": ("IfcBeam", "BEAM", "S-STEEL COLUMN", False, "extrude"),
     "roof": ("IfcRoof", "FLAT_ROOF", "A-본동", False, "extrude"),
@@ -66,6 +69,7 @@ METHOD_KO = {
     "follow-me": "단면(원/사각)을 경로를 따라 Follow-Me로 쓸어 만듦",
     "array": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
     "assembly": "층·부위 하위 그룹을 중첩해 조립한 건물 컨테이너",
+    "frame-glass": "벽 개구부(보이드)에 틀 4변+멀리언/트랜섬 박스를 만들고 유리 판을 별도 그룹으로 넣음(generators/window.rb)",
     "component": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
     "2d-block": "2D 기호 블럭을 바닥에 배치",
     "2d": "선·문자 등 2D 작업 표식",
@@ -280,7 +284,91 @@ def build(model: str, hierarchy: Path | None = None):
             "review_state": "unverified", "confidence": (a or {}).get("confidence", dcard["confidence"]),
             "basis_ko": (a or {}).get("basis_ko") or f"정의 카드 {dcard['asset_id']} 분류 상속: {dcard['basis_ko']}",
         })
+    apply_openings(cards, d)
     return cards, dump, hier, gd
+
+
+ROLE_IFC = {"wall-opening": ("IfcOpeningElement", "OPENING"), "louver-blade": ("IfcShadingDevice", "LOUVER"),
+            "louver-frame": ("IfcShadingDevice", "LOUVER"), "opening-set": ("IfcElementAssembly", "USERDEFINED")}
+IFC_OPERATION = {"fixed": "NOTDEFINED", "sliding": "SLIDING", "casement": "SWINGING", "tilt": "TILTING", "unknown": None}
+
+
+def fire_entry_compliance(o, code):
+    """Estimate KR 소방관 진입창 checks from geometry. Never a legal verdict: review_state stays unverified."""
+    items = {i["check"]: i for r in code["refs"] for i in r.get("items", [])}
+    g, fe = o["geometry"], o.get("fire_entry") or {}
+    pane = g.get("fire_glass_pane_mm") or [g.get("width_mm"), g.get("height_mm")]
+    sill = g.get("fire_glass_sill_mm", g.get("sill_height_mm"))
+    p5, p3, p4 = items["size_and_sill"]["params"], items["marking_triangle"]["params"], items["marking_strike_point"]["params"]
+
+    def chk(cid, status, measured, basis):
+        return {"check": cid, "status": status, "measured": measured, "basis_ko": basis, "ref": "건축물방화구조규칙 제18조의2"}
+    out = [
+        chk("glass_width", "pass-estimated" if pane[0] >= p5["glass_width_min_mm"] else "fail-estimated", pane[0], f"유리 폭 ≥ {p5['glass_width_min_mm']} mm (제5호)"),
+        chk("glass_height", "pass-estimated" if pane[1] >= p5["glass_height_min_mm"] else "fail-estimated", pane[1], f"유리 높이 ≥ {p5['glass_height_min_mm']} mm (제5호)"),
+        chk("sill", "pass-estimated" if sill is not None and sill <= p5["sill_max_mm"] else "needs-check", sill, f"실내 바닥~창 하단 ≤ {p5['sill_max_mm']} mm (제5호, 바닥 높이 추정)"),
+        chk("marking_triangle", "pass-estimated" if (fe.get("triangle_size_mm") or 0) >= p3["triangle_min_mm"] else "needs-check",
+            fe.get("triangle_size_mm"), f"붉은 역삼각형 ≥ {p3['triangle_min_mm']} mm (제3호). 빛 반사 여부는 모델로 확인 불가"),
+        chk("marking_strike_point", "pass-estimated" if fe.get("strike_point_found") else "needs-check", fe.get("strike_point_found"),
+            f"타격지점 원형 ≥ {p4['strike_circle_min_mm']} mm (제4호) — 모델에서 표시를 찾지 못함"),
+        chk("glass_type", "needs-check", g.get("glass_type"), "플로트 6 mm 이하 / 강화·배강도 5 mm 이하 (제6호) — 재질명만으로 판정 불가"),
+        chk("faces_fire_access", "needs-check", o.get("orientation"), "소방차 진입로·공터에 면하는지 (제2호) — 배치도 확인 필요"),
+        chk("floor_scope_spacing", "needs-check", None, "2~11층 층마다 1개, 40 m 이내 간격 (제1호·1의2). 직접 지상 출입구 층 제외 가능 — 경사지라 확인 필요"),
+    ]
+    sts = {c["status"] for c in out}
+    return {"status": "fail-estimated" if "fail-estimated" in sts else ("needs-check" if "needs-check" in sts else "pass-estimated"),
+            "checks": out, "code_ref": "data/sources/sketchup/code-refs/kr-fire-entry-window.json", "review_state": "unverified"}
+
+
+def apply_openings(cards, d: Path):
+    """Refine window-louver cards of the house into window / fire-entry-window / louver with sion-bim-opening/1 params."""
+    f = d / "openings.json"
+    if not f.exists():
+        return
+    doc = load(f)
+    code = load(SRC / "code-refs" / "kr-fire-entry-window.json")
+    by = {o["definition"]: o for o in doc["openings"]}
+    for c in cards:
+        o = by.get(c["source"].get("definition"))
+        if not o:
+            continue
+        cls = o["kind"]
+        ent, pdt, tag, _blk, method = IFC[cls]
+        ent, pdt = ROLE_IFC.get(o["role"], (ent, pdt))
+        g = o["geometry"]
+        op_ifc = IFC_OPERATION.get(g.get("operation_type"))
+        af = doc.get("asset_files", {}).get(o["definition"])
+        if af and not c.get("asset_file"):
+            c["asset_file"] = {"store": "google-drive", "root": doc["asset_root"], **af}
+        c["class"] = cls
+        c["ifc"] = {"entity": ent, "predefined_type": pdt,
+                    "bsdd_uri": f"https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/{ent}"}
+        c["tag"]["proposed_zium"] = tag
+        c["recipe"]["method"] = method
+        c["recipe"]["method_ko"] = METHOD_KO[method]
+        c["recipe"]["class_recipe"] = f"data/assets/sketchup/recipes/{cls}.json"
+        c["recipe"]["generator"] = {"window": "scripts/sketchup/generators/window.rb",
+                                    "fire-entry-window": "scripts/sketchup/generators/fire_entry_window.rb",
+                                    "louver": "scripts/sketchup/generators/louver.rb"}[cls]
+        fe = None
+        if cls == "fire-entry-window":
+            fe = {**o["fire_entry"], "code_refs": [f"{r['law']} {r['article']}" for r in code["refs"]]}
+            comp = fire_entry_compliance(o, code)
+        else:
+            comp = {"status": "not-applicable", "checks": [], "review_state": "unverified"}
+        c["opening"] = {
+            "schema": "sion-bim-opening/1", "kind": cls, "role": o["role"], "type_code": o["type_code"],
+            "geometry": g, "louver": o.get("louver"),
+            "ifc": {"entity": ent, "predefined_type": pdt,
+                    "partitioning_type": None if cls == "louver" or o["role"] == "wall-opening" else
+                    ("SINGLE_PANEL" if not g.get("mullions") and not g.get("transoms") else "USERDEFINED"),
+                    "operation_type": op_ifc,
+                    "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties"},
+            "orientation": o.get("orientation"), "wall_host": o.get("wall_host"),
+            "fire_entry": fe, "compliance": comp, "note_ko": o.get("note_ko"),
+            "source": f"data/sources/sketchup/{doc['model']}/openings.json",
+        }
+        c["basis_ko"] = f"{c['basis_ko']} | 주택 창호 세분화: {o['type_code']} {o['role']} ({o.get('note_ko')})"
 
 
 def recipes(cards, gd, labels):
@@ -341,6 +429,7 @@ def main(argv=None):
     cards = [c for c in cards if c["card_kind"] == "instance" or c["source"]["definition"] not in lost]
     n_lost_def_cards = n_before - len(cards)
     labels = {c["id"]: c["label_ko"] for c in load(SRC / "object-classes.json")["classes"]}
+    labels.update({c["id"]: c["label_ko"] for c in load(SRC / "object-subclasses.json")["subclasses"]})
     files = {}
     base = OUT / a.model
     for c in cards:

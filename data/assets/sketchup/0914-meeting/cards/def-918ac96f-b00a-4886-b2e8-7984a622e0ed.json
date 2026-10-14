@@ -1,10 +1,18 @@
 {
- "asset_file": null,
+ "asset_file": {
+  "bytes": 22376,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "sha256": "df9d8bd42758f28683ce21581690e754d77ea37b338dd1657a31dc974afac49a",
+  "skp": "window-louver/그룹_77__4163915.skp",
+  "store": "google-drive",
+  "thumbnail": "window-louver/그룹_77__4163915.png",
+  "thumbnail_sha256": "43486303e84426b95dd26849f6b9140c48b17043177e551ee456e5869cc26137"
+ },
  "asset_id": "su-def:0914-meeting:918ac96f-b00a-4886-b2e8-7984a622e0ed",
- "basis_ko": "DimGray 프레임 + Blue Glass, 5600×200×600 mm, 수평 레벨 0/30/60/90/510/540/570/600(30 mm 프레임 단)",
+ "basis_ko": "DimGray 프레임 + Blue Glass, 5600×200×600 mm, 수평 레벨 0/30/60/90/510/540/570/600(30 mm 프레임 단) | 주택 창호 세분화: W2 window-type (북측 높은 띠창(바닥에서 약 1.9 m))",
  "block": false,
  "card_kind": "definition",
- "class": "window-louver",
+ "class": "window",
  "confidence": 0.6,
  "ifc": {
   "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
@@ -44,6 +52,47 @@
   }
  ],
  "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "frame_depth_mm": 200,
+   "glass_type": "Blue Glass (종류 미확인)",
+   "head_height_mm": 2520,
+   "height_mm": 600,
+   "mullions": 5,
+   "operation_type": "unknown",
+   "panel_layout": "6분할(815·575 교대) 띠창",
+   "sill_height_mm": 1920,
+   "transoms": 0,
+   "width_mm": 5600
+  },
+  "ifc": {
+   "entity": "IfcWindow",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": null,
+   "partitioning_type": "USERDEFINED",
+   "predefined_type": "WINDOW"
+  },
+  "kind": "window",
+  "louver": null,
+  "note_ko": "북측 높은 띠창(바닥에서 약 1.9 m)",
+  "orientation": "N",
+  "role": "window-type",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "W2",
+  "wall_host": {
+   "face": "N",
+   "opening_definition": "그룹#92",
+   "wall_definition": "그룹#88",
+   "wall_thickness_mm": 250
+  }
+ },
  "parameters": {
   "count": 1,
   "entity_counts": {
@@ -63,7 +112,8 @@
  },
  "recipe": {
   "child_definitions": [],
-  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "class_recipe": "data/assets/sketchup/recipes/window.json",
+  "generator": "scripts/sketchup/generators/window.rb",
   "guides": [
    {
     "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -127,8 +177,8 @@
     ]
    }
   ],
-  "method": "array",
-  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "method": "frame-glass",
+  "method_ko": "벽 개구부(보이드)에 틀 4변+멀리언/트랜섬 박스를 만들고 유리 판을 별도 그룹으로 넣음(generators/window.rb)",
   "nesting": "definition",
   "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
   "sketchup_kind": "group"
@@ -153,6 +203,6 @@
   "inner_layers": [
    "Layer0"
   ],
-  "proposed_zium": "@win"
+  "proposed_zium": "WIN"
  }
 }

@@ -157,6 +157,13 @@
   "basis_ko": {
    "type": "string",
    "minLength": 1
+  },
+  "opening": {
+   "type": [
+    "object",
+    "null"
+   ],
+   "description": "창·소방관 진입창·루버 전용 파라미터. 구조는 schemas/sion-bim-opening-1.schema.json"
   }
  }
 }

@@ -1,17 +1,17 @@
 {
  "asset_file": null,
  "asset_id": "su-inst:0914-meeting:4163469@98",
- "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,630 mm, 깊이 6, 면 6개, 재질 없음.",
+ "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹167#1'의 분류 'window-louver'를 상속(부품으로 추정). 근거: 월드 크기 0.94×0.10×0.09 m, 최소 Z 10,630 mm, 깊이 6, 면 6개, 재질 없음. | 주택 창호 세분화: L1 louver-blade (L1 루버 살(개별 그룹))",
  "block": false,
  "block_contents": null,
  "card_kind": "instance",
- "class": "window-louver",
+ "class": "louver",
  "confidence": 0.55,
  "definition_ref": "su-def:0914-meeting:7aa614d2-161a-4571-a255-a4ac0b1e35e5",
  "ifc": {
-  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
-  "entity": "IfcWindow",
-  "predefined_type": "WINDOW"
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcShadingDevice",
+  "entity": "IfcShadingDevice",
+  "predefined_type": "LOUVER"
  },
  "level": {
   "base_z_mm": 10630.0,
@@ -21,6 +21,41 @@
  },
  "materials": [],
  "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "head_height_mm": 1338,
+   "height_mm": 88,
+   "sill_height_mm": 1250,
+   "width_mm": 940
+  },
+  "ifc": {
+   "entity": "IfcShadingDevice",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": null,
+   "partitioning_type": null,
+   "predefined_type": "LOUVER"
+  },
+  "kind": "louver",
+  "louver": null,
+  "note_ko": "L1 루버 살(개별 그룹)",
+  "orientation": "S",
+  "role": "louver-blade",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "L1",
+  "wall_host": {
+   "face": "S",
+   "opening_definition": "그룹#95",
+   "wall_definition": "그룹#88",
+   "wall_thickness_mm": 250
+  }
+ },
  "parameters": {
   "count": 1,
   "faces_recursive": 6,
@@ -71,7 +106,8 @@
  },
  "recipe": {
   "child_definitions": [],
-  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "class_recipe": "data/assets/sketchup/recipes/louver.json",
+  "generator": "scripts/sketchup/generators/louver.rb",
   "guides": [
    {
     "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -158,6 +194,6 @@
   "current": [
    "Layer0"
   ],
-  "proposed_zium": "@win"
+  "proposed_zium": "LOUVER"
  }
 }
