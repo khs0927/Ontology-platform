@@ -299,6 +299,18 @@
   "ifc": "IfcStair",
   "review_state": "unverified"
  },
+ "0914-meeting:fire-entry-window:그룹#80": {
+  "path": "window-louver/그룹_80__4163928.skp",
+  "class": "fire-entry-window",
+  "asset_id": "su-def:0914-meeting:897f1c96-743a-47db-9f5d-5b2c845e60e9",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "5c3086a42dac2c4253ca765c090d5605aa579ee8f971762c28c99aad4b3f61f6",
+  "thumbnail": "window-louver/그룹_80__4163928.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
  "0914-meeting:floor-slab:그룹#103": {
   "path": "objects/floor-slab/그룹_103__4577799.skp",
   "class": "floor-slab",
@@ -657,6 +669,42 @@
   "thumbnail": "objects/handrail/그룹53_1__5135552.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcRailing",
+  "review_state": "unverified"
+ },
+ "0914-meeting:louver:그룹#79": {
+  "path": "window-louver/그룹_79__4163927.skp",
+  "class": "louver",
+  "asset_id": "su-def:0914-meeting:e0b1f30a-e51e-4b36-9c38-0613b641c6e1",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "fa8df94f0ab54f88cc3b010cf2fc4a84c4c4129d3af9b266e23d7cb24b020f83",
+  "thumbnail": "window-louver/그룹_79__4163927.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
+ "0914-meeting:louver:그룹167#1": {
+  "path": "window-louver/그룹167_1__4163488.skp",
+  "class": "louver",
+  "asset_id": "su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "815e95773d400a7ac32ed5473f8325fbd5008281e48ec8619d683fa38edcfe26",
+  "thumbnail": "window-louver/그룹167_1__4163488.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
+ "0914-meeting:louver:그룹169#1": {
+  "path": "window-louver/그룹169_1__4163456.skp",
+  "class": "louver",
+  "asset_id": "su-def:0914-meeting:c24fff9d-0ff2-44e7-8aad-ca5055d983ea",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "7125c7ed6b6c6181f264952cebdeed1f23f7ff6cfa77bd0c6ece4b07b3f1a86d",
+  "thumbnail": "window-louver/그룹169_1__4163456.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
   "review_state": "unverified"
  },
  "0914-meeting:marker:그룹#12": {
@@ -1187,6 +1235,150 @@
   "ifc": "IfcWindow",
   "review_state": "unverified"
  },
+ "0914-meeting:window:그룹#76": {
+  "path": "window-louver/그룹_76__4164144.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "6b91bb026ce2843a59584225221eb41897adf36c9400a8ddea66b689762b2114",
+  "thumbnail": "window-louver/그룹_76__4164144.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcElementAssembly",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#77": {
+  "path": "window-louver/그룹_77__4163915.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:918ac96f-b00a-4886-b2e8-7984a622e0ed",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "df9d8bd42758f28683ce21581690e754d77ea37b338dd1657a31dc974afac49a",
+  "thumbnail": "window-louver/그룹_77__4163915.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#78": {
+  "path": "window-louver/그룹_78__4163925.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:a64b898a-bd18-43b6-9600-539345457efc",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "c97b70123bc1748baba287632c199ee829f5e4582999819e701c283c17c40b86",
+  "thumbnail": "window-louver/그룹_78__4163925.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#81": {
+  "path": "window-louver/그룹_81__4164138.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:f452b9d1-54db-4e70-a38b-49a3ab9671be",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "0376c851eb0ebe02ece39d1de7d454b025c1e6204b49f2c808f82006f45d7d0e",
+  "thumbnail": "window-louver/그룹_81__4164138.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#82": {
+  "path": "window-louver/그룹_82__4162769.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:e514b6de-1162-463a-a057-3d69d97f9f5d",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "6f7448c1121439fad5bca5704a20cf1dd555bd33d99d29148004d909f57a032f",
+  "thumbnail": "window-louver/그룹_82__4162769.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#84": {
+  "path": "window-louver/그룹_84__4164137.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:d322afe0-3fbd-475d-a6ab-6ec1acef78ac",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "cd0c505b987e711b2c5be11fa8bc45512bc4566f86a7a0d3607b68546dc53f07",
+  "thumbnail": "window-louver/그룹_84__4164137.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#86": {
+  "path": "window-louver/그룹_86__4163659.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:0e1742be-dc07-4fe2-b33e-231773669c83",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "ecb83bf6a1c4b4c4a4f1e838737bd0ee53f2691a640d8022a9f9a27be49cbbe4",
+  "thumbnail": "window-louver/그룹_86__4163659.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#91": {
+  "path": "window-louver/그룹_91__4164139.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:eb8bf665-d5ce-4dd7-bba4-e0662e1eb855",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "ace145f2248d8e78b91570d1d783411215b656c27c9bd1cc6b1cd7c30d052fdf",
+  "thumbnail": "window-louver/그룹_91__4164139.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#92": {
+  "path": "window-louver/그룹_92__4164140.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:8e9c39e5-77bc-4fd3-9c52-ccd567692db7",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "df462826c4d887e6505c329b0a8b76c5d02f02fd31520f12f6ebc2fe8eae6084",
+  "thumbnail": "window-louver/그룹_92__4164140.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#93": {
+  "path": "window-louver/그룹_93__4164141.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:8ef229d9-054b-4043-b101-e09f98574380",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "df454c27d284567b1a9fc59fa679715cfcbb5a4313ce6657d7562a052e9a3b12",
+  "thumbnail": "window-louver/그룹_93__4164141.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#94": {
+  "path": "window-louver/그룹_94__4164142.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:20c08503-eb70-4191-ae14-ebd16db3aed9",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "418ba4a4e746efd05060599236c587981a2a31b33af5299598831678e75f551d",
+  "thumbnail": "window-louver/그룹_94__4164142.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "0914-meeting:window:그룹#95": {
+  "path": "window-louver/그룹_95__4164143.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:f5f2c096-077b-4b41-83b9-19d66e54421d",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "7d375d74bbd9b1d62ef19d2111ff45d9060f5e904b5b0fa32ae5bd0973acc48d",
+  "thumbnail": "window-louver/그룹_95__4164143.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:003f6055-3971-4fd9-8643-449025023e8f": {
   "path": "objects/handrail/그룹357_1__4086194.skp",
   "class": "handrail",
@@ -1281,6 +1473,18 @@
   "thumbnail": "objects/beam/그룹_225__4577837.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcBeam",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:0e1742be-dc07-4fe2-b33e-231773669c83": {
+  "path": "window-louver/그룹_86__4163659.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:0e1742be-dc07-4fe2-b33e-231773669c83",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "ecb83bf6a1c4b4c4a4f1e838737bd0ee53f2691a640d8022a9f9a27be49cbbe4",
+  "thumbnail": "window-louver/그룹_86__4163659.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
   "review_state": "unverified"
  },
  "su-def:0914-meeting:0e5c77c1-8973-46c7-ac10-550de79c120c": {
@@ -1389,6 +1593,18 @@
   "thumbnail": "objects/terrain/그룹_32__4072540.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcGeographicElement",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:20c08503-eb70-4191-ae14-ebd16db3aed9": {
+  "path": "window-louver/그룹_94__4164142.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:20c08503-eb70-4191-ae14-ebd16db3aed9",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "418ba4a4e746efd05060599236c587981a2a31b33af5299598831678e75f551d",
+  "thumbnail": "window-louver/그룹_94__4164142.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
   "review_state": "unverified"
  },
  "su-def:0914-meeting:26e7e507-9ae0-4019-a601-9fac531c9c57": {
@@ -1727,6 +1943,18 @@
   "ifc": "IfcGeographicElement",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72": {
+  "path": "window-louver/그룹167_1__4163488.skp",
+  "class": "louver",
+  "asset_id": "su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "815e95773d400a7ac32ed5473f8325fbd5008281e48ec8619d683fa38edcfe26",
+  "thumbnail": "window-louver/그룹167_1__4163488.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:7b728472-fa3c-4146-8125-2ef35ec8c690": {
   "path": "objects/person/Component18__4577820.skp",
   "class": "person",
@@ -1787,6 +2015,18 @@
   "ifc": "IfcCurtainWall",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:897f1c96-743a-47db-9f5d-5b2c845e60e9": {
+  "path": "window-louver/그룹_80__4163928.skp",
+  "class": "fire-entry-window",
+  "asset_id": "su-def:0914-meeting:897f1c96-743a-47db-9f5d-5b2c845e60e9",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "5c3086a42dac2c4253ca765c090d5605aa579ee8f971762c28c99aad4b3f61f6",
+  "thumbnail": "window-louver/그룹_80__4163928.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:89f9bc36-2de9-4ab9-965a-76c135643826": {
   "path": "objects/curtain-wall/그룹_134__4204587.skp",
   "class": "curtain-wall",
@@ -1835,6 +2075,30 @@
   "ifc": "IfcRailing",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:8e9c39e5-77bc-4fd3-9c52-ccd567692db7": {
+  "path": "window-louver/그룹_92__4164140.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:8e9c39e5-77bc-4fd3-9c52-ccd567692db7",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "df462826c4d887e6505c329b0a8b76c5d02f02fd31520f12f6ebc2fe8eae6084",
+  "thumbnail": "window-louver/그룹_92__4164140.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:8ef229d9-054b-4043-b101-e09f98574380": {
+  "path": "window-louver/그룹_93__4164141.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:8ef229d9-054b-4043-b101-e09f98574380",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "df454c27d284567b1a9fc59fa679715cfcbb5a4313ce6657d7562a052e9a3b12",
+  "thumbnail": "window-louver/그룹_93__4164141.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:8f2248c3-0af1-40b9-8efb-3f9bcc217ea6": {
   "path": "objects/person/그룹_130__4577818.skp",
   "class": "person",
@@ -1869,6 +2133,18 @@
   "thumbnail": "objects/furniture/ch5__4360622.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcFurniture",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:918ac96f-b00a-4886-b2e8-7984a622e0ed": {
+  "path": "window-louver/그룹_77__4163915.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:918ac96f-b00a-4886-b2e8-7984a622e0ed",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "df9d8bd42758f28683ce21581690e754d77ea37b338dd1657a31dc974afac49a",
+  "thumbnail": "window-louver/그룹_77__4163915.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
   "review_state": "unverified"
  },
  "su-def:0914-meeting:919aa810-2975-4396-ae1d-a3511aabee35": {
@@ -1955,6 +2231,18 @@
   "ifc": "IfcSlab",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:a64b898a-bd18-43b6-9600-539345457efc": {
+  "path": "window-louver/그룹_78__4163925.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:a64b898a-bd18-43b6-9600-539345457efc",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "c97b70123bc1748baba287632c199ee829f5e4582999819e701c283c17c40b86",
+  "thumbnail": "window-louver/그룹_78__4163925.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:aef8cb9a-1868-495d-b560-acfb05851daa": {
   "path": "objects/unclassified/그룹_101__4164146.skp",
   "class": "building",
@@ -2025,6 +2313,18 @@
   "thumbnail": "objects/curtain-wall/그룹_129__4577801.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcCurtainWall",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:c24fff9d-0ff2-44e7-8aad-ca5055d983ea": {
+  "path": "window-louver/그룹169_1__4163456.skp",
+  "class": "louver",
+  "asset_id": "su-def:0914-meeting:c24fff9d-0ff2-44e7-8aad-ca5055d983ea",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "7125c7ed6b6c6181f264952cebdeed1f23f7ff6cfa77bd0c6ece4b07b3f1a86d",
+  "thumbnail": "window-louver/그룹169_1__4163456.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
   "review_state": "unverified"
  },
  "su-def:0914-meeting:c286a82e-95c4-4af4-a57e-ad0e1b16beba": {
@@ -2147,6 +2447,18 @@
   "ifc": "IfcRailing",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:d322afe0-3fbd-475d-a6ab-6ec1acef78ac": {
+  "path": "window-louver/그룹_84__4164137.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:d322afe0-3fbd-475d-a6ab-6ec1acef78ac",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "cd0c505b987e711b2c5be11fa8bc45512bc4566f86a7a0d3607b68546dc53f07",
+  "thumbnail": "window-louver/그룹_84__4164137.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:d3e08038-76b5-4ecf-b165-5d5149e74b68": {
   "path": "objects/unclassified/그룹_234__4168702.skp",
   "class": "building",
@@ -2219,6 +2531,30 @@
   "ifc": "IfcBuilding",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:e0b1f30a-e51e-4b36-9c38-0613b641c6e1": {
+  "path": "window-louver/그룹_79__4163927.skp",
+  "class": "louver",
+  "asset_id": "su-def:0914-meeting:e0b1f30a-e51e-4b36-9c38-0613b641c6e1",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "fa8df94f0ab54f88cc3b010cf2fc4a84c4c4129d3af9b266e23d7cb24b020f83",
+  "thumbnail": "window-louver/그룹_79__4163927.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14": {
+  "path": "window-louver/그룹_76__4164144.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "6b91bb026ce2843a59584225221eb41897adf36c9400a8ddea66b689762b2114",
+  "thumbnail": "window-louver/그룹_76__4164144.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcElementAssembly",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:e50b716f-2de0-4004-ad9f-08609c519f3c": {
   "path": "objects/retaining-wall/그룹_6__4073101.skp",
   "class": "retaining-wall",
@@ -2229,6 +2565,18 @@
   "thumbnail": "objects/retaining-wall/그룹_6__4073101.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcWall",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:e514b6de-1162-463a-a057-3d69d97f9f5d": {
+  "path": "window-louver/그룹_82__4162769.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:e514b6de-1162-463a-a057-3d69d97f9f5d",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "6f7448c1121439fad5bca5704a20cf1dd555bd33d99d29148004d909f57a032f",
+  "thumbnail": "window-louver/그룹_82__4162769.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
   "review_state": "unverified"
  },
  "su-def:0914-meeting:e9f1afce-7001-4502-8c6a-35297513ee61": {
@@ -2267,6 +2615,18 @@
   "ifc": "IfcSlab",
   "review_state": "unverified"
  },
+ "su-def:0914-meeting:eb8bf665-d5ce-4dd7-bba4-e0662e1eb855": {
+  "path": "window-louver/그룹_91__4164139.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:eb8bf665-d5ce-4dd7-bba4-e0662e1eb855",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "ace145f2248d8e78b91570d1d783411215b656c27c9bd1cc6b1cd7c30d052fdf",
+  "thumbnail": "window-louver/그룹_91__4164139.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
  "su-def:0914-meeting:ec5629a1-edb0-406a-a06f-cc7ccc2e3672": {
   "path": "objects/terrain/그룹_33__4066617.skp",
   "class": "terrain",
@@ -2277,6 +2637,30 @@
   "thumbnail": "objects/terrain/그룹_33__4066617.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcGeographicElement",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:f452b9d1-54db-4e70-a38b-49a3ab9671be": {
+  "path": "window-louver/그룹_81__4164138.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:f452b9d1-54db-4e70-a38b-49a3ab9671be",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "0376c851eb0ebe02ece39d1de7d454b025c1e6204b49f2c808f82006f45d7d0e",
+  "thumbnail": "window-louver/그룹_81__4164138.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-def:0914-meeting:f5f2c096-077b-4b41-83b9-19d66e54421d": {
+  "path": "window-louver/그룹_95__4164143.skp",
+  "class": "window",
+  "asset_id": "su-def:0914-meeting:f5f2c096-077b-4b41-83b9-19d66e54421d",
+  "card_kind": "definition",
+  "block": false,
+  "sha256": "7d375d74bbd9b1d62ef19d2111ff45d9060f5e904b5b0fa32ae5bd0973acc48d",
+  "thumbnail": "window-louver/그룹_95__4164143.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
   "review_state": "unverified"
  },
  "su-def:0914-meeting:f839a645-af58-49a5-8f31-f8d79b4580f0": {
@@ -2781,6 +3165,210 @@
   "thumbnail": "objects/unclassified/그룹_100__4088192.png",
   "root": "SketchUp-Assets/ontology-objects/0914-meeting",
   "ifc": "IfcBuilding",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4162769@81": {
+  "path": "window-louver/그룹_82__4162769.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4162769@81",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "6f7448c1121439fad5bca5704a20cf1dd555bd33d99d29148004d909f57a032f",
+  "thumbnail": "window-louver/그룹_82__4162769.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163456@85": {
+  "path": "window-louver/그룹169_1__4163456.skp",
+  "class": "louver",
+  "asset_id": "su-inst:0914-meeting:4163456@85",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "7125c7ed6b6c6181f264952cebdeed1f23f7ff6cfa77bd0c6ece4b07b3f1a86d",
+  "thumbnail": "window-louver/그룹169_1__4163456.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163488@84": {
+  "path": "window-louver/그룹167_1__4163488.skp",
+  "class": "louver",
+  "asset_id": "su-inst:0914-meeting:4163488@84",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "815e95773d400a7ac32ed5473f8325fbd5008281e48ec8619d683fa38edcfe26",
+  "thumbnail": "window-louver/그룹167_1__4163488.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163659@110": {
+  "path": "window-louver/그룹_86__4163659.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4163659@110",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "ecb83bf6a1c4b4c4a4f1e838737bd0ee53f2691a640d8022a9f9a27be49cbbe4",
+  "thumbnail": "window-louver/그룹_86__4163659.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163915@79": {
+  "path": "window-louver/그룹_77__4163915.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4163915@79",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "df9d8bd42758f28683ce21581690e754d77ea37b338dd1657a31dc974afac49a",
+  "thumbnail": "window-louver/그룹_77__4163915.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163925@78": {
+  "path": "window-louver/그룹_78__4163925.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4163925@78",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "c97b70123bc1748baba287632c199ee829f5e4582999819e701c283c17c40b86",
+  "thumbnail": "window-louver/그룹_78__4163925.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163926@82": {
+  "path": "window-louver/그룹_78__4163925.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4163926@82",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "c97b70123bc1748baba287632c199ee829f5e4582999819e701c283c17c40b86",
+  "thumbnail": "window-louver/그룹_78__4163925.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163927@83": {
+  "path": "window-louver/그룹_79__4163927.skp",
+  "class": "louver",
+  "asset_id": "su-inst:0914-meeting:4163927@83",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "fa8df94f0ab54f88cc3b010cf2fc4a84c4c4129d3af9b266e23d7cb24b020f83",
+  "thumbnail": "window-louver/그룹_79__4163927.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcShadingDevice",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4163928@111": {
+  "path": "window-louver/그룹_80__4163928.skp",
+  "class": "fire-entry-window",
+  "asset_id": "su-inst:0914-meeting:4163928@111",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "5c3086a42dac2c4253ca765c090d5605aa579ee8f971762c28c99aad4b3f61f6",
+  "thumbnail": "window-louver/그룹_80__4163928.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164137@109": {
+  "path": "window-louver/그룹_84__4164137.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164137@109",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "cd0c505b987e711b2c5be11fa8bc45512bc4566f86a7a0d3607b68546dc53f07",
+  "thumbnail": "window-louver/그룹_84__4164137.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164138@80": {
+  "path": "window-louver/그룹_81__4164138.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164138@80",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "0376c851eb0ebe02ece39d1de7d454b025c1e6204b49f2c808f82006f45d7d0e",
+  "thumbnail": "window-louver/그룹_81__4164138.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcWindow",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164139@73": {
+  "path": "window-louver/그룹_91__4164139.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164139@73",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "ace145f2248d8e78b91570d1d783411215b656c27c9bd1cc6b1cd7c30d052fdf",
+  "thumbnail": "window-louver/그룹_91__4164139.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164140@74": {
+  "path": "window-louver/그룹_92__4164140.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164140@74",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "df462826c4d887e6505c329b0a8b76c5d02f02fd31520f12f6ebc2fe8eae6084",
+  "thumbnail": "window-louver/그룹_92__4164140.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164141@75": {
+  "path": "window-louver/그룹_93__4164141.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164141@75",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "df454c27d284567b1a9fc59fa679715cfcbb5a4313ce6657d7562a052e9a3b12",
+  "thumbnail": "window-louver/그룹_93__4164141.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164142@76": {
+  "path": "window-louver/그룹_94__4164142.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164142@76",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "418ba4a4e746efd05060599236c587981a2a31b33af5299598831678e75f551d",
+  "thumbnail": "window-louver/그룹_94__4164142.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164143@77": {
+  "path": "window-louver/그룹_95__4164143.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164143@77",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "7d375d74bbd9b1d62ef19d2111ff45d9060f5e904b5b0fa32ae5bd0973acc48d",
+  "thumbnail": "window-louver/그룹_95__4164143.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcOpeningElement",
+  "review_state": "unverified"
+ },
+ "su-inst:0914-meeting:4164144@72": {
+  "path": "window-louver/그룹_76__4164144.skp",
+  "class": "window",
+  "asset_id": "su-inst:0914-meeting:4164144@72",
+  "card_kind": "instance",
+  "block": false,
+  "sha256": "6b91bb026ce2843a59584225221eb41897adf36c9400a8ddea66b689762b2114",
+  "thumbnail": "window-louver/그룹_76__4164144.png",
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "ifc": "IfcElementAssembly",
   "review_state": "unverified"
  },
  "su-inst:0914-meeting:4164146@70": {

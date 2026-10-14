@@ -15,7 +15,10 @@ module SionBim
     'retaining-wall'  => ['COL',   'IfcWall',         '노출콘크리트'],
     'roof'            => ['COL',   'IfcRoof',         'ZIUM-ROOF'],
     'parking-deck'    => ['ETC',   'IfcSlab',         '아스팔트'],
-    'asset-block'     => ['FUR',   'IfcFurnishingElement', nil]
+    'asset-block'     => ['FUR',   'IfcFurnishingElement', nil],
+    'window'          => ['WIN',   'IfcWindow',       'ZIUM-GLASS'],
+    'fire-entry-window' => ['WIN-FIRE', 'IfcWindow',   'ZIUM-GLASS'],
+    'louver'          => ['LOUVER', 'IfcShadingDevice', 'ZIUM-MULLION']
   }.freeze
 
   module_function

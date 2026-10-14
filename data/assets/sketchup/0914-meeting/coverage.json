@@ -10,11 +10,13 @@
   "curtain-wall": 24,
   "door": 18,
   "exterior-stair": 8,
+  "fire-entry-window": 2,
   "floor-slab": 22,
   "furniture": 22,
   "glass-railing": 4,
   "handrail": 101,
   "imported-3d": 20,
+  "louver": 52,
   "marker": 3,
   "parking-deck": 4,
   "parking-stall": 3,
@@ -29,7 +31,8 @@
   "tree": 2,
   "unused-definition": 15,
   "wall": 20,
-  "window-louver": 83
+  "window": 25,
+  "window-louver": 4
  },
  "coverage_pct": 100.0,
  "definition_cards": 232,
@@ -44,5 +47,5 @@
  "occurrences_inside_blocks": 369,
  "occurrences_total": 619,
  "rule_ko": "블럭(나무·사람·가구 등)=객체 1개=카드 1개, 블럭 내부 정의·부품은 카드 없음",
- "with_asset_file": 206
+ "with_asset_file": 239
 }

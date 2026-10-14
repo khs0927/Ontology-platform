@@ -1,17 +1,25 @@
 {
- "asset_file": null,
+ "asset_file": {
+  "bytes": 31221,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "sha256": "815e95773d400a7ac32ed5473f8325fbd5008281e48ec8619d683fa38edcfe26",
+  "skp": "window-louver/그룹167_1__4163488.skp",
+  "store": "google-drive",
+  "thumbnail": "window-louver/그룹167_1__4163488.png",
+  "thumbnail_sha256": "0c4206c2e3e1381ba20bed2327d15a56131831ce8968f082f284d3d3461988a3"
+ },
  "asset_id": "su-inst:0914-meeting:4163488@84",
- "basis_ko": "정의 카드 su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72 분류 상속: 그룹 재질 DimGray, 940×100×87.7 mm 살 24개가 100 mm 간격으로 수직 적층(23개 + 마감 1개)",
+ "basis_ko": "정의 카드 su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72 분류 상속: 그룹 재질 DimGray, 940×100×87.7 mm 살 24개가 100 mm 간격으로 수직 적층(23개 + 마감 1개) | 주택 창호 세분화: L1 louver-frame (L1 루버 틀)",
  "block": false,
  "block_contents": null,
  "card_kind": "instance",
- "class": "window-louver",
+ "class": "louver",
  "confidence": 0.7,
  "definition_ref": "su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72",
  "ifc": {
-  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
-  "entity": "IfcWindow",
-  "predefined_type": "WINDOW"
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcShadingDevice",
+  "entity": "IfcShadingDevice",
+  "predefined_type": "LOUVER"
  },
  "level": {
   "base_z_mm": 9330.0,
@@ -34,6 +42,43 @@
   }
  ],
  "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "frame_depth_mm": 100,
+   "frame_material": "DimGray",
+   "head_height_mm": 2290,
+   "height_mm": 2340,
+   "sill_height_mm": -50,
+   "width_mm": 940
+  },
+  "ifc": {
+   "entity": "IfcShadingDevice",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": null,
+   "partitioning_type": null,
+   "predefined_type": "LOUVER"
+  },
+  "kind": "louver",
+  "louver": null,
+  "note_ko": "L1 루버 틀",
+  "orientation": "S",
+  "role": "louver-frame",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "L1",
+  "wall_host": {
+   "face": "S",
+   "opening_definition": "그룹#95",
+   "wall_definition": "그룹#88",
+   "wall_thickness_mm": 250
+  }
+ },
  "parameters": {
   "count": 1,
   "faces_recursive": 141,
@@ -84,7 +129,8 @@
  },
  "recipe": {
   "child_definitions": [],
-  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "class_recipe": "data/assets/sketchup/recipes/louver.json",
+  "generator": "scripts/sketchup/generators/louver.rb",
   "guides": [
    {
     "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -171,6 +217,6 @@
   "current": [
    "Layer0"
   ],
-  "proposed_zium": "@win"
+  "proposed_zium": "LOUVER"
  }
 }

@@ -1,18 +1,10 @@
 {
  "block": false,
  "class": "window-louver",
- "definition_count": 41,
+ "definition_count": 2,
  "examples": [
-  "su-def:0914-meeting:084b67fc-49fc-4eb6-8acf-18b8b0eebbd0",
-  "su-def:0914-meeting:0e1742be-dc07-4fe2-b33e-231773669c83",
-  "su-def:0914-meeting:0f78498b-88ec-4d89-ba97-0bac29844849",
-  "su-def:0914-meeting:20c08503-eb70-4191-ae14-ebd16db3aed9",
-  "su-def:0914-meeting:22191b78-7742-4262-84c3-7bf8a921f77b",
-  "su-def:0914-meeting:3787179f-ad66-4d7f-8002-f7c60d1b6a4f",
-  "su-def:0914-meeting:562cee6f-3211-455d-8e94-10f673105178",
-  "su-def:0914-meeting:56471930-d6d8-4675-acfa-bb70b3b174e4",
-  "su-def:0914-meeting:564d46ff-eea0-451b-bf22-01400ef72031",
-  "su-def:0914-meeting:57b839f3-25b3-499c-b356-1e48ad23b18a"
+  "su-def:0914-meeting:57b839f3-25b3-499c-b356-1e48ad23b18a",
+  "su-def:0914-meeting:9825fcae-b34b-4ac6-82b1-45004279ddde"
  ],
  "guides": [
   {
@@ -89,8 +81,8 @@
  },
  "label_ko": "창호 프레임·루버",
  "material_categories": {
-  "glass": 7,
-  "paint-or-colour": 18
+  "glass": 1,
+  "paint-or-colour": 2
  },
  "proposed_zium_tag": "@win",
  "review_state": "unverified",
@@ -98,28 +90,28 @@
  "source_model": "0914-meeting",
  "typical_params_mm": {
   "height_mm": {
-   "max": 2600.0,
-   "median": 100.0,
-   "min": 69.3,
-   "n": 41
+   "max": 900.0,
+   "median": 900.0,
+   "min": 900.0,
+   "n": 2
   },
   "length_mm": {
-   "max": 9000.0,
-   "median": 940.0,
-   "min": 900.0,
-   "n": 41
+   "max": 7050.0,
+   "median": 7050.0,
+   "min": 7050.0,
+   "n": 2
   },
   "thickness_mm": {
-   "max": 2600.0,
-   "median": 87.7,
-   "min": 40.0,
-   "n": 41
+   "max": 450.0,
+   "median": 325.0,
+   "min": 200.0,
+   "n": 2
   },
   "width_mm": {
-   "max": 9000.0,
-   "median": 87.7,
-   "min": 40.0,
-   "n": 41
+   "max": 450.0,
+   "median": 325.0,
+   "min": 200.0,
+   "n": 2
   }
  }
 }

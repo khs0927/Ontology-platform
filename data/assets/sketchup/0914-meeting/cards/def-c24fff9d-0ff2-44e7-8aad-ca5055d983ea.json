@@ -1,15 +1,23 @@
 {
- "asset_file": null,
+ "asset_file": {
+  "bytes": 9608,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "sha256": "7125c7ed6b6c6181f264952cebdeed1f23f7ff6cfa77bd0c6ece4b07b3f1a86d",
+  "skp": "window-louver/그룹169_1__4163456.skp",
+  "store": "google-drive",
+  "thumbnail": "window-louver/그룹169_1__4163456.png",
+  "thumbnail_sha256": "b7723b3039f699a0b4f12733b588d6abd48d98636387d2663104163c40c20668"
+ },
  "asset_id": "su-def:0914-meeting:c24fff9d-0ff2-44e7-8aad-ca5055d983ea",
- "basis_ko": "루버 살 940×100×87.7 mm, 60° 경사면 2개",
+ "basis_ko": "루버 살 940×100×87.7 mm, 60° 경사면 2개 | 주택 창호 세분화: L1 louver-blade (L1 루버 살(개별 그룹))",
  "block": false,
  "card_kind": "definition",
- "class": "window-louver",
+ "class": "louver",
  "confidence": 0.6,
  "ifc": {
-  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
-  "entity": "IfcWindow",
-  "predefined_type": "WINDOW"
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcShadingDevice",
+  "entity": "IfcShadingDevice",
+  "predefined_type": "LOUVER"
  },
  "level": {
   "base_z_mm": 9330.0,
@@ -19,6 +27,41 @@
  },
  "materials": [],
  "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "head_height_mm": 38,
+   "height_mm": 88,
+   "sill_height_mm": -50,
+   "width_mm": 940
+  },
+  "ifc": {
+   "entity": "IfcShadingDevice",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": null,
+   "partitioning_type": null,
+   "predefined_type": "LOUVER"
+  },
+  "kind": "louver",
+  "louver": null,
+  "note_ko": "L1 루버 살(개별 그룹)",
+  "orientation": "S",
+  "role": "louver-blade",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "L1",
+  "wall_host": {
+   "face": "S",
+   "opening_definition": "그룹#95",
+   "wall_definition": "그룹#88",
+   "wall_thickness_mm": 250
+  }
+ },
  "parameters": {
   "count": 1,
   "entity_counts": {
@@ -38,7 +81,8 @@
  },
  "recipe": {
   "child_definitions": [],
-  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "class_recipe": "data/assets/sketchup/recipes/louver.json",
+  "generator": "scripts/sketchup/generators/louver.rb",
   "guides": [
    {
     "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -128,6 +172,6 @@
   "inner_layers": [
    "Layer0"
   ],
-  "proposed_zium": "@win"
+  "proposed_zium": "LOUVER"
  }
 }

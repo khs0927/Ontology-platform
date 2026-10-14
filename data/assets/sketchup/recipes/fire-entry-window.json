@@ -1,0 +1,54 @@
+{
+ "block": false,
+ "class": "fire-entry-window",
+ "definition_count": 1,
+ "examples": [
+  "su-def:0914-meeting:897f1c96-743a-47db-9f5d-5b2c845e60e9"
+ ],
+ "guides": [],
+ "how_to_make_ko": [
+  "벽 개구부(보이드)에 틀 4변+멀리언/트랜섬 박스를 만들고 유리 판을 별도 그룹으로 넣음(generators/window.rb)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcWindow",
+  "predefined_type": "WINDOW"
+ },
+ "label_ko": "소방관 진입창",
+ "material_categories": {
+  "glass": 1,
+  "paint-or-colour": 1
+ },
+ "proposed_zium_tag": "WIN-FIRE",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 2400.0,
+   "median": 2400.0,
+   "min": 2400.0,
+   "n": 1
+  },
+  "length_mm": {
+   "max": 2000.0,
+   "median": 2000.0,
+   "min": 2000.0,
+   "n": 1
+  },
+  "thickness_mm": {
+   "max": 200.0,
+   "median": 200.0,
+   "min": 200.0,
+   "n": 1
+  },
+  "width_mm": {
+   "max": 200.0,
+   "median": 200.0,
+   "min": 200.0,
+   "n": 1
+  }
+ }
+}

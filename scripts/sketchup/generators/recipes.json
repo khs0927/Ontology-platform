@@ -9,6 +9,9 @@
     "retaining-wall": "retaining_wall",
     "roof": "roof",
     "parking-deck": "parking_deck",
-    "asset-block": "place_block"
+    "asset-block": "place_block",
+    "window": "window",
+    "fire-entry-window": "fire_entry_window",
+    "louver": "louver"
   }
 }

@@ -1,17 +1,25 @@
 {
- "asset_file": null,
+ "asset_file": {
+  "bytes": 34941,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "sha256": "fa8df94f0ab54f88cc3b010cf2fc4a84c4c4129d3af9b266e23d7cb24b020f83",
+  "skp": "window-louver/그룹_79__4163927.skp",
+  "store": "google-drive",
+  "thumbnail": "window-louver/그룹_79__4163927.png",
+  "thumbnail_sha256": "7ac3bbe91649c99825781562b703da6f112859faaf770b621fbbb478f4ab68df"
+ },
  "asset_id": "su-inst:0914-meeting:4163927@83",
- "basis_ko": "정의 카드 su-def:0914-meeting:e0b1f30a-e51e-4b36-9c38-0613b641c6e1 분류 상속: 하위 그룹167#1(루버 살 24개)을 담은 940×100×2340 mm",
+ "basis_ko": "정의 카드 su-def:0914-meeting:e0b1f30a-e51e-4b36-9c38-0613b641c6e1 분류 상속: 하위 그룹167#1(루버 살 24개)을 담은 940×100×2340 mm | 주택 창호 세분화: L1 louver-assembly (FE1 왼쪽 절반의 수평 루버. 살 길이 940·깊이 100·투영높이 88, 100 간격 24개. 각도는 투영값만 있어 미확정)",
  "block": false,
  "block_contents": null,
  "card_kind": "instance",
- "class": "window-louver",
+ "class": "louver",
  "confidence": 0.6,
  "definition_ref": "su-def:0914-meeting:e0b1f30a-e51e-4b36-9c38-0613b641c6e1",
  "ifc": {
-  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow",
-  "entity": "IfcWindow",
-  "predefined_type": "WINDOW"
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcShadingDevice",
+  "entity": "IfcShadingDevice",
+  "predefined_type": "LOUVER"
  },
  "level": {
   "base_z_mm": 9330.0,
@@ -21,6 +29,80 @@
  },
  "materials": [],
  "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "frame_depth_mm": 100,
+   "frame_material": "DimGray",
+   "head_height_mm": 2290,
+   "height_mm": 2340,
+   "operation_type": "fixed",
+   "sill_height_mm": -50,
+   "width_mm": 940
+  },
+  "ifc": {
+   "entity": "IfcShadingDevice",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": "NOTDEFINED",
+   "partitioning_type": null,
+   "predefined_type": "LOUVER"
+  },
+  "kind": "louver",
+  "louver": {
+   "angle_deg": null,
+   "blade_count": 24,
+   "blade_definitions": [
+    "그룹169#1",
+    "그룹170#1",
+    "그룹171#1",
+    "그룹172#1",
+    "그룹173#1",
+    "그룹174#1",
+    "그룹175#1",
+    "그룹176#1",
+    "그룹177#1",
+    "그룹178#1",
+    "그룹179#1",
+    "그룹180#1",
+    "그룹181#1",
+    "그룹182#1",
+    "그룹183#1",
+    "그룹184#1",
+    "그룹185#1",
+    "그룹186#1",
+    "그룹187#1",
+    "그룹188#1",
+    "그룹189#1",
+    "그룹190#1",
+    "그룹191#1",
+    "그룹192#1"
+   ],
+   "blade_projected_height_mm": 88,
+   "blade_thickness_mm": null,
+   "blade_width_mm": 100,
+   "direction": "horizontal",
+   "frame_definition": "그룹167#1",
+   "material": "DimGray",
+   "pitch_mm": 100
+  },
+  "note_ko": "FE1 왼쪽 절반의 수평 루버. 살 길이 940·깊이 100·투영높이 88, 100 간격 24개. 각도는 투영값만 있어 미확정",
+  "orientation": "S",
+  "role": "louver-assembly",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "L1",
+  "wall_host": {
+   "face": "S",
+   "opening_definition": "그룹#95",
+   "wall_definition": "그룹#88",
+   "wall_thickness_mm": 250
+  }
+ },
  "parameters": {
   "count": 1,
   "faces_recursive": 141,
@@ -71,7 +153,8 @@
  },
  "recipe": {
   "child_definitions": [],
-  "class_recipe": "data/assets/sketchup/recipes/window-louver.json",
+  "class_recipe": "data/assets/sketchup/recipes/louver.json",
+  "generator": "scripts/sketchup/generators/louver.rb",
   "guides": [
    {
     "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
@@ -158,6 +241,6 @@
   "current": [
    "Layer0"
   ],
-  "proposed_zium": "@win"
+  "proposed_zium": "LOUVER"
  }
 }

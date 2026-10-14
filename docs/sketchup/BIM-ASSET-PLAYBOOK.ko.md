@@ -62,6 +62,9 @@ REF-CAD-*                 가져온 dwg (출력 제외 태그)
 | roof | `roof` | `base:14600, slope_deg:5.9, overhang:{w:1800,s:1400,e:700,n:0}` | 외곽 + 처마 → 두께 → 경사 |
 | parking-deck | `parking_deck` | `base: -2500 / 500 / 4000, stalls ≈ 6~8 per tier` | 단 슬래브 → 주차면 선. 경사로 기울기 확인 |
 | asset-block | `place_block` | `asset_id:'0914:furniture:c3'` | 라이브러리에서 정의 로드 → 배치 → 태그 |
+| window | `window` | `width:2500, height:1450, sill:1070, operation:'sliding', facing:'E'` | 개구부 → 틀 4변·멀리언 → 유리 그룹 → WIN 태그 |
+| fire-entry-window | `fire_entry_window` | `width:2000, height:2400, sill:0, glass:'tempered-5', facing:'S'` | 틀·유리 → 붉은 역삼각형·타격지점 → 기준 경고(참고용) |
+| louver | `louver` | `width:940, height:2340, blade_w:100, pitch:100, direction:'horizontal'` | 살 1개 → 간격 배열 → LOUVER 태그 |
 
 사용 예:
 
@@ -113,3 +116,11 @@ SionBim.roof(x0: 0, y0: 0, w: 22000, d: 21800, base: 14600, overhang: { w: 1800,
 - 의자·나무·사람을 100면 이하 대체 블럭으로 → 표시 면 약 40% 감소
 - 비균일 스케일 33개, 반전 18개 정리
 - 난간 높이·주차 경사로 기울기는 실제 도면으로 확인
+
+## 단독주택 창호 자산 (창 · 소방관 진입창 · 루버)
+
+- 입력: `data/sources/sketchup/0914-meeting/openings.json` (run6 읽기 전용 추출, 로컬 경로 제거). 스키마: `schemas/sion-bim-opening-1.schema.json`
+- 클래스: `window-louver`를 `window` / `fire-entry-window` / `louver`로 세분화(`data/sources/sketchup/object-subclasses.json`).
+- 유형: W1 서측 고창 2400×600(2개) · W2 북측 띠창 5600×600 · W3 동측 미서기 2500×1450 · W4 동측 미서기 3400×1450 · FE1 남측 소방관 진입창 2000×2400(유리 940×1305) · L1 수평 루버 940×2340(살 24개, 간격 100).
+- 소방관 진입창 기준은 `data/sources/sketchup/code-refs/kr-fire-entry-window.json`(건축법 제49조제3항, 시행령 제51조제4항, 피난방화규칙 제18조의2)에 원문 요약으로 기록. 카드의 `opening.compliance`는 형상 기반 **추정**이며 항상 `unverified`.
+- 재생성: `python scripts/sketchup/build_bim_cards.py` → `python -m sion_ingestion.asset_index build --manifest data/assets/sketchup/_index/manifest.json --library-index-dir data/assets/sketchup/_index/library`
