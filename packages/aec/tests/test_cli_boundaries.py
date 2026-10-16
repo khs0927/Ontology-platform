@@ -16,7 +16,9 @@ def test_cli_mirrors_reference_3d_and_raster_boundaries(tmp_path: Path, capsys):
     assert "semantic_cair_generated" in capsys.readouterr().out
 
 
-def test_cli_probe_apps_accepts_explicit_executable_paths(tmp_path: Path, capsys):
+def test_cli_probe_apps_accepts_explicit_executable_paths(tmp_path: Path, capsys, monkeypatch):
+    # Hermetic: hide host-installed apps (e.g. QGIS) so unconfigured apps report REQUIRES_CONFIGURATION.
+    monkeypatch.setenv("PATH", str(tmp_path / "empty-path"))
     freecad = tmp_path / "freecadcmd.exe"
     blender = tmp_path / "blender.exe"
     freecad.write_bytes(b"configured")
