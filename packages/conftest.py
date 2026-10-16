@@ -28,3 +28,10 @@ if sys.platform == "win32":
     # These aec suites assume POSIX paths/console encoding and are only run on
     # Linux by aec.yml; drawing_context stays cross-platform (headless workflow).
     collect_ignore_glob += ["aec/tests/*", "aec/extensions/intelligence_fabric/*"]
+
+import sqlite3
+
+if sqlite3.sqlite_version_info < (3, 39, 0):
+    # The SQLite shim in this suite relies on `IS [NOT] DISTINCT FROM` (SQLite
+    # 3.39+); older system SQLite (e.g. cimg/python on CircleCI) cannot parse it.
+    collect_ignore_glob.append("aec/tests/test_embedding_state.py")
