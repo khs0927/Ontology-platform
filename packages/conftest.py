@@ -16,3 +16,15 @@ _REGULATION_DEPS = ("asyncpg", "pydantic_settings", "prometheus_client", "greenl
 if any(importlib.util.find_spec(m) is None for m in _REGULATION_DEPS):
     # Install the `regulation` extra to run these from the repo root.
     collect_ignore_glob.append("regulation/tests/*")
+
+import sys
+
+if importlib.util.find_spec("ezdxf") is None:
+    # CAD suites need ezdxf (the `cad` extra); aec.yml and the GOD-CAD workflow
+    # run them with their own installs.
+    collect_ignore_glob += ["cad/*", "aec/tests/*"]
+
+if sys.platform == "win32":
+    # These aec suites assume POSIX paths/console encoding and are only run on
+    # Linux by aec.yml; drawing_context stays cross-platform (headless workflow).
+    collect_ignore_glob += ["aec/tests/*", "aec/extensions/intelligence_fabric/*"]
