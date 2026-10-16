@@ -97,8 +97,18 @@ select = ["E", "F", "W", "I"]
 ignore = ["E501", "E701", "E702", "E402"]  # existing upstream style; tighten later
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-q"
+testpaths = ["tests", "packages"]
+addopts = "-q --import-mode=importlib"
+# Subtree packages under packages/ ship test suites that import modules which are
+# not installed as distributions (extension dirs, the ArchOntos repo root for
+# `apps.*`). Put those roots on sys.path so `pytest` from the repo root collects them.
+pythonpath = [
+  "tests",  # tests/ modules import sibling helpers (importlib mode drops rootdir insertion)
+  "packages/aec/extensions/drawing_context",
+  "packages/aec/extensions/external_capabilities",
+  "packages/aec/extensions/intelligence_fabric",
+  "packages/regulation",
+]
 
 [tool.setuptools]
 packages = [
