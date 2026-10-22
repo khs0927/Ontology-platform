@@ -20,6 +20,7 @@ real examples from this model with sizes, levels, tags, materials and evidence.
 | `packages/ingestion/sion_ingestion/sketchup_assets.py` | Generator, evidence attacher and CLI |
 | `data/bootstrap/sketchup-0914-meeting.json` | Generated export: 1,195 nodes / 4,509 edges (tests regenerate and compare) |
 | `scripts/sketchup/*.rb` | The read-only Ruby extraction scripts |
+| `docs/sketchup/AGENT-PLAYBOOK.ko.md` | 에이전트가 GraphRAG를 조회하고 SketchUp 작업으로 옮기는 실행 플레이북 |
 
 ## Graph layout
 
