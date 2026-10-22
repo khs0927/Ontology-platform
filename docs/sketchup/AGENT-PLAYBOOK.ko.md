@@ -107,7 +107,7 @@ LLM이 설정되지 않은 서버는 검색 문맥만 반환한다.
 확인할 노드:
 
 - `sketchup:guide:group-component`
-- `sketchup:guide:grouping-overview`
+- `sketchup:grouping:doc:grouping-overview`
 - `sketchup:grouping:pattern:component-for-repeats`
 - `sketchup:grouping:pattern:nest-by-assembly`
 - `sketchup:grouping:pattern:default-naming`
@@ -166,7 +166,7 @@ LLM이 설정되지 않은 서버는 검색 문맥만 반환한다.
 
 1. 모델 단위·범위·층 레벨과 장면/단면 존재를 읽는다.
 2. `sketchup-mcp2.list_components`, `get_component_info`, `hueflow.execute_ruby`로 대상과 품질검사 항목을 점검한다.
-3. 장면을 외부로 내보내는 요청이면 `sketchup-mcp2.export_scene`을 사용한다.
+3. 장면을 외부로 내보내는 요청이면 `sketchup-mcp2.export_scene(format="png" 또는 "jpg")`를 사용한다.
 4. 장면·카메라·단면 결과가 요청과 맞는지 확인한다. `render_views.rb`는 카메라를 바꾸고 복원하는 읽기용 렌더 절차지만 PNG는 커밋하지 않는다.
 5. 실제 모델 변경이 필요한 도면화와 단순 장면 export를 구분하고, 전자는 사용자 요청 범위를 넘지 않게 한다.
 
