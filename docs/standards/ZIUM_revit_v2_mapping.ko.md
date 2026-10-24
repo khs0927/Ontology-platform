@@ -32,3 +32,11 @@
 - 폰트: NanumSquare 미설치 → 나눔고딕 대체
 ## 남은 수동 항목
 - 선 두께표(API 없음), 라벨 형식(G.L+ 접두, 시트번호 라벨, 도곽 라벨), 공유 라벨 타입 분리, 단면/KEY PLAN 원본 블록 없음, AR-SAND/AR-RROOF/NET 근사, 프로젝트별 값
+
+## 50_font (2026-10-24 22:00 KST)
+- NanumSquare 공식(Naver hangeul.pstatic.net nanum-square.zip, SIL OFL) 사용자 단위 설치 → 글꼴명 "나눔스퀘어"
+- FONT=나눔스퀘어로 변경, 50_font.cs: 백업(_backup/ZIUM_template_v2_prefont_20261024_2152.rte) → 프로젝트 텍스트/치수 타입 + ZIUM 패밀리 라벨 타입 글꼴 변경 → 재로드 → 저장
+- 주의: 옵션 없는 fd.LoadFamily(d)가 "패밀리 덮어쓰기" 대화상자를 띄워 Revit 대기 상태가 됨. 대화상자에서 덮어쓰기를 선택하면 진행
+- 22:21 KST 결과: 대화상자 없음(Revit 일시 무응답 후 자체 완료). 프로젝트 텍스트/치수 타입 108개 → 나눔스퀘어, 저장됨. 패밀리 8개 재로드는 "Family loading failed"(옵션 없는 LoadFamily).
+- 55_reload.cs: Reflection.Emit로 덮어쓰기 IFamilyLoadOptions 생성 → 8개 패밀리 재로드 + 패밀리 라벨 글꼴 검증. 실행 중 PC 디스크 공간 부족(ENOSPC)으로 결과 미확인.
+- 22:58 KST: Revit 재시작 후 55_reload 성공 — 8개 패밀리 덮어쓰기 재로드 True, 모든 패밀리 라벨 타입 나눔스퀘어, 프로젝트 108개 타입 나눔스퀘어, 저장. 45_verify 통과(그리드/레벨/뷰제목 타입 할당 유지).
