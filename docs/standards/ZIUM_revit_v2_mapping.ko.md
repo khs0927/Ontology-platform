@@ -39,3 +39,4 @@
 - 주의: 옵션 없는 fd.LoadFamily(d)가 "패밀리 덮어쓰기" 대화상자를 띄워 Revit 대기 상태가 됨. 대화상자에서 덮어쓰기를 선택하면 진행
 - 22:21 KST 결과: 대화상자 없음(Revit 일시 무응답 후 자체 완료). 프로젝트 텍스트/치수 타입 108개 → 나눔스퀘어, 저장됨. 패밀리 8개 재로드는 "Family loading failed"(옵션 없는 LoadFamily).
 - 55_reload.cs: Reflection.Emit로 덮어쓰기 IFamilyLoadOptions 생성 → 8개 패밀리 재로드 + 패밀리 라벨 글꼴 검증. 실행 중 PC 디스크 공간 부족(ENOSPC)으로 결과 미확인.
+- 22:58 KST: Revit 재시작 후 55_reload 성공 — 8개 패밀리 덮어쓰기 재로드 True, 모든 패밀리 라벨 타입 나눔스퀘어, 프로젝트 108개 타입 나눔스퀘어, 저장. 45_verify 통과(그리드/레벨/뷰제목 타입 할당 유지).
