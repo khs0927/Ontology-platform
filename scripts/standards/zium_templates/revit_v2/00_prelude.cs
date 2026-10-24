@@ -1,7 +1,7 @@
 // ZIUM_template_v2 build — prelude (runs inside revit_send_code_to_revit; never touches the user's open doc)
 var A = app.Application; var L = new System.Text.StringBuilder();
 const string P = @"C:\CODE\zium-templates\revit\ZIUM_template_v2.rte";
-const string FONT = "나눔고딕"; // SIN36 §0 fallback: NanumSquare not installed (InstalledFontCollection 2026-10-24) -> 나눔고딕
+const string FONT = "나눔스퀘어"; // SIN36 §0: NanumSquare (official Naver, per-user install 2026-10-24)
 Document d = null; foreach (Document x in A.Documents) if (x.PathName == P) d = x;
 if (d == null) d = A.OpenDocumentFile(P);
 void Try(string n, Action a) { try { a(); } catch (Exception ex) { L.AppendLine("  ! " + n + ": " + ex.Message); } }
