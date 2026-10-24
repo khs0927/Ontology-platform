@@ -1,0 +1,37 @@
+{
+  "$comment": "Index of 지음(ZIUM) standards that already exist on DESKTOP-KTQHS1I. Pointers only: no standard values are defined here. Values live in the cited source files. status: found | gap.",
+  "version": "2026-10-24",
+  "machine": "DESKTOP-KTQHS1I",
+  "stages": {
+    "cad": [
+      {"id": "plan_sheet", "kind": "sheet/dim/text/layer values", "path": "C:/CODE/power-cad-latest/docs/standards/zium_plan_sheet.json", "status": "found"},
+      {"id": "symbols", "kind": "symbol definitions", "path": "C:/CODE/power-cad-mcp/docs/standards/zium_symbols.json", "status": "found"},
+      {"id": "guide", "kind": "drafting guide", "path": "C:/CODE/power-cad-latest/docs/guides/ZIUM_GUIDE.md", "status": "found"},
+      {"id": "sheet_block", "kind": "title block DWG", "path": "C:/Users/khs09/Documents/PowerCad/blocks/ZIUM_sheet_architect.dwg", "status": "found"},
+      {"id": "standards_block", "kind": "standards DWG", "path": "C:/Users/khs09/Documents/PowerCad/blocks/ZIUM_standards.dwg", "status": "found"},
+      {"id": "sheet_dxf_with_layers", "kind": "지음시트(레이어포함) DXF", "path": "D:/AECData/artifacts/doc_e6b4f051105f7af3792f2bc5/rev-0/converted/지음시트(레이어포함).dxf", "status": "found"},
+      {"id": "dwt_template", "kind": "ZIUM .dwt template", "path": null, "status": "gap", "note": "no ZIUM .dwt found; build from 지음시트 DXF + zium_plan_sheet.json"},
+      {"id": "ctb", "kind": "ZIUM plot style .ctb", "path": null, "status": "gap"}
+    ],
+    "revit": [
+      {"id": "sheet_spec", "kind": "sheet/title/view/level/grid/text/line/dwg_export spec", "path": "C:/CODE/revit-mcp-guideline/templates/zium_sheet_spec.json", "status": "found"},
+      {"id": "floor_plan_standard", "kind": "plan standard", "path": "C:/CODE/revit-mcp-guideline/reference/zium/floor_plan_standard.json", "status": "found"},
+      {"id": "yujin_revit_guide", "kind": "지음 유진 Revit guide", "path": "C:/CODE/power-cad-latest/docs/guides/REVIT_ZIUM_YUJIN_GUIDE.md", "status": "found"},
+      {"id": "yujin_revit_todo", "kind": "open items", "path": "C:/CODE/power-cad-latest/docs/guides/REVIT_ZIUM_YUJIN_TODO.md", "status": "found"},
+      {"id": "dwg_layer_map", "kind": "Revit->DWG layer map", "path": "C:/CODE/power-cad-latest/tools/revit-zium/ZIUM_YUJIN_layers.txt", "status": "found"},
+      {"id": "titleblock_family", "kind": "도곽 A1 family", "path": "C:/Users/khs09/Documents/revit_mcp/families/ZIUM_도곽_A1.rfa", "status": "found"},
+      {"id": "rte_template", "kind": "ZIUM .rte project template", "path": null, "status": "gap"},
+      {"id": "view_title_level_section_families", "kind": "뷰제목/레벨/단면 헤드 families", "path": null, "status": "gap", "note": "listed as TODO 1-3 in REVIT_ZIUM_YUJIN_TODO.md"}
+    ],
+    "sketchup": [
+      {"id": "modeling_guidelines", "kind": "modeling/grouping guide", "path": "repo:docs/sketchup/MODELING-GUIDELINES.ko.md", "status": "found"},
+      {"id": "grouping_workflow", "kind": "grouping workflow", "path": "repo:docs/sketchup/GROUPING-WORKFLOW.ko.md", "status": "found"},
+      {"id": "bim_asset_playbook", "kind": "BIM asset playbook", "path": "repo:docs/sketchup/BIM-ASSET-PLAYBOOK.ko.md", "status": "found"},
+      {"id": "yujin_object_recipes", "kind": "지음 유진 object recipes (CAD-derived)", "path": "C:/CODE/power-cad-latest/docs/standards/zium_yujin_object_recipes.json", "status": "found"},
+      {"id": "skp_template_tags", "kind": "지음 유진 SketchUp template (.skp) with tag/layer list", "path": null, "status": "gap", "note": "no ZIUM/유진 .skp template or tag list found on PC or Drive"}
+    ],
+    "interop": [
+      {"id": "cad_exchange_contract", "kind": "units/format/coordinates", "path": "drive:지침/20_CAD_교환_계약.md", "status": "found"}
+    ]
+  }
+}
