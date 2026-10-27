@@ -7,7 +7,7 @@ from pathlib import Path
 
 PATTERNS = {
     "personal email": re.compile(rb"[A-Za-z0-9._%+-]+@(?:gmail\.com|naver\.com|hanmail\.net|daum\.net|hotmail\.com|outlook\.com)", re.I),
-    "personal profile path": re.compile(rb"[A-Za-z]:[\\/]+Users[\\/]+([^\\/\s\"\r\n]+)", re.I),
+    "personal profile path": re.compile(rb"[A-Za-z]:[\\/]+Users[\\/]+([^\\/\s\"\'`\r\n]+)", re.I),
     "private Drive identifier": re.compile(rb"(?:drive\.google\.com/(?:file/d/|drive/folders/)|file id [`\"])([A-Za-z0-9_-]{20,})"),
     "embedded Drive identifier": re.compile(rb"[`\"](1[A-Za-z0-9_-]{24,44})[`\"]"),
 }
