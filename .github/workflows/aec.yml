@@ -83,8 +83,9 @@ jobs:
           sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           sudo apt-get update -qq
           sudo apt-get install -y -qq postgresql-client-16
-          sudo update-alternatives --set pg_dump /usr/lib/postgresql/16/bin/pg_dump || true
-          sudo update-alternatives --set pg_restore /usr/lib/postgresql/16/bin/pg_restore || true
+          echo "/usr/lib/postgresql/16/bin" >> "$GITHUB_PATH"
+          export PATH="/usr/lib/postgresql/16/bin:$PATH"
+          hash -r
           pg_dump --version && pg_restore --version
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,cad,operational]"
