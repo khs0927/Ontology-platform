@@ -30,7 +30,7 @@ building-regulation-gateway는 MCP 서버가 아니라(FastAPI + MCP 클라이�
 1. Claude Desktop: `%APPDATA%\Claude\claude_desktop_config.json` → `mcpServers`에 추가 후 앱 재시작.
 2. Claude CLI: `claude mcp add -s user <이름> -- <명령> [인자]` (사용자 범위). 확인 `claude mcp list` → Connected.
 3. Cursor: `%USERPROFILE%\.cursor\mcp.json` → `mcpServers`.
-4. 그록봇 브리지: `C:\Users\khs09\grokbot-mcp-bridge\overrides.json` (도구 목록을 덮어씀).
+4. 그록봇 브리지: `C:\Users\USER\grokbot-mcp-bridge\overrides.json` (도구 목록을 덮어씀).
    - 점검: `node cad-check.cjs` (CAD 5종), `node mcp-call.mjs tools <서버> --brief`, `node mcp-call.mjs call <서버> <도구> --args '{}'`
 
 키가 필요한 서버는 명령을 `doppler run --project mcp-agent-credentials --config dev --only-secrets <이름들> -- <명령>`으로 감싼다. 설정 JSON은 UTF-8(BOM 없음)으로 저장.
