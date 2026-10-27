@@ -66,3 +66,15 @@ end
 - 두 서버의 단위를 섞지 않습니다(mm vs inch). hueflow 좌표는 `get_model_info`의 단위를 먼저 확인합니다.
 - `list_entities`/`list_components` 전체 출력은 매우 클 수 있으니 필터와 페이지를 씁니다.
 - 저장하지 않은 모델일 수 있으므로 대량 변경 전에 사용자에게 저장을 권합니다.
+
+## Hueflow와 mcp2 동시구동 (2026-10-27)
+정본: Drive 지침 `26_Hueflow_mcp2_동시구동_2026-10-27.md`.
+- 포트: mcp2(MCPforSketchUp) `127.0.0.1:9876` TCP, Hueflow `127.0.0.1:8080` HTTP. **둘 다 Listen이 정상·권장**. QGIS 9877, Blender는 9876 금지.
+- 역할: 작도·검색·undo·뷰포트 주경로는 `sketchup-mcp2`. Hueflow는 면/모서리/호/push_pull 보완·폴백. Hueflow가 먼저 응답해도 주 도구를 바꾸지 않음.
+- 단위: mcp2 항상 mm, Hueflow는 모델 단위(inch 가능) → 쓰기 전 `get_model_info`. 한 세션에서 좌표 혼용 금지.
+- 쓰기: 두 서버에서 동시에 `eval_ruby`/`execute_ruby`/형상 변경 금지(단일 UI 스레드). 읽기 병렬은 OK.
+- 기동: mcp2는 `mcp_for_sketchup_autostart.rb`(로그 `%TEMP%\mcp2-autostart.log`), PrivatePreferences `mcp_for_sketchup.rb`=1 유지(0이면 메뉴/상수 미로드). Hueflow는 메뉴 Start.
+- 장애: 8080이 accept만 하고 무응답이면 Ruby 타이머 hang → mcp2도 먹통 가능. 저장 후 SketchUp 재시작(강제종료 금지), Ruby Console require+start, HARD ERROR면 로딩 정책 Identified/Unrestricted.
+- 클라이언트: 여러 에이전트가 각자 stdio로 sketchup-mcp2를 띄워도 OK. 충돌은 플러그인 포트와 동시 쓰기뿐.
+- whl 0.4.0, `UV_CACHE_DIR=C:\Users\USER\.cache\uv-sketchup-mcp2`. 경로는 `C:\Users\USER` (khs09 아님).
+- 검증: `Get-NetTCPConnection -LocalPort 9876,8080 -State Listen`, `sketchup-mcp2.get_version`(compatible true), `hueflow-sketchup.get_model_info`.

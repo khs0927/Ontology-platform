@@ -63,3 +63,8 @@ cd C:\Users\USER\grokbot-mcp-bridge
 - `sketchup-mcp2`가 `initialize`에서 멈추면 `--verbose`로 stderr를 보고, 안 되면 `hueflow-sketchup`으로 대체합니다.
 - `sketchup`(cursor, `sketchup_mcp` 모듈 없음)과 `revit-mcp`(`C:\CODE\revit-mcp` 없음)는 고장 상태입니다.
 - `horizun-revit`(111개)은 Revit add-in이 배포되어야 실제 호출이 됩니다(Revit 2024/2027, `E:\Program files`).
+
+## SketchUp: Hueflow + mcp2 coexistence (2026-10-27)
+- Ports 9876 (mcp2, TCP) and 8080 (Hueflow, HTTP) **both Listening at once is normal and expected**; not a conflict. Only Blender etc. must avoid 9876.
+- sketchup-mcp2 is primary for modeling; Hueflow is supplement/fallback. Never send geometry writes to both servers concurrently; reads in parallel are fine. mcp2 = mm, Hueflow = model units (check get_model_info).
+- If 8080 accepts but never answers, Hueflow hung the Ruby timer and mcp2 may also stall: ask the user to save and restart SketchUp. Full rules: Drive guideline 26_Hueflow_mcp2_동시구동_2026-10-27.md.
