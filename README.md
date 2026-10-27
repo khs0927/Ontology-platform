@@ -169,3 +169,16 @@ uv sync --locked --extra all --extra dev && uv run pytest
 
 `sion-agent-bridge.exe` is published on [GitHub Releases](https://github.com/khs0927/Ontology-platform/releases)
 by the `Release agent bridge` workflow; it is no longer committed. See [`bin/README.md`](bin/README.md).
+
+## MCP 운영 지침과 스킬 (Local CAD/AEC MCP)
+
+로컬 CAD/AEC MCP 서버(SketchUp, Revit/Horizun, AutoCAD, power-cad, ZWCAD, FreeCAD, Rhino 등)와 MCP 클라이언트
+설정을 다루는 한국어 지침·스킬·도구입니다. Sion 자체는 CAD를 변경하지 않으며, 아래는 사용자의 요청으로 에이전트가
+CAD 앱을 직접 조작할 때의 규칙입니다.
+
+- 지침 인덱스: [`docs/mcp/README.md`](docs/mcp/README.md)
+  - [로컬 CAD MCP 운영](docs/mcp/LOCAL-CAD-MCP-OPERATIONS.ko.md) · [클라이언트 동기화](docs/mcp/MCP-CLIENT-SYNC.ko.md) ·
+    [jev/TypeSafe](docs/mcp/JEV-TYPESAFE.ko.md) · [비밀값 취급](docs/mcp/SECRETS.ko.md) · [도구 카탈로그](docs/mcp/TOOL-CATALOG.ko.md)
+- 스킬: [`skills/`](skills/README.md) — `local-cad-mcp-bridge`, `sketchup-mcp`, `mcp-client-sync`, `jev-decision`, `typesafe-ai`
+- 도구: [`tools/grokbot-mcp-bridge/`](tools/grokbot-mcp-bridge/README.md) (Windows stdio MCP 브리지),
+  [`tools/jev-mcp/`](tools/jev-mcp/README.md) (Jev stdio MCP 서버)

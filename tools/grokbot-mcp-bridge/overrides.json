@@ -1,0 +1,8 @@
+{
+  "claude:multiCAD-mcp": { "cwd": "C:\\CODE\\multiCAD-mcp" },
+  "cursor:sketchup-mcp2": { "timeout": 120000 },
+  "claude:sketchup-mcp2": { "timeout": 120000 },
+  "codex:sketchup2": { "timeout": 120000 },
+  "codex:korean-law": { "timeout": 150000 },
+  "codex:kordoc": { "timeout": 120000 }
+}
