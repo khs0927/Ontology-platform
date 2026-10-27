@@ -1,5 +1,8 @@
-import ezdxf, sys
+import sys
+
+import ezdxf
 from ezdxf.addons import Importer
+
 src = ezdxf.readfile(sys.argv[1]); out=sys.argv[2]
 for e in src.modelspace().query('INSERT'):
     if e.dxf.layer in ('방위표','SYM','BUBL','TIT') or e.dxf.name in ('버블','arrowx'):
