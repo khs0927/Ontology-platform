@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from . import (
     __version__,
+    law_knowledge,
     models,
     outbox,
     regulation,
@@ -105,6 +106,7 @@ def create_app(
     write_knowledge = require_scope(auth_policy, "write:knowledge")
     read_aec = require_scope(auth_policy, "read:aec")
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
+    law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
 
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()
