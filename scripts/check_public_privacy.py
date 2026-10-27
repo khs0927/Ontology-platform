@@ -19,6 +19,10 @@ RUNTIME_PATH_ALLOWLIST = {
     "scripts/standards/zium_templates/revit_v2/30_sheets_export.cs",
     "scripts/standards/zium_templates/rte.cs",
 }
+# Public Drive mirror bootstrap data: folder IDs are intentionally published.
+DRIVE_ID_ALLOWLIST = {
+    "data/bootstrap/hueflow-mcp2-coexistence-20261027.json",
+}
 
 
 def violations(content: bytes, name: str = "") -> list[str]:
@@ -31,6 +35,8 @@ def violations(content: bytes, name: str = "") -> list[str]:
                 matches = []
         if category == "embedded Drive identifier":
             matches = [m for m in matches if b"drive" in content.lower() and not re.fullmatch(rb"[a-f0-9]{40,64}", m[1])]
+            if name in DRIVE_ID_ALLOWLIST:
+                matches = []
         if matches:
             found.append(category)
     return found
