@@ -3,7 +3,8 @@
 Usage: python scripts/standards/zium_check.py [--json]
 Read-only. Exit 0 always; prints found / missing / gap per stage.
 """
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]

@@ -76,6 +76,10 @@ jobs:
           python-version: "3.12"
       - name: Install test runtime
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-16
+          sudo update-alternatives --set pg_dump /usr/lib/postgresql/16/bin/pg_dump || true
+          sudo update-alternatives --set pg_restore /usr/lib/postgresql/16/bin/pg_restore || true
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,cad,operational]"
           python -m pip install --no-deps -e ../..

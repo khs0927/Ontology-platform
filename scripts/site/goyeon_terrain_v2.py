@@ -1,8 +1,13 @@
-import json,math,numpy as np,rasterio
-from pyproj import Transformer
-from shapely.geometry import Polygon,Point
+import json
+import math
+
+import numpy as np
+import rasterio
 from PIL import Image
+from pyproj import Transformer
 from scipy.ndimage import uniform_filter
+from shapely.geometry import Point, Polygon
+
 E0,N0=395925,319220
 to4326=Transformer.from_crs(5186,4326,always_xy=True)
 ds=rasterio.open('dem.tif');A=ds.read(1).astype(float)

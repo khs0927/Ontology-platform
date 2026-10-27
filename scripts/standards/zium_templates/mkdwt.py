@@ -1,5 +1,8 @@
-import ezdxf, sys
+import sys
+
+import ezdxf
 from ezdxf.addons import Importer
+
 src = ezdxf.readfile(sys.argv[1]); out = sys.argv[2]
 doc = ezdxf.new('R2018', setup=False); doc.units = 4; doc.header['$INSUNITS']=4; doc.header['$MEASUREMENT']=1
 imp = Importer(src, doc)

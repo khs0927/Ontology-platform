@@ -5,7 +5,11 @@
 (1:5,000, 등고선 5 m) 또는 NGII 5 m DEM 파일을 받아 site-pipeline의 contours_to_landxml / dem_to_landxml로 처리한다.
 결과: data/sites/goyeon-1525/raw/vworld_<LAYER>.geojson (EPSG:5186) — raw/는 커밋하지 않는다.
 """
-import json, os, sys, time
+import json
+import os
+import sys
+import time
+
 import httpx
 
 CX, CY, R = 395925.0, 319220.0, float(os.environ.get("MAP_RADIUS", 300))

@@ -1,19 +1,25 @@
 """Minimal stdio MCP client: mcpc.py <exe> <tool|-> [json-args] [timeout]"""
-import sys, json, subprocess, threading, queue, time
+import json
+import queue
+import subprocess
+import sys
+import threading
+import time
+
 sys.stdout.reconfigure(encoding="utf-8")
 exe, tool = sys.argv[1], sys.argv[2]
 args = json.loads(open(sys.argv[3][1:],encoding="utf-8").read() if sys.argv[3].startswith("@") else sys.argv[3]) if len(sys.argv) > 3 else {}
 to = float(sys.argv[4]) if len(sys.argv) > 4 else 60
 p = subprocess.Popen([exe], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 q = queue.Queue()
-threading.Thread(target=lambda: [q.put(l) for l in p.stdout], daemon=True).start()
+threading.Thread(target=lambda: [q.put(line) for line in p.stdout], daemon=True).start()
 def send(o): p.stdin.write((json.dumps(o)+"\n").encode()); p.stdin.flush()
 def wait(i):
     end = time.time()+to
     while time.time() < end:
-        try: l = q.get(timeout=1)
+        try: ln = q.get(timeout=1)
         except queue.Empty: continue
-        try: o = json.loads(l)
+        try: o = json.loads(ln)
         except Exception: continue
         if o.get("id") == i: return o
     return {"timeout": i}
