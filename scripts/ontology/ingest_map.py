@@ -9,9 +9,9 @@ import argparse
 import json
 import os
 
-from sqlalchemy import create_engine
 from sion_api.db import build_session_factory
 from sion_ingestion.map_import import import_map_export, load_map_export
+from sqlalchemy import create_engine
 
 
 def main() -> int:
