@@ -1,4 +1,4 @@
-﻿"""Issue #80 step 1: filter GraphRAG projection/weights by review state."""
+"""Issue #80 step 1: filter GraphRAG projection/weights by review state."""
 
 from __future__ import annotations
 
@@ -54,7 +54,8 @@ def test_no_filter_keeps_all_states(kg_for):
 def test_filter_verified_only(kg_for):
     rels, kg = kg_for(["verified"])
     assert set(rels) == {"aec:hv", "aec:mv"}
-    assert all(r["weight"] == pytest.approx(1.5) for r in rels.values())
+    assert rels["aec:mv"]["weight"] == pytest.approx(1.5)
+    assert rels["aec:hv"]["weight"] == pytest.approx(1.75)  # approval boost (step 3)
     assert not any("sion:relation:aec:a|RELATED_TO|aec:rj" == c["source_id"] for c in kg["chunks"])
 
 
