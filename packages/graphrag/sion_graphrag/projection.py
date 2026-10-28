@@ -10,7 +10,34 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Iterable
+
+# Review buckets (Issue #80 step 1). ``verified`` covers both human and machine
+# verification; ``unverified`` is pending review; ``rejected`` was turned down.
+REVIEW_STATE_GROUPS: dict[str, frozenset[str]] = {
+    "verified": frozenset({"human_verified", "machine_verified"}),
+    "unverified": frozenset({"unverified"}),
+    "rejected": frozenset({"rejected"}),
+}
+
+
+def resolve_verification_states(review_states: Iterable[str] | None) -> frozenset[str] | None:
+    """Map review buckets (verified/unverified/rejected) or raw states to raw states.
+
+    ``None`` means no filtering. Unknown names raise ``ValueError``.
+    """
+    if review_states is None:
+        return None
+    raw_states = set().union(*REVIEW_STATE_GROUPS.values())
+    resolved: set[str] = set()
+    for name in review_states:
+        if name in REVIEW_STATE_GROUPS:
+            resolved |= REVIEW_STATE_GROUPS[name]
+        elif name in raw_states:
+            resolved.add(name)
+        else:
+            raise ValueError(f"unknown review state: {name!r}")
+    return frozenset(resolved)
 
 from sion_api import models
 from sqlalchemy import and_, or_, select
@@ -22,6 +49,13 @@ def _active_at(at: datetime):
         or_(models.Relation.valid_from.is_(None), models.Relation.valid_from <= at),
         or_(models.Relation.valid_to.is_(None), models.Relation.valid_to > at),
     )
+
+
+def _relation_query(at: datetime, allowed_states: frozenset[str] | None):
+    query = select(models.Relation).where(_active_at(at))
+    if allowed_states is not None:
+        query = query.where(models.Relation.verification_state.in_(sorted(allowed_states)))
+    return query
 
 
 def _properties_text(properties: dict[str, Any] | None) -> str:
@@ -39,8 +73,19 @@ def _evidence_lines(rows: list[models.Evidence]) -> list[str]:
     ]
 
 
-def build_custom_kg(session: Session, *, at: datetime | None = None) -> dict[str, list[dict[str, Any]]]:
-    """Return a LightRAG ``custom_kg`` built from relations valid at ``at`` (default: now)."""
+def build_custom_kg(
+    session: Session,
+    *,
+    at: datetime | None = None,
+    review_states: Iterable[str] | None = None,
+) -> dict[str, list[dict[str, Any]]]:
+    """Return a LightRAG ``custom_kg`` built from relations valid at ``at`` (default: now).
+
+    ``review_states`` restricts relationships (and their weights) to the given
+    review buckets (``verified``/``unverified``/``rejected``) or raw
+    ``verification_state`` values. ``None`` keeps every relation.
+    """
+    allowed_states = resolve_verification_states(review_states)
     effective_at = at or datetime.now(timezone.utc)
     if effective_at.tzinfo is None:
         effective_at = effective_at.replace(tzinfo=timezone.utc)
@@ -48,7 +93,7 @@ def build_custom_kg(session: Session, *, at: datetime | None = None) -> dict[str
     entities = list(session.scalars(select(models.Entity).order_by(models.Entity.stable_key)))
     relations = list(
         session.scalars(
-            select(models.Relation).where(_active_at(effective_at)).order_by(models.Relation.stable_key)
+            _relation_query(effective_at, allowed_states).order_by(models.Relation.stable_key)
         )
     )
     evidence_by_entity: dict[Any, list[models.Evidence]] = defaultdict(list)
