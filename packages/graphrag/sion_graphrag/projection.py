@@ -21,6 +21,26 @@ REVIEW_STATE_GROUPS: dict[str, frozenset[str]] = {
 }
 
 
+# Issue #80 step 3: bounded, idempotent approval boost.
+# LightRAG floors a weight at its evidence count (one chunk here); canonical
+# confidence (clamped to [0, 1]) rides on top as a ranking boost, and a human
+# /review approval adds a fixed APPROVAL_WEIGHT_BOOST. The boost depends only on
+# the current verification_state, never on how many times a relation was
+# approved (approve -> reopen -> approve cycles grow review_history, not weight),
+# and the total is capped at MAX_RELATION_WEIGHT = floor + max confidence, so a
+# relation can never outrank a fully confident one just by being re-approved.
+BASE_RELATION_WEIGHT = 1.0
+APPROVAL_WEIGHT_BOOST = 0.25
+MAX_RELATION_WEIGHT = 2.0
+
+
+def relation_weight(confidence: float | None, verification_state: str | None) -> float:
+    """LightRAG relationship weight for a canonical relation, capped at ``MAX_RELATION_WEIGHT``."""
+    conf = 0.0 if confidence is None else min(max(float(confidence), 0.0), 1.0)
+    boost = APPROVAL_WEIGHT_BOOST if verification_state == "human_verified" else 0.0
+    return min(BASE_RELATION_WEIGHT + conf + boost, MAX_RELATION_WEIGHT)
+
+
 def resolve_verification_states(review_states: Iterable[str] | None) -> frozenset[str] | None:
     """Map review buckets (verified/unverified/rejected) or raw states to raw states.
 
@@ -155,9 +175,7 @@ def build_custom_kg(
             "tgt_id": target.stable_key,
             "description": content,
             "keywords": relation.relation_type_id,
-            # LightRAG floors a weight at its evidence count (one chunk here);
-            # canonical confidence rides on top as a ranking boost.
-            "weight": 1.0 + (float(relation.confidence) if relation.confidence is not None else 0.0),
+            "weight": relation_weight(relation.confidence, relation.verification_state),
             "source_id": alias,
             "file_path": f"sion://relation/{relation.stable_key}",
         })
