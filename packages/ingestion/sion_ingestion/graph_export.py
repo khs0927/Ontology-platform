@@ -48,6 +48,13 @@ KNOWN_RELATION_TYPES = frozenset(
         "SUPERSEDES",
         "VERSION_OF",
         "VALIDATES",
+        "BLOCKS",
+        "COEXISTS_WITH",
+        "DOCUMENTS",
+        "FALLBACK_FOR",
+        "MUST_NOT",
+        "PREFERRED_FOR",
+        "USES_PORT",
     }
 )
 KNOWN_ENTITY_TYPES = frozenset(
