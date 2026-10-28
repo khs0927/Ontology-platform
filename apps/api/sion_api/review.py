@@ -345,6 +345,8 @@ def _bulk_one(
 
 
 BULK_RESULTS = ("applied", "unchanged", "conflict", "not_found", "not_candidate", "invalid_id")
+# Results that leave the candidate in the requested state (``unchanged`` = idempotent repeat).
+BULK_OK = frozenset({"applied", "unchanged"})
 
 
 def decide_bulk(
@@ -393,11 +395,20 @@ def decide_bulk(
         session.commit()
     else:
         session.rollback()
+    for r in results:
+        # Per-item report (#80 step 4): explicit success flag + reason, and the batch id that
+        # recorded the decision (only for items this call actually wrote).
+        r["ok"] = r["result"] in BULK_OK
+        r["reason"] = None if r["result"] == "applied" else r.get("detail")
+        r["batch_id"] = batch_id if r["result"] == "applied" else None
     counts = {name: sum(1 for r in results if r["result"] == name) for name in BULK_RESULTS}
+    succeeded = sum(1 for r in results if r["ok"])
     return {
         "decision": decision,
         "batch_id": batch_id if applied else None,
         "requested": len(results),
+        "succeeded": succeeded,
+        "failed": len(results) - succeeded,
         "counts": counts,
         "results": results,
     }
