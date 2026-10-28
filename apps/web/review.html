@@ -173,7 +173,8 @@
         selected.delete(r.id);
       }
       const c = body.counts;
-      flash(`${word} ${c.applied}건 기록 · 이미 처리 ${c.unchanged} · 충돌 ${c.conflict} · 없음 ${c.not_found + c.not_candidate + c.invalid_id}`);
+      const fails = body.results.filter((r) => r.ok === false);
+      flash(`${word} ${c.applied}건 기록 · 이미 처리 ${c.unchanged} · 충돌 ${c.conflict} · 없음 ${c.not_found + c.not_candidate + c.invalid_id}` + (fails.length ? ` ? ??: ${fails.map((r) => `${r.id.slice(0, 8)}(${r.result}${r.reason ? ": " + r.reason : ""})`).join(", ")}` : ""), fails.length > 0);
       render();
       await refreshCounts();
     }
