@@ -35,6 +35,13 @@ building-regulation-gateway는 MCP 서버가 아니라(FastAPI + MCP 클라이�
 
 키가 필요한 서버는 명령을 `doppler run --project mcp-agent-credentials --config dev --only-secrets <이름들> -- <명령>`으로 감싼다. 설정 JSON은 UTF-8(BOM 없음)으로 저장.
 
+## SketchUp 두 서버 동시 기동 체크리스트 (2026-10-27)
+1. SketchUp 시작 → mcp2 autostart(`mcp_for_sketchup_autostart.rb`, PrivatePreferences `mcp_for_sketchup.rb`=1) 로 9876 Listen.
+2. Hueflow 메뉴 Start → 8080 Listen.
+3. `Get-NetTCPConnection -LocalPort 9876,8080 -State Listen` 두 줄 확인(동시 Listen 정상).
+4. `node mcp-call.mjs call sketchup-mcp2 get_version --args '{}'`(compatible true), `hueflow get_model_info`(단위 확인).
+5. sketchup-mcp2 whl 0.4.0. 규칙 상세: 지침 26 (저장소 docs/guidelines/26_Hueflow_mcp2_동시구동_2026-10-27.md).
+
 ## 라우터(korean-law-router) 주의
 - `uv tool install fastmcp-proxy --with fastapi==0.115.12` (새 FastAPI는 `add_event_handler` 제거됨).
 - 자동 시작: 시작프로그램 폴더 바로가기 `korean-law-router.lnk` (작업 스케줄러 logon은 관리자 권한 필요).
