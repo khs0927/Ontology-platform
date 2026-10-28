@@ -1207,13 +1207,22 @@ def attach_sketchup_evidence(session, export: MapExport, *, base_uri: str | None
         locator = evidence["locator"]
         column = models.Evidence.entity_id if entity_id is not None else models.Evidence.relation_id
         target = entity_id if entity_id is not None else relation_id
-        exists = session.scalar(
+        # Stable key = (target, extractor, repo-relative source file, locator). The absolute
+        # ``source_uri`` embeds the checkout path, so matching on it alone duplicated every
+        # row whenever the import ran from a different worktree.
+        suffix = "/" + evidence["source_file"].lstrip("/")
+        candidates = session.scalars(
             select(models.Evidence).where(
-                column == target, models.Evidence.source_uri == uri, models.Evidence.source_locator == locator
+                column == target,
+                models.Evidence.extractor == EXTRACTOR,
+                models.Evidence.source_locator == locator,
             )
-        )
-        if exists is not None:
-            return
+        ).all()
+        for row in candidates:
+            if row.source_uri == uri or row.source_uri.endswith(suffix):
+                if row.source_uri != uri:
+                    row.source_uri = uri
+                return
         excerpt = json.dumps(evidence, ensure_ascii=False, sort_keys=True)
         session.add(
             models.Evidence(
