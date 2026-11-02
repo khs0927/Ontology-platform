@@ -14,9 +14,19 @@ and `evidence`; nothing is written back.
 - one text chunk per entity and per relation with name, type, description,
   properties, confidence and every evidence `source_uri @ source_locator`
 
-Weights are `1 + confidence` (LightRAG floors a weight at its evidence count).
-Projection is an idempotent upsert; to drop stale rows, project into a new
-`SION_GRAPHRAG_WORKSPACE`.
+Weights are `1 + confidence` (LightRAG floors a weight at its evidence count),
+plus a fixed `+0.25` for `/review`-approved (`human_verified`) relations, capped at
+`2.0`. Repeated approval does not raise the weight further.
+
+Review states (Issue #80): `POST /api/v1/graphrag/project` projects approved and
+pending relations only. `/review`-rejected relations stay in the database for audit
+and are projected only with `?include_rejected=true` (use a separate audit
+workspace for that). An approval records a person's judgement of a candidate; it is
+not a factual verification of the source, and the confidence and evidence of the
+relation are never overwritten by it.
+
+Projection is an idempotent upsert; to drop stale rows (for example a relation
+projected before it was rejected), project into a new `SION_GRAPHRAG_WORKSPACE`.
 
 ### Domain packs
 
@@ -86,7 +96,7 @@ Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 ## API
 
 - `GET /api/v1/graphrag/status` (`read:knowledge`)
-- `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph
+- `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph (rejected relations excluded; `?include_rejected=true` for audit)
 - `POST /api/v1/graphrag/query` (`read:knowledge`) `{"question", "mode": "mix|local|global|hybrid|naive", "top_k"}`
 - `GET /api/v1/graphrag/assets` (`read:knowledge`) SketchUp BIM asset Graph RAG (see below)
 
