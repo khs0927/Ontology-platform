@@ -14,7 +14,7 @@ from typing import Any, Awaitable, Callable
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from .projection import build_custom_kg
+from .projection import AUDIT_PROJECTION_REVIEW_STATES, DEFAULT_PROJECTION_REVIEW_STATES, build_custom_kg
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
@@ -160,10 +160,17 @@ class SionGraphRag:
             await self._rag.finalize_storages()
             self._rag = None
 
-    async def project(self, session_factory: sessionmaker[Session]) -> dict[str, int]:
-        """Upsert the canonical graph into LightRAG and return what was written."""
+    async def project(
+        self, session_factory: sessionmaker[Session], *, include_rejected: bool = False
+    ) -> dict[str, int]:
+        """Upsert the canonical graph into LightRAG and return what was written.
+
+        Rejected relations are left out unless ``include_rejected`` is set (audit/debug
+        workspaces only), so a /review rejection never feeds a default answer.
+        """
+        states = AUDIT_PROJECTION_REVIEW_STATES if include_rejected else DEFAULT_PROJECTION_REVIEW_STATES
         with session_factory() as session:
-            custom_kg = build_custom_kg(session)
+            custom_kg = build_custom_kg(session, review_states=states)
         await self.start()
         if custom_kg["chunks"]:
             await self._rag.ainsert_custom_kg(custom_kg, full_doc_id=f"sion-canonical-{self.config.workspace}")

@@ -656,13 +656,17 @@ def create_app(
         }
 
     @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
-    async def graphrag_project():
+    async def graphrag_project(
+        include_rejected: bool = Query(
+            default=False, description="Audit/debug only: also project /review-rejected relations"
+        ),
+    ):
         engine = require_graphrag()
         try:
-            written = await engine.project(factory)
+            written = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"canonical": False, "written": written}
+        return {"canonical": False, "written": written, "include_rejected": include_rejected}
 
     @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
     async def graphrag_query(payload: schemas.GraphRagQuery):
