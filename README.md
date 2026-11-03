@@ -62,8 +62,9 @@ This platform automatically discovers and ingests interaction sessions from mult
 
 This repository is the **main monorepo**. ArchOntos (`packages/regulation`), Ontology / `aec_intelligence`
 (`packages/aec`) and GOD-CAD (`packages/cad/god-cad`) were merged with full history via `git subtree`
-(see [`packages/README.md`](packages/README.md)). Six repositories stay separate and are **bridged by
-versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad and CAD-MCP.
+(see [`packages/README.md`](packages/README.md)). Five repositories stay separate and are **bridged by
+versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad and CAD-MCP
+(HS-CAD is retired; power-cad-mcp is the only CAD host bridge).
 See [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md). JSON Schemas ship in
 `sion_core.contracts` and are covered by `tests/test_integration_contracts.py`. Assets live directly under
 the Google Drive storage root (`SION_STORAGE_ROOT`, see [`docs/STORAGE.md`](docs/STORAGE.md)). The live

@@ -10,7 +10,7 @@
 | 구분 | 저장소/경로 | 규칙 |
 |---|---|---|
 | **모노레포** | `khs0927/Ontology-platform` — `packages/regulation`(ArchOntos), `packages/aec`(Ontology), `packages/cad/god-cad`(GOD-CAD) | 코드 수정은 여기서. 원본 저장소(ArchOntos, Ontology, GOD-CAD, CAD-MCP)는 **보관(읽기 전용)** |
-| **브릿지** | power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad | 각자 저장소에서 각자 PR. 모노레포에서 이들 코드를 고치지 않음 |
+| **브릿지** | power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad (HS-CAD는 미사용·폐기) | 각자 저장소에서 각자 PR. 모노레포에서 이들 코드를 고치지 않음 |
 | **연결 방식** | `docs/INTEGRATION_CONTRACTS.md`, `sion_core.contracts` | 버전된 JSON 스키마 + 고정 커밋 + 계약 테스트. 상류 계약이 바뀌면 **스키마·고정 커밋·계약 테스트를 한 PR에서** 갱신 |
 
 - Sion은 CAD를 **직접 수정하지 않습니다**. 브릿지에서 온 데이터는 근거(evidence)·요청 범위 사실일 뿐 정본 상태가 아닙니다.

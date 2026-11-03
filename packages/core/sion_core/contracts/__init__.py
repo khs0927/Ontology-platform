@@ -3,7 +3,7 @@
 The prose lives in ``docs/INTEGRATION_CONTRACTS.md``. The JSON Schemas
 (draft 2020-12) under ``schemas/`` describe payloads that cross a repository
 boundary, so .NET (power-cad-mcp, hs-steel-cad), TypeScript (korean-land-mcp)
-and Python (HS-CAD, All-In-Cad) peers can validate against the same files.
+and Python (All-In-Cad) peers can validate against the same files.
 
 Validation needs ``jsonschema`` (part of the ``test``/``dev`` extras). Loading
 schemas does not.
@@ -29,9 +29,7 @@ CONTRACTS: dict[str, tuple[str, str, str]] = {
     "hs-steel-asset-registry/1": ("hs-steel-asset-registry-1.schema.json", "hs-steel-cad tools/AssetRegistry", "power-cad-mcp cad_hs_* (Sion: provenance only, upstream schema verbatim)"),
     "korean-land-parcel-analysis/2": ("korean-land-parcel-analysis-2.schema.json", "korean-land-mcp analyze_parcel", "Sion regulation facts"),
     "all-in-cad-dxf-evidence": ("all-in-cad-dxf-evidence.schema.json", "Sion sion_cad.reader.dxf_census / All-In-Cad inspect_dxf", "cross-lane DXF verification"),
-    "hs-cad-scan-objects": ("hs-cad-scan-objects.schema.json", "HS-CAD export_objects_json", "Sion evidence"),
     "building-regulation-report/1": ("building-regulation-report-1.schema.json", "building-regulation-gateway produce-compliance-report", "Sion regulation evidence (advisory, evidence-only)"),
-    "hs-cad-command": ("hs-cad-command.schema.json", "AI planners", "HS-CAD run-command (Sion never emits these)"),
 }
 
 
