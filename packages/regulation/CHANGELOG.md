@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `archontos.review`: overlapping building/land review workflow (W05–W13): bitemporal facts,
+  versioned legal catalog and reference expansion, candidate discovery, applicability and
+  conflicts, RASE compilation to the rule engine, durable run DAG, citation checks, scoped
+  retrieval and change impact. Scenarios S01–S32 are synthetic processing tests, not legal
+  answers; see `docs/regulation/IMPLEMENTATION-STATUS.md`.
 - Least-privilege DB role: migration 012 creates the `archontos_app` group (DML only; on
   `audit_log` only SELECT/INSERT). `python -m archontos.db.roles ensure-login|check` provisions
   and verifies the service login. Compose (`db-login` service), CI (from the built image) and
