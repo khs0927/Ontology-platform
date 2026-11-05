@@ -50,4 +50,4 @@ mapfile -t lines <<<"$result"
 [[ -n "${lines[3]}" ]]
 
 echo "[PASS] PostgreSQL core migrations"
-echo "       tables=9 entity_types=11 relation_types=15 pgcrypto=${lines[3]}"
+echo "       tables=9 entity_types=11 relation_types=22 pgcrypto=${lines[3]}"
