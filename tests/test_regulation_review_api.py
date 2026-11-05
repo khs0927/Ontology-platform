@@ -13,9 +13,10 @@ from archontos.review.candidates import ChecklistItem, ChecklistProfile, Provisi
 from archontos.review.model import Interval, LegalVersion, Provision, ProvisionRef  # noqa: E402
 from archontos.review.workflow import ReviewWorkflow  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
-from sion_api import models  # noqa: E402
+from sion_api import models, regulation_review  # noqa: E402
 from sion_api.main import create_app  # noqa: E402
 from sion_api.regulation_review import RUN_CATEGORY, SqlRunStore  # noqa: E402
+from sion_core import MissingExtra  # noqa: E402
 from sion_graphrag.scoped import ProjectionScope, build_scoped_kg  # noqa: E402
 from sqlalchemy import select  # noqa: E402
 
@@ -255,6 +256,16 @@ def test_duplicate_fact_ids_are_a_client_error(api):
     mine = project(api)
     body = payload(mine, facts=[claim(), claim(value=True)])
     assert api.post(ROOT, json=body).status_code == 422
+
+
+def test_missing_regulation_extra_is_a_503(api, monkeypatch):
+    mine = project(api)
+
+    def missing(module, extra=None):
+        raise MissingExtra(module, extra)
+
+    monkeypatch.setattr(regulation_review, "require", missing)
+    assert api.post(ROOT, json=payload(mine)).status_code == 503
 
 
 def test_default_workflow_without_bundle_reports_gaps():

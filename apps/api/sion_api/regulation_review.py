@@ -149,6 +149,12 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
     root = "/api/v1/regulation/reviews"
     app.state.regulation_review_flow = None
 
+    def module(name: str):
+        try:
+            return require(f"archontos.review.{name}", extra="regulation")
+        except MissingExtra as exc:
+            raise HTTPException(503, str(exc)) from exc
+
     def flow():
         if app.state.regulation_review_flow is None:
             try:
@@ -158,7 +164,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         return app.state.regulation_review_flow
 
     def parse_request(payload: dict[str, Any]):
-        review = require("archontos.review.workflow", extra="regulation")
+        review = module("workflow")
         try:
             request = review.ReviewRequest.model_validate(payload)
         except ValueError as exc:
@@ -167,7 +173,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         return request
 
     def refuse_collected_facts(facts) -> None:
-        review = require("archontos.review.workflow", extra="regulation")
+        review = module("workflow")
         problems = review.client_fact_problems(facts)
         if problems:
             raise HTTPException(422, {"detail": "facts must be claims", "problems": problems})
@@ -203,7 +209,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
     def start(payload: dict[str, Any], dry_run: bool = False, session=Depends(get_session)):
         request = parse_request(payload)
         require_project(session, request.proposal.project_id)
-        conflict = require("archontos.review.runs", extra="regulation").IdempotencyConflict
+        conflict = module("runs").IdempotencyConflict
         try:
             if dry_run:
                 return {"dry_run": True, "saved": False, "plan": flow().plan_review(request)}
@@ -228,7 +234,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
     )
     def work_briefing(work_id: uuid.UUID, project_id: uuid.UUID, session=Depends(get_session)):
         row = saved_work(session, work_id, project_id)
-        render = require("archontos.review.workflow", extra="regulation").render_briefing
+        render = module("workflow").render_briefing
         return render(row.properties["output"])
 
     @app.get(root + "/{run_id}", dependencies=[Depends(read)])
@@ -266,7 +272,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
 
     @app.post(root + "/{run_id}/resume", dependencies=[Depends(write)])
     def resume(run_id: str, payload: Resume):
-        model = require("archontos.review.model", extra="regulation")
+        model = module("model")
         project = str(payload.project_id)
         if payload.dry_run:
             current = guarded(flow().get_review, run_id, project_id=project)
@@ -349,7 +355,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
 
         session.expire_all()
         stored = session.get(models.Entity, existing.id)
-        digest = require("archontos.review.model", extra="regulation").canonical_digest
+        digest = module("model").canonical_digest
         if stored is None or digest(stored.properties["output"]) != receipt.digest:
             raise HTTPException(500, "saved work failed read-back verification")
         if not flow().verify_receipt(receipt):
