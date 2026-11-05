@@ -18,3 +18,10 @@ The power-cad receipt, hs-steel draw plan, hs-steel section catalog and korean-l
 the test code** from the producers' source (field names, constants, status rules). They are shape
 examples, labelled synthetic where they carry values. They are not captured production output, and
 they do not describe any real parcel or drawing.
+
+`kordoc-evidence/` (contract `kordoc-evidence/1`, **draft / not pinned**) is **synthetic**: no upstream
+file from khs0927/inspection-supervision-mcp was copied, because no upstream commit is pinned yet. `valid/`
+holds three accepted payloads (unverified table cell, human-verified page, rejected without claims).
+Each file in `invalid/` breaks exactly one rule named by its file name. Hashes are SHA-256 of synthetic
+strings; the quoted text, project, document and reviewer identifiers do not describe any real document.
+Replace or extend these with captured upstream output, with its commit, when the contract is pinned.
