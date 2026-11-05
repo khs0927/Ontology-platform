@@ -19,7 +19,9 @@ Commands::
 
 The preflight never modifies anything. ``scaffold`` only writes the namespace's own files (copied
 captures, an empty classification skeleton, the registry entry, the manifest, the generated export
-and a regeneration test stub); classifications stay ``unverified`` candidates and are never approved.
+and a regeneration test stub). It validates every input and builds the export in memory before it
+registers anything, and it restores every file it wrote when a step fails. Classifications stay
+``unverified`` candidates and are never approved.
 """
 
 from __future__ import annotations
@@ -28,16 +30,14 @@ import argparse
 import hashlib
 import json
 import re
-import shutil
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 from sion_ingestion.sketchup_assets import (
     CLASSES_SCHEMA,
     CLASSIFICATION_SCHEMA,
     REGISTRY_REL,
-    REGISTRY_REQUIRED,
     REGISTRY_SCHEMA,
     ROOT,
     SketchUpAssetError,
@@ -134,17 +134,22 @@ def _load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def write_registry(entries: dict[str, dict[str, str]], root: Path = ROOT) -> Path:
-    """Write ``namespaces.json`` deterministically (namespaces and keys sorted)."""
+def registry_text(entries: dict[str, dict[str, str]]) -> str:
+    """Deterministic ``namespaces.json`` text (namespaces and keys sorted)."""
     data = {
         "schema": REGISTRY_SCHEMA,
         "description": "SketchUp collection namespaces -> repo-relative build inputs/outputs for "
         "sion_ingestion.sketchup_assets. Edit with `python -m sion_ingestion.sketchup_collection scaffold`.",
         "namespaces": {ns: dict(sorted(entries[ns].items())) for ns in sorted(entries)},
     }
+    return _json_text(data)
+
+
+def write_registry(entries: dict[str, dict[str, str]], root: Path = ROOT) -> Path:
+    """Write ``namespaces.json`` deterministically (namespaces and keys sorted)."""
     path = root / REGISTRY_REL
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(_json_text(data), encoding="utf-8")
+    path.write_text(registry_text(entries), encoding="utf-8")
     return path
 
 
@@ -155,9 +160,9 @@ def namespace_build_paths(namespace: str, root: Path = ROOT) -> dict[str, Path]:
     return {k: root / v for k, v in entry.items()}
 
 
-def build_namespace(namespace: str, root: Path = ROOT) -> str:
-    """Regenerate the ``sion-map-export/v1`` text for a registered namespace (no file is written)."""
-    p = namespace_build_paths(namespace, root)
+def _build_entry(namespace: str, entry: dict[str, str], root: Path = ROOT) -> str:
+    """Regenerate the export text from a registry entry (registered or only proposed)."""
+    p = {k: root / v for k, v in entry.items()}
     export = build_export(
         p["dump"],
         p["classes"],
@@ -169,6 +174,14 @@ def build_namespace(namespace: str, root: Path = ROOT) -> str:
         grouping_doc_path=p.get("grouping_doc"),
     )
     return export_text(export)
+
+
+def build_namespace(namespace: str, root: Path = ROOT) -> str:
+    """Regenerate the ``sion-map-export/v1`` text for a registered namespace (no file is written)."""
+    entry = load_registry(root).get(namespace)
+    if entry is None:
+        raise CollectionError(f"namespace {namespace!r} is not registered in {REGISTRY_REL}")
+    return _build_entry(namespace, entry, root)
 
 
 # --------------------------------------------------------------------------- manifest
@@ -587,6 +600,55 @@ def classification_skeleton(dump_sha: str) -> dict[str, Any]:
     }
 
 
+def _repo_relative(value: str, flag: str) -> str:
+    """Normalise a repo-relative override path; reject absolute paths and ``..`` components."""
+    text = value.replace("\\", "/").strip()
+    win = PureWindowsPath(value)
+    posix = PurePosixPath(text)
+    if not text or posix.is_absolute() or win.drive or win.root or ".." in posix.parts:
+        raise CollectionError(f"{flag} {value!r} must be a repo-relative path without '..'")
+    rel = posix.as_posix()
+    if rel in ("", "."):
+        raise CollectionError(f"{flag} {value!r} must name a file inside the repository")
+    return rel
+
+
+def _is_built(namespace: str, entry: dict[str, str], root: Path) -> bool:
+    """A registered namespace counts as built once its manifest or its export exists."""
+    return manifest_path(namespace, root).exists() or (root / entry["output"]).exists()
+
+
+class _Journal:
+    """Records every file scaffold writes so a failed run can be undone completely."""
+
+    def __init__(self) -> None:
+        self.files: list[tuple[Path, bytes | None]] = []
+        self.dirs: list[Path] = []
+
+    def write(self, path: Path, data: bytes) -> None:
+        missing: list[Path] = []
+        d = path.parent
+        while not d.exists():
+            missing.append(d)
+            d = d.parent
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.dirs.extend(missing)
+        self.files.append((path, path.read_bytes() if path.exists() else None))
+        path.write_bytes(data)
+
+    def rollback(self) -> None:
+        for path, old in reversed(self.files):
+            if old is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.write_bytes(old)
+        for d in sorted(set(self.dirs), key=lambda p: len(p.parts), reverse=True):
+            try:
+                d.rmdir()
+            except OSError:
+                pass
+
+
 def scaffold(
     namespace: str,
     root: Path = ROOT,
@@ -598,40 +660,49 @@ def scaffold(
     force: bool = False,
     write_test: bool = True,
 ) -> dict[str, Any]:
-    """Register a namespace, write its manifest, build + check the export and emit a test stub."""
+    """Register a namespace, write its manifest, build + check the export and emit a test stub.
+
+    All inputs are validated and the export is built in memory before anything is written; if a
+    later step fails, every file written by this call (registry included) is restored.
+    """
     if not NAMESPACE_RE.match(namespace):
         raise CollectionError(f"namespace {namespace!r} must match {NAMESPACE_RE.pattern}")
+    guidelines = _repo_relative(guidelines, "--guidelines") if guidelines is not None else None
+    grouping_doc = _repo_relative(grouping_doc, "--grouping-doc") if grouping_doc is not None else None
+    classes = _repo_relative(classes, "--classes") if classes is not None else None
     ns_dir = namespace_dir(namespace, root)
-    ns_dir.mkdir(parents=True, exist_ok=True)
     actions: list[str] = []
 
-    # 1) copy read-only captures from the SketchUp export folder (byte-for-byte)
+    # 1) plan the capture copies from the SketchUp export folder (byte-for-byte); nothing written yet
+    copies: dict[str, tuple[Path, bytes]] = {}
     if from_dir is not None:
-        for src in sorted(Path(from_dir).iterdir()):
+        from_dir = Path(from_dir)
+        if not from_dir.is_dir():
+            raise CollectionError(f"--from-dir {from_dir} is not a directory")
+        for src in sorted(from_dir.iterdir()):
             name = CAPTURE_RENAMES.get(src.name, src.name)
             if not src.is_file() or name not in KNOWN_FILES or KNOWN_FILES[name][1] != "capture":
                 continue
+            data = src.read_bytes()
             dst = ns_dir / name
-            if dst.exists() and dst.read_bytes() != src.read_bytes() and not force:
+            current = dst.read_bytes() if dst.exists() else None
+            if current is not None and current != data and not force:
                 raise CollectionError(f"{_rel(dst, root)} differs from {src.name}; pass --force to replace it")
-            if not dst.exists() or dst.read_bytes() != src.read_bytes():
-                shutil.copyfile(src, dst)
-                actions.append(f"copied {src.name} -> {_rel(dst, root)}")
+            if current != data:
+                copies[name] = (src, data)
+
+    def has(name: str) -> bool:
+        return name in copies or (ns_dir / name).exists()
+
     dump_path = ns_dir / "model_dump.json"
-    if not dump_path.exists():
+    if not has("model_dump.json"):
         raise CollectionError(f"{_rel(dump_path, root)} is missing (copy the dump_model.rb output first)")
-    dump_bytes = dump_path.read_bytes()
+    dump_bytes = copies["model_dump.json"][1] if "model_dump.json" in copies else dump_path.read_bytes()
     if dump_bytes.startswith(b"\xef\xbb\xbf"):
         raise CollectionError(f"{_rel(dump_path, root)} has a UTF-8 BOM; strip it before committing")
     dump_sha = _sha256_bytes(dump_bytes)
 
-    # 2) classification overlay skeleton pinned to the dump (no assignments, nothing approved)
-    cls_path = ns_dir / "classification.json"
-    if not cls_path.exists():
-        cls_path.write_text(_json_text(classification_skeleton(dump_sha)), encoding="utf-8")
-        actions.append(f"wrote {_rel(cls_path, root)} (empty, pinned to the dump)")
-
-    # 3) registry entry
+    # 2) proposed registry entry; shared inputs must already exist
     rel_dir = f"{SOURCES_REL}/{namespace}"
     entry = {
         "dump": f"{rel_dir}/model_dump.json",
@@ -640,54 +711,70 @@ def scaffold(
         "guidelines": guidelines or SHARED_DEFAULTS["guidelines"],
         "output": f"data/bootstrap/sketchup-{namespace}.json",
     }
-    if (ns_dir / "geometry_probe.json").exists():
+    if has("geometry_probe.json"):
         entry["probe"] = f"{rel_dir}/geometry_probe.json"
-    if (ns_dir / "grouping_probe.json").exists():
+    if has("grouping_probe.json"):
         entry["grouping_probe"] = f"{rel_dir}/grouping_probe.json"
         if grouping_doc:
             entry["grouping_doc"] = grouping_doc
     elif grouping_doc:
         raise CollectionError("--grouping-doc needs grouping_probe.json in the namespace folder")
-    for key in REGISTRY_REQUIRED:
-        if not (root / entry[key]).exists() and key != "output":
+    for key in ("classes", "guidelines", "grouping_doc"):
+        if key in entry and not (root / entry[key]).is_file():
             raise CollectionError(f"{key} input {entry[key]} does not exist")
     registry = load_registry(root)
-    if registry.get(namespace) not in (None, entry):
-        if not force:
-            raise CollectionError(f"namespace {namespace!r} is already registered differently; pass --force")
-    if registry.get(namespace) != entry:
-        registry[namespace] = entry
-        write_registry(registry, root)
-        actions.append(f"registered {namespace} in {REGISTRY_REL}")
+    existing = registry.get(namespace)
+    if existing not in (None, entry) and not force and _is_built(namespace, existing, root):
+        raise CollectionError(f"namespace {namespace!r} is already registered differently; pass --force")
 
-    # 4) build, then build --check (a second, independent regeneration must be byte-identical)
+    journal = _Journal()
     try:
-        text = build_namespace(namespace, root)
-    except SketchUpAssetError as exc:
-        raise CollectionError(
-            f"build failed: {exc}. Guideline/grouping documents cite model-specific evidence "
-            "(def:, obj:, occ:); pass --guidelines/--grouping-doc written for this model."
-        ) from exc
-    out_path = root / entry["output"]
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(text, encoding="utf-8")
-    actions.append(f"built {entry['output']}")
-    if out_path.read_text(encoding="utf-8") != build_namespace(namespace, root):
-        raise CollectionError("build --check failed: the export is not deterministic")
-    actions.append("build --check: up to date")
+        # 3) captures and the classification overlay skeleton (pinned to the dump, nothing approved)
+        for name, (src, data) in copies.items():
+            journal.write(ns_dir / name, data)
+            actions.append(f"copied {src.name} -> {_rel(ns_dir / name, root)}")
+        cls_path = ns_dir / "classification.json"
+        if not cls_path.exists():
+            journal.write(cls_path, _json_text(classification_skeleton(dump_sha)).encode("utf-8"))
+            actions.append(f"wrote {_rel(cls_path, root)} (empty, pinned to the dump)")
 
-    # 5) manifest
-    mpath = manifest_path(namespace, root)
-    mpath.write_text(manifest_text(namespace, root), encoding="utf-8")
-    actions.append(f"wrote {_rel(mpath, root)}")
+        # 4) build from the proposed entry, then build --check (an independent rebuild must match)
+        try:
+            text = _build_entry(namespace, entry, root)
+            if text != _build_entry(namespace, entry, root):
+                raise CollectionError("build --check failed: the export is not deterministic")
+        except SketchUpAssetError as exc:
+            raise CollectionError(
+                f"build failed: {exc}. Guideline/grouping documents cite model-specific evidence "
+                "(def:, obj:, occ:); pass --guidelines/--grouping-doc written for this model."
+            ) from exc
 
-    # 6) regeneration test stub
-    ident = re.sub(r"[^0-9a-z]+", "_", namespace).strip("_")
-    test_path = root / "tests" / f"test_sketchup_ns_{ident}.py"
-    if write_test and not test_path.exists():
-        test_path.parent.mkdir(parents=True, exist_ok=True)
-        test_path.write_text(TEST_STUB.format(ns=namespace, sha=dump_sha, ident=ident), encoding="utf-8")
-        actions.append(f"wrote {_rel(test_path, root)}")
+        # 5) only now register the namespace and write the export
+        if existing != entry:
+            registry[namespace] = entry
+            journal.write(root / REGISTRY_REL, registry_text(registry).encode("utf-8"))
+            actions.append(f"registered {namespace} in {REGISTRY_REL}")
+        out_path = root / entry["output"]
+        if not out_path.exists() or out_path.read_text(encoding="utf-8") != text:
+            journal.write(out_path, text.encode("utf-8"))
+        actions.append(f"built {entry['output']}")
+        actions.append("build --check: up to date")
+
+        # 6) manifest
+        mpath = manifest_path(namespace, root)
+        journal.write(mpath, manifest_text(namespace, root).encode("utf-8"))
+        actions.append(f"wrote {_rel(mpath, root)}")
+
+        # 7) regeneration test stub
+        ident = re.sub(r"[^0-9a-z]+", "_", namespace).strip("_")
+        test_path = root / "tests" / f"test_sketchup_ns_{ident}.py"
+        if write_test and not test_path.exists():
+            stub = TEST_STUB.format(ns=namespace, sha=dump_sha, ident=ident)
+            journal.write(test_path, stub.encode("utf-8"))
+            actions.append(f"wrote {_rel(test_path, root)}")
+    except BaseException:
+        journal.rollback()
+        raise
 
     findings = preflight_namespace(namespace, root)
     return {"namespace": namespace, "actions": actions, "preflight": findings, "ok": not findings}
@@ -715,7 +802,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--guidelines", help=f"repo-relative guideline markdown (default {SHARED_DEFAULTS['guidelines']})")
     p.add_argument("--grouping-doc", help="repo-relative grouping workflow markdown written for this model")
     p.add_argument("--classes", help=f"repo-relative class vocabulary (default {SHARED_DEFAULTS['classes']})")
-    p.add_argument("--force", action="store_true", help="replace differing captures / registry entry")
+    p.add_argument("--force", action="store_true", help="replace differing captures / an already built registry entry")
     p.add_argument("--no-test", action="store_true", help="do not emit tests/test_sketchup_ns_<ns>.py")
     args = parser.parse_args(argv)
 

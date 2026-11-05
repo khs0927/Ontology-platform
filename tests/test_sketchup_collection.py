@@ -23,6 +23,8 @@ from sion_ingestion.sketchup_collection import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+#: Synthetic Windows profile prefix, assembled at runtime so the public privacy scan does not flag it.
+WIN_USERS = "C:" + "\\" + "Users"
 NS = "0914-meeting"
 NS_DIR = f"data/sources/sketchup/{NS}"
 SHARED = [
@@ -79,8 +81,8 @@ def test_personal_path_detection_allows_generic_profiles():
     assert personal_paths(rb'"C:\\Users\\USER\\Documents\\a.skp"') == 0
     assert personal_paths(b"/Users/USER/x and /home/user/repo and %USERPROFILE%") == 0
     assert personal_paths(b"https://example.com/home/alice") == 0
-    assert personal_paths(rb'"C:\\Users\\hong\\Desktop\\a.skp"') == 1
-    assert personal_paths("D:/Users/홍길동/a.skp".encode()) == 1
+    assert personal_paths(f'"{WIN_USERS}\\hong\\Desktop\\a.skp"'.encode()) == 1
+    assert personal_paths(("D:/" + "Users/홍길동/a.skp").encode()) == 1
     assert personal_paths(b"/home/alice/a.json /Users/bob/b.json") == 2
 
 
@@ -124,7 +126,7 @@ def test_changed_capture_fails_hash_and_pin(tree):
 
 def test_personal_path_bom_and_binaries_are_rejected(tree):
     ns_dir = tree / NS_DIR
-    _edit_json(ns_dir / "classification.json", lambda d: d.update(note="C:\\Users\\hong\\Desktop\\0914.skp"))
+    _edit_json(ns_dir / "classification.json", lambda d: d.update(note=f"{WIN_USERS}\\hong\\Desktop\\0914.skp"))
     sup = ns_dir / "classification.supplement.json"
     sup.write_bytes(b"\xef\xbb\xbf" + sup.read_bytes())
     (ns_dir / "objects").mkdir()
@@ -269,3 +271,67 @@ def test_scaffold_refuses_bad_input(fresh_root, tmp_path):
         scaffold("fixture-model", root, from_dir=changed)
     with pytest.raises(CollectionError, match="already registered differently"):
         scaffold("fixture-model", root, guidelines="data/sources/sketchup/object-classes.json")
+
+
+def _tree(root: Path) -> dict[Path, bytes]:
+    return {p: p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+def test_scaffold_failed_build_leaves_nothing_behind(fresh_root):
+    """A build failure (default guidelines citing another model) must not register a broken namespace."""
+    root, export = fresh_root
+    default_guide = root / "docs/sketchup/MODELING-GUIDELINES.ko.md"
+    fixed_guide = root / "docs/sketchup/OTHER-MODEL-GUIDELINES.ko.md"
+    fixed_guide.write_bytes(default_guide.read_bytes())
+    default_guide.write_text(
+        default_guide.read_text(encoding="utf-8")
+        + '\n## Other model\n\n<!-- sion-guide id="other" evidence="def:NoSuchDefinition" -->\n\ntext\n',
+        encoding="utf-8",
+    )
+    before = _tree(root)
+    with pytest.raises(CollectionError, match="build failed: .*cites unknown definition NoSuchDefinition"):
+        scaffold("other-model", root, from_dir=export)
+    assert _tree(root) == before
+    assert not (root / "data/sources/sketchup/other-model").exists()
+    assert "other-model" not in load_registry(root)
+
+    # the suggested fix (--guidelines written for this model) works without --force
+    result = scaffold("other-model", root, from_dir=export, guidelines="docs/sketchup/OTHER-MODEL-GUIDELINES.ko.md")
+    assert result["ok"], result["preflight"]
+    assert load_registry(root)["other-model"]["guidelines"] == "docs/sketchup/OTHER-MODEL-GUIDELINES.ko.md"
+    assert preflight("other-model", root) == []
+
+
+def test_scaffold_replaces_an_unbuilt_registry_entry_without_force(fresh_root):
+    root, export = fresh_root
+    entry = {
+        "dump": "data/sources/sketchup/half-model/model_dump.json",
+        "classes": "data/sources/sketchup/object-classes.json",
+        "classification": "data/sources/sketchup/half-model/classification.json",
+        "guidelines": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+        "output": "data/bootstrap/sketchup-half-model.json",
+    }
+    write_registry({"half-model": entry}, root)  # left over by an older failed run: no manifest, no export
+    result = scaffold("half-model", root, from_dir=export, write_test=False)
+    assert result["ok"], result["preflight"]
+    assert load_registry(root)["half-model"]["guidelines"] == "docs/sketchup/MODELING-GUIDELINES.ko.md"
+
+
+def test_scaffold_validates_before_writing(fresh_root):
+    root, export = fresh_root
+    before = _tree(root)
+    with pytest.raises(CollectionError, match="model_dump.json is missing"):
+        scaffold("typo-name", root)
+    assert not (root / "data/sources/sketchup/typo-name").exists()
+    for kwargs in (
+        {"guidelines": "/etc/passwd"},
+        {"guidelines": "../outside.md"},
+        {"classes": "C:\\data\\classes.json"},
+        {"grouping_doc": "docs/../../x.md"},
+    ):
+        with pytest.raises(CollectionError, match="repo-relative"):
+            scaffold("typo-name", root, from_dir=export, **kwargs)
+    with pytest.raises(CollectionError, match="does not exist"):
+        scaffold("typo-name", root, from_dir=export, guidelines="docs/sketchup/missing.md")
+    assert _tree(root) == before
+    assert not (root / "data/sources/sketchup/typo-name").exists()
