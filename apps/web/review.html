@@ -167,10 +167,13 @@
         if (!confirmLowTrust(1)) return;
         payload.confirm_low_trust = true;
       }
+      const dryRun = $("dryRun").checked;  // 미리보기 체크는 개별 버튼과 a/r 단축키에도 적용
+      if (dryRun) payload.dry_run = true;
       const response = await fetch(`${api}/api/v1/relations/candidates/${id}/${action}`, {
         method: "POST", headers: headers(true), body: JSON.stringify(payload),
       });
       if (!response.ok) { flash(errText(response.status, await response.json()), true); await refreshCounts(); return; }
+      if (dryRun) { await response.json(); flash(`${action === "approve" ? "승인" : "거절"} 가능 (미리보기, 기록 안 됨)`); return; }
       replaceItem(await response.json());
       selected.delete(id);
       render();
@@ -184,9 +187,10 @@
       const version = itemOf(id)?.version;
       const response = await fetch(`${api}/api/v1/relations/candidates/${id}/reopen`, {
         method: "POST", headers: headers(true),
-        body: JSON.stringify({ reviewer: $("reviewer").value || null, note, ...(version != null ? { expected_version: version } : {}) }),
+        body: JSON.stringify({ reviewer: $("reviewer").value || null, note, dry_run: $("dryRun").checked, ...(version != null ? { expected_version: version } : {}) }),
       });
       if (!response.ok) { flash(errText(response.status, await response.json()), true); await refreshCounts(); return; }
+      if ($("dryRun").checked) { await response.json(); flash("되돌리기 가능 (미리보기, 기록 안 됨)"); return; }
       replaceItem({ ...(await response.json()), review: null });
       flash("대기 상태로 되돌렸습니다.");
       render();

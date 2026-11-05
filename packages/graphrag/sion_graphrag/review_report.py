@@ -11,9 +11,9 @@ would (not) project, with which weight, and which /review batch decided them:
   ``unchanged``, ``conflict`` ...) from the ``review.batch_decided`` outbox event and
   the relations that still carry that decision.
 
-``projected_under_policy`` describes the policy passed in, not necessarily the live
-LightRAG index: until the engine applies the same review-state filter, the live index may
-still contain rejected relations (see ``live_index_applies_policy``).
+``projected_under_policy`` describes the policy passed in. The live LightRAG index
+(``POST /api/v1/graphrag/project``) projects ``DEFAULT_PROJECTION_REVIEW_STATES`` by default, so
+``live_index_applies_policy`` is true exactly when the report's policy is that default.
 
 It is read-only and needs no LightRAG (and does not build the custom KG). An approval is a
 review judgement, not a factual verification, so the report never upgrades confidence or
@@ -30,7 +30,12 @@ from sion_api import models
 from sqlalchemy import false, func, select
 from sqlalchemy.orm import Session, aliased
 
-from .projection import _active_at, relation_weight, resolve_verification_states
+from .projection import (
+    DEFAULT_PROJECTION_REVIEW_STATES,
+    _active_at,
+    relation_weight,
+    resolve_verification_states,
+)
 
 # Intended default review policy: approved/machine-verified and pending relations;
 # /review-rejected relations only on request (audit/debug). The live engine does not apply it yet.
@@ -40,8 +45,8 @@ REVIEW_BATCH_AGGREGATE = "review_batch"
 REVIEW_BATCH_EVENT = "review.batch_decided"
 LIVE_INDEX_NOTICE = (
     "projected_under_policy and weight describe the review-state policy in review_states. The live "
-    "GraphRAG index (POST /api/v1/graphrag/project) does not apply this filter yet and may still "
-    "contain rejected relations."
+    "GraphRAG index (POST /api/v1/graphrag/project) projects verified + unverified relations by "
+    "default and excludes rejected ones; ?include_rejected=true is an explicit audit projection."
 )
 FACT_VERIFICATION_NOTICE = (
     "A /review approval records a reviewer's judgement of a candidate; it does not verify the "
@@ -188,7 +193,7 @@ def build_review_report(
         "canonical": False,
         "review_states": None if states is None else list(states),
         "projected_states": None if allowed is None else sorted(allowed),
-        "live_index_applies_policy": False,
+        "live_index_applies_policy": allowed == resolve_verification_states(DEFAULT_PROJECTION_REVIEW_STATES),
         "policy_notice": LIVE_INDEX_NOTICE,
         "fact_verification": False,
         "notice": FACT_VERIFICATION_NOTICE,

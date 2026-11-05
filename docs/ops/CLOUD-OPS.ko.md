@@ -138,7 +138,7 @@ jobs:
       - uses: actions/checkout@<pinned-sha>
         with: { ref: "${{ inputs.artifact_sha }}" }
       - run: python -m pip install build && python -m build
-      - run: sha256sum dist/* > dist/SHA256SUMS
+      - run: cd dist && sha256sum * > SHA256SUMS  # 접두어 없이 기록해야 다운로드한 아티팩트에서 -c 검증 가능
       - uses: actions/upload-artifact@<pinned-sha>
         with: { name: sion-api-${{ inputs.artifact_sha }}, path: dist/ }
   staging:

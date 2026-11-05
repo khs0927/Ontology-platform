@@ -126,10 +126,9 @@ from the fact that a candidate was approved.
   their per-id outcomes. `limit` (1-1000, default 100) and `offset` page relations and batches
   independently (`relations_total`, `batches_total`), and `batch_id` restricts both to one batch.
   Rejected relations are reported as not kept by the policy unless `?include_rejected=true` (audit).
-- **The live index does not apply this policy yet**: `POST /api/v1/graphrag/project` still projects
-  every review state, so rejected relations can be in the live LightRAG index even though the report
-  shows them as not kept. The report says so (`live_index_applies_policy: false`); do not read it as
-  proof that rejected relations are absent from GraphRAG until the engine applies the same filter.
+- The live index applies the same default policy: `POST /api/v1/graphrag/project` projects
+  verified + unverified relations and leaves rejected ones out (`?include_rejected=true` is the audit
+  projection). The report sets `live_index_applies_policy: true` when its policy is that default.
 
 ## SketchUp BIM asset index (`sion-bim-asset-index/1`)
 

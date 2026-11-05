@@ -292,11 +292,13 @@ def test_report_is_paginated_and_filterable_by_batch():
         assert c.get(REPORT, params={"limit": 1001}, headers=AUTH).status_code == 422
 
 
-def test_report_says_live_index_does_not_apply_policy_yet():
+def test_report_matches_live_index_default_policy():
     with client() as c:
         report = c.get(REPORT, headers=AUTH).json()
-        assert report["live_index_applies_policy"] is False
-        assert "does not apply this filter yet" in report["policy_notice"]
+        assert report["live_index_applies_policy"] is True
+        assert "excludes rejected" in report["policy_notice"]
+        audit = c.get(REPORT, params={"include_rejected": "true"}, headers=AUTH).json()
+        assert audit["live_index_applies_policy"] is False
 
 
 def test_bulk_ids_are_length_bounded_before_they_reach_the_batch_log():

@@ -123,8 +123,8 @@ up at `/review` and stay `unverified` until a person approves them.
   (reviewer, note, `batch_id`) stays in `properties.review_history` and nothing is deleted.
 - `GET /api/v1/review/report` (paged with `limit`/`offset`, optional `batch_id`) lists which reviewed
   relations the review-state policy keeps (rejected ones are excluded by default) and each bulk
-  `batch_id` with its per-id results. The live GraphRAG index does not apply that policy yet
-  (`live_index_applies_policy: false`), so rejected relations may still be indexed.
+  `batch_id` with its per-id results. The live GraphRAG index applies the same default policy
+  (`live_index_applies_policy: true`), so rejected relations are not indexed by default.
 
 ## How an agent should use it
 
