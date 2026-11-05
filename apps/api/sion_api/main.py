@@ -28,6 +28,7 @@ from . import (
     models,
     outbox,
     regulation,
+    regulation_review,
     regulation_workspace,
     repository,
     review,
@@ -106,6 +107,7 @@ def create_app(
     write_knowledge = require_scope(auth_policy, "write:knowledge")
     read_aec = require_scope(auth_policy, "read:aec")
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
+    regulation_review.register(app, factory, get_session, read_knowledge, write_knowledge)
     law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
 
     if aec_adapter is None:

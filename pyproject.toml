@@ -134,6 +134,7 @@ packages = [
   "archontos.normalization",
   "archontos.projection",
   "archontos.query",
+  "archontos.review",
   "archontos.rules",
   "archontos.storage",
   # GOD-CAD (git subtree at packages/cad/god-cad)
