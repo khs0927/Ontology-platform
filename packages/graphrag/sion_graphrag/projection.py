@@ -20,6 +20,12 @@ REVIEW_STATE_GROUPS: dict[str, frozenset[str]] = {
     "rejected": frozenset({"rejected"}),
 }
 
+# What the live GraphRAG index receives by default (Issue #80): approved and pending
+# relations, never rejected ones. Rejected rows stay in the database for audit and are
+# projected only when a caller asks for them explicitly.
+DEFAULT_PROJECTION_REVIEW_STATES: tuple[str, ...] = ("verified", "unverified")
+AUDIT_PROJECTION_REVIEW_STATES: tuple[str, ...] = ("verified", "unverified", "rejected")
+
 
 # Issue #80 step 3: bounded, idempotent approval boost.
 # LightRAG floors a weight at its evidence count (one chunk here); canonical

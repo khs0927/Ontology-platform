@@ -11,13 +11,14 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import httpx
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict, Field
 from sion_core.contracts import validate
 from sqlalchemy import select
 
 from . import models
+from .auth import allowed_projects, current_principal, project_scoped, require_project_access
 
 TaskText = Annotated[str, Field(min_length=1, max_length=1000)]
 
@@ -105,7 +106,11 @@ def briefing(report: dict, notes: str = "", tasks: list[str] | None = None) -> s
 
 
 def register(app, get_session, read, write, client=None):
-    @app.get("/regulation", response_class=HTMLResponse, dependencies=[Depends(read)])
+    # Works routes enforce the project ACL themselves, so project-restricted tokens may use them.
+    read_project = project_scoped(read)
+    write_project = project_scoped(write)
+
+    @app.get("/regulation", response_class=HTMLResponse, dependencies=[Depends(read_project)])
     def workspace():
         return Path(__file__).with_name("regulation_workspace.html").read_text(encoding="utf-8")
 
@@ -132,9 +137,12 @@ def register(app, get_session, read, write, client=None):
         except (httpx.HTTPError, ValueError, ImportError) as exc:
             raise HTTPException(502, "regulation gateway unavailable or report contract invalid") from exc
 
-    def work(session, work_id):
+    def work(session, work_id, request):
         row = session.get(models.Entity, work_id)
         if row is None or row.category != "regulation_work":
+            raise HTTPException(404, "regulation work not found")
+        # Project ACL: a work outside the caller's projects is indistinguishable from a missing one.
+        if not current_principal(request).can_access_project(row.properties.get("project_id")):
             raise HTTPException(404, "regulation work not found")
         return row
 
@@ -145,8 +153,9 @@ def register(app, get_session, read, write, client=None):
     async def report(payload: dict):
         return {"canonical": False, "report": await gateway("/api/v1/produce-compliance-report", payload)}
 
-    @app.post("/api/v1/regulation/works", dependencies=[Depends(write)])
-    async def save(payload: WorkSave, session=Depends(get_session)):
+    @app.post("/api/v1/regulation/works", dependencies=[Depends(write_project)])
+    async def save(payload: WorkSave, request: Request, session=Depends(get_session)):
+        require_project_access(request, payload.project_id)
         project = session.get(models.Entity, payload.project_id)
         if project is None or project.entity_type_id != "Project":
             raise HTTPException(404, "project not found")
@@ -207,22 +216,31 @@ def register(app, get_session, read, write, client=None):
         session.commit()
         return {"saved": True, "work": output(row)}
 
-    @app.get("/api/v1/regulation/works", dependencies=[Depends(read)])
+    @app.get("/api/v1/regulation/works", dependencies=[Depends(read_project)])
     def list_works(
-        project_id: uuid.UUID | None = None, limit: int = Query(50, ge=1, le=200), session=Depends(get_session)
+        request: Request,
+        project_id: uuid.UUID | None = None,
+        limit: int = Query(50, ge=1, le=200),
+        session=Depends(get_session),
     ):
         query = select(models.Entity).where(models.Entity.category == "regulation_work")
+        project_key = models.Entity.properties["project_id"].as_string()
         if project_id:
-            query = query.where(models.Entity.properties["project_id"].as_string() == str(project_id))
+            require_project_access(request, project_id)
+            query = query.where(project_key == str(project_id))
+        else:
+            visible = allowed_projects(request)
+            if visible is not None:
+                query = query.where(project_key.in_(sorted(visible)))
         return [output(row) for row in session.scalars(query.order_by(models.Entity.created_at.desc()).limit(limit))]
 
-    @app.get("/api/v1/regulation/works/{work_id}", dependencies=[Depends(read)])
-    def get_work(work_id: uuid.UUID, session=Depends(get_session)):
-        return output(work(session, work_id))
+    @app.get("/api/v1/regulation/works/{work_id}", dependencies=[Depends(read_project)])
+    def get_work(work_id: uuid.UUID, request: Request, session=Depends(get_session)):
+        return output(work(session, work_id, request))
 
-    @app.post("/api/v1/regulation/works/{work_id}", dependencies=[Depends(write)])
-    def update(work_id: uuid.UUID, payload: WorkUpdate, session=Depends(get_session)):
-        row = work(session, work_id)
+    @app.post("/api/v1/regulation/works/{work_id}", dependencies=[Depends(write_project)])
+    def update(work_id: uuid.UUID, payload: WorkUpdate, request: Request, session=Depends(get_session)):
+        row = work(session, work_id, request)
         if payload.dry_run:
             return {"saved": False, "dry_run": True, "changes": payload.model_dump(exclude={"dry_run"})}
         row.properties = {**row.properties, **payload.model_dump(exclude={"dry_run"})}
@@ -230,8 +248,10 @@ def register(app, get_session, read, write, client=None):
         return {"saved": True, "work": output(row)}
 
     @app.get(
-        "/api/v1/regulation/works/{work_id}/briefing", response_class=PlainTextResponse, dependencies=[Depends(read)]
+        "/api/v1/regulation/works/{work_id}/briefing",
+        response_class=PlainTextResponse,
+        dependencies=[Depends(read_project)],
     )
-    def get_briefing(work_id: uuid.UUID, session=Depends(get_session)):
-        props = work(session, work_id).properties
+    def get_briefing(work_id: uuid.UUID, request: Request, session=Depends(get_session)):
+        props = work(session, work_id, request).properties
         return briefing(props["report"], props["notes"], props["tasks"])
