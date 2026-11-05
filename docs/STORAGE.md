@@ -78,6 +78,49 @@ To restore or move to another PC: copy `01_SNAPSHOTS\db\sion-latest.db` to a loc
 into any database with `sion-relations import ... --verified`, because the export keeps each
 relation's verification state.
 
+## Bootstrap snapshot manifest (read-only, issue #71 step B)
+
+Before data is migrated or bootstrapped onto another machine, describe exactly what is being
+moved and check it again on arrival. `sion_drive_store.bootstrap_snapshot` does this without
+writing to the source:
+
+```bash
+# on the source machine: describe an export folder (snapshots + graph export), write the manifest elsewhere
+python -m sion_drive_store.bootstrap_snapshot create --root <export-dir> \
+    --created-at 2026-11-05T00:00:00Z --out <manifests>/bootstrap-20261105.json [db graph ...]
+
+# after copying: recompute everything; exit 1 on any mismatch, 2 when the snapshot is refused
+python -m sion_drive_store.bootstrap_snapshot verify <manifests>/bootstrap-20261105.json --root <copied-dir>
+```
+
+The `sion-bootstrap-snapshot/v1` manifest lists, per file, a root-relative `source_uri`
+(`snapshot:db/sion-latest.db`), `size_bytes` and `sha256`, plus:
+
+| File | Extra facts |
+| --- | --- |
+| SQLite (detected by header) | `open_uri` (`file:<name>?mode=ro`), `row_counts` per table, `schema.user_version`, recorded migrations (`sion_schema_migrations`, `schema_migrations`, `alembic_version`), `schema.sqlite_master_sha256` |
+| `sion-map-export/v1` JSON | `row_counts.nodes` / `edges`, `export_source`, `ontology_versions` |
+| `.jsonl` (e.g. evidence) | `row_counts.records` |
+| CAD original, only with `--allow-cad-hash-only` | `kind: cad-original`, `hash_only: true` (size and SHA-256, nothing else) |
+
+`created_at` is passed in (timezone-aware ISO-8601), so the same inputs give the same manifest.
+`content_sha256` covers the file list, so an edited manifest fails verification too.
+
+Fail-closed rules:
+
+- SQLite is opened with `mode=ro` and `PRAGMA query_only`; every file is hashed before and after
+  it is read, and a file that changed meanwhile aborts the run. `PRAGMA quick_check` must be `ok`.
+- A database with a non-empty `-wal`/`-journal` file is treated as live and refused: snapshot it
+  first (`python -m sion_api.drive_export snapshot`) and point the tool at the copy.
+  `-wal`/`-shm`/`-journal` sidecars are never listed.
+- `.dwg`, `.dxf`, `.skp`, `.skb`, `.bak`, `.dwl`, `.dwl2` are refused unless `--allow-cad-hash-only`.
+- Secrets (`.env*`, `*.pem`, `*.key`, `id_rsa*`, credential/client-secret/service-account/token
+  JSON, `.netrc`, `.pgpass`, ...) are refused when named and skipped inside folders; VCS folders,
+  virtualenvs, caches and symlinks are skipped. Only counts per reason appear in `excluded`.
+- A map export whose `expected_node_count`/`expected_edge_count` disagrees with its content is refused.
+- Sources must lie inside `--root`; the manifest contains no absolute paths. `--out` must be a new
+  file outside every source (no overwrite).
+
 ## What needs a running service
 
 | Task | Needs |
