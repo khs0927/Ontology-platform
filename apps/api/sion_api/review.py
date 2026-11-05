@@ -21,13 +21,24 @@ applied, so two reviewers deciding the same pending candidate concurrently can n
 "win" (PostgreSQL re-checks the predicate after the row lock is released; SQLite serializes
 writers). The loser gets ``AlreadyReviewed`` (per item) or ``conflict``/``unchanged`` (bulk).
 
-``reopen`` is the supported way to undo a mistaken decision: it moves an approved/rejected
-candidate back to pending, with a required note, and keeps the reverted decision in
-``properties.review_history`` (nothing is deleted).
+``reopen`` is the supported way to undo a mistaken decision or to re-review a candidate: it
+moves an approved/rejected candidate back to pending, with a required note, and keeps the
+reverted decision (reviewer, note, batch_id) in ``properties.review_history`` (nothing is
+deleted). The opposite decision is never applied directly over an existing one: approve after
+reject (or reject after approve) is a 409 / ``conflict`` until the candidate is reopened.
+
+An approval records a person's review judgement of a candidate. It is not a factual
+verification of the source: the relation's confidence and evidence are left as extracted, and
+GraphRAG only adds a bounded ranking boost for ``human_verified``.
+
+Every bulk call that applies at least one decision also writes a ``review.batch_decided`` outbox
+event (aggregate ``review_batch``, id = ``batch_id``) with the per-id results, in the same
+transaction, so projection consumers and the review report can trace each batch.
 """
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -36,6 +47,8 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from . import models
+
+log = logging.getLogger(__name__)
 
 STATUS_TO_STATE = {"pending": "unverified", "approved": "human_verified", "rejected": "rejected"}
 STATE_TO_STATUS = {v: k for k, v in STATUS_TO_STATE.items()}
@@ -347,6 +360,8 @@ def _bulk_one(
 BULK_RESULTS = ("applied", "unchanged", "conflict", "not_found", "not_candidate", "invalid_id")
 # Results that leave the candidate in the requested state (``unchanged`` = idempotent repeat).
 BULK_OK = frozenset({"applied", "unchanged"})
+REVIEW_BATCH_AGGREGATE = "review_batch"
+REVIEW_BATCH_EVENT = "review.batch_decided"
 
 
 def decide_bulk(
@@ -391,10 +406,6 @@ def decide_bulk(
         )
     results = [by_key[key] for key in order]
     applied = sum(1 for r in results if r["result"] == "applied")
-    if applied:
-        session.commit()
-    else:
-        session.rollback()
     for r in results:
         # Per-item report (#80 step 4): explicit success flag + reason, and the batch id that
         # recorded the decision (only for items this call actually wrote).
@@ -403,6 +414,37 @@ def decide_bulk(
         r["batch_id"] = batch_id if r["result"] == "applied" else None
     counts = {name: sum(1 for r in results if r["result"] == name) for name in BULK_RESULTS}
     succeeded = sum(1 for r in results if r["ok"])
+    if applied:
+        # Batch log (#80): the per-id outcomes commit atomically with the decisions they describe.
+        session.add(
+            models.OutboxEvent(
+                id=uuid.uuid4(),
+                aggregate_type=REVIEW_BATCH_AGGREGATE,
+                aggregate_id=uuid.UUID(batch_id),
+                event_type=REVIEW_BATCH_EVENT,
+                payload={
+                    "batch_id": batch_id,
+                    "decision": decision,
+                    "reviewer": reviewer or "anonymous",
+                    "note": note,
+                    "decided_at": datetime.now(timezone.utc).isoformat(),
+                    "requested": len(results),
+                    "counts": counts,
+                    "results": [
+                        {"id": r["id"], "result": r["result"], "ok": r["ok"], "reason": r["reason"]} for r in results
+                    ],
+                },
+                attempts=0,
+            )
+        )
+        session.commit()
+        log.info(
+            "review batch %s: %s %d applied of %d requested (%s)",
+            batch_id, decision, applied, len(results),
+            ", ".join(f"{name}={n}" for name, n in counts.items() if n),
+        )
+    else:
+        session.rollback()
     return {
         "decision": decision,
         "batch_id": batch_id if applied else None,

@@ -285,6 +285,7 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
+        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted."""
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
@@ -293,6 +294,7 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
+        """Record a review rejection; the candidate and its evidence are kept (rejected), never deleted."""
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_knowledge)])
@@ -309,6 +311,26 @@ def create_app(
         except (review.NotACandidate, review.NotReviewed, review.AlreadyReviewed) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return review.serialize(session, row)
+
+    @app.get("/api/v1/review/report", dependencies=[Depends(read_knowledge)])
+    def review_verification_report(
+        include_rejected: bool = Query(
+            default=False, description="Audit/debug only: report the projection that also keeps /review-rejected relations"
+        ),
+        session: Session = Depends(get_session),
+    ):
+        """Which reviewed relations the GraphRAG projection keeps, with weight, reviewer, note and batch outcomes.
+
+        Read-only. An approval is a review judgement, not a factual verification of the source.
+        """
+        from sion_graphrag.review_report import (
+            AUDIT_REPORT_REVIEW_STATES,
+            DEFAULT_REPORT_REVIEW_STATES,
+            build_review_report,
+        )
+
+        states = AUDIT_REPORT_REVIEW_STATES if include_rejected else DEFAULT_REPORT_REVIEW_STATES
+        return build_review_report(session, review_states=states)
 
     @app.post(
         "/api/v1/evidence",

@@ -94,6 +94,27 @@ Install with `pip install -e ".[graphrag]"`. Note that importing LightRAG can
 install missing provider packages at runtime, so the package is imported only
 when the engine starts.
 
+## Review decisions and fact verification (Issue #80)
+
+A `/review` approval records a person's judgement of a candidate relation
+(`verification_state = human_verified`). **It does not replace fact verification**: the
+relation's confidence and evidence stay as extracted, and the projection only adds a
+bounded, idempotent ranking boost. Take numbers and claims from the cited evidence, not
+from the fact that a candidate was approved.
+
+- Opposite decisions never overwrite each other: approving a rejected candidate (or the
+  reverse) is `409` per item and `conflict` in bulk.
+- Re-review goes through `POST /api/v1/relations/candidates/{id}/reopen` with a required
+  `note`; the candidate returns to pending and the previous decision (reviewer, note,
+  `batch_id`) moves to `properties.review_history`. Candidates are never deleted.
+- Every bulk call that applies a decision writes a `review.batch_decided` outbox event
+  (aggregate `review_batch`, id = `batch_id`) with the per-id results (`applied`,
+  `unchanged`, `conflict`, `not_found`, `not_candidate`, `invalid_id`) in the same transaction.
+- `GET /api/v1/review/report` (`read:knowledge`) is the verification report: per state, how many
+  relations exist and how many the projection keeps; every reviewed relation with weight,
+  reviewer, note, `batch_id` and history; and every batch with its per-id outcomes.
+  Rejected relations are reported as not projected unless `?include_rejected=true` (audit).
+
 ## SketchUp BIM asset index (`sion-bim-asset-index/1`)
 
 `sion_ingestion.asset_index` turns the SketchUp BIM asset cards (`sion-bim-asset/1`,
