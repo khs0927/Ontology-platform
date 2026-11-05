@@ -1,0 +1,107 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:bc48340e-2fc9-413a-894e-9c36c4fc8f86",
+ "basis_ko": "이름 패턴 3DGeom~N_Defintion, 한 축 크기가 정확히 25,400 mm(=1000 in), 미사용 — 외부 3D 포맷 가져오기 잔여물로 추정",
+ "block": true,
+ "card_kind": "definition",
+ "class": "imported-3d",
+ "confidence": 0.6,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuildingElementProxy",
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "USERDEFINED"
+ },
+ "level": null,
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "wood",
+   "colour_rgb": [
+    130,
+    130,
+    130
+   ],
+   "sketchup_material": "ch25_oak__tnt_",
+   "texture_file": "oak_knotless_white_cutout.png",
+   "texture_size_mm": [
+    25400.0,
+    25400.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 0,
+  "entity_counts": {
+   "Edge": 2464,
+   "Face": 1632
+  },
+  "face_area_m2": 179.815,
+  "height_mm": 7778.1,
+  "length_mm": 25400.0,
+  "thickness_mm": 7778.1,
+  "width_mm": 11366.4
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/imported-3d.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "definition-origin",
+    "tools": [
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-landscape-people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "cleanup",
+    "tools": [
+     "hueflow.list_components",
+     "sketchup-mcp2.find_components",
+     "hueflow.execute_ruby"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "component"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "3DGeom~17_Defintion",
+  "guid": "su-guid:bc48340e-2fc9-413a-894e-9c36c4fc8f86",
+  "instance_pids": [],
+  "instances": 0,
+  "kind": "component",
+  "source_file": null,
+  "used_instances": 0
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

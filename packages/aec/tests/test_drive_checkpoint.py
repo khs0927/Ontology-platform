@@ -156,8 +156,11 @@ def test_backup_header_check_does_not_load_archive_into_memory(tmp_path, monkeyp
         returncode = 0
         stderr = b""
 
-    def fake_dump(command, stdout, stderr):
-        stdout.write(b"PGDMPfixture")
+    def fake_dump(command, stdout=None, stderr=None):
+        # docker mode: pg_dump -f inside the container, then `docker cp <c>:<inner> <partial>`
+        if command[1] == "cp":
+            with open(command[3], "wb") as sink:
+                sink.write(b"PGDMPfixture")
         return Result()
 
     monkeypatch.setattr("aec_intelligence.operational.backup.subprocess.run", fake_dump)

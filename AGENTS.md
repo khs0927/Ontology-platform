@@ -1,5 +1,16 @@
 # Sion Ontology Platform - Agent Instructions
 
+## Read first for regulation work
+- Before planning or changing building/land regulation, legal ontology, regulation GraphRAG,
+  gateway integration, or regulation MCP routing, read
+  [`docs/regulation/DEVELOPMENT-GUIDELINES.md`](docs/regulation/DEVELOPMENT-GUIDELINES.md)
+  and follow its reading order.
+- The current regulation initiative is planning-only. Do not start implementation, dependency
+  installation, migrations, service restarts, or deployment without a subsequent user instruction.
+  An explicit later instruction to start development supersedes this planning hold.
+- Preserve prior unfinished implementation changes. Do not publish them as part of documentation work.
+- The documents define target behavior, not evidence that those capabilities already exist on `main`.
+
 ## Workspace
 - This repository is a local working copy. Edit here, not inside a Google Drive synchronized folder.
 - Preserve existing files and uncommitted changes.
@@ -26,10 +37,12 @@
 - This is the main monorepo. ArchOntos (`packages/regulation`), Ontology (`packages/aec`) and GOD-CAD
   (`packages/cad/god-cad`) are git subtrees: edit them here, keep their own tests and CI green
   (`.github/workflows/regulation.yml`, `aec.yml`), and do not rebase branches that contain subtree merges.
-- power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad and CAD-MCP are separate repos bridged by
+- power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad and CAD-MCP are separate repos bridged by
   the contracts in `docs/INTEGRATION_CONTRACTS.md` / `sion_core.contracts`. Do not change those repos from
   here. When an upstream contract changes, update the schema, the pinned commit and the contract tests in
   one PR.
+- power-cad-mcp is the only CAD host bridge in use. HS-CAD is retired: do not add contracts, fixtures
+  or work items for it.
 - Sion never executes CAD mutations. Data from bridged repos is evidence or request-scoped facts, never
   canonical state.
 - All DXF reading goes through `sion_cad.reader` (ezdxf + built-in fallback).

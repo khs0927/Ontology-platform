@@ -1,0 +1,216 @@
+{
+ "asset_file": {
+  "bytes": 31221,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+  "sha256": "815e95773d400a7ac32ed5473f8325fbd5008281e48ec8619d683fa38edcfe26",
+  "skp": "window-louver/그룹167_1__4163488.skp",
+  "store": "google-drive",
+  "thumbnail": "window-louver/그룹167_1__4163488.png",
+  "thumbnail_sha256": "0c4206c2e3e1381ba20bed2327d15a56131831ce8968f082f284d3d3461988a3"
+ },
+ "asset_id": "su-def:0914-meeting:79dc1463-7dce-42c6-a141-3d6631238e72",
+ "basis_ko": "그룹 재질 DimGray, 940×100×87.7 mm 살 24개가 100 mm 간격으로 수직 적층(23개 + 마감 1개) | 주택 창호 세분화: L1 louver-frame (L1 루버 틀)",
+ "block": false,
+ "card_kind": "definition",
+ "class": "louver",
+ "confidence": 0.7,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcShadingDevice",
+  "entity": "IfcShadingDevice",
+  "predefined_type": "LOUVER"
+ },
+ "level": {
+  "base_z_mm": 9330.0,
+  "elevation_mm": 10200.0,
+  "matched": false,
+  "name": "2 FL +10200"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    114,
+    114,
+    114
+   ],
+   "sketchup_material": "DimGray",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "opening": {
+  "compliance": {
+   "checks": [],
+   "review_state": "unverified",
+   "status": "not-applicable"
+  },
+  "fire_entry": null,
+  "geometry": {
+   "frame_depth_mm": 100,
+   "frame_material": "DimGray",
+   "head_height_mm": 2290,
+   "height_mm": 2340,
+   "sill_height_mm": -50,
+   "width_mm": 940
+  },
+  "ifc": {
+   "entity": "IfcShadingDevice",
+   "note": "IFC4.3: IfcWindow.PartitioningType / UserDefinedPartitioningType, 창짝 OperationType은 IfcWindowPanelProperties",
+   "operation_type": null,
+   "partitioning_type": null,
+   "predefined_type": "LOUVER"
+  },
+  "kind": "louver",
+  "louver": null,
+  "note_ko": "L1 루버 틀",
+  "orientation": "S",
+  "role": "louver-frame",
+  "schema": "sion-bim-opening/1",
+  "source": "data/sources/sketchup/0914-meeting/openings.json",
+  "type_code": "L1",
+  "wall_host": {
+   "face": "S",
+   "opening_definition": "그룹#95",
+   "wall_definition": "그룹#88",
+   "wall_thickness_mm": 250
+  }
+ },
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Group": 24
+  },
+  "face_area_m2": 0.0,
+  "height_mm": 100.0,
+  "length_mm": 2340.0,
+  "thickness_mm": 100.0,
+  "width_mm": 940.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹169#1",
+   "그룹170#1",
+   "그룹171#1",
+   "그룹172#1",
+   "그룹173#1",
+   "그룹174#1",
+   "그룹175#1",
+   "그룹176#1",
+   "그룹177#1",
+   "그룹178#1",
+   "그룹179#1",
+   "그룹180#1",
+   "그룹181#1",
+   "그룹182#1",
+   "그룹183#1",
+   "그룹184#1",
+   "그룹185#1",
+   "그룹186#1",
+   "그룹187#1",
+   "그룹188#1",
+   "그룹189#1",
+   "그룹190#1",
+   "그룹191#1",
+   "그룹192#1"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/louver.json",
+  "generator": "scripts/sketchup/generators/louver.rb",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "rotated-frames",
+    "tools": [
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "glue-and-cut",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-envelope-assemblies",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_group",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "doors-windows",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "array",
+  "method_ko": "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹167#1",
+  "guid": "su-guid:79dc1463-7dce-42c6-a141-3d6631238e72",
+  "instance_pids": [
+   4163488
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "LOUVER"
+ }
+}

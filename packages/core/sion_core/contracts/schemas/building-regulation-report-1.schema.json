@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/khs0927/Ontology-platform/contracts/building-regulation-report-1.schema.json",
+  "title": "building-regulation-gateway compliance report (evidence-only)",
+  "description": "Producer: building-regulation-gateway @ 21e146574c2ba173ed436c685b376f5cefa813b0, v0.2. Reports remain advisory evidence (canonical:false). Scoped reviewed rule evaluations may issue permitted/conditionally_permitted/not_permitted; unconfigured or incomplete rules fail closed. Format validation is not proof of legal applicability or snapshot authenticity.",
+  "type": "object",
+  "required": [
+    "request_id",
+    "input_hash",
+    "retrieved_at",
+    "as_of",
+    "required_branches",
+    "results",
+    "verification",
+    "decision"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "input_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "retrieved_at": {
+      "type": "string"
+    },
+    "as_of": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "required_branches": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "ok",
+              "missing",
+              "error"
+            ]
+          },
+          "data": {
+            "type": "object"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "evidence_id",
+                "branch",
+                "origin_id",
+                "source_url",
+                "publisher",
+                "document_id",
+                "retrieved_at",
+                "snapshot_hash",
+                "claim",
+                "excerpt"
+              ],
+              "properties": {
+                "evidence_id": {
+                  "type": "string"
+                },
+                "branch": {
+                  "enum": [
+                    "site",
+                    "spatial",
+                    "building",
+                    "law",
+                    "interpretation",
+                    "technical",
+                    "document"
+                  ]
+                },
+                "origin_id": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                },
+                "publisher": {
+                  "type": "string"
+                },
+                "document_id": {
+                  "type": "string"
+                },
+                "retrieved_at": {
+                  "type": "string"
+                },
+                "effective_from": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "effective_to": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "snapshot_hash": {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                "claim": {
+                  "type": "string"
+                },
+                "excerpt": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "verified",
+        "missing",
+        "conflicts"
+      ],
+      "properties": {
+        "verified": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "status",
+        "reason_codes"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "insufficient_evidence",
+            "conflicting_evidence",
+            "outside_scope",
+            "permitted",
+            "conditionally_permitted",
+            "not_permitted"
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "permitted",
+                  "conditionally_permitted",
+                  "not_permitted"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reviewed_by",
+              "checks",
+              "scope"
+            ],
+            "properties": {
+              "reviewed_by": {
+                "type": "string",
+                "minLength": 1
+              },
+              "checks": {
+                "type": "array",
+                "minItems": 1
+              },
+              "scope": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

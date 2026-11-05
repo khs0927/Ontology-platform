@@ -212,6 +212,8 @@ def _add_batch_commands(subparsers):
     p.add_argument("--prefix", default="aec-db-")
     p.add_argument("--docker-container", default=None, help="Run pg_dump inside this container (e.g. aec-db)")
     p.add_argument("--pg-dump", default=None, help="Explicit pg_dump executable")
+    p.add_argument("--mirror", default=None,
+                   help="Also copy kept dumps here (e.g. Google Drive); pending, not failed, when absent")
 
     p = subparsers.add_parser("restore", help="pg_restore a dump into AEC_DATABASE_URL (destructive)")
     p.add_argument("dump")
@@ -338,7 +340,8 @@ def _cmd_backup(parsed, settings, db):
     from .backup import run_backup
 
     _emit(run_backup(settings.dsn, parsed.target, keep=parsed.keep, prefix=parsed.prefix,
-                     docker_container=parsed.docker_container, pg_dump=parsed.pg_dump))
+                     docker_container=parsed.docker_container, pg_dump=parsed.pg_dump,
+                     mirror=parsed.mirror))
 
 
 def _cmd_restore(parsed, settings, db):

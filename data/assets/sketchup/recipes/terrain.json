@@ -1,0 +1,215 @@
+{
+ "block": false,
+ "class": "terrain",
+ "definition_count": 14,
+ "examples": [
+  "su-def:0914-meeting:129a94f2-1916-4bbd-a165-fc0eca5112fb",
+  "su-def:0914-meeting:1cb2e7a2-9515-436c-90be-57b33d63b1a0",
+  "su-def:0914-meeting:282c9c88-3b07-4a0d-a3ed-91f9b53ebc7b",
+  "su-def:0914-meeting:44e4ea8e-fea5-4cd8-8ebc-8f8b9793b456",
+  "su-def:0914-meeting:55cc65da-f3fd-4eb9-bfc1-db96176fe808",
+  "su-def:0914-meeting:58604dcf-67b1-4fe9-a031-fd7d213b759c",
+  "su-def:0914-meeting:58e2c4df-5eb5-49fe-b7a7-b15a525388b2",
+  "su-def:0914-meeting:63adb9c0-c6d6-4515-aaaf-f2c9b202b52c",
+  "su-def:0914-meeting:6a18c607-2c66-4e84-bab7-132bec9f38a1",
+  "su-def:0914-meeting:7c9c0edf-8d56-4458-aced-bbac9ec2f2a2"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "grouping-overview",
+   "tools": [
+    "hueflow.list_entities",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "top-split-by-part",
+   "tools": [
+    "hueflow.list_entities",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "level-stacking",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "working-markup",
+   "tools": [
+    "hueflow.list_layers",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-site-parts",
+   "tools": [
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "hueflow.create_group",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-site-assemblies",
+   "tools": [
+    "hueflow.create_group",
+    "hueflow.move_entity",
+    "hueflow.rotate_entity",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-markup",
+   "tools": [
+    "hueflow.create_group",
+    "hueflow.execute_ruby",
+    "hueflow.list_layers"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "overview",
+   "tools": [
+    "hueflow.get_model_info",
+    "sketchup-mcp2.get_model_info"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "workflow",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "levels",
+   "tools": [
+    "sketchup-mcp2.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "terrain",
+   "tools": [
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "materials",
+   "tools": [
+    "hueflow.list_materials",
+    "sketchup-mcp2.set_material",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "qa",
+   "tools": [
+    "sketchup-mcp2.get_model_info",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.get_component_info",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.export_scene"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "mcp-execution",
+   "tools": [
+    "sketchup-mcp2.get_model_info",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.find_components",
+    "sketchup-mcp2.get_component_info",
+    "sketchup-mcp2.create_component",
+    "sketchup-mcp2.transform_component",
+    "sketchup-mcp2.set_material",
+    "sketchup-mcp2.create_layer",
+    "sketchup-mcp2.export_scene",
+    "sketchup-mcp2.eval_ruby",
+    "sketchup-mcp2.undo",
+    "hueflow.execute_ruby",
+    "hueflow.create_box",
+    "hueflow.create_group",
+    "hueflow.place_component",
+    "hueflow.list_materials"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "등고선/점에서 면을 만들고(샌드박스·create_face) 단차별 그룹으로 묶음",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcGeographicElement",
+  "predefined_type": "TERRAIN"
+ },
+ "label_ko": "지형·조경 경사면",
+ "material_categories": {
+  "auto-generated (purge 후보)": 6,
+  "concrete": 3,
+  "metal": 1,
+  "paint-or-colour": 3,
+  "stone": 2,
+  "vegetation": 8
+ },
+ "proposed_zium_tag": "@3D-대지",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 14400.0,
+   "median": 7600.0,
+   "min": 3000.0,
+   "n": 14
+  },
+  "length_mm": {
+   "max": 57552.2,
+   "median": 46679.1,
+   "min": 10600.0,
+   "n": 14
+  },
+  "thickness_mm": {
+   "max": 14400.0,
+   "median": 7600.0,
+   "min": 918.0,
+   "n": 14
+  },
+  "width_mm": {
+   "max": 54918.0,
+   "median": 17251.6,
+   "min": 918.0,
+   "n": 14
+  }
+ }
+}

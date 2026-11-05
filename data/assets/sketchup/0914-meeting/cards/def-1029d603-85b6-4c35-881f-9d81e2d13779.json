@@ -1,0 +1,276 @@
+{
+ "asset_file": {
+  "bytes": 355376,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "4c465060975bd72b76a5459c473493f3376a777f1e3dd6b14762e211b9aad58a",
+  "skp": "objects/building/그룹_161__4577805.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/building/그룹_161__4577805.png",
+  "thumbnail_sha256": "39d6ba01c603a988a92c492762d667c7f7facecc66e0564f3c1202345eb4876c"
+ },
+ "asset_id": "su-def:0914-meeting:1029d603-85b6-4c35-881f-9d81e2d13779",
+ "basis_ko": "9.0×9.0×3.6 m 박스(월드 z 9150), 흰 벽 그룹#88 + DimGray 창틀·Blue Glass 그룹#76 — 별동 상부 매스로 추정",
+ "block": false,
+ "card_kind": "definition",
+ "class": "building",
+ "confidence": 0.6,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuilding",
+  "entity": "IfcBuilding",
+  "predefined_type": null
+ },
+ "level": {
+  "base_z_mm": 9150.0,
+  "elevation_mm": 10200.0,
+  "matched": false,
+  "name": "2 FL +10200"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "Group": 1
+  },
+  "face_area_m2": 0.0,
+  "height_mm": 3630.0,
+  "length_mm": 9000.0,
+  "thickness_mm": 3630.0,
+  "width_mm": 9000.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "그룹#101"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/building.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "grouping-overview",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "rotated-frames",
+    "tools": [
+     "hueflow.rotate_entity",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-inspect",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info",
+     "hueflow.list_entities",
+     "hueflow.list_layers",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-building-container",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.create_box",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-envelope-assemblies",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_group",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-verify-cleanup",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.list_components",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "overview",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "units-origin",
+    "tools": [
+     "hueflow.get_model_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.get_model_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "building-mass",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "scenes",
+    "tools": [
+     "sketchup-mcp2.export_scene",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "mcp-execution",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.set_material",
+     "sketchup-mcp2.create_layer",
+     "sketchup-mcp2.export_scene",
+     "sketchup-mcp2.eval_ruby",
+     "sketchup-mcp2.undo",
+     "hueflow.execute_ruby",
+     "hueflow.create_box",
+     "hueflow.create_group",
+     "hueflow.place_component",
+     "hueflow.list_materials"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "assembly",
+  "method_ko": "층·부위 하위 그룹을 중첩해 조립한 건물 컨테이너",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#161",
+  "guid": "su-guid:1029d603-85b6-4c35-881f-9d81e2d13779",
+  "instance_pids": [
+   4577805
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "A-본동"
+ }
+}

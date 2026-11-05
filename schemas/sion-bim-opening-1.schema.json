@@ -1,0 +1,287 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/khs0927/Ontology-platform/schemas/sion-bim-opening-1.schema.json",
+ "title": "sion-bim-opening/1",
+ "description": "창(window)·소방관 진입창(fire-entry-window)·루버(louver) 자산의 개구부 파라미터. 모든 값은 SketchUp 형상에서 추정한 값이며 법규 판정은 참고용(unverified)이다.",
+ "type": "object",
+ "required": [
+  "schema",
+  "kind",
+  "geometry",
+  "ifc",
+  "orientation",
+  "wall_host",
+  "compliance"
+ ],
+ "properties": {
+  "schema": {
+   "const": "sion-bim-opening/1"
+  },
+  "kind": {
+   "enum": [
+    "window",
+    "fire-entry-window",
+    "louver"
+   ]
+  },
+  "geometry": {
+   "type": "object",
+   "required": [
+    "width_mm",
+    "height_mm"
+   ],
+   "properties": {
+    "width_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "height_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "sill_height_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "head_height_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "frame_depth_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "frame_width_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "frame_material": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "glass_type": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "glass_thickness_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "glazing_layers": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "operation_type": {
+     "enum": [
+      "fixed",
+      "casement",
+      "sliding",
+      "tilt",
+      "tilt-turn",
+      "awning",
+      "unknown",
+      null
+     ]
+    },
+    "mullions": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "transoms": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "panel_layout": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "louver": {
+   "type": [
+    "object",
+    "null"
+   ],
+   "properties": {
+    "blade_width_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "blade_thickness_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "pitch_mm": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "angle_deg": {
+     "type": [
+      "number",
+      "null"
+     ]
+    },
+    "direction": {
+     "enum": [
+      "horizontal",
+      "vertical",
+      null
+     ]
+    },
+    "blade_count": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "material": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "ifc": {
+   "type": "object",
+   "required": [
+    "entity",
+    "predefined_type"
+   ],
+   "properties": {
+    "entity": {
+     "enum": [
+      "IfcWindow",
+      "IfcShadingDevice",
+      "IfcOpeningElement",
+      "IfcElementAssembly"
+     ]
+    },
+    "predefined_type": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "partitioning_type": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "operation_type": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "note": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "orientation": {
+   "enum": [
+    "N",
+    "E",
+    "S",
+    "W",
+    null
+   ]
+  },
+  "wall_host": {
+   "type": [
+    "object",
+    "null"
+   ]
+  },
+  "fire_entry": {
+   "type": [
+    "object",
+    "null"
+   ],
+   "properties": {
+    "is_fire_entry_window": {
+     "type": "boolean"
+    },
+    "evidence": {
+     "type": "array"
+    },
+    "code_refs": {
+     "type": "array"
+    }
+   }
+  },
+  "compliance": {
+   "type": "object",
+   "required": [
+    "status",
+    "checks",
+    "review_state"
+   ],
+   "properties": {
+    "status": {
+     "enum": [
+      "not-applicable",
+      "pass-estimated",
+      "fail-estimated",
+      "needs-check"
+     ]
+    },
+    "checks": {
+     "type": "array"
+    },
+    "review_state": {
+     "const": "unverified"
+    }
+   }
+  },
+  "role": {
+   "enum": [
+    "window-type",
+    "window-frame",
+    "window-sash",
+    "wall-opening",
+    "opening-set",
+    "louver-assembly",
+    "louver-frame",
+    "louver-blade"
+   ]
+  }
+ }
+}

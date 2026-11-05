@@ -1,0 +1,63 @@
+{
+ "block": false,
+ "class": "window",
+ "definition_count": 12,
+ "examples": [
+  "su-def:0914-meeting:0e1742be-dc07-4fe2-b33e-231773669c83",
+  "su-def:0914-meeting:20c08503-eb70-4191-ae14-ebd16db3aed9",
+  "su-def:0914-meeting:8e9c39e5-77bc-4fd3-9c52-ccd567692db7",
+  "su-def:0914-meeting:8ef229d9-054b-4043-b101-e09f98574380",
+  "su-def:0914-meeting:918ac96f-b00a-4886-b2e8-7984a622e0ed",
+  "su-def:0914-meeting:a64b898a-bd18-43b6-9600-539345457efc",
+  "su-def:0914-meeting:d322afe0-3fbd-475d-a6ab-6ec1acef78ac",
+  "su-def:0914-meeting:e1c0c14d-97e3-4d84-a8a4-0d9da670df14",
+  "su-def:0914-meeting:e514b6de-1162-463a-a057-3d69d97f9f5d",
+  "su-def:0914-meeting:eb8bf665-d5ce-4dd7-bba4-e0662e1eb855"
+ ],
+ "guides": [],
+ "how_to_make_ko": [
+  "벽 개구부(보이드)에 틀 4변+멀리언/트랜섬 박스를 만들고 유리 판을 별도 그룹으로 넣음(generators/window.rb)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcWindow",
+  "predefined_type": "WINDOW"
+ },
+ "label_ko": "창",
+ "material_categories": {
+  "glass": 5,
+  "paint-or-colour": 13
+ },
+ "proposed_zium_tag": "WIN",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 2600.0,
+   "median": 1390.0,
+   "min": 450.0,
+   "n": 12
+  },
+  "length_mm": {
+   "max": 9000.0,
+   "median": 3370.0,
+   "min": 900.0,
+   "n": 12
+  },
+  "thickness_mm": {
+   "max": 2600.0,
+   "median": 225.0,
+   "min": 120.0,
+   "n": 12
+  },
+  "width_mm": {
+   "max": 9000.0,
+   "median": 225.0,
+   "min": 120.0,
+   "n": 12
+  }
+ }
+}

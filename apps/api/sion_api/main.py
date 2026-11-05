@@ -22,8 +22,21 @@ from sion_ingestion.project_contracts import (
 )
 from sqlalchemy.orm import Session
 
-from . import __version__, models, outbox, regulation, repository, review, schemas, vector_repository
-from .auth import AuthPolicy, require_scope
+from . import (
+    __version__,
+    law_knowledge,
+    models,
+    ops,
+    outbox,
+    project_summary,
+    regulation,
+    regulation_workspace,
+    repository,
+    review,
+    schemas,
+    vector_repository,
+)
+from .auth import AuthPolicy, install_openapi_security, project_scoped, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .drive_export import DriveExporter, install_export_on_write
@@ -38,28 +51,24 @@ def create_app(
     graphrag: SionGraphRag | None = None,
     project_contract_catalog: ProjectContractCatalog | None = None,
     ingest_roots: list[Path] | None = None,
+    regulation_transport=None,
+    review_require_version: bool | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
+    if review_require_version is not None:
+        settings = replace(settings, review_require_version=review_require_version)
     if database_url is not None:
-        settings = Settings(
+        settings = replace(
+            settings,
             database_url=database_url,
             auto_create_schema=(
                 auto_create_schema
                 if auto_create_schema is not None
                 else database_url.startswith("sqlite")
             ),
-            ontology_path=settings.ontology_path,
-            map_inventory_path=settings.map_inventory_path,
-            cors_origins=settings.cors_origins,
         )
     elif auto_create_schema is not None:
-        settings = Settings(
-            database_url=settings.database_url,
-            auto_create_schema=auto_create_schema,
-            ontology_path=settings.ontology_path,
-            map_inventory_path=settings.map_inventory_path,
-            cors_origins=settings.cors_origins,
-        )
+        settings = replace(settings, auto_create_schema=auto_create_schema)
 
     engine = build_engine(settings.database_url)
     factory = build_session_factory(engine)
@@ -93,6 +102,9 @@ def create_app(
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")
     read_aec = require_scope(auth_policy, "read:aec")
+    regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
+    law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
+    project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
 
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()
@@ -115,6 +127,9 @@ def create_app(
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["*"],
     )
+    # Outermost: one JSON access-log line per request; headers/query strings are never logged.
+    app.add_middleware(ops.AccessLogMiddleware)
+    ops.register(app, engine, __version__)
 
     @app.get("/health")
     def health():
@@ -249,21 +264,69 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return review.serialize(session, row, evidence_limit=100)
 
+    def _review_error(exc: Exception) -> HTTPException:
+        """Map review-queue errors to HTTP; structured bodies for the safe-write (#71) errors."""
+        if isinstance(exc, LookupError):
+            return HTTPException(status_code=404, detail=str(exc))
+        if isinstance(exc, review.VersionConflict):
+            return HTTPException(status_code=409, detail=exc.as_detail())
+        if isinstance(exc, review.VersionRequired):
+            return HTTPException(status_code=428, detail=exc.as_detail())
+        if isinstance(exc, review.LowTrustConfirmationRequired):
+            return HTTPException(status_code=422, detail=exc.as_detail())
+        return HTTPException(status_code=409, detail=str(exc))
+
+    review_errors = (
+        LookupError,
+        review.NotACandidate,
+        review.AlreadyReviewed,
+        review.NotReviewed,
+        review.VersionConflict,
+        review.VersionRequired,
+        review.LowTrustConfirmationRequired,
+    )
+
     def _decide(relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool):
         try:
-            row = review.decide(session, relation_id, approve=approve, reviewer=payload.reviewer, note=payload.note)
-        except LookupError as exc:
-            raise HTTPException(status_code=404, detail=str(exc)) from exc
-        except (review.NotACandidate, review.AlreadyReviewed) as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
-        return review.serialize(session, row)
+            return review.decide(
+                session,
+                relation_id,
+                approve=approve,
+                reviewer=payload.reviewer,
+                note=payload.note,
+                expected_version=payload.expected_version,
+                confirm_low_trust=payload.confirm_low_trust,
+                dry_run=payload.dry_run,
+                require_version=settings.review_require_version,
+            )
+        except review_errors as exc:
+            raise _review_error(exc) from exc
 
     @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_knowledge)])
     def bulk_decide_candidate_relations(payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)):
         """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item."""
-        return review.decide_bulk(
-            session, payload.ids, approve=payload.decision == "approve", note=payload.note, reviewer=payload.reviewer
-        )
+        try:
+            return review.decide_bulk(
+                session,
+                payload.ids,
+                approve=payload.decision == "approve",
+                note=payload.note,
+                reviewer=payload.reviewer,
+                expected_versions=payload.expected_versions,
+                confirm_low_trust=payload.confirm_low_trust,
+                dry_run=payload.dry_run,
+                require_version=settings.review_require_version,
+            )
+        except review_errors as exc:
+            raise _review_error(exc) from exc
+
+    @app.get("/api/v1/relations/candidates/{relation_id}/audit", dependencies=[Depends(read_knowledge)])
+    def candidate_relation_audit(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+        """Replayable decision log of one candidate (and whether replaying it reproduces the stored state)."""
+        try:
+            return review.audit(session, relation_id)
+        except review_errors as exc:
+            raise _review_error(exc) from exc
 
     @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_knowledge)])
     def approve_candidate_relation(
@@ -271,6 +334,7 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
+        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted."""
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
@@ -279,6 +343,7 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
+        """Record a review rejection; the candidate and its evidence are kept (rejected), never deleted."""
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_knowledge)])
@@ -289,12 +354,43 @@ def create_app(
     ):
         """Return an approved/rejected candidate to pending (note required; the reverted decision stays on record)."""
         try:
-            row = review.reopen(session, relation_id, note=payload.note, reviewer=payload.reviewer)
-        except LookupError as exc:
-            raise HTTPException(status_code=404, detail=str(exc)) from exc
-        except (review.NotACandidate, review.NotReviewed, review.AlreadyReviewed) as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
-        return review.serialize(session, row)
+            return review.reopen(
+                session,
+                relation_id,
+                note=payload.note,
+                reviewer=payload.reviewer,
+                expected_version=payload.expected_version,
+                dry_run=payload.dry_run,
+                require_version=settings.review_require_version,
+            )
+        except review_errors as exc:
+            raise _review_error(exc) from exc
+
+    @app.get("/api/v1/review/report", dependencies=[Depends(read_knowledge)])
+    def review_verification_report(
+        include_rejected: bool = Query(
+            default=False, description="Audit/debug only: report the policy that also keeps /review-rejected relations"
+        ),
+        batch_id: str | None = Query(default=None, max_length=64, description="Only this bulk decision"),
+        limit: int = Query(default=100, ge=1, le=1000, description="Page size for relations and batches"),
+        offset: int = Query(default=0, ge=0),
+        session: Session = Depends(get_session),
+    ):
+        """Which reviewed relations the review-state policy keeps, with weight, reviewer, note and batch outcomes.
+
+        Read-only and paginated (``relations`` and ``batches`` are paged independently by
+        ``limit``/``offset``). ``projected_under_policy`` describes the policy, not the live
+        GraphRAG index, which does not apply the review-state filter yet. An approval is a review
+        judgement, not a factual verification of the source.
+        """
+        from sion_graphrag.review_report import (
+            AUDIT_REPORT_REVIEW_STATES,
+            DEFAULT_REPORT_REVIEW_STATES,
+            build_review_report,
+        )
+
+        states = AUDIT_REPORT_REVIEW_STATES if include_rejected else DEFAULT_REPORT_REVIEW_STATES
+        return build_review_report(session, review_states=states, limit=limit, offset=offset, batch_id=batch_id)
 
     @app.post(
         "/api/v1/evidence",
@@ -517,6 +613,33 @@ def create_app(
             raise HTTPException(status_code=500, detail=drive_exporter.last_error or "export failed")
         return result
 
+    asset_index_cache: dict[str, object] = {}
+
+    @app.get("/api/v1/graphrag/assets", dependencies=[Depends(read_knowledge)])
+    def graphrag_assets(
+        q: str = Query(..., min_length=1, max_length=500),
+        k: int = Query(10, ge=1, le=50),
+        expand: int = Query(2, ge=0, le=2),
+        asset_class: str | None = Query(None, alias="class"),
+        model: str | None = None,
+        include_inside_block: bool = False,
+    ):
+        """Graph RAG over SketchUp BIM asset cards (read-only derived index, see docs/GRAPHRAG.md)."""
+        from sion_ingestion.asset_index import AssetIndex, default_index_path
+
+        path = default_index_path()
+        if not path.exists():
+            raise HTTPException(status_code=503, detail="asset index not built (python -m sion_ingestion.asset_index build)")
+        stamp = f"{path}:{path.stat().st_mtime_ns}"
+        index = asset_index_cache.get(stamp)
+        if index is None:
+            for old in asset_index_cache.values():
+                old.close()
+            asset_index_cache.clear()
+            index = asset_index_cache[stamp] = AssetIndex(path)
+        result = index.search(q, k, expand=expand, cls=asset_class, model=model, include_inside_block=include_inside_block)
+        return {"canonical": False, "index": path.name, **result}
+
     @app.get("/api/v1/graphrag/status", dependencies=[Depends(read_knowledge)])
     def graphrag_status():
         if graphrag is None:
@@ -533,13 +656,17 @@ def create_app(
         }
 
     @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
-    async def graphrag_project():
+    async def graphrag_project(
+        include_rejected: bool = Query(
+            default=False, description="Audit/debug only: also project /review-rejected relations"
+        ),
+    ):
         engine = require_graphrag()
         try:
-            written = await engine.project(factory)
+            written = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"canonical": False, "written": written}
+        return {"canonical": False, "written": written, "include_rejected": include_rejected}
 
     @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
     async def graphrag_query(payload: schemas.GraphRagQuery):
@@ -769,6 +896,7 @@ def create_app(
             "violations": report.violations[: shacl.MAX_VIOLATIONS],
         }
 
+    install_openapi_security(app, auth_policy)
     return app
 
 

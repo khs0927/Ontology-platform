@@ -1,0 +1,957 @@
+{
+ "store_kind": "G-drive",
+ "store": "G:/<Google Drive>/SketchUp-Assets/ontology-objects/0914-meeting",
+ "count": 190,
+ "files": [
+  {
+   "file": "objects/beam/그룹_225__4577837.png",
+   "sha256": "8c1beb11f611d8bb0091b2218110e7d4d46080a077b6e1d2f1ef7b71f6c93f1a",
+   "bytes": 7485
+  },
+  {
+   "file": "objects/beam/그룹_225__4577837.skp",
+   "sha256": "508ca69216fdfaaa2344b91a201637548e81926ba9175ae09e1e509a9100f310",
+   "bytes": 14542
+  },
+  {
+   "file": "objects/beam/그룹_89__1171922.png",
+   "sha256": "62102b23435e0e4cc8d09c8e5d4f799a83dcc4538938ad2fd75fe002b9d88ceb",
+   "bytes": 6015
+  },
+  {
+   "file": "objects/beam/그룹_89__1171922.skp",
+   "sha256": "f0654da345ac08b9067b6803eaed73c225ae7119ba93ac3aaf5ba3987f250e6f",
+   "bytes": 11878
+  },
+  {
+   "file": "objects/building/그룹_105__1458557.png",
+   "sha256": "c161955c127f9323679ef750b6b87b01ac75c789b7231746ff9571548072d7d6",
+   "bytes": 22556
+  },
+  {
+   "file": "objects/building/그룹_105__1458557.skp",
+   "sha256": "224b4927ab64cab3412cb1ae24660677f4c1fdf214b0cc9f125f80958de671cf",
+   "bytes": 5417520
+  },
+  {
+   "file": "objects/building/그룹_161__4577805.png",
+   "sha256": "39d6ba01c603a988a92c492762d667c7f7facecc66e0564f3c1202345eb4876c",
+   "bytes": 22282
+  },
+  {
+   "file": "objects/building/그룹_161__4577805.skp",
+   "sha256": "4c465060975bd72b76a5459c473493f3376a777f1e3dd6b14762e211b9aad58a",
+   "bytes": 355376
+  },
+  {
+   "file": "objects/building/그룹_201__511546.png",
+   "sha256": "8313f3a7b8b8e06cea02af0c5acc88de427cca813c8c8599382dcbb00dd0761a",
+   "bytes": 30805
+  },
+  {
+   "file": "objects/building/그룹_201__511546.skp",
+   "sha256": "5a2b8c4a138d95d0d3344fbd3219b1b1e28448683074aa7b19e98e27bb010414",
+   "bytes": 24907626
+  },
+  {
+   "file": "objects/building/그룹_217__4577809.png",
+   "sha256": "bb91d58ff8dd44d8d291f74eb097f93d6b02dc444634abdd1af0dbaf5f419963",
+   "bytes": 24540
+  },
+  {
+   "file": "objects/building/그룹_217__4577809.skp",
+   "sha256": "617c8a9db525f7ac26c4901470122b834d1867f9340b4ee6f1dc355328ab8e97",
+   "bytes": 320512
+  },
+  {
+   "file": "objects/column/col__2004749.png",
+   "sha256": "99e4468aad98602dc1caab90ca747cdf9aae679bef82fa501f1f0e906ee84993",
+   "bytes": 3842
+  },
+  {
+   "file": "objects/column/col__2004749.skp",
+   "sha256": "ca812c6d7fcae22840c3b11af30220eebaa85f49fcb93c85b423b4ee83c18f9f",
+   "bytes": 13086
+  },
+  {
+   "file": "objects/counter-millwork/그룹_226__4360630.png",
+   "sha256": "52e1459ffeed540b0093a332d49349d9e9d9e464aa8ece195423dcffe500d716",
+   "bytes": 15763
+  },
+  {
+   "file": "objects/counter-millwork/그룹_226__4360630.skp",
+   "sha256": "c0ba5e8e50866c7bcc7ff033b66316ef3d808c78753ef0fe0085f3da896fe903",
+   "bytes": 555611
+  },
+  {
+   "file": "objects/curtain-wall/그룹_129__4577801.png",
+   "sha256": "e749761a7eda4e1d772331855fcd990e05fbe76cb89f39a120787f1c035fb00a",
+   "bytes": 11613
+  },
+  {
+   "file": "objects/curtain-wall/그룹_129__4577801.skp",
+   "sha256": "5b1475b512df7208ad599160445752dd6e32b93f6881fa4197234528c8c357cc",
+   "bytes": 29804
+  },
+  {
+   "file": "objects/curtain-wall/그룹_134__4204587.png",
+   "sha256": "7d2aff9c1f2dbc090c13c4228432fd5808696549a96988d4c8534874f7aa8d1a",
+   "bytes": 6712
+  },
+  {
+   "file": "objects/curtain-wall/그룹_134__4204587.skp",
+   "sha256": "875d3bbe201ab780c72ce51dcf85ebfc78380c5c23f5f04c663bfd36c607c1e7",
+   "bytes": 14077
+  },
+  {
+   "file": "objects/curtain-wall/그룹_54__4915226.png",
+   "sha256": "10b1712d38838066c88a637924adebb9fd62529e9b465e9f53321b83315d5cc0",
+   "bytes": 5607
+  },
+  {
+   "file": "objects/curtain-wall/그룹_54__4915226.skp",
+   "sha256": "a4781d82ba4890dfdb69b97a77df02de7460254febf87515dbf226857d4d08ff",
+   "bytes": 185735
+  },
+  {
+   "file": "objects/curtain-wall/그룹_85__4577814.png",
+   "sha256": "31cbbd2844edad7a9f41fb24d6c89fe93ad3a0354b3130fe59d9d84b7339b241",
+   "bytes": 2087
+  },
+  {
+   "file": "objects/curtain-wall/그룹_85__4577814.skp",
+   "sha256": "1c52417c2a7a1cb09789f274189331862531f1ac8cf04cf4af0631efe6f72756",
+   "bytes": 7533
+  },
+  {
+   "file": "objects/curtain-wall/새_블럭.dwg__1181414.png",
+   "sha256": "10b1712d38838066c88a637924adebb9fd62529e9b465e9f53321b83315d5cc0",
+   "bytes": 5607
+  },
+  {
+   "file": "objects/curtain-wall/새_블럭.dwg__1181414.skp",
+   "sha256": "5fc1e5c77bc15dfd97e074459c101decd3b459c696a2197cc205096dd84f67dc",
+   "bytes": 186484
+  },
+  {
+   "file": "objects/exterior-stair/그룹_18__47944.png",
+   "sha256": "f3c64679b2d4fc4a99e9343d69e6cd8e5a1ee2a6da5bcd55deb1d6e0c6d04d3e",
+   "bytes": 23771
+  },
+  {
+   "file": "objects/exterior-stair/그룹_18__47944.skp",
+   "sha256": "5d861ca78aace9d7705e189483ec6c7918e94a82d05967e08a59c92879bcec77",
+   "bytes": 1405465
+  },
+  {
+   "file": "objects/exterior-stair/그룹_19__5135415.png",
+   "sha256": "07200353fa5fa7ade87b54a9f1023f83386b5f0eb601fc89b3100bb94006e09f",
+   "bytes": 10404
+  },
+  {
+   "file": "objects/exterior-stair/그룹_19__5135415.skp",
+   "sha256": "a81db61dcb6842f06d0ed6e4dff569550d67cd0cdbb31f96cc5cd91688bec486",
+   "bytes": 18341
+  },
+  {
+   "file": "objects/exterior-stair/그룹_23__5135551.png",
+   "sha256": "087525e95a06eec0375d8ba3551fee8b84c47e7b36b4e563da4f5ebfc82224c0",
+   "bytes": 11753
+  },
+  {
+   "file": "objects/exterior-stair/그룹_23__5135551.skp",
+   "sha256": "abab5302b70b3c68f8834852e093d94093dc788a174cc1d0ed3fe6b71323ad1d",
+   "bytes": 22082
+  },
+  {
+   "file": "objects/floor-slab/그룹_103__4577799.png",
+   "sha256": "413b8232ae3d482bcde58a9527acaf927d8eb015a108f99c5f694b4402f9a9cd",
+   "bytes": 28243
+  },
+  {
+   "file": "objects/floor-slab/그룹_103__4577799.skp",
+   "sha256": "2bbf878f80fc3316026593a9c696aab2e8c4b0246fbafc1823910a5854f29771",
+   "bytes": 398732
+  },
+  {
+   "file": "objects/floor-slab/그룹_202__4577802.png",
+   "sha256": "ca6e8e065f1a696a42cd07fd5bb312abda95eb01c66054f1319e16e5b4634135",
+   "bytes": 23404
+  },
+  {
+   "file": "objects/floor-slab/그룹_202__4577802.skp",
+   "sha256": "3f80cf7bac4d24dc3da3785adb346bea5bfe023493a26bf089aaec5636cadcb5",
+   "bytes": 5369126
+  },
+  {
+   "file": "objects/floor-slab/그룹_203__4361372.png",
+   "sha256": "5204d62600d0cda4567d49e1b813b76b6fe39b4f17df9b462a7bc60e41420a63",
+   "bytes": 20445
+  },
+  {
+   "file": "objects/floor-slab/그룹_203__4361372.skp",
+   "sha256": "fd4972ec9c15465d34d164a60dbf2de74a1d1bec6f212affc484bfb614c7b443",
+   "bytes": 184245
+  },
+  {
+   "file": "objects/floor-slab/그룹_205__4361373.png",
+   "sha256": "e1d6cae64c890e8d541fe2bc3fa83c3439d3115ca3df1e4ded525127a4bd4f6d",
+   "bytes": 20917
+  },
+  {
+   "file": "objects/floor-slab/그룹_205__4361373.skp",
+   "sha256": "0c678572a965f72d85a0075a5092c82775350fdee787a5af2a90565dd138adab",
+   "bytes": 5348285
+  },
+  {
+   "file": "objects/floor-slab/그룹_222__4361375.png",
+   "sha256": "3c5a853a7ed7b2305844ce743fb0120d3fbc10e426453ad1f8e8f3bc1bc3e2b7",
+   "bytes": 3483
+  },
+  {
+   "file": "objects/floor-slab/그룹_222__4361375.skp",
+   "sha256": "bc2b4be7894e03eee10b9238773c402fbef664bbac2d14d75cd03060a0798b2c",
+   "bytes": 8787
+  },
+  {
+   "file": "objects/furniture/c3__4360599.png",
+   "sha256": "34d6debd65b5d2014f6b3d5346a72fec86cd682de0f3947ab88def1ca78836f4",
+   "bytes": 56191
+  },
+  {
+   "file": "objects/furniture/c3__4360599.skp",
+   "sha256": "637bf6f1267a3bdd8e203816b78ede83737b28999fcbb9c698ee1f14cc0a088f",
+   "bytes": 549949
+  },
+  {
+   "file": "objects/furniture/ch5__4360622.png",
+   "sha256": "2b05a665843a4adf72e10ac129231e561d06e7ba7a969a7304e9b7a54540389a",
+   "bytes": 38308
+  },
+  {
+   "file": "objects/furniture/ch5__4360622.skp",
+   "sha256": "7f3c26c912ac14a04ea18f7297642a3ea2d213d8e6271f20884c7fc00cd26f6d",
+   "bytes": 929890
+  },
+  {
+   "file": "objects/furniture/ch6__4360625.png",
+   "sha256": "295bd1a5778d88ed8aec2683a87abceb32b2f1611b2995ea69104102ee7a747b",
+   "bytes": 38480
+  },
+  {
+   "file": "objects/furniture/ch6__4360625.skp",
+   "sha256": "cd6aa1cb370a231807f2e1dc23e5919e65df28798546994a015972ecfdbdac37",
+   "bytes": 1419893
+  },
+  {
+   "file": "objects/furniture/그룹_160__4905257.png",
+   "sha256": "c161955c127f9323679ef750b6b87b01ac75c789b7231746ff9571548072d7d6",
+   "bytes": 22556
+  },
+  {
+   "file": "objects/furniture/그룹_160__4905257.skp",
+   "sha256": "ee4c0a2701eaff6f9d0d7e796efbc4b95330e77f1fe03557c26e50eb315d9322",
+   "bytes": 5417264
+  },
+  {
+   "file": "objects/furniture/그룹_232__4360631.png",
+   "sha256": "6f92d2f2eedada7aa6d66e69cf1208088fc31686c108e6620b0befe45cf9d0e5",
+   "bytes": 13064
+  },
+  {
+   "file": "objects/furniture/그룹_232__4360631.skp",
+   "sha256": "951485933664e403331a8fb5ca8a7d9f0e5135c442f0f890a180212ed15b862d",
+   "bytes": 943896
+  },
+  {
+   "file": "objects/glass-railing/그룹_115__4577803.png",
+   "sha256": "beb14ecb0d20ca1212352c7f25d188d4503664dab271029826cd43492caf6d40",
+   "bytes": 3911
+  },
+  {
+   "file": "objects/glass-railing/그룹_115__4577803.skp",
+   "sha256": "905b14cdbc1bf23555686b6e430b156d1d5f62265dc46bac6e310d82cb5ae2f5",
+   "bytes": 10456
+  },
+  {
+   "file": "objects/glass-railing/그룹_124__4577806.png",
+   "sha256": "74371b06a606467ccb4762917d94a943145e5d320688a860e33c06ac1336cbf9",
+   "bytes": 4814
+  },
+  {
+   "file": "objects/glass-railing/그룹_124__4577806.skp",
+   "sha256": "7c5e2d9e2b9221bc758fe47a2f412f240ec45f2d76d500b8e22239749df729c4",
+   "bytes": 10578
+  },
+  {
+   "file": "objects/handrail/그룹356_1__4086193.png",
+   "sha256": "fa4ea3ae850bf29f6da1a9c30222cf7f84dbce6b0843a6aba437537c3b1e0137",
+   "bytes": 19317
+  },
+  {
+   "file": "objects/handrail/그룹356_1__4086193.skp",
+   "sha256": "7cd0d400ce213c2dc7f4cee054577af4d7fcf2f98ee0a24fbe320aea520edcb5",
+   "bytes": 29785
+  },
+  {
+   "file": "objects/handrail/그룹357_1__4086194.png",
+   "sha256": "b6e7e1951a30e63e40e534f21e0f6a7e8079a9404c93f94f2850ec3526ffcaf1",
+   "bytes": 18128
+  },
+  {
+   "file": "objects/handrail/그룹357_1__4086194.skp",
+   "sha256": "9bf8bdf9956109aab6e28b1a3ac975612df96214a314bf040cd9f6b6f354c59d",
+   "bytes": 29282
+  },
+  {
+   "file": "objects/handrail/그룹358_1__4086195.png",
+   "sha256": "7d4c3211308866f7b7ab0f8c2be379578aca9c9d9a484c07105122b53d709834",
+   "bytes": 9245
+  },
+  {
+   "file": "objects/handrail/그룹358_1__4086195.skp",
+   "sha256": "da2dfa9aa493f2f5fd0922f0e9fdd5aa8ec68c51dc64a038e471b564187f56e2",
+   "bytes": 19752
+  },
+  {
+   "file": "objects/handrail/그룹359_1__4086196.png",
+   "sha256": "593ce93f89df6522308fc05a3fc2c9844f0bf0602b948895f9707639324cf3ad",
+   "bytes": 24831
+  },
+  {
+   "file": "objects/handrail/그룹359_1__4086196.skp",
+   "sha256": "df1dfa073c052c5233b2ad12d8cf0e3d32fb91ee04c0c6359d18865422b17c8c",
+   "bytes": 37850
+  },
+  {
+   "file": "objects/handrail/그룹360_1__4086197.png",
+   "sha256": "84115938edf4dafedc6a0b67b008bfd2d253fbf3da471e5c868b2afdbd6357b1",
+   "bytes": 13760
+  },
+  {
+   "file": "objects/handrail/그룹360_1__4086197.skp",
+   "sha256": "594385a3804b1eb6eec4edeb7acddc430aba105d42e8e0f194937b299f36c484",
+   "bytes": 27992
+  },
+  {
+   "file": "objects/handrail/그룹361_1__4086198.png",
+   "sha256": "c56dea03cb95d7cb6b5a406fda165b0271be46e913de4af3b74d2567312643c6",
+   "bytes": 18949
+  },
+  {
+   "file": "objects/handrail/그룹361_1__4086198.skp",
+   "sha256": "04fad18e110e9e4c87da498ce178cd91c3cb5932aa5f716a4a8388f239012014",
+   "bytes": 32201
+  },
+  {
+   "file": "objects/handrail/그룹36_1__5135416.png",
+   "sha256": "c860284ef6ea4d798ef6b9b1c1952cf118fcee85751461729c39e24ec7e4fc57",
+   "bytes": 5064
+  },
+  {
+   "file": "objects/handrail/그룹36_1__5135416.skp",
+   "sha256": "2cafef917264f295ac4f5bb2fcc2838b8bb2398c5f0810e6fe3e1898abfe1e34",
+   "bytes": 31737
+  },
+  {
+   "file": "objects/handrail/그룹53_1__5135552.png",
+   "sha256": "77ebb05bf56911eb1d8fb738d318bca0005437b2807295b709b616d90f88e50c",
+   "bytes": 4948
+  },
+  {
+   "file": "objects/handrail/그룹53_1__5135552.skp",
+   "sha256": "ce4972d2bac271b6af2126aa5dd67ba7f54c4c213f5f9577d48fd09f5dea6e1c",
+   "bytes": 32351
+  },
+  {
+   "file": "objects/handrail/그룹_258__4577838.png",
+   "sha256": "61095e4b7e72dcfaf7ff649fa9f90b7e71aec30a0a6c64bf48f0e80f45a1f846",
+   "bytes": 21889
+  },
+  {
+   "file": "objects/handrail/그룹_258__4577838.skp",
+   "sha256": "97b886e4b273971ce11495bdb567ec2ae41b0a935626a2644a55504b4592b680",
+   "bytes": 88327
+  },
+  {
+   "file": "objects/handrail/그룹_259__4086199.png",
+   "sha256": "9ee69da35e55290a2abab6d8c1f1e280043200fb626c4d25604b800a1df2e1c9",
+   "bytes": 4133
+  },
+  {
+   "file": "objects/handrail/그룹_259__4086199.skp",
+   "sha256": "cc98c37d6952daaa266b4c6574c080f94590f52f8723d6b83fe22762bfdc2bf4",
+   "bytes": 27503
+  },
+  {
+   "file": "objects/handrail/그룹_25__5135288.png",
+   "sha256": "46fcbab3a69b1cf922b8c6d096492d10e119b16646c0a2032e1c23de85074f06",
+   "bytes": 3628
+  },
+  {
+   "file": "objects/handrail/그룹_25__5135288.skp",
+   "sha256": "29bbc3432234e65a20ee59fb14daa0fa21bee3c654d84926f008c1781c205970",
+   "bytes": 19857
+  },
+  {
+   "file": "objects/handrail/그룹_26__5135289.png",
+   "sha256": "46fcbab3a69b1cf922b8c6d096492d10e119b16646c0a2032e1c23de85074f06",
+   "bytes": 3628
+  },
+  {
+   "file": "objects/handrail/그룹_26__5135289.skp",
+   "sha256": "343deabdbdc70eb85bc3accae0638b8eb2341531b66f00588574d79f5f85e625",
+   "bytes": 19790
+  },
+  {
+   "file": "objects/handrail/그룹_27__5134006.png",
+   "sha256": "baba43e0d0bea7de3d19cdec5b07c0c27a88cd7ba13766caefbcedf59ad77582",
+   "bytes": 4300
+  },
+  {
+   "file": "objects/handrail/그룹_27__5134006.skp",
+   "sha256": "a85d92dcc8846c1fd82120ebe237ed9f15065eddcb0d3c5ac22bc9629202ac4b",
+   "bytes": 20166
+  },
+  {
+   "file": "objects/handrail/그룹_28__5134007.png",
+   "sha256": "baba43e0d0bea7de3d19cdec5b07c0c27a88cd7ba13766caefbcedf59ad77582",
+   "bytes": 4300
+  },
+  {
+   "file": "objects/handrail/그룹_28__5134007.skp",
+   "sha256": "12a124b9c77ed23425535f6fed9aed2bb670361288e9ddbfb18288c8346de8e6",
+   "bytes": 20161
+  },
+  {
+   "file": "objects/handrail/그룹_64__4168074.png",
+   "sha256": "de3625f68a4a864bba62680914965d945a6894ce9d26fb761924875acc8ed375",
+   "bytes": 13115
+  },
+  {
+   "file": "objects/handrail/그룹_64__4168074.skp",
+   "sha256": "2682d1937ab21f05ec513af164f07528e214ac9769130ea6cfacfaf5629e3df7",
+   "bytes": 93161
+  },
+  {
+   "file": "objects/handrail/그룹_67__4577813.png",
+   "sha256": "5eb0e84b54f4d67af5fc2f5cb4f8c5a455be2372e8632223d6c2e67f3edf9d90",
+   "bytes": 8733
+  },
+  {
+   "file": "objects/handrail/그룹_67__4577813.skp",
+   "sha256": "ee7570a3549aa960bc8d904cf4f0f01f5c92bc27b8c827c5fed8817968f0d0c6",
+   "bytes": 88933
+  },
+  {
+   "file": "objects/marker/그룹_12__1249504.png",
+   "sha256": "3b522b476e97fbac902a029cd7c44ceda2b892c7d3742cb8ff8e9014cdbf8b9d",
+   "bytes": 5522
+  },
+  {
+   "file": "objects/marker/그룹_12__1249504.skp",
+   "sha256": "8e4a827012d75184d055c95ab80120fd4b268cb42db3cd6d0c1fe1e558ebdd23",
+   "bytes": 11342
+  },
+  {
+   "file": "objects/parking-deck/그룹_3__4066614.png",
+   "sha256": "07f5a3ce1e6ab0fa3f537335e4b2adfb49df261589c35e63ff46c0c1f6095174",
+   "bytes": 11167
+  },
+  {
+   "file": "objects/parking-deck/그룹_3__4066614.skp",
+   "sha256": "d17feed86399f82b7161dbf3c62cdc1340452ef2628e853a402751d382f6f243",
+   "bytes": 39305
+  },
+  {
+   "file": "objects/parking-deck/그룹_4__4066615.png",
+   "sha256": "ea7aedfa7064a34b68fdebf0033343621443c66b5ee74ebc06b2b4f39b0a9818",
+   "bytes": 7778
+  },
+  {
+   "file": "objects/parking-deck/그룹_4__4066615.skp",
+   "sha256": "b2878e07bfdc47020d049207c13e17f508c2101e5ac404fdbdeb57a080680f4c",
+   "bytes": 36101
+  },
+  {
+   "file": "objects/paving/그룹_30__4073111.png",
+   "sha256": "c9d00c7a89c31385cd6a4aab4105e7ef010a126040759497419d5dd822e8470b",
+   "bytes": 16457
+  },
+  {
+   "file": "objects/paving/그룹_30__4073111.skp",
+   "sha256": "8d51a7f5d8927c7fa0e9b11084a6f4e084621d18e29d9863be264f9adfe3f648",
+   "bytes": 41729
+  },
+  {
+   "file": "objects/paving/그룹_40__125433.png",
+   "sha256": "2b1982e2ed5969beff4a5912fada05896bda0d2179ff08fae205ca8133dd575b",
+   "bytes": 21948
+  },
+  {
+   "file": "objects/paving/그룹_40__125433.skp",
+   "sha256": "6f956bdea8807e0e0b55c2db6281f7e5dcd28fca900e2c7cc3350af0f86a3d5c",
+   "bytes": 1610328
+  },
+  {
+   "file": "objects/paving/그룹_5__4073100.png",
+   "sha256": "8381fc2b31f474660fb9e13cab63b0349a7ca1b45e15fca8be2b356e2c88512f",
+   "bytes": 13533
+  },
+  {
+   "file": "objects/paving/그룹_5__4073100.skp",
+   "sha256": "a1f7b5448d0b75af8ef409df59fc87464877c142646c8528278315b44fd25a81",
+   "bytes": 42609
+  },
+  {
+   "file": "objects/paving/그룹_9__4072538.png",
+   "sha256": "20ee4c61529e07423a090271b49a0d75ab3265819c059a4e5ad7402f1e9d629a",
+   "bytes": 14306
+  },
+  {
+   "file": "objects/paving/그룹_9__4072538.skp",
+   "sha256": "5a3008e658d1f6d1ac0349d826b37af841768251827b442af4b4d9ba7ced2e4e",
+   "bytes": 47181
+  },
+  {
+   "file": "objects/person/Component18__4577820.png",
+   "sha256": "f37c6a04ff15cd2fd06204c87140a767ed27712a04f555a32e337126e9e611f9",
+   "bytes": 19103
+  },
+  {
+   "file": "objects/person/Component18__4577820.skp",
+   "sha256": "e60db092c64ef0f1cdc95beabfde89e00ccd7740556b0cce115fd13d82a4d2a9",
+   "bytes": 560147
+  },
+  {
+   "file": "objects/person/그룹_110__4577817.png",
+   "sha256": "a9d26beea10eb785428d1802cb5c8018af72c1c5c5bc0fe754aa627dd1623070",
+   "bytes": 36606
+  },
+  {
+   "file": "objects/person/그룹_110__4577817.skp",
+   "sha256": "0d664def3352970c6e7066418c17a2ef52ed3f1ec96fada3dbb346a8c92d690c",
+   "bytes": 4226014
+  },
+  {
+   "file": "objects/person/그룹_116__4577819.png",
+   "sha256": "bf464edb2590022610f74b211d831fc92dcccec870568ac77eb238b493234f84",
+   "bytes": 39530
+  },
+  {
+   "file": "objects/person/그룹_116__4577819.skp",
+   "sha256": "a389cd85d65558479a8dac018742624e53e980363a04c68a5a4658e94d5b2194",
+   "bytes": 3261746
+  },
+  {
+   "file": "objects/person/그룹_130__4577818.png",
+   "sha256": "4025925190a01015dcd71c8b2248e4eaa62cdc1f11382ef6135fd5fab5d2f5f6",
+   "bytes": 23219
+  },
+  {
+   "file": "objects/person/그룹_130__4577818.skp",
+   "sha256": "d49d38c8e51ca23e2d39319f1429288520a87cfb8cb8e6d5f286e83c5f4c3048",
+   "bytes": 3862951
+  },
+  {
+   "file": "objects/person/그룹_139__4577816.png",
+   "sha256": "a506e61ec2a4006dcfaa7177485f101c16716c229d1c2bc1ca959bc8e3bf544e",
+   "bytes": 23294
+  },
+  {
+   "file": "objects/person/그룹_139__4577816.skp",
+   "sha256": "1a5efce8e4a9d3801b46e7473bb09edcb6334d50d7e4bd875a2ddf2983bb05e5",
+   "bytes": 4120170
+  },
+  {
+   "file": "objects/planter/그룹_62__4577839.png",
+   "sha256": "41c0e8d295e70c9032b58d99a530b5acd1a61025dd5a1ffc27c92e6c6b6500a3",
+   "bytes": 42773
+  },
+  {
+   "file": "objects/planter/그룹_62__4577839.skp",
+   "sha256": "24bcb6d8f175b3b7ffef8b1209ca8036a67c02e1d681d8920d6cd757f8471629",
+   "bytes": 1835266
+  },
+  {
+   "file": "objects/planter/그룹_72__4577840.png",
+   "sha256": "a10f033c01f0f4502520673153d838a69068c332686e8b4530cb9f503ac9a5e6",
+   "bytes": 34495
+  },
+  {
+   "file": "objects/planter/그룹_72__4577840.skp",
+   "sha256": "72d98ebf19488838145df539984d95687ba8a714a7ca9c05c45e1219803c5b5b",
+   "bytes": 1827000
+  },
+  {
+   "file": "objects/planter/그룹_73__4577841.png",
+   "sha256": "805e53f71d63ae065233b618631ca02c107ee6473e1951625eb0b550140300b9",
+   "bytes": 39158
+  },
+  {
+   "file": "objects/planter/그룹_73__4577841.skp",
+   "sha256": "ea8394274aa758cbff757f1f7803e5ef170d3adb366735b8ba1dc6c0292f273c",
+   "bytes": 1831660
+  },
+  {
+   "file": "objects/retaining-wall/그룹_14__4073106.png",
+   "sha256": "67b73b0930340acf69166f1ef7792f000e67567e6fdfc004ac3f216f2f2ffa3d",
+   "bytes": 25268
+  },
+  {
+   "file": "objects/retaining-wall/그룹_14__4073106.skp",
+   "sha256": "2e07030a5a85016d4b72a60692bb938718e0533470de2b134b9e8fca8ebcfca8",
+   "bytes": 319602
+  },
+  {
+   "file": "objects/retaining-wall/그룹_34__90359.png",
+   "sha256": "2ab83ab6caf0d219731975c8c11e5925132662d2db8ca493ff5c2d23da133add",
+   "bytes": 7706
+  },
+  {
+   "file": "objects/retaining-wall/그룹_34__90359.skp",
+   "sha256": "fa326c1cffb04bbd66773bea1c3270f9279838d720089f848c80e3e852cc1faa",
+   "bytes": 68705
+  },
+  {
+   "file": "objects/retaining-wall/그룹_35__4073133.png",
+   "sha256": "8f3834621bfb8583f1886cf9a751283ff528b38e57751c5ef4948ebaf0286c57",
+   "bytes": 5734
+  },
+  {
+   "file": "objects/retaining-wall/그룹_35__4073133.skp",
+   "sha256": "1f1d3351ba65ee34dfa35711124e39e0327020a5ab227b68fe35257321261d68",
+   "bytes": 12120
+  },
+  {
+   "file": "objects/retaining-wall/그룹_6__4073101.png",
+   "sha256": "30cf5d89aff57ee4eef4f5f126f0d6a26c4a6b7568739df963da6bbca08f87b3",
+   "bytes": 28873
+  },
+  {
+   "file": "objects/retaining-wall/그룹_6__4073101.skp",
+   "sha256": "6c2f984901486006514f42d0b2dae20a3ba299ea298c160816f64e224e384320",
+   "bytes": 1374626
+  },
+  {
+   "file": "objects/road-plan-surface/그룹_7__4073102.png",
+   "sha256": "1ee8596143ca676063fb46d86e1d45dea43557aea6fffaaf53daf87541464e9f",
+   "bytes": 3489
+  },
+  {
+   "file": "objects/road-plan-surface/그룹_7__4073102.skp",
+   "sha256": "d4b569bb8b683760c2c29f4ffc6151deba025cdae128b064794016d736f25a29",
+   "bytes": 10179
+  },
+  {
+   "file": "objects/roof/그룹_207__4361374.png",
+   "sha256": "08221c474f733b40f22d6c82ffbcbe9de9c71dae1f533d3eddc5d18a4de4975b",
+   "bytes": 10611
+  },
+  {
+   "file": "objects/roof/그룹_207__4361374.skp",
+   "sha256": "66e84ecda189ddb184b8faf888828133f42cf26a0d712255ca5302b3843056f3",
+   "bytes": 988154
+  },
+  {
+   "file": "objects/site-container/학장동_skp.dwg__30598.png",
+   "sha256": "0c32e00f67928e7d6e3cc10e8b03345f144ffb41493bf0e5f1a4f73278b0eb90",
+   "bytes": 26270
+  },
+  {
+   "file": "objects/site-container/학장동_skp.dwg__30598.skp",
+   "sha256": "1352856ae28a00db3a26e2a59f86ec7cdb30b28fe5c87bd7584d7fd36a702e10",
+   "bytes": 2298116
+  },
+  {
+   "file": "objects/terrain/그룹_102__1245859.png",
+   "sha256": "79fff08eb6da92ec108bb80e7dea5294269dda15cce42883bea48093e985c5fe",
+   "bytes": 7028
+  },
+  {
+   "file": "objects/terrain/그룹_102__1245859.skp",
+   "sha256": "9e4df73d0acd7f4a45a9e79aca6c4e0f6c14c0cc24fd0dda7055a79d5dae00ec",
+   "bytes": 27218
+  },
+  {
+   "file": "objects/terrain/그룹_32__4072540.png",
+   "sha256": "a80c533cfc9796f847a3884f654c833838ed871394a80db8c1f017ca9d21eb68",
+   "bytes": 28593
+  },
+  {
+   "file": "objects/terrain/그룹_32__4072540.skp",
+   "sha256": "5387ed38d0044b80e43798c252bdce4044268b8ffa539c396d65bb6682e59680",
+   "bytes": 63626
+  },
+  {
+   "file": "objects/terrain/그룹_33__4066617.png",
+   "sha256": "47befd43664787814cf5f80418acfa64861561d4b54965da78f1260431358131",
+   "bytes": 6305
+  },
+  {
+   "file": "objects/terrain/그룹_33__4066617.skp",
+   "sha256": "57dabcdb30f90285b32574dd0eb87a5be89d4a66e988a22ca8021b23a8ff6cfc",
+   "bytes": 21217
+  },
+  {
+   "file": "objects/terrain/그룹_38__125087.png",
+   "sha256": "999c125762343dd8ca1ebbc22d859ea38a00cf5e9b171b7246e17cb4ee8a025e",
+   "bytes": 4195
+  },
+  {
+   "file": "objects/terrain/그룹_38__125087.skp",
+   "sha256": "115f37e8b23670368af81b6d5160410890742cbe66199c2dacec1d4235fc52a9",
+   "bytes": 11691
+  },
+  {
+   "file": "objects/terrain/그룹_39__1245541.png",
+   "sha256": "4c6a8ce36470e3f70a49380a95923270f25c2d8d609ae09552f9d0b263fb7614",
+   "bytes": 44477
+  },
+  {
+   "file": "objects/terrain/그룹_39__1245541.skp",
+   "sha256": "488a9f94b2c44bacfefe7765bb5253cd97d1a22292e02311b4774e034a48f1e3",
+   "bytes": 161559
+  },
+  {
+   "file": "objects/terrain/그룹_41__5131684.png",
+   "sha256": "2f3970701476e12879f56019beb163aefbef49136a9fea2fdf05d246ce09a0ab",
+   "bytes": 31644
+  },
+  {
+   "file": "objects/terrain/그룹_41__5131684.skp",
+   "sha256": "7a0f71456e8956f64708ee81ff4c0dcee03cb402323331b39b2f8f7c2c67c9f4",
+   "bytes": 51796
+  },
+  {
+   "file": "objects/terrain/그룹_42__4580639.png",
+   "sha256": "b2654115f20d31830ef8718f2a78c6cf908f5c97cf975079e401baf304a79462",
+   "bytes": 5361
+  },
+  {
+   "file": "objects/terrain/그룹_42__4580639.skp",
+   "sha256": "9cd3505e6ee0bba7670bbeb5094f4b6d424ea7a6bb48af70564d945a946ff543",
+   "bytes": 11749
+  },
+  {
+   "file": "objects/terrain/그룹_44__4580640.png",
+   "sha256": "37d6170b2bd2f3447b9e25d6446eaeae575ab2fa83ec62c3d281e88ae7abe13b",
+   "bytes": 2963
+  },
+  {
+   "file": "objects/terrain/그룹_44__4580640.skp",
+   "sha256": "943f0336ce08c66a8d5c7136cae89f4a07fbcd74808c4f6aeb734ac897fce087",
+   "bytes": 9120
+  },
+  {
+   "file": "objects/tree/그룹_65__800070.png",
+   "sha256": "07fefd0f4f5db5bfe040d9dd927099a2ed1a91438fd5101dd2082928e5d5de23",
+   "bytes": 11361
+  },
+  {
+   "file": "objects/tree/그룹_65__800070.skp",
+   "sha256": "1afcd9e8caac5c1f00824d6e34e7bc7b7d940a18b13928a1002f5c114b98e1ac",
+   "bytes": 4645803
+  },
+  {
+   "file": "objects/unclassified/그룹_100__4088192.png",
+   "sha256": "322e2f3e4beebc51a62b1be8fd0a15a21402e132a1512c9a7af622427509d04f",
+   "bytes": 16618
+  },
+  {
+   "file": "objects/unclassified/그룹_100__4088192.skp",
+   "sha256": "7ea51f3b09970e019f4648d8813466fb8aabdebe9eaf8d518bbe4760f1eaab8a",
+   "bytes": 50851
+  },
+  {
+   "file": "objects/unclassified/그룹_101__4164146.png",
+   "sha256": "39d6ba01c603a988a92c492762d667c7f7facecc66e0564f3c1202345eb4876c",
+   "bytes": 22282
+  },
+  {
+   "file": "objects/unclassified/그룹_101__4164146.skp",
+   "sha256": "d71b9fd6fe73542802b165cab496156cf651bb1d93ae1a5e0390a3fd63479aee",
+   "bytes": 355238
+  },
+  {
+   "file": "objects/unclassified/그룹_10__4072539.png",
+   "sha256": "97f801a48e408c7e5578d1ed354cf78aa713e2799652e5b0f4daccd78ad22a7d",
+   "bytes": 25070
+  },
+  {
+   "file": "objects/unclassified/그룹_10__4072539.skp",
+   "sha256": "748317438664beb1f41477778eb3158f9328d7a79b18b27e16a6b389f9feb893",
+   "bytes": 382161
+  },
+  {
+   "file": "objects/unclassified/그룹_125__4577808.png",
+   "sha256": "2c97ba7cbb642f5b198b7895c94d8656e7bfcb1b0f13ac450f5f28f6345e8497",
+   "bytes": 22283
+  },
+  {
+   "file": "objects/unclassified/그룹_125__4577808.skp",
+   "sha256": "e9aeecbeaea0bf7b4adde445e96916f2fa47ad15ddef0428294670ef30b42a65",
+   "bytes": 319281
+  },
+  {
+   "file": "objects/unclassified/그룹_159__4204624.png",
+   "sha256": "6ab7c8ddc5781c6025f57f4ab8f22adef5bd587716fdcb6945f00124219a5108",
+   "bytes": 11880
+  },
+  {
+   "file": "objects/unclassified/그룹_159__4204624.skp",
+   "sha256": "bdb9855178c493abdd8d58c17ebe03385ac7768267cdc9e13aea930b86fa1af4",
+   "bytes": 27433
+  },
+  {
+   "file": "objects/unclassified/그룹_17__4066616.png",
+   "sha256": "872889c077bd12ff172c00c621142e2f62bb4fdb935bdf0504bb04ab6f919fff",
+   "bytes": 29407
+  },
+  {
+   "file": "objects/unclassified/그룹_17__4066616.skp",
+   "sha256": "1f07c239af15b0b36c05d8dbe10ad9043e17736ee379db574cb5ee222e11f7f9",
+   "bytes": 783098
+  },
+  {
+   "file": "objects/unclassified/그룹_1__4073099.png",
+   "sha256": "619364f677c56c78e61c408a8a75a310a663726e09a37a09b57fb5a68ee6c892",
+   "bytes": 29913
+  },
+  {
+   "file": "objects/unclassified/그룹_1__4073099.skp",
+   "sha256": "c6ac7ec055a848b7dc3fa1cadf2c240d87d438321c4403f2f2576c619d1d6884",
+   "bytes": 842401
+  },
+  {
+   "file": "objects/unclassified/그룹_234__4168702.png",
+   "sha256": "bb91d58ff8dd44d8d291f74eb097f93d6b02dc444634abdd1af0dbaf5f419963",
+   "bytes": 24540
+  },
+  {
+   "file": "objects/unclassified/그룹_234__4168702.skp",
+   "sha256": "5351a7b59b236f4970710e4c0ca9181e4f59d97f4ff8f219a647b7c5a5acca4b",
+   "bytes": 320256
+  },
+  {
+   "file": "objects/unclassified/그룹_2__4073103.png",
+   "sha256": "600fad5f0db06cbc454e9405e5503e3ca7346c72bfb95d7ff203b605e31be601",
+   "bytes": 26477
+  },
+  {
+   "file": "objects/unclassified/그룹_2__4073103.skp",
+   "sha256": "74c932833b65ba705cdfcb023cf4643c9e0c3caa01f7bc66306c6b8d52542f46",
+   "bytes": 428088
+  },
+  {
+   "file": "objects/unclassified/그룹_43__4580519.png",
+   "sha256": "f551f6cad94928372093f1209994e5d6adb53fe18c0f528c16266a13d22f8fb5",
+   "bytes": 10285
+  },
+  {
+   "file": "objects/unclassified/그룹_43__4580519.skp",
+   "sha256": "a567b76cb502c9d307155f29e3cced2057c8d6f807145613634945304ad0368d",
+   "bytes": 294376
+  },
+  {
+   "file": "objects/unclassified/그룹_71__4577804.png",
+   "sha256": "322e2f3e4beebc51a62b1be8fd0a15a21402e132a1512c9a7af622427509d04f",
+   "bytes": 16618
+  },
+  {
+   "file": "objects/unclassified/그룹_71__4577804.skp",
+   "sha256": "3670e362ea85550c849da8f5f664229f2622c1cbbde3ad1e632743d4a59bb198",
+   "bytes": 50961
+  },
+  {
+   "file": "objects/unclassified/그룹_90__4577807.png",
+   "sha256": "c6b7bc7fb0a92a5c9e89fbeb76f064dd71629cb5141cf055361bdcbf7fb48e24",
+   "bytes": 13631
+  },
+  {
+   "file": "objects/unclassified/그룹_90__4577807.skp",
+   "sha256": "80f1cb837ac84f429829d6252d00c0228ba3d7be2eac7682bc4744e196b313be",
+   "bytes": 21163
+  },
+  {
+   "file": "objects/wall/그룹_109__4577815.png",
+   "sha256": "5ab27d4f45911012be3484ea9643e5fb5a0aa60c02d7c51a3040a8ab53800064",
+   "bytes": 11876
+  },
+  {
+   "file": "objects/wall/그룹_109__4577815.skp",
+   "sha256": "5e3e3293cd21b4fb4249bdfa0a938547a19c9b22e25a325f3fc0d466375a254b",
+   "bytes": 1328357
+  },
+  {
+   "file": "objects/wall/그룹_166__5135582.png",
+   "sha256": "66cea34d39320b1ab73842949cb7640f24f7a6e2b855c28e526fcd0aea2fb11d",
+   "bytes": 4930
+  },
+  {
+   "file": "objects/wall/그룹_166__5135582.skp",
+   "sha256": "c165990f7491c4fae43d860bd46f795491e93069b4646d56be3e01df8a1ec949",
+   "bytes": 10705
+  },
+  {
+   "file": "objects/wall/그룹_21__5135417.png",
+   "sha256": "66cea34d39320b1ab73842949cb7640f24f7a6e2b855c28e526fcd0aea2fb11d",
+   "bytes": 4930
+  },
+  {
+   "file": "objects/wall/그룹_21__5135417.skp",
+   "sha256": "572da54bd9ab4c9c80160488e549fe4660a982cbb7023530a29bb7811e4a07c7",
+   "bytes": 10680
+  },
+  {
+   "file": "objects/wall/그룹_227__4082704.png",
+   "sha256": "9aeda7a3d932c9d8ccdcf8779a62861f17a543f22b7186442bf7c9784957c3bb",
+   "bytes": 4040
+  },
+  {
+   "file": "objects/wall/그룹_227__4082704.skp",
+   "sha256": "b54f099a6a4c7dc08806bf447ca97a3e3d9a1a1b0c11e3ca2a997a938c24e9a1",
+   "bytes": 1318920
+  },
+  {
+   "file": "objects/wall/그룹_24__5135580.png",
+   "sha256": "a36f821481247ddbea0f13b05e078d554638154a2722f4d9808975dba2b8547b",
+   "bytes": 5122
+  },
+  {
+   "file": "objects/wall/그룹_24__5135580.skp",
+   "sha256": "c0a25839131ea0a51cb2443283aea028de0060a7957d917ae5ce595cd23ac6f7",
+   "bytes": 10910
+  },
+  {
+   "file": "objects/wall/그룹_37__5135581.png",
+   "sha256": "a36f821481247ddbea0f13b05e078d554638154a2722f4d9808975dba2b8547b",
+   "bytes": 5122
+  },
+  {
+   "file": "objects/wall/그룹_37__5135581.skp",
+   "sha256": "9a00fc6530f20616312e68c0ddf51780ea29654baa494bda18eb7e1ae5ada7cb",
+   "bytes": 10911
+  },
+  {
+   "file": "objects/wall/그룹_99__4580507.png",
+   "sha256": "f551f6cad94928372093f1209994e5d6adb53fe18c0f528c16266a13d22f8fb5",
+   "bytes": 10285
+  },
+  {
+   "file": "objects/wall/그룹_99__4580507.skp",
+   "sha256": "869d09e959b8a0bc137788f1bfc536df3da8536fe760476c9d785577f01ccc74",
+   "bytes": 293683
+  },
+  {
+   "file": "objects/window-louver/그룹_66__4237658.png",
+   "sha256": "8344729dbd041bbca18e1ace8131e2d0941c767ed014c081f93a334f6ea3f774",
+   "bytes": 7985
+  },
+  {
+   "file": "objects/window-louver/그룹_66__4237658.skp",
+   "sha256": "17d9dc6b4aa9eff983dad783bc312deea04e77bca040d63b45a4596d215b8c37",
+   "bytes": 24988
+  }
+ ]
+}

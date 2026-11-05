@@ -183,6 +183,29 @@ def test_import_attach_evidence_and_project_to_graphrag(export):
     assert any(r["src_id"] == f"{NS}:def:col" and r["tgt_id"] == "sketchup:class:column" for r in kg["relationships"])
 
 
+def test_double_import_from_different_checkouts_keeps_evidence_count(export):
+    """Re-importing (even from another worktree path) must not duplicate evidence rows."""
+    from sion_api import models
+    from sqlalchemy import func, select
+
+    engine = build_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    factory = build_session_factory(engine)
+    with factory() as session:
+        seed_core_types(session)
+        import_map_export(session, export)
+        first = attach_sketchup_evidence(session, export, base_uri="file:///D:/code/Ontology-platform")
+        count = session.scalar(select(func.count()).select_from(models.Evidence))
+        assert first > 0 and count == first
+        again = import_map_export(session, export)
+        assert again.created_nodes == 0 and again.created_edges == 0
+        assert attach_sketchup_evidence(session, export, base_uri="file:///C:/CODE/wt-other") == 0
+        assert attach_sketchup_evidence(session, export, base_uri="file:///C:/CODE/wt-other") == 0
+        assert session.scalar(select(func.count()).select_from(models.Evidence)) == count
+        uris = session.scalars(select(models.Evidence.source_uri)).all()
+        assert all(u.startswith("file:///C:/CODE/wt-other/") for u in uris)
+
+
 def test_full_nesting_tree_with_grouping_facts(export, dump):
     nodes = _nodes(export)
     deep = [n for n in export.nodes if n.properties.get("node_kind") == "su_instance" and n.properties["depth"] >= 2]
@@ -272,4 +295,3 @@ def test_cli_build_check_matches_committed_pack():
         text=True,
     )
     assert completed.returncode == 0, completed.stderr or completed.stdout
-

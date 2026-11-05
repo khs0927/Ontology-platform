@@ -1,0 +1,82 @@
+{
+ "block": true,
+ "class": "parking-stall",
+ "definition_count": 2,
+ "examples": [
+  "su-def:0914-meeting:274fe633-a2c8-4582-90dc-ebeeb443a137",
+  "su-def:0914-meeting:cab63116-175f-479c-8cd5-c9ed6f274ea2"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "cad-import",
+   "tools": [
+    "hueflow.list_components",
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "parking",
+   "tools": [
+    "hueflow.create_face",
+    "hueflow.push_pull",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "annotation",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "2D 기호 블럭을 바닥에 배치",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "블럭 객체는 내부를 분해하지 않고 한 컴포넌트로 저장·재사용"
+ ],
+ "ifc": {
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "label_ko": "주차구획",
+ "material_categories": {
+  "auto-generated (purge 후보)": 2,
+  "stone": 1
+ },
+ "proposed_zium_tag": "@3D-대지",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 0.0,
+   "median": 0.0,
+   "min": 0.0,
+   "n": 2
+  },
+  "length_mm": {
+   "max": 41627.3,
+   "median": 23313.7,
+   "min": 5000.0,
+   "n": 2
+  },
+  "thickness_mm": {
+   "max": 0.0,
+   "median": 0.0,
+   "min": 0.0,
+   "n": 2
+  },
+  "width_mm": {
+   "max": 16800.0,
+   "median": 10075.0,
+   "min": 3350.0,
+   "n": 2
+  }
+ }
+}

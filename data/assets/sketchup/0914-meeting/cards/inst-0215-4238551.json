@@ -1,0 +1,212 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4238551@215",
+ "basis_ko": "이름 없는 하위 그룹으로, 1단계 위 '그룹#204'의 분류 'floor-slab'를 상속(부품으로 추정). 근거: 월드 크기 25.40×1.80×0.16 m, 최소 Z 10,160 mm, 깊이 4, 면 26개, 재질 없음.",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "floor-slab",
+ "confidence": 0.55,
+ "definition_ref": "su-def:0914-meeting:8908a8e8-a389-4893-b2e7-2d3399a6dbdd",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSlab",
+  "entity": "IfcSlab",
+  "predefined_type": "FLOOR"
+ },
+ "level": {
+  "base_z_mm": 10160.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 26,
+  "height_mm": 160.0,
+  "length_mm": 25400.0,
+  "thickness_mm": 160.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   1003.93701,
+   -2.3622,
+   1.0
+  ],
+  "width_mm": 1800.0,
+  "world_bbox_mm": {
+   "max": [
+    84656.3,
+    46407.4,
+    10320.0
+   ],
+   "min": [
+    59256.3,
+    44607.4,
+    10160.0
+   ],
+   "size": [
+    25400.0,
+    1800.0,
+    160.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "classification.supplement.json",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/floor-slab.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "nest-by-assembly",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "glue-and-cut",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-building-container",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.create_box",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "slab",
+    "tools": [
+     "hueflow.create_box",
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "mcp-execution",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.set_material",
+     "sketchup-mcp2.create_layer",
+     "sketchup-mcp2.export_scene",
+     "sketchup-mcp2.eval_ruby",
+     "sketchup-mcp2.undo",
+     "hueflow.execute_ruby",
+     "hueflow.create_box",
+     "hueflow.create_group",
+     "hueflow.place_component",
+     "hueflow.list_materials"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "depth-4",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#263",
+  "depth": 4,
+  "hierarchy_locator": "$.nodes[215]",
+  "name": null,
+  "occurrence": 215,
+  "parent_pid": 4360588,
+  "path": "그룹#201 > 그룹#202 > 그룹#205 > 그룹#204 > 그룹#263",
+  "pid": 4238551,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "A-본동"
+ }
+}

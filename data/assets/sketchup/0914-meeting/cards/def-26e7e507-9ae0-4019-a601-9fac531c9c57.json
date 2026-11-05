@@ -1,0 +1,133 @@
+{
+ "asset_file": {
+  "bytes": 555611,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "c0ba5e8e50866c7bcc7ff033b66316ef3d808c78753ef0fe0085f3da896fe903",
+  "skp": "objects/counter-millwork/그룹_226__4360630.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/counter-millwork/그룹_226__4360630.png",
+  "thumbnail_sha256": "52e1459ffeed540b0093a332d49349d9e9d9e464aa8ece195423dcffe500d716"
+ },
+ "asset_id": "su-def:0914-meeting:26e7e507-9ae0-4019-a601-9fac531c9c57",
+ "basis_ko": "2150×17126×650 mm, 하위에 스툴 c3#2 ×8과 수납·상판 그룹 20개",
+ "block": true,
+ "card_kind": "definition",
+ "class": "counter-millwork",
+ "confidence": 0.5,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcFurniture",
+  "entity": "IfcFurniture",
+  "predefined_type": "USERDEFINED"
+ },
+ "level": {
+  "base_z_mm": 10220.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    252,
+    248,
+    244
+   ],
+   "sketchup_material": "Polished Concrete None 3000 x 2152 mm (15DBUL)",
+   "texture_file": "Polished Concrete None 3000 x 2152 mm (15DBUL).jpg",
+   "texture_size_mm": [
+    3000.0,
+    2150.4
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "entity_counts": {
+   "ComponentInstance": 8,
+   "Edge": 36,
+   "Face": 18,
+   "Group": 20
+  },
+  "face_area_m2": 22.194,
+  "height_mm": 650.0,
+  "length_mm": 17126.2,
+  "thickness_mm": 650.0,
+  "width_mm": 2150.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [
+   "c3#2",
+   "그룹#180",
+   "그룹#181",
+   "그룹#183",
+   "그룹#184",
+   "그룹#185",
+   "그룹#194"
+  ],
+  "class_recipe": "data/assets/sketchup/recipes/counter-millwork.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-interior",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.rotate_entity",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "millwork",
+    "tools": [
+     "hueflow.create_box",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#226",
+  "guid": "su-guid:26e7e507-9ae0-4019-a601-9fac531c9c57",
+  "instance_pids": [
+   4360630
+  ],
+  "instances": 1,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 1
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

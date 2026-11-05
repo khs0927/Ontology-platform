@@ -1,0 +1,128 @@
+{
+ "asset_file": {
+  "bytes": 11342,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "8e4a827012d75184d055c95ab80120fd4b268cb42db3cd6d0c1fe1e558ebdd23",
+  "skp": "objects/marker/그룹_12__1249504.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/marker/그룹_12__1249504.png",
+  "thumbnail_sha256": "3b522b476e97fbac902a029cd7c44ceda2b892c7d3742cb8ff8e9014cdbf8b9d"
+ },
+ "asset_id": "su-def:0914-meeting:d02f928a-ff38-4f28-9646-725438fbadc2",
+ "basis_ko": "[Color A06](빨강) 250×250 mm 판, 63.4° 경사면, 최상위 인스턴스 2개(z 9819, 12364)",
+ "block": false,
+ "card_kind": "definition",
+ "class": "marker",
+ "confidence": 0.5,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcAnnotation",
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "level": {
+  "base_z_mm": 9819.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    204,
+    0,
+    0
+   ],
+   "sketchup_material": "[Color A06]",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 2,
+  "entity_counts": {
+   "Edge": 9,
+   "Face": 5
+  },
+  "face_area_m2": 0.071,
+  "height_mm": 250.0,
+  "length_mm": 250.0,
+  "thickness_mm": 10.0,
+  "width_mm": 10.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/marker.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-markup",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.execute_ruby",
+     "hueflow.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "annotation",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "2d",
+  "method_ko": "선·문자 등 2D 작업 표식",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#12",
+  "guid": "su-guid:d02f928a-ff38-4f28-9646-725438fbadc2",
+  "instance_pids": [
+   1249504,
+   1249528
+  ],
+  "instances": 2,
+  "kind": "group",
+  "source_file": null,
+  "used_instances": 2
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "WIP"
+ }
+}

@@ -1,0 +1,149 @@
+{
+ "asset_file": {
+  "bytes": 10578,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "7c5e2d9e2b9221bc758fe47a2f412f240ec45f2d76d500b8e22239749df729c4",
+  "skp": "objects/glass-railing/그룹_124__4577806.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/glass-railing/그룹_124__4577806.png",
+  "thumbnail_sha256": "74371b06a606467ccb4762917d94a943145e5d320688a860e33c06ac1336cbf9"
+ },
+ "asset_id": "su-inst:0914-meeting:4577806@209",
+ "basis_ko": "정의 카드 su-def:0914-meeting:2b91c41d-adef-4db6-a56a-315c16335d7d 분류 상속: 그룹 재질 [Translucent Glass Gray], 수직면 8개, 6400×9400×1200 mm, 월드 z 10200",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "glass-railing",
+ "confidence": 0.5,
+ "definition_ref": "su-def:0914-meeting:2b91c41d-adef-4db6-a56a-315c16335d7d",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcRailing",
+  "entity": "IfcRailing",
+  "predefined_type": "GUARDRAIL"
+ },
+ "level": {
+  "base_z_mm": 10200.0,
+  "elevation_mm": 10200.0,
+  "matched": true,
+  "name": "2 FL +10200"
+ },
+ "materials": [
+  {
+   "alpha": 0.4,
+   "bim_material_category": "glass",
+   "colour_rgb": [
+    153,
+    153,
+    153
+   ],
+   "sketchup_material": "[Translucent Glass Gray]",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 8,
+  "height_mm": 1200.0,
+  "length_mm": 9400.0,
+  "thickness_mm": 1200.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   1006.88976,
+   1125.98425,
+   212.59843,
+   1.0
+  ],
+  "width_mm": 6400.0,
+  "world_bbox_mm": {
+   "max": [
+    84456.3,
+    38107.4,
+    11400.0
+   ],
+   "min": [
+    78056.3,
+    28707.4,
+    10200.0
+   ],
+   "size": [
+    6400.0,
+    9400.0,
+    1200.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/glass-railing.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-envelope-assemblies",
+    "tools": [
+     "hueflow.execute_ruby",
+     "hueflow.create_group",
+     "sketchup-mcp2.create_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "railing",
+    "tools": [
+     "hueflow.follow_me",
+     "hueflow.execute_ruby",
+     "hueflow.create_circle"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "depth-1",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#124",
+  "depth": 1,
+  "hierarchy_locator": "$.nodes[209]",
+  "name": null,
+  "occurrence": 209,
+  "parent_pid": 511546,
+  "path": "그룹#201 > 그룹#124",
+  "pid": 4577806,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@stair"
+ }
+}

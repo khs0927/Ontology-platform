@@ -1,0 +1,1019 @@
+{
+ "schema": "sion-bim-openings-input/1",
+ "model": "0914-meeting",
+ "scope_ko": "우측 단독주택(그룹#201 > 그룹#161 2층, 그룹#217 1층) 창·소방관 진입창·루버",
+ "source": "SketchUp 실시간 읽기 전용 추출(run6, 2026-10-14 KST) — 로컬 경로 제거",
+ "floor_top_mm": 9380,
+ "floor_basis_ko": "주택 2층 슬래브 그룹#229 z 9350 + 두께 30 (추정)",
+ "region_mm": {
+  "x": [
+   73500,
+   86500
+  ],
+  "y": [
+   4500,
+   30500
+  ],
+  "z": [
+   4000,
+   16000
+  ]
+ },
+ "other_markers": [
+  {
+   "definition": "그룹#12",
+   "pid": 1249528,
+   "note_ko": "파빌리온 쪽(x≈62.9 m, +12.4 m) 두 번째 붉은 역삼각형 — 이번 범위 밖, 별도 검토"
+  }
+ ],
+ "openings": [
+  {
+   "definition": "그룹#78",
+   "kind": "window",
+   "role": "window-type",
+   "geometry": {
+    "width_mm": 2400,
+    "height_mm": 600,
+    "sill_height_mm": 820,
+    "head_height_mm": 1420,
+    "frame_depth_mm": 200,
+    "glass_type": "Blue Glass (종류 미확인)",
+    "operation_type": "unknown",
+    "mullions": 1,
+    "transoms": 0,
+    "panel_layout": "2분할(1405+845 유리) 고창"
+   },
+   "orientation": "W",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#91",
+    "wall_thickness_mm": 250,
+    "face": "W"
+   },
+   "type_code": "W1",
+   "note_ko": "서측 고창. 같은 정의 2개 배치(그룹#91 개구부 하나에 2개)"
+  },
+  {
+   "definition": "그룹#77",
+   "kind": "window",
+   "role": "window-type",
+   "geometry": {
+    "width_mm": 5600,
+    "height_mm": 600,
+    "sill_height_mm": 1920,
+    "head_height_mm": 2520,
+    "frame_depth_mm": 200,
+    "glass_type": "Blue Glass (종류 미확인)",
+    "operation_type": "unknown",
+    "mullions": 5,
+    "transoms": 0,
+    "panel_layout": "6분할(815·575 교대) 띠창"
+   },
+   "orientation": "N",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#92",
+    "wall_thickness_mm": 250,
+    "face": "N"
+   },
+   "type_code": "W2",
+   "note_ko": "북측 높은 띠창(바닥에서 약 1.9 m)"
+  },
+  {
+   "definition": "그룹#81",
+   "kind": "window",
+   "role": "window-frame",
+   "geometry": {
+    "width_mm": 2500,
+    "height_mm": 1450,
+    "sill_height_mm": 1070,
+    "head_height_mm": 2520,
+    "frame_depth_mm": 200,
+    "glass_type": "Blue Glass (종류 미확인)",
+    "operation_type": "sliding",
+    "mullions": 0,
+    "transoms": 0,
+    "panel_layout": "2짝 미서기(창짝 그룹#82)"
+   },
+   "orientation": "E",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#93",
+    "wall_thickness_mm": 250,
+    "face": "E"
+   },
+   "type_code": "W3",
+   "note_ko": "동측 미서기창 틀"
+  },
+  {
+   "definition": "그룹#82",
+   "kind": "window",
+   "role": "window-sash",
+   "geometry": {
+    "width_mm": 2440,
+    "height_mm": 1390,
+    "sill_height_mm": 1100,
+    "head_height_mm": 2490,
+    "frame_depth_mm": 120,
+    "glass_type": "Blue Glass (종류 미확인)",
+    "operation_type": "sliding",
+    "mullions": 0,
+    "transoms": 0,
+    "panel_layout": "창짝 2개 깊이 엇갈림(약 1240·1180)"
+   },
+   "orientation": "E",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#93",
+    "wall_thickness_mm": 250,
+    "face": "E"
+   },
+   "type_code": "W3",
+   "note_ko": "W3 창짝"
+  },
+  {
+   "definition": "그룹#84",
+   "kind": "window",
+   "role": "window-frame",
+   "geometry": {
+    "width_mm": 3400,
+    "height_mm": 1450,
+    "sill_height_mm": 1070,
+    "head_height_mm": 2520,
+    "frame_depth_mm": 200,
+    "glass_type": "Blue Glass (종류 미확인)",
+    "operation_type": "sliding",
+    "mullions": 0,
+    "transoms": 0,
+    "panel_layout": "2짝 미서기(2000+1400, 창짝 그룹#86)"
+   },
+   "orientation": "E",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#93",
+    "wall_thickness_mm": 250,
+    "face": "E"
+   },
+   "type_code": "W4",
+   "note_ko": "동측 미서기창 틀(W3와 같은 개구부 그룹#93)"
+  },
+  {
+   "definition": "그룹#86",
+   "kind": "window",
+   "role": "window-sash",
+   "geometry": {
+    "width_mm": 3340,
+    "height_mm": 1390,
+    "sill_height_mm": 1100,
+    "head_height_mm": 2490,
+    "frame_depth_mm": 120,
+    "glass_type": "Blue Glass (종류 미확인)",
+    "operation_type": "sliding",
+    "mullions": 0,
+    "transoms": 0,
+    "panel_layout": "창짝 2개(약 2000·1400)"
+   },
+   "orientation": "E",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#93",
+    "wall_thickness_mm": 250,
+    "face": "E"
+   },
+   "type_code": "W4",
+   "note_ko": "W4 창짝"
+  },
+  {
+   "definition": "그룹#80",
+   "kind": "fire-entry-window",
+   "role": "window-type",
+   "geometry": {
+    "width_mm": 2000,
+    "height_mm": 2400,
+    "sill_height_mm": -80,
+    "head_height_mm": 2320,
+    "frame_depth_mm": 200,
+    "glass_type": "Blue Glass (종류·두께 미확인)",
+    "operation_type": "fixed",
+    "mullions": 1,
+    "transoms": 1,
+    "panel_layout": "좌측 루버(그룹#79) + 우측 하부 유리 940×1305 / 상부 유리 880×945",
+    "fire_glass_pane_mm": [
+     940,
+     1305
+    ],
+    "fire_glass_sill_mm": -50
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "FE1",
+   "fire_entry": {
+    "is_fire_entry_window": true,
+    "evidence": [
+     "그룹#12 붉은 역삼각형(Color A06) 250×250 mm가 우측 하부 유리 면(y≈9047)에 부착",
+     "남측(S), 주택 2층"
+    ],
+    "marker_definition": "그룹#12",
+    "marker_pid": 1249504,
+    "triangle_size_mm": 250,
+    "strike_point_found": false
+   },
+   "note_ko": "남측 소방관 진입창 후보(붉은 역삼각형 표시로 판정)"
+  },
+  {
+   "definition": "그룹#79",
+   "kind": "louver",
+   "role": "louver-assembly",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 2340,
+    "sill_height_mm": -50,
+    "head_height_mm": 2290,
+    "frame_depth_mm": 100,
+    "frame_material": "DimGray",
+    "operation_type": "fixed"
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "louver": {
+    "blade_width_mm": 100,
+    "blade_thickness_mm": null,
+    "blade_projected_height_mm": 88,
+    "pitch_mm": 100,
+    "angle_deg": null,
+    "direction": "horizontal",
+    "blade_count": 24,
+    "material": "DimGray",
+    "blade_definitions": [
+     "그룹169#1",
+     "그룹170#1",
+     "그룹171#1",
+     "그룹172#1",
+     "그룹173#1",
+     "그룹174#1",
+     "그룹175#1",
+     "그룹176#1",
+     "그룹177#1",
+     "그룹178#1",
+     "그룹179#1",
+     "그룹180#1",
+     "그룹181#1",
+     "그룹182#1",
+     "그룹183#1",
+     "그룹184#1",
+     "그룹185#1",
+     "그룹186#1",
+     "그룹187#1",
+     "그룹188#1",
+     "그룹189#1",
+     "그룹190#1",
+     "그룹191#1",
+     "그룹192#1"
+    ],
+    "frame_definition": "그룹167#1"
+   },
+   "note_ko": "FE1 왼쪽 절반의 수평 루버. 살 길이 940·깊이 100·투영높이 88, 100 간격 24개. 각도는 투영값만 있어 미확정"
+  },
+  {
+   "definition": "그룹167#1",
+   "kind": "louver",
+   "role": "louver-frame",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 2340,
+    "sill_height_mm": -50,
+    "head_height_mm": 2290,
+    "frame_depth_mm": 100,
+    "frame_material": "DimGray"
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 틀"
+  },
+  {
+   "definition": "그룹169#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": -50,
+    "head_height_mm": 38
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹170#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 50,
+    "head_height_mm": 138
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹171#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 150,
+    "head_height_mm": 238
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹172#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 250,
+    "head_height_mm": 338
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹173#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 350,
+    "head_height_mm": 438
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹174#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 450,
+    "head_height_mm": 538
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹175#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 550,
+    "head_height_mm": 638
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹176#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 650,
+    "head_height_mm": 738
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹177#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 750,
+    "head_height_mm": 838
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹178#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 850,
+    "head_height_mm": 938
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹179#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 950,
+    "head_height_mm": 1038
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹180#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1050,
+    "head_height_mm": 1138
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹181#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1150,
+    "head_height_mm": 1238
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹182#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1250,
+    "head_height_mm": 1338
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹183#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1350,
+    "head_height_mm": 1438
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹184#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1450,
+    "head_height_mm": 1538
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹185#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1550,
+    "head_height_mm": 1638
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹186#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1650,
+    "head_height_mm": 1738
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹187#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1750,
+    "head_height_mm": 1838
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹188#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1850,
+    "head_height_mm": 1938
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹189#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 1950,
+    "head_height_mm": 2038
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹190#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 2050,
+    "head_height_mm": 2138
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹191#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 88,
+    "sill_height_mm": 2150,
+    "head_height_mm": 2238
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹192#1",
+   "kind": "louver",
+   "role": "louver-blade",
+   "geometry": {
+    "width_mm": 940,
+    "height_mm": 40,
+    "sill_height_mm": 2250,
+    "head_height_mm": 2290
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "opening_definition": "그룹#95",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "L1",
+   "note_ko": "L1 루버 살(개별 그룹)"
+  },
+  {
+   "definition": "그룹#91",
+   "kind": "window",
+   "role": "wall-opening",
+   "geometry": {
+    "width_mm": 5650,
+    "height_mm": 600,
+    "sill_height_mm": 820,
+    "head_height_mm": 1420
+   },
+   "orientation": "W",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "wall_thickness_mm": 250,
+    "face": "W"
+   },
+   "type_code": "OPEN",
+   "note_ko": "벽 개구부(보이드) 박스 — IfcOpeningElement"
+  },
+  {
+   "definition": "그룹#92",
+   "kind": "window",
+   "role": "wall-opening",
+   "geometry": {
+    "width_mm": 5600,
+    "height_mm": 600,
+    "sill_height_mm": 1920,
+    "head_height_mm": 2520
+   },
+   "orientation": "N",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "wall_thickness_mm": 250,
+    "face": "N"
+   },
+   "type_code": "OPEN",
+   "note_ko": "벽 개구부(보이드) 박스 — IfcOpeningElement"
+  },
+  {
+   "definition": "그룹#93",
+   "kind": "window",
+   "role": "wall-opening",
+   "geometry": {
+    "width_mm": 6500,
+    "height_mm": 1450,
+    "sill_height_mm": 1070,
+    "head_height_mm": 2520
+   },
+   "orientation": "E",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "wall_thickness_mm": 250,
+    "face": "E"
+   },
+   "type_code": "OPEN",
+   "note_ko": "벽 개구부(보이드) 박스 — IfcOpeningElement"
+  },
+  {
+   "definition": "그룹#94",
+   "kind": "window",
+   "role": "wall-opening",
+   "geometry": {
+    "width_mm": 900,
+    "height_mm": 450,
+    "sill_height_mm": 1870,
+    "head_height_mm": 2320
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "OPEN",
+   "note_ko": "벽 개구부(보이드) 박스 — IfcOpeningElement"
+  },
+  {
+   "definition": "그룹#95",
+   "kind": "window",
+   "role": "wall-opening",
+   "geometry": {
+    "width_mm": 2000,
+    "height_mm": 2400,
+    "sill_height_mm": -80,
+    "head_height_mm": 2320
+   },
+   "orientation": "S",
+   "wall_host": {
+    "wall_definition": "그룹#88",
+    "wall_thickness_mm": 250,
+    "face": "S"
+   },
+   "type_code": "OPEN",
+   "note_ko": "벽 개구부(보이드) 박스 — IfcOpeningElement"
+  },
+  {
+   "definition": "그룹#76",
+   "kind": "window",
+   "role": "opening-set",
+   "geometry": {
+    "width_mm": 9000,
+    "height_mm": 2600,
+    "sill_height_mm": -80,
+    "head_height_mm": 2520
+   },
+   "orientation": null,
+   "wall_host": {
+    "wall_definition": "그룹#88"
+   },
+   "type_code": "SET",
+   "note_ko": "주택 2층 창호 묶음 컨테이너. 그룹 없이 놓인 유리 2장: 남측 780×330(그룹#94 개구부, W5 후보)·동측 540×1390(W6 후보) — 그룹화 권장"
+  }
+ ],
+ "asset_root": "SketchUp-Assets/ontology-objects/0914-meeting/house",
+ "asset_note_ko": "run6에서 사용자 PC로 내보낸 유형별 .skp/.png. 구글드라이브 복사는 PC 연결 시 수행(경로는 이 root 기준)",
+ "asset_files": {
+  "그룹#76": {
+   "skp": "window-louver/그룹_76__4164144.skp",
+   "sha256": "6b91bb026ce2843a59584225221eb41897adf36c9400a8ddea66b689762b2114",
+   "bytes": 62603,
+   "thumbnail": "window-louver/그룹_76__4164144.png",
+   "thumbnail_sha256": "8d54b3912972740b19438789addfdf7d40fbe22e21aa2774541365f6619e64b0"
+  },
+  "그룹#91": {
+   "skp": "window-louver/그룹_91__4164139.skp",
+   "sha256": "ace145f2248d8e78b91570d1d783411215b656c27c9bd1cc6b1cd7c30d052fdf",
+   "bytes": 11648,
+   "thumbnail": "window-louver/그룹_91__4164139.png",
+   "thumbnail_sha256": "cb762797e0e169251ec92e7027d8bd4401ad652f81c92fb352d5019000eb4b05"
+  },
+  "그룹#92": {
+   "skp": "window-louver/그룹_92__4164140.skp",
+   "sha256": "df462826c4d887e6505c329b0a8b76c5d02f02fd31520f12f6ebc2fe8eae6084",
+   "bytes": 13175,
+   "thumbnail": "window-louver/그룹_92__4164140.png",
+   "thumbnail_sha256": "4fe60878543663b05b66968655bbc152564ae0edf20c12bf2a1c47c7208a4de2"
+  },
+  "그룹#93": {
+   "skp": "window-louver/그룹_93__4164141.skp",
+   "sha256": "df454c27d284567b1a9fc59fa679715cfcbb5a4313ce6657d7562a052e9a3b12",
+   "bytes": 12092,
+   "thumbnail": "window-louver/그룹_93__4164141.png",
+   "thumbnail_sha256": "ac2bbd9ac1083e350c2c176dd17699f4bafd5d52db1362b2f5bb3df23e8e9018"
+  },
+  "그룹#94": {
+   "skp": "window-louver/그룹_94__4164142.skp",
+   "sha256": "418ba4a4e746efd05060599236c587981a2a31b33af5299598831678e75f551d",
+   "bytes": 13375,
+   "thumbnail": "window-louver/그룹_94__4164142.png",
+   "thumbnail_sha256": "2465592a44e004161a3950d2a6f772a9c63bbc44b90b27a2dc75a924939673fd"
+  },
+  "그룹#95": {
+   "skp": "window-louver/그룹_95__4164143.skp",
+   "sha256": "7d375d74bbd9b1d62ef19d2111ff45d9060f5e904b5b0fa32ae5bd0973acc48d",
+   "bytes": 12047,
+   "thumbnail": "window-louver/그룹_95__4164143.png",
+   "thumbnail_sha256": "68c3ca4b3f979f0b3b5bea51128a75262d200574eaa613750efdce968e2f2fab"
+  },
+  "그룹#78": {
+   "skp": "window-louver/그룹_78__4163925.skp",
+   "sha256": "c97b70123bc1748baba287632c199ee829f5e4582999819e701c283c17c40b86",
+   "bytes": 16915,
+   "thumbnail": "window-louver/그룹_78__4163925.png",
+   "thumbnail_sha256": "ab96c0163bcd63bb783f937084d760fd0c2f6d89ee6c067848f37359215bf8ad"
+  },
+  "그룹#77": {
+   "skp": "window-louver/그룹_77__4163915.skp",
+   "sha256": "df9d8bd42758f28683ce21581690e754d77ea37b338dd1657a31dc974afac49a",
+   "bytes": 22376,
+   "thumbnail": "window-louver/그룹_77__4163915.png",
+   "thumbnail_sha256": "43486303e84426b95dd26849f6b9140c48b17043177e551ee456e5869cc26137"
+  },
+  "그룹#81": {
+   "skp": "window-louver/그룹_81__4164138.skp",
+   "sha256": "0376c851eb0ebe02ece39d1de7d454b025c1e6204b49f2c808f82006f45d7d0e",
+   "bytes": 21075,
+   "thumbnail": "window-louver/그룹_81__4164138.png",
+   "thumbnail_sha256": "fbba943b150d8e046f81e70ef1c9272f76d5b05c11183a51e09f6483e44202e1"
+  },
+  "그룹#82": {
+   "skp": "window-louver/그룹_82__4162769.skp",
+   "sha256": "6f7448c1121439fad5bca5704a20cf1dd555bd33d99d29148004d909f57a032f",
+   "bytes": 17347,
+   "thumbnail": "window-louver/그룹_82__4162769.png",
+   "thumbnail_sha256": "b05d998a30a3340d5ed27564eab676f1a334ff850875aa7614a34d020f1bc87d"
+  },
+  "그룹#79": {
+   "skp": "window-louver/그룹_79__4163927.skp",
+   "sha256": "fa8df94f0ab54f88cc3b010cf2fc4a84c4c4129d3af9b266e23d7cb24b020f83",
+   "bytes": 34941,
+   "thumbnail": "window-louver/그룹_79__4163927.png",
+   "thumbnail_sha256": "7ac3bbe91649c99825781562b703da6f112859faaf770b621fbbb478f4ab68df"
+  },
+  "그룹167#1": {
+   "skp": "window-louver/그룹167_1__4163488.skp",
+   "sha256": "815e95773d400a7ac32ed5473f8325fbd5008281e48ec8619d683fa38edcfe26",
+   "bytes": 31221,
+   "thumbnail": "window-louver/그룹167_1__4163488.png",
+   "thumbnail_sha256": "0c4206c2e3e1381ba20bed2327d15a56131831ce8968f082f284d3d3461988a3"
+  },
+  "그룹169#1": {
+   "skp": "window-louver/그룹169_1__4163456.skp",
+   "sha256": "7125c7ed6b6c6181f264952cebdeed1f23f7ff6cfa77bd0c6ece4b07b3f1a86d",
+   "bytes": 9608,
+   "thumbnail": "window-louver/그룹169_1__4163456.png",
+   "thumbnail_sha256": "b7723b3039f699a0b4f12733b588d6abd48d98636387d2663104163c40c20668"
+  },
+  "그룹#84": {
+   "skp": "window-louver/그룹_84__4164137.skp",
+   "sha256": "cd0c505b987e711b2c5be11fa8bc45512bc4566f86a7a0d3607b68546dc53f07",
+   "bytes": 19969,
+   "thumbnail": "window-louver/그룹_84__4164137.png",
+   "thumbnail_sha256": "f9f788493f439a95fc37bfd6a6f5d56d42fb522440128f234a90be2f1c69279c"
+  },
+  "그룹#86": {
+   "skp": "window-louver/그룹_86__4163659.skp",
+   "sha256": "ecb83bf6a1c4b4c4a4f1e838737bd0ee53f2691a640d8022a9f9a27be49cbbe4",
+   "bytes": 16364,
+   "thumbnail": "window-louver/그룹_86__4163659.png",
+   "thumbnail_sha256": "109e5e6523a972df89cdd3d5c00676ee0035df9dc4e0ee5c15ffad9549d4e7c7"
+  },
+  "그룹#80": {
+   "skp": "window-louver/그룹_80__4163928.skp",
+   "sha256": "5c3086a42dac2c4253ca765c090d5605aa579ee8f971762c28c99aad4b3f61f6",
+   "bytes": 18150,
+   "thumbnail": "window-louver/그룹_80__4163928.png",
+   "thumbnail_sha256": "ad79fa8fd6fed06368ab8397e939bb6f6f045405c0f71f4ea044a59b9a5aa8c4"
+  }
+ }
+}

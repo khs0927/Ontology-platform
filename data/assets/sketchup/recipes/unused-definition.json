@@ -1,0 +1,131 @@
+{
+ "block": false,
+ "class": "unused-definition",
+ "definition_count": 15,
+ "examples": [
+  "su-def:0914-meeting:06d6dd39-9369-4882-a5fd-5bc20120630c",
+  "su-def:0914-meeting:1f130e04-bbff-4656-9f1f-7b694e621b64",
+  "su-def:0914-meeting:2f333ee3-9942-4cb1-a726-011082e733e6",
+  "su-def:0914-meeting:4a6ca44a-42cb-466d-96a9-3f9319e77b37",
+  "su-def:0914-meeting:4ebaab56-097f-4fa0-9c67-1f8cefb1a399",
+  "su-def:0914-meeting:5aff9d4a-7cda-410c-b660-bec5e05dedb8",
+  "su-def:0914-meeting:704f9850-2d16-46c1-8af9-57123b4991dc",
+  "su-def:0914-meeting:7de271fa-2666-4edd-bb81-3e43b06a5213",
+  "su-def:0914-meeting:84654cc1-18fc-4120-acd1-28267a137bcb",
+  "su-def:0914-meeting:899f5718-de0b-4d13-baf6-80c784f7cd7e"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "default-naming",
+   "tools": [
+    "sketchup-mcp2.list_components",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "working-markup",
+   "tools": [
+    "hueflow.list_layers",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-inspect",
+   "tools": [
+    "hueflow.get_model_info",
+    "sketchup-mcp2.get_model_info",
+    "hueflow.list_entities",
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-verify-cleanup",
+   "tools": [
+    "hueflow.execute_ruby",
+    "hueflow.list_components",
+    "sketchup-mcp2.list_components",
+    "sketchup-mcp2.list_layers"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "tags",
+   "tools": [
+    "hueflow.list_layers",
+    "sketchup-mcp2.list_layers",
+    "sketchup-mcp2.create_layer",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "cleanup",
+   "tools": [
+    "hueflow.list_components",
+    "sketchup-mcp2.find_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "agent-judgement",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "사용되지 않는 정의(purge 대상)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "NOTDEFINED"
+ },
+ "label_ko": "미사용 정의",
+ "material_categories": {
+  "auto-generated (purge 후보)": 3,
+  "concrete": 1,
+  "paint-or-colour": 2
+ },
+ "proposed_zium_tag": "(purge 후보)",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 3200.0,
+   "median": 850.0,
+   "min": 489.0,
+   "n": 15
+  },
+  "length_mm": {
+   "max": 6238.1,
+   "median": 1600.0,
+   "min": 300.0,
+   "n": 15
+  },
+  "thickness_mm": {
+   "max": 2372.6,
+   "median": 508.0,
+   "min": 50.0,
+   "n": 15
+  },
+  "width_mm": {
+   "max": 2832.2,
+   "median": 600.0,
+   "min": 50.0,
+   "n": 15
+  }
+ }
+}

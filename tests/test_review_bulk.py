@@ -127,3 +127,26 @@ def test_candidates_expose_source_file_and_review_ui_is_bulk_capable():
         # the hint is never wired to a decision call
         decisions = page[page.index("async function decide") : page.index("// ---- display-only")]
         assert "recommend(" not in decisions and "hint" not in decisions
+
+
+def test_bulk_reports_per_item_results_for_mixed_batch():
+    with client() as c:
+        ids = pending_ids(c)
+        assert c.post(f"/api/v1/relations/candidates/{ids[1]}/reject", json={"note": "no"}, headers=AUTH).status_code == 200
+        assert c.post(f"/api/v1/relations/candidates/{ids[2]}/approve", json={"note": "yes"}, headers=AUTH).status_code == 200
+        missing = str(uuid.uuid4())
+        req = [ids[0], ids[1], ids[2], missing, "not-a-uuid"]
+        body = c.post(BULK, json={"ids": req, "decision": "approve", "note": "mixed"}, headers=AUTH).json()
+        assert body["requested"] == 5 and body["succeeded"] == 2 and body["failed"] == 3
+        assert body["counts"]["applied"] == 1 and body["counts"]["conflict"] == 1
+        by_id = {r["id"]: r for r in body["results"]}
+        assert [r["id"] for r in body["results"]] == req
+        assert by_id[ids[0]] | {} == {**by_id[ids[0]], "result": "applied", "ok": True, "reason": None, "batch_id": body["batch_id"]}
+        assert by_id[ids[1]]["result"] == "conflict" and by_id[ids[1]]["ok"] is False and "rejected" in by_id[ids[1]]["reason"]
+        assert by_id[ids[1]]["batch_id"] is None
+        assert by_id[ids[2]]["result"] == "unchanged" and by_id[ids[2]]["ok"] is True and by_id[ids[2]]["batch_id"] is None
+        assert by_id[missing]["result"] == "not_found" and by_id[missing]["ok"] is False and by_id[missing]["reason"]
+        assert by_id["not-a-uuid"]["result"] == "invalid_id" and by_id["not-a-uuid"]["ok"] is False
+        # failures were not written; the one applied item is
+        assert c.get(f"/api/v1/relations/candidates/{ids[1]}", headers=AUTH).json()["status"] == "rejected"
+        assert c.get(f"/api/v1/relations/candidates/{ids[0]}", headers=AUTH).json()["review"]["batch_id"] == body["batch_id"]

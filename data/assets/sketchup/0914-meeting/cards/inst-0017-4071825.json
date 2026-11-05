@@ -1,0 +1,249 @@
+{
+ "asset_file": null,
+ "asset_id": "su-inst:0914-meeting:4071825@17",
+ "basis_ko": "정의 카드 su-def:0914-meeting:d5d9d936-e558-4f28-bae7-d35d226134c8 분류 상속: 기존조경 면 3253개, 계단식 수평 레벨 0/3000/5500/8000 mm, 3~7.5° 경사면, 크기 55.1×21.7×10.5 m",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "terrain",
+ "confidence": 0.7,
+ "definition_ref": "su-def:0914-meeting:d5d9d936-e558-4f28-bae7-d35d226134c8",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcGeographicElement",
+  "entity": "IfcGeographicElement",
+  "predefined_type": "TERRAIN"
+ },
+ "level": {
+  "base_z_mm": -6000.0,
+  "elevation_mm": 0.0,
+  "matched": false,
+  "name": "GL ±0"
+ },
+ "materials": [],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 873,
+  "height_mm": 10500.0,
+  "length_mm": 55136.8,
+  "thickness_mm": 10500.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   36.14266,
+   1520.01597,
+   -260.9891,
+   1.0
+  ],
+  "width_mm": 21662.4,
+  "world_bbox_mm": {
+   "max": [
+    56924.5,
+    53460.8,
+    4500.0
+   ],
+   "min": [
+    1787.7,
+    31798.4,
+    -6000.0
+   ],
+   "size": [
+    55136.8,
+    21662.4,
+    10500.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/terrain.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "grouping-overview",
+    "tools": [
+     "hueflow.list_entities",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "top-split-by-part",
+    "tools": [
+     "hueflow.list_entities",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "level-stacking",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.list_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "working-markup",
+    "tools": [
+     "hueflow.list_layers",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-parts",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.create_group",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-site-assemblies",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.move_entity",
+     "hueflow.rotate_entity",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-markup",
+    "tools": [
+     "hueflow.create_group",
+     "hueflow.execute_ruby",
+     "hueflow.list_layers"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "overview",
+    "tools": [
+     "hueflow.get_model_info",
+     "sketchup-mcp2.get_model_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "levels",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "terrain",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "qa",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.export_scene"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "mcp-execution",
+    "tools": [
+     "sketchup-mcp2.get_model_info",
+     "sketchup-mcp2.list_components",
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.set_material",
+     "sketchup-mcp2.create_layer",
+     "sketchup-mcp2.export_scene",
+     "sketchup-mcp2.eval_ruby",
+     "sketchup-mcp2.undo",
+     "hueflow.execute_ruby",
+     "hueflow.create_box",
+     "hueflow.create_group",
+     "hueflow.place_component",
+     "hueflow.list_materials"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "faces-sandbox",
+  "method_ko": "등고선/점에서 면을 만들고(샌드박스·create_face) 단차별 그룹으로 묶음",
+  "nesting": "depth-3",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#45",
+  "depth": 3,
+  "hierarchy_locator": "$.nodes[17]",
+  "name": null,
+  "occurrence": 17,
+  "parent_pid": 4072539,
+  "path": "학장동 skp.dwg > 그룹#2 > 그룹#10 > 그룹#45",
+  "pid": 4071825,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@3D-대지"
+ }
+}

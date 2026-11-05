@@ -1,0 +1,91 @@
+{
+ "block": true,
+ "class": "imported-3d",
+ "definition_count": 20,
+ "examples": [
+  "su-def:0914-meeting:0d928d6a-b9fa-4c46-b339-ea22c0825a12",
+  "su-def:0914-meeting:1a49522f-0d23-4abd-9ede-aa224303ad54",
+  "su-def:0914-meeting:20277a96-b907-490e-89b5-c5650a58f07b",
+  "su-def:0914-meeting:377486b5-b5b6-4088-9acd-024960b76097",
+  "su-def:0914-meeting:3f02c74d-3c70-4bc5-8e8e-82d419a6b8c4",
+  "su-def:0914-meeting:4bf698e8-6ccd-4e5a-92d8-f60550a19135",
+  "su-def:0914-meeting:4ea35233-3371-4de3-98c1-2c5a78049c41",
+  "su-def:0914-meeting:63d779b1-2416-4937-9b76-4175296a45d5",
+  "su-def:0914-meeting:7b85201c-f72b-40b3-be26-87bdfab626f7",
+  "su-def:0914-meeting:85cb1bed-debe-49f7-9296-2322258d4dda"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "definition-origin",
+   "tools": [
+    "sketchup-mcp2.get_component_info",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-landscape-people",
+   "tools": [
+    "hueflow.place_component",
+    "sketchup-mcp2.transform_component",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "cleanup",
+   "tools": [
+    "hueflow.list_components",
+    "sketchup-mcp2.find_components",
+    "hueflow.execute_ruby"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "블럭 객체는 내부를 분해하지 않고 한 컴포넌트로 저장·재사용"
+ ],
+ "ifc": {
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "USERDEFINED"
+ },
+ "label_ko": "외부 3D 가져오기 정의",
+ "material_categories": {
+  "metal": 4,
+  "paint-or-colour": 3,
+  "wood": 13
+ },
+ "proposed_zium_tag": "@FUR",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 25400.0,
+   "median": 24987.1,
+   "min": 4920.3,
+   "n": 20
+  },
+  "length_mm": {
+   "max": 25400.0,
+   "median": 25275.5,
+   "min": 17789.5,
+   "n": 20
+  },
+  "thickness_mm": {
+   "max": 22114.3,
+   "median": 7296.2,
+   "min": 180.3,
+   "n": 20
+  },
+  "width_mm": {
+   "max": 22114.3,
+   "median": 7296.2,
+   "min": 180.3,
+   "n": 20
+  }
+ }
+}

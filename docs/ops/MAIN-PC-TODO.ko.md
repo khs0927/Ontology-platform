@@ -1,6 +1,6 @@
 # 메인 PC 복귀 시 할 일 (체크리스트)
 
-작성: 2026-10-08 저녁 (Asia/Seoul) · 대상: 메인 PC(운영 DB·API·대량 수집이 도는 PC)
+작성: 2026-10-08 저녁, 1단계 갱신 22:00 (Asia/Seoul) · 대상: 메인 PC(운영 DB·API·대량 수집이 도는 PC)
 실행 주체: 오너 또는 오너가 이 대화/세션에서 PC 제어를 허락한 에이전트.
 
 > **규칙**
@@ -16,10 +16,45 @@
 
 ---
 
+## 진행 기록 — 2026-10-09 (Asia/Seoul)
+
+오늘은 모노레포 전환을 마무리하려던 날이었고, **전환은 아직 끝나지 않았습니다.** 아래는 직접 확인한 사실입니다.
+
+- [x] 운영 API `/healthz` 응답 `ok`, 임베딩(bge-m3) 정상
+- [x] `aec-db`가 기존 볼륨(`<compose project>_aec-pgdata`)을 그대로 사용 중 — 재초기화 없음
+- [x] 전환 스크립트가 `\AEC\` 예약 작업 XML을 `switch-backup/<시각>/` 아래로 백업
+- [x] 새 venv 생성 + 패키지 설치 완료 (editable 설치 포함)
+- [ ] **예약 작업 재등록은 아직 안 됐습니다.** `\AEC\` 작업들이 예전 체크아웃 경로를 그대로 가리킵니다 → **2-2를 다시 실행**해야 합니다.
+- [ ] **워커는 계속 중단.** 대기 중인 작업이 남아 있으나 여유 메모리가 워커 재개 기준(2 GB)에 못 미쳐, STOP 표시와 작업 비활성화를 유지했습니다.
+
+### 전환이 중단된 원인
+
+venv 설치는 끝났지만 마지막 확인 단계에서 스크립트가 죽었습니다.
+
+```
+File "<string>", line 1
+    import aec_intelligence, sion_cad.reader; print(venv
+                                                   ^
+SyntaxError: '(' was never closed
+```
+
+확인 코드가 `python -c` 인자에 큰따옴표를 담아 넘겼고, **Windows PowerShell 5.1이 네이티브 실행 파일로 인자를 넘길 때 큰따옴표를 제거**하기 때문입니다. 같은 코드가 큰따옴표로는 SyntaxError, 작은따옴표로는 정상 전달되는 것을 PowerShell 5.1 환경에서 재현 확인했습니다. 작은따옴표로 바꾸고 재시도를 추가한 수정이 PR로 올라가 있습니다 — **그 수정이 머지된 뒤에** 2-2를 다시 실행하세요.
+
+> **주의:** `-SkipVenv`로 이 단계를 건너뛰면 안 됩니다. 예약 작업이 찾는 venv는 체크아웃마다 별개이고, 없으면 패키지가 설치되지 않은 호스트 파이썬으로 떨어져 워커가 실패합니다.
+
+### 개발 체크아웃과 운영 체크아웃 분리
+
+전환 스크립트는 깨끗한 `main`에서만 돕니다. 같은 컴퓨터에서 개발 세션과 운영 예약 작업을 한 폴더에 두면 이 요구가 서로 충돌합니다. 두 체크아웃을 분리하세요.
+
+| 구분 | 역할 | 조건 |
+|---|---|---|
+| 개발 체크아웃 | 기능 개발·리뷰 | 브랜치가 고정되어도 됨. 운영 예약 작업이 가리키지 않음 |
+| 운영 체크아웃 | 예약 작업·전환 실행 | `main`을 깨끗한 상태로 유지. 전환 스크립트는 **여기서만** 실행 |
+
 ## ★ 최우선 (메인 PC와 무관, 어느 PC에서든 바로)
 
 - [ ] **HS-CAD에 커밋됐던 Google AI Studio API 키 교체(rotate)**
-  - **왜:** HS-CAD의 `opencode.json`에 키가 들어간 채 2026-05-21부터 **공개 히스토리**에 남아 있습니다. 현재 main은
+  - **왜:** HS-CAD(사용 중단)의 `opencode.json`에 키가 들어간 채 2026-05-21부터 **공개 히스토리**에 남아 있습니다. 현재 main은
     HS-CAD #158 이후 `{env:GOOGLE_GENERATIVE_AI_API_KEY}` 환경변수를 읽지만, 히스토리의 옛 키는 이미 노출된 것으로 봐야 합니다.
   - **방법:** Google AI Studio의 API 키 화면에서 해당 키를 **삭제(폐기)** → 새 키 발급 → 쓰는 PC마다 사용자 환경변수
     `GOOGLE_GENERATIVE_AI_API_KEY` 로만 설정(파일·저장소·채팅에 붙여 넣지 않음).
@@ -32,21 +67,12 @@
 - [ ] (선택) power-cad-mcp, hs-steel-cad, All-In-Cad 저장소에 **Dependabot alerts + Secret scanning** 켜기
   (Settings → Code security). 끄면 원래대로 돌아갑니다.
 
-## ☆ HS-CAD PR 정리 — 오너 판단 (메인 PC와 무관)
+## ☆ HS-CAD — 사용 중단 (2026-11-03)
 
-PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이미 main에 있음), 병합 0개, **34개 열림**(각 PR에 한국어 코멘트로 판단 근거 기록).
-
-- [ ] **(1) 분석 체인 2개 닫기 (−14개):** main이 아래 두 체인의 내용을 모두 포함하는지 확인한 뒤 닫습니다.
-  - 체인 A: #23 #25 #27 #29 #32 #34 #35
-  - 체인 B: #24 #26 #28 #30 #31 #33 #37
-  - **확인:** 각 PR의 한국어 코멘트에 적힌 대응 파일이 main에 있는지 확인 → `gh pr close <번호> -R khs0927/HS-CAD -c "main에 포함되어 닫음"`.
-  - **롤백:** 닫은 PR은 `gh pr reopen <번호>` 로 다시 열 수 있습니다.
-- [ ] **(2) #1 #4 #5 #7:** 고유 모듈이 있지만 main과 충돌합니다. 그대로 병합하지 말고 **필요한 모듈만 main 기준 새 PR로 이식**
-  (원래 PR은 이식 후 닫기).
-- [ ] **(3) #12:** 작은 수정. 현재 `main.py` 기준으로 새로 작성(원래 PR은 닫기).
-- [ ] **(4) 실기 실행:** ZWCAD 실행 검증이 필요한 PR은 **Windows + ZWCAD PC**에서만 확인 가능합니다(예: #146).
-- [ ] **이전 라운드부터 열린 PR:** #66 #68 #69 #70 #71 #74 #76 #124 #126 #127 #146 #147 #154 #155 #156 — 각 코멘트를 보고 유지/닫기 결정.
-- **주의:** xiCAD 쪽 `mcp==1.28.1` 고정은 **Python 3.13에서 설치가 깨집니다**. 3.12 venv를 쓰거나 고정 버전을 올리는 PR이 필요합니다.
+HS-CAD는 더 이상 사용하지 않습니다. CAD 호스트 연동은 **power-cad-mcp만** 씁니다. 이 저장소의 HS-CAD 계약·스키마·
+fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인 닫기, 모듈 이식, 실기 실행)은 할 일에서 뺐습니다.
+- [ ] (선택) HS-CAD 저장소를 GitHub에서 **Archive**(읽기 전용) 처리. 되돌리려면 Unarchive.
+- 위 ★의 API 키 폐기는 HS-CAD를 쓰지 않아도 **그대로 필요합니다**(공개 히스토리에 남은 키는 폐기 전까지 유효).
 
 ## ☆ 기타 저장소 — 오너 판단 (메인 PC와 무관)
 
@@ -72,17 +98,76 @@ PR 분류는 끝났습니다(2026-10-08 저녁). **32개 닫음**(내용이 이�
 ## 1. 모노레포 main 받기 (5분)
 
 - [ ] **왜:** 운영 코드는 이제 `Ontology-platform`의 `packages/aec`가 기준입니다. 전환 스크립트는 깨끗한 `main`에서만 돕니다.
-- **명령** (Google Drive 동기화 폴더 **밖**에 둡니다)
+  2026-10-08 12:23 KST에 개인정보 정리용 히스토리 재작성(force push)이 있었습니다(그 전 03:11에 exe 제거 재작성도 있었음).
+  그 전에 만든 체크아웃은 `origin/main`과 **갈라져** 있어서 `git pull --ff-only`가 실패합니다. 백업한 뒤 `origin/main`으로 맞춥니다.
+- **명령** (작업 체크아웃은 `C:\code` 아래, Google Drive 동기화 폴더 **밖**). 아래 블록을 **한 번에** 붙여 넣습니다.
+  백업·검사 중 하나라도 실패하면 `throw`로 블록 전체가 멈추고 `reset --hard`까지 가지 않습니다.
+  백업(번들)은 `fetch`보다 **먼저** 만듭니다. `fetch --prune`이 예전 원격 추적 ref를 바꾸거나 지우기 전에 보관하기 위해서입니다.
   ```powershell
-  $SION = "$env:USERPROFILE\CODE\Ontology-platform"
-  if (Test-Path $SION) { git -C $SION switch main; git -C $SION pull --ff-only }
-  else { git clone https://github.com/khs0927/Ontology-platform.git $SION }
+  $SION = 'C:\code\Ontology-platform'
+  $BK   = "$env:USERPROFILE\sion-bundles"        # 저장소 밖 백업 폴더
+  function Must([string]$what) { if ($LASTEXITCODE -ne 0) { throw "중단: $what 실패 (exit $LASTEXITCODE). reset 하지 않음." } }
+  if (-not (Test-Path $SION)) {
+    git clone https://github.com/khs0927/Ontology-platform.git $SION; Must 'clone'
+  } else {
+    git -C $SION status --short --branch            # 로컬 변경·현재 브랜치 확인
+    $ts  = Get-Date -Format yyyyMMdd-HHmmss
+    $pre = "$BK\Ontology-platform-pre-reset-$ts"
+    New-Item -ItemType Directory -Force $BK -ErrorAction Stop | Out-Null
+    # 1) 되돌릴 위치 기록: 이전 HEAD, 이전 브랜치(분리 HEAD면 빈 값), 이전 로컬 main(없으면 빈 값)
+    $old = git -C $SION rev-parse HEAD; Must 'rev-parse HEAD'
+    $oldBranch = git -C $SION branch --show-current; Must 'branch --show-current'
+    $oldMain = git -C $SION rev-parse --verify -q refs/heads/main
+    # 2) 커밋 안 한 변경 + 추적되지 않는 파일(.gitignore 제외분)을 stash로 보관 (변경이 없으면 stash를 만들지 않음)
+    $stashBefore = git -C $SION rev-parse -q --verify refs/stash
+    git -C $SION stash push --include-untracked -m "pre-reset-$ts"; Must 'stash push'
+    $stash = git -C $SION rev-parse -q --verify refs/stash
+    if ($stash -eq $stashBefore) { $stash = '' }     # 이번 실행이 만든 stash만 기록 (없으면 빈 값)
+    "old=$old", "branch=$oldBranch", "main=$oldMain", "stash=$stash" | Set-Content -ErrorAction Stop "$pre.head.txt"
+    # 3) fetch 전에: stash와 예전 원격 추적 ref까지 포함한 모든 ref를 번들로 + 검증
+    git -C $SION bundle create "$pre.bundle" --all; Must 'bundle create'
+    git -C $SION bundle verify "$pre.bundle"; Must 'bundle verify'
+    # 4) 이제 새 히스토리를 받음
+    git -C $SION fetch origin --prune; Must 'fetch'
+    git -C $SION merge-base --is-ancestor HEAD origin/main; "HEAD가 origin/main에 포함됨(0=예): $LASTEXITCODE"
+    # 5) .gitignore로 무시된 파일이 main의 추적 경로를 막으면 중단 (Windows라 대소문자 무시 비교)
+    $cmp = [StringComparer]::OrdinalIgnoreCase
+    $tree = @(git -C $SION ls-tree -r --name-only origin/main); Must 'ls-tree'
+    $tracked = [Collections.Generic.HashSet[string]]::new([string[]]$tree, $cmp)
+    $dirs = [Collections.Generic.HashSet[string]]::new($cmp)
+    foreach ($t in $tree) { $d = $t; while (($i = $d.LastIndexOf('/')) -gt 0) { $d = $d.Substring(0, $i); [void]$dirs.Add($d) } }
+    $ignored = @(git -C $SION ls-files --others --ignored --exclude-standard --directory); Must 'ls-files (ignored)'
+    # 무시된 경로 자체, 그 하위의 추적 파일, 또는 그 상위 경로 중 하나가 main에서 파일이면 충돌
+    $clash = @($ignored | ForEach-Object { $_.TrimEnd('/') } | Where-Object {
+      $p = $_; $hit = $tracked.Contains($p) -or $dirs.Contains($p)
+      while (-not $hit -and ($i = $p.LastIndexOf('/')) -gt 0) { $p = $p.Substring(0, $i); $hit = $tracked.Contains($p) }
+      $hit })
+    if ($clash.Count) { $clash; throw "중단: 위 무시된 경로가 main의 추적 경로와 겹침. 저장소 밖으로 옮긴 뒤 다시 실행." }
+    # 백업과 검사가 모두 끝난 뒤에만: main을 새 히스토리로 맞춤
+    git -C $SION switch -f main; Must 'switch -f main'   # 다른 worktree가 main을 쓰고 있으면 여기서 멈춤
+    git -C $SION reset --hard origin/main; Must 'reset --hard'
+  }
   git -C $SION status --short --branch
   git -C $SION log --oneline -3
+  git -C $SION merge-base --is-ancestor 54e1921 HEAD; "새 히스토리(0=예): $LASTEXITCODE"
+  git -C $SION stash list -n 3                      # 보관한 변경 확인
+  git -C $SION branch -vv                           # 예전 히스토리 기반 로컬 브랜치 확인 (푸시 금지)
   ```
-- **성공 기준:** `## main...origin/main`, 변경 파일 없음. 최근 로그에 PR #41 이후 병합 커밋이 보임.
-- **롤백:** 새 클론이면 폴더만 지우면 됩니다(아직 운영에 연결되지 않음). 기존 체크아웃에 로컬 변경이 있으면
-  `git stash`가 아니라 **별도 클론**을 새로 만드세요(로컬 변경 보존).
+- **성공 기준:** `## main...origin/main`, 변경 파일 없음, 최근 로그에 PR #48 이후 병합 커밋이 보임, `54e1921` 포함 검사 결과 `0`.
+  `중단:` 메시지가 나왔다면 `reset`은 실행되지 않았습니다. 원인을 해결하고 다시 실행합니다(이미 만든 stash는 `git stash list`에 남아 있고,
+  그 커밋 값은 그때의 `<백업>.head.txt` `stash=` 줄에 있음).
+- **주의:** 12:23 이전 히스토리의 로컬 브랜치·폴더(예: 예전 작업용 클론)에서는 **절대 푸시하지 않습니다.** 지운 exe와 가리기 전
+  개인정보가 다시 올라갑니다. 필요한 변경은 새 클론의 새 브랜치로 옮기세요(`git cherry-pick` 또는 `git stash apply`). 다른 예전 체크아웃도 같은 방식으로 맞추거나 보관합니다.
+- **롤백:** 같은 PowerShell 창이면 `$old`·`$oldBranch`·`$oldMain`·`$stash`가 남아 있고, 아니면 `<백업>.head.txt`의 네 값을 넣습니다.
+  ```powershell
+  git -C $SION switch -f --detach $old                                   # 이전 커밋으로
+  if ($oldMain) { git -C $SION branch -f main $oldMain } else { git -C $SION branch -D main }   # 로컬 main 원래대로
+  if ($oldBranch) { git -C $SION switch -f $oldBranch }                  # 원래 브랜치로 (분리 HEAD였으면 그대로)
+  if ($stash) { git -C $SION stash apply $stash }                        # 이번 실행이 만든 stash만 복원 (다른 stash는 건드리지 않음)
+  ```
+  복원을 확인한 뒤 `git stash list`에서 해당 `pre-reset-<시각>` 항목을 `git stash drop stash@{N}`으로 지워도 됩니다.
+  폴더가 망가졌다면 번들에서 복구: `git clone <백업>.bundle <새 폴더>` 후 `git -C <새 폴더> fetch <백업>.bundle refs/stash:refs/stash`.
+  새 클론이었다면 폴더만 지우면 됩니다(아직 운영에 연결되지 않음).
 
 ## 2. 런타임을 `packages/aec`로 전환 (20–40분)
 

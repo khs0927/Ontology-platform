@@ -1,0 +1,160 @@
+{
+ "asset_file": {
+  "bytes": 36101,
+  "root": "SketchUp-Assets/ontology-objects/0914-meeting",
+  "sha256": "b2878e07bfdc47020d049207c13e17f508c2101e5ac404fdbdeb57a080680f4c",
+  "skp": "objects/parking-deck/그룹_4__4066615.skp",
+  "store": "google-drive",
+  "thumbnail": "objects/parking-deck/그룹_4__4066615.png",
+  "thumbnail_sha256": "ea7aedfa7064a34b68fdebf0033343621443c66b5ee74ebc06b2b4f39b0a9818"
+ },
+ "asset_id": "su-inst:0914-meeting:4066615@3",
+ "basis_ko": "정의 카드 su-def:0914-meeting:a0283f2e-7590-45b2-9022-3d2bf4e81c80 분류 상속: 그룹 재질 [Polished Concrete New], 7.2~8.7°·10.6~11.6° 경사면 다수, 수평 바닥면 1개(154.9 m²), 수직면 77개, 크기 20.7×14.0×3.5 m",
+ "block": false,
+ "block_contents": null,
+ "card_kind": "instance",
+ "class": "parking-deck",
+ "confidence": 0.6,
+ "definition_ref": "su-def:0914-meeting:a0283f2e-7590-45b2-9022-3d2bf4e81c80",
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSlab",
+  "entity": "IfcSlab",
+  "predefined_type": "FLOOR"
+ },
+ "level": {
+  "base_z_mm": 500.0,
+  "elevation_mm": 0.0,
+  "matched": true,
+  "name": "GL ±0"
+ },
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "concrete",
+   "colour_rgb": [
+    238,
+    238,
+    242
+   ],
+   "sketchup_material": "[Polished Concrete New]",
+   "texture_file": "Polished Concrete New.jpg",
+   "texture_size_mm": [
+    3000.0,
+    3000.0
+   ]
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 1,
+  "faces_recursive": 208,
+  "height_mm": 3500.0,
+  "length_mm": 20650.2,
+  "thickness_mm": 3500.0,
+  "transformation": [
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   0.0,
+   952.75591,
+   1539.66477,
+   0.0,
+   1.0
+  ],
+  "width_mm": 13997.2,
+  "world_bbox_mm": {
+   "max": [
+    51972.2,
+    47392.1,
+    4000.0
+   ],
+   "min": [
+    31322.0,
+    33394.8,
+    500.0
+   ],
+   "size": [
+    20650.2,
+    13997.2,
+    3500.0
+   ]
+  }
+ },
+ "provenance": {
+  "classification": "hierarchy class_guess / definition card",
+  "generator": "scripts/sketchup/build_bim_cards.py",
+  "hierarchy": "data/sources/sketchup/0914-meeting/hierarchy.json"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/parking-deck.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "workflow",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "parking",
+    "tools": [
+     "hueflow.create_face",
+     "hueflow.push_pull",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "materials",
+    "tools": [
+     "hueflow.list_materials",
+     "sketchup-mcp2.set_material",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "extrude",
+  "method_ko": "평면 윤곽을 그린 뒤 push/pull로 두께·높이만큼 돌출",
+  "nesting": "depth-2",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "Group"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "그룹#4",
+  "depth": 2,
+  "hierarchy_locator": "$.nodes[3]",
+  "name": null,
+  "occurrence": 3,
+  "parent_pid": 4073099,
+  "path": "학장동 skp.dwg > 그룹#1 > 그룹#4",
+  "pid": 4066615,
+  "type": "Group"
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "proposed_zium": "@3D-대지"
+ }
+}

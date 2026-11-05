@@ -71,27 +71,81 @@ def _tool(name: str, explicit: str | None) -> str | None:
     return None
 
 
+def _docker_dump_to_file(docker: str, container: str, parts: dict[str, str], partial: Path) -> None:
+    """pg_dump inside the container to a file there, then ``docker cp`` it out.
+
+    Streaming a multi-GB custom archive through ``docker exec`` stdout to a Windows file broke
+    mid-stream; writing inside the container and copying the finished file out does not.
+    """
+    inner = f"/tmp/{partial.name}"
+    try:
+        proc = subprocess.run([docker, "exec", container, "pg_dump", "-U", parts["user"], "-d",
+                               parts["dbname"], "-Fc", "-Z", "6", "-f", inner],
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if proc.returncode != 0:
+            raise RuntimeError(f"pg_dump failed ({proc.returncode}): {proc.stderr.decode(errors='replace')[-2000:]}")
+        proc = subprocess.run([docker, "cp", f"{container}:{inner}", str(partial)],
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if proc.returncode != 0:
+            raise RuntimeError(f"docker cp failed ({proc.returncode}): {proc.stderr.decode(errors='replace')[-2000:]}")
+    finally:
+        subprocess.run([docker, "exec", container, "rm", "-f", inner],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def sync_mirror(local: str | Path, mirror: str | Path, keep: int = 14,
+                prefix: str = DEFAULT_PREFIX) -> dict:
+    """Copy kept local dumps missing from ``mirror`` (e.g. Google Drive), then rotate the mirror.
+
+    The mirror folder must already exist: when Drive for Desktop is not mounted the folder is
+    absent and the copy is reported as pending (retried by the next run) instead of failing the
+    backup that already landed locally. Copies go through ``.partial`` + rename.
+    """
+    mirror = Path(mirror)
+    if not mirror.is_dir():
+        return {"mirror": str(mirror), "status": "pending", "reason": "mirror folder not available",
+                "copied": [], "deleted": []}
+    copied: list[str] = []
+    try:
+        for src in list_backups(local, prefix)[-keep:]:
+            dst = mirror / src.name
+            if dst.is_file() and dst.stat().st_size == src.stat().st_size:
+                continue
+            tmp = dst.with_name(dst.name + ".partial")
+            try:
+                shutil.copyfile(src, tmp)
+                os.replace(tmp, dst)
+            finally:
+                if tmp.exists():
+                    tmp.unlink()
+            copied.append(str(dst))
+        deleted = rotate(mirror, keep, prefix)
+    except OSError as exc:  # Drive dropped mid-copy: keep the local dump, retry next run
+        return {"mirror": str(mirror), "status": "pending", "reason": f"{type(exc).__name__}: {exc}",
+                "copied": copied, "deleted": []}
+    return {"mirror": str(mirror), "status": "ok", "copied": copied, "deleted": [str(p) for p in deleted]}
+
+
 def run_backup(dsn: str, target: str | Path, keep: int = 14, prefix: str = DEFAULT_PREFIX,
                docker_container: str | None = None, pg_dump: str | None = None,
-               docker: str = "docker", now: datetime | None = None) -> dict:
+               docker: str = "docker", now: datetime | None = None,
+               mirror: str | Path | None = None) -> dict:
     folder = Path(target)
     folder.mkdir(parents=True, exist_ok=True)
     final = folder / backup_name(prefix, now)
     partial = final.with_name(final.name + ".partial")
     executable = None if docker_container else _tool("pg_dump", pg_dump)
-    if executable:
-        command = [executable, "-Fc", "-Z", "6", "--dbname", dsn]
-    else:
-        if not docker_container:
-            raise RuntimeError("pg_dump not found on PATH; pass --docker-container aec-db")
-        parts = _dsn_parts(dsn)
-        command = [docker, "exec", docker_container, "pg_dump", "-U", parts["user"], "-d", parts["dbname"],
-                   "-Fc", "-Z", "6"]
+    if not executable and not docker_container:
+        raise RuntimeError("pg_dump not found on PATH; pass --docker-container aec-db")
     try:
-        with open(partial, "wb") as sink:
-            proc = subprocess.run(command, stdout=sink, stderr=subprocess.PIPE)
-        if proc.returncode != 0:
-            raise RuntimeError(f"pg_dump failed ({proc.returncode}): {proc.stderr.decode(errors='replace')[-2000:]}")
+        if executable:
+            command = [executable, "-Fc", "-Z", "6", "--dbname", dsn]
+            with open(partial, "wb") as sink:
+                proc = subprocess.run(command, stdout=sink, stderr=subprocess.PIPE)
+            if proc.returncode != 0:
+                raise RuntimeError(f"pg_dump failed ({proc.returncode}): {proc.stderr.decode(errors='replace')[-2000:]}")
+        else:
+            _docker_dump_to_file(docker, docker_container, _dsn_parts(dsn), partial)
         with partial.open("rb") as archive:
             if archive.read(5) != b"PGDMP":
                 raise RuntimeError("pg_dump produced no custom-format archive")
@@ -100,8 +154,11 @@ def run_backup(dsn: str, target: str | Path, keep: int = 14, prefix: str = DEFAU
         if partial.exists():
             partial.unlink()
     deleted = rotate(folder, keep, prefix)
-    return {"backup": str(final), "bytes": final.stat().st_size, "deleted": [str(p) for p in deleted],
-            "kept": [str(p) for p in list_backups(folder, prefix)]}
+    result = {"backup": str(final), "bytes": final.stat().st_size, "deleted": [str(p) for p in deleted],
+              "kept": [str(p) for p in list_backups(folder, prefix)]}
+    if mirror:
+        result["mirror"] = sync_mirror(folder, mirror, keep, prefix)
+    return result
 
 
 # Parallel index builds (pgvector HNSW, btree) allocate dynamic shared memory in /dev/shm; Docker's

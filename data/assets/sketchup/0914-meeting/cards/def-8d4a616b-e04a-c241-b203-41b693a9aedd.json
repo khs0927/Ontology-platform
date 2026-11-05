@@ -1,0 +1,226 @@
+{
+ "asset_file": null,
+ "asset_id": "su-def:0914-meeting:8d4a616b-e04a-c241-b203-41b693a9aedd",
+ "basis_ko": "SketchUp 기본 인물 정의(설명문 'Niraj is a Customer Success Manager at SketchUp'), 미사용",
+ "block": true,
+ "card_kind": "definition",
+ "class": "person",
+ "confidence": 0.9,
+ "ifc": {
+  "bsdd_uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuildingElementProxy",
+  "entity": "IfcBuildingElementProxy",
+  "predefined_type": "USERDEFINED"
+ },
+ "level": null,
+ "materials": [
+  {
+   "alpha": 1.0,
+   "bim_material_category": "textile-or-figure",
+   "colour_rgb": [
+    109,
+    109,
+    109
+   ],
+   "sketchup_material": "Niraj_Hair_Dark",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "textile-or-figure",
+   "colour_rgb": [
+    178,
+    178,
+    178
+   ],
+   "sketchup_material": "Niraj_Hair_Gray",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    69,
+    86,
+    117
+   ],
+   "sketchup_material": "Niraj_Pant",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    70,
+    74,
+    99
+   ],
+   "sketchup_material": "Niraj_Pant_Shadow",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    144,
+    153,
+    181
+   ],
+   "sketchup_material": "Niraj_Shirt",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    96,
+    73,
+    48
+   ],
+   "sketchup_material": "Niraj_Shoe_Sole",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "paint-or-colour",
+   "colour_rgb": [
+    181,
+    137,
+    92
+   ],
+   "sketchup_material": "Niraj_Shoe_Stitching",
+   "texture_file": null,
+   "texture_size_mm": null
+  },
+  {
+   "alpha": 1.0,
+   "bim_material_category": "textile-or-figure",
+   "colour_rgb": [
+    158,
+    128,
+    115
+   ],
+   "sketchup_material": "Niraj_Skin",
+   "texture_file": null,
+   "texture_size_mm": null
+  }
+ ],
+ "model": "0914-meeting",
+ "parameters": {
+  "count": 0,
+  "entity_counts": {
+   "Edge": 822,
+   "Face": 79
+  },
+  "face_area_m2": 0.574,
+  "height_mm": 1790.7,
+  "length_mm": 601.2,
+  "thickness_mm": 0.0,
+  "width_mm": 0.0
+ },
+ "provenance": {
+  "classification": "classification.json",
+  "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+  "generator": "scripts/sketchup/build_bim_cards.py"
+ },
+ "recipe": {
+  "child_definitions": [],
+  "class_recipe": "data/assets/sketchup/recipes/person.json",
+  "guides": [
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "component-for-repeats",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "sketchup-mcp2.create_component",
+     "hueflow.place_component"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "default-naming",
+    "tools": [
+     "sketchup-mcp2.list_components",
+     "hueflow.list_components",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "definition-origin",
+    "tools": [
+     "sketchup-mcp2.get_component_info",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+    "guide": "step-landscape-people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "group-component",
+    "tools": [
+     "sketchup-mcp2.find_components",
+     "sketchup-mcp2.get_component_info",
+     "hueflow.list_components",
+     "hueflow.place_component",
+     "hueflow.execute_ruby"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "people",
+    "tools": [
+     "hueflow.place_component",
+     "sketchup-mcp2.transform_component",
+     "sketchup-mcp2.get_component_info"
+    ]
+   },
+   {
+    "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+    "guide": "agent-judgement",
+    "tools": [
+     "hueflow.execute_ruby",
+     "sketchup-mcp2.find_components"
+    ]
+   }
+  ],
+  "method": "component",
+  "method_ko": "외부/라이브러리 컴포넌트를 한 블럭으로 배치(내부 분해 금지)",
+  "nesting": "definition",
+  "ruby_hint": "scripts/sketchup/regroup_0914.rb (태그·레벨·블럭 재구성, 기본 미리보기)",
+  "sketchup_kind": "component"
+ },
+ "review_state": "unverified",
+ "schema": "sion-bim-asset/1",
+ "source": {
+  "definition": "Niraj",
+  "guid": "su-guid:8d4a616b-e04a-c241-b203-41b693a9aedd",
+  "instance_pids": [],
+  "instances": 0,
+  "kind": "component",
+  "source_file": "Niraj.skp",
+  "used_instances": 0
+ },
+ "tag": {
+  "current": [
+   "Layer0"
+  ],
+  "inner_layers": [
+   "Layer0"
+  ],
+  "proposed_zium": "@FUR"
+ }
+}

@@ -1,0 +1,379 @@
+{
+ "schema": "sion-map-export/v1",
+ "source": "hueflow-mcp2-coexistence-20261027",
+ "expected_node_count": 18,
+ "expected_edge_count": 23,
+ "nodes": [
+  {
+   "stable_key": "tool:sketchup-mcp2",
+   "entity_type_id": "Tool",
+   "name": "sketchup-mcp2 (MCPforSketchUp)",
+   "category": "aec_cad",
+   "properties": {
+    "unit": "mm",
+    "whl": "0.4.0"
+   }
+  },
+  {
+   "stable_key": "tool:hueflow-sketchup",
+   "entity_type_id": "Tool",
+   "name": "Hueflow SketchUp MCP",
+   "category": "aec_cad",
+   "properties": {
+    "unit": "model units (inch 가능)"
+   }
+  },
+  {
+   "stable_key": "tool:sketchup",
+   "entity_type_id": "Tool",
+   "name": "SketchUp 2025",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:port-9876",
+   "entity_type_id": "Concept",
+   "name": "Port 127.0.0.1:9876 TCP",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:port-8080",
+   "entity_type_id": "Concept",
+   "name": "Port 127.0.0.1:8080 HTTP",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:port-9877",
+   "entity_type_id": "Concept",
+   "name": "Port 9877 (QGIS)",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:modeling",
+   "entity_type_id": "Concept",
+   "name": "작도·검색·undo·뷰포트",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:primitives",
+   "entity_type_id": "Concept",
+   "name": "면/모서리/호/push_pull 기본형",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:concurrent-write",
+   "entity_type_id": "Concept",
+   "name": "두 MCP 동시 형상 쓰기",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:unit-mixing",
+   "entity_type_id": "Concept",
+   "name": "mm/inch 좌표 혼용",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:hueflow-hang",
+   "entity_type_id": "Concept",
+   "name": "Hueflow 8080 hang → Ruby 타이머 정지",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:prefs-disabled",
+   "entity_type_id": "Concept",
+   "name": "PrivatePreferences mcp_for_sketchup.rb=0",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:guideline-26",
+   "entity_type_id": "Document",
+   "name": "26_Hueflow_mcp2_동시구동_2026-10-27.md",
+   "category": "aec_cad",
+   "properties": {
+    "drive_id": "14I2YKZhiuDrgoX_xFPSRfmWvd9yghei-"
+   }
+  },
+  {
+   "stable_key": "document:guideline-21",
+   "entity_type_id": "Document",
+   "name": "21_MCP_6앱_통합설정.md",
+   "category": "aec_cad",
+   "properties": {
+    "drive_id": "1hGZgDLvF35xPTjvaPBQiMbRGyi-s1vqi"
+   }
+  },
+  {
+   "stable_key": "document:pipeline-02",
+   "entity_type_id": "Document",
+   "name": "23/02_파이프라인_운영.ko.md",
+   "category": "aec_cad",
+   "properties": {
+    "drive_id": "1lhsIrZfuOKeqni0zrsLDgA8DPi1-QOXC"
+   }
+  },
+  {
+   "stable_key": "document:pipeline-04",
+   "entity_type_id": "Document",
+   "name": "23/04_알려진_문제.ko.md",
+   "category": "aec_cad",
+   "properties": {
+    "drive_id": "1liWmVBn1pDFuyV9yJnRU1Oi44vfsYcvh"
+   }
+  },
+  {
+   "stable_key": "concept:stage-sketchup",
+   "entity_type_id": "Concept",
+   "name": "파이프라인 단계: SketchUp 매스",
+   "category": "aec_cad",
+   "properties": {}
+  },
+  {
+   "stable_key": "project:sion-ontology",
+   "entity_type_id": "Project",
+   "name": "Sion Ontology",
+   "category": "aec_cad",
+   "properties": {}
+  }
+ ],
+ "edges": [
+  {
+   "stable_key": "tool:sketchup-mcp2:COEXISTS_WITH:tool:hueflow-sketchup",
+   "source_stable_key": "tool:sketchup-mcp2",
+   "target_stable_key": "tool:hueflow-sketchup",
+   "relation_type_id": "COEXISTS_WITH",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:sketchup-mcp2:USES_PORT:concept:port-9876",
+   "source_stable_key": "tool:sketchup-mcp2",
+   "target_stable_key": "concept:port-9876",
+   "relation_type_id": "USES_PORT",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:hueflow-sketchup:USES_PORT:concept:port-8080",
+   "source_stable_key": "tool:hueflow-sketchup",
+   "target_stable_key": "concept:port-8080",
+   "relation_type_id": "USES_PORT",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:sketchup-mcp2:PART_OF:tool:sketchup",
+   "source_stable_key": "tool:sketchup-mcp2",
+   "target_stable_key": "tool:sketchup",
+   "relation_type_id": "PART_OF",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:hueflow-sketchup:PART_OF:tool:sketchup",
+   "source_stable_key": "tool:hueflow-sketchup",
+   "target_stable_key": "tool:sketchup",
+   "relation_type_id": "PART_OF",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:sketchup-mcp2:PREFERRED_FOR:concept:modeling",
+   "source_stable_key": "tool:sketchup-mcp2",
+   "target_stable_key": "concept:modeling",
+   "relation_type_id": "PREFERRED_FOR",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:hueflow-sketchup:FALLBACK_FOR:concept:modeling",
+   "source_stable_key": "tool:hueflow-sketchup",
+   "target_stable_key": "concept:modeling",
+   "relation_type_id": "FALLBACK_FOR",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:hueflow-sketchup:PREFERRED_FOR:concept:primitives",
+   "source_stable_key": "tool:hueflow-sketchup",
+   "target_stable_key": "concept:primitives",
+   "relation_type_id": "PREFERRED_FOR",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:sketchup-mcp2:MUST_NOT:concept:concurrent-write",
+   "source_stable_key": "tool:sketchup-mcp2",
+   "target_stable_key": "concept:concurrent-write",
+   "relation_type_id": "MUST_NOT",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "tool:hueflow-sketchup:MUST_NOT:concept:concurrent-write",
+   "source_stable_key": "tool:hueflow-sketchup",
+   "target_stable_key": "concept:concurrent-write",
+   "relation_type_id": "MUST_NOT",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:stage-sketchup:MUST_NOT:concept:unit-mixing",
+   "source_stable_key": "concept:stage-sketchup",
+   "target_stable_key": "concept:unit-mixing",
+   "relation_type_id": "MUST_NOT",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:hueflow-hang:BLOCKS:tool:sketchup-mcp2",
+   "source_stable_key": "concept:hueflow-hang",
+   "target_stable_key": "tool:sketchup-mcp2",
+   "relation_type_id": "BLOCKS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:prefs-disabled:BLOCKS:tool:sketchup-mcp2",
+   "source_stable_key": "concept:prefs-disabled",
+   "target_stable_key": "tool:sketchup-mcp2",
+   "relation_type_id": "BLOCKS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:stage-sketchup:USES:tool:sketchup-mcp2",
+   "source_stable_key": "concept:stage-sketchup",
+   "target_stable_key": "tool:sketchup-mcp2",
+   "relation_type_id": "USES",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "concept:stage-sketchup:USES:tool:hueflow-sketchup",
+   "source_stable_key": "concept:stage-sketchup",
+   "target_stable_key": "tool:hueflow-sketchup",
+   "relation_type_id": "USES",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:guideline-26:DOCUMENTS:tool:sketchup-mcp2",
+   "source_stable_key": "document:guideline-26",
+   "target_stable_key": "tool:sketchup-mcp2",
+   "relation_type_id": "DOCUMENTS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:guideline-26:DOCUMENTS:tool:hueflow-sketchup",
+   "source_stable_key": "document:guideline-26",
+   "target_stable_key": "tool:hueflow-sketchup",
+   "relation_type_id": "DOCUMENTS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:guideline-26:DOCUMENTS:concept:stage-sketchup",
+   "source_stable_key": "document:guideline-26",
+   "target_stable_key": "concept:stage-sketchup",
+   "relation_type_id": "DOCUMENTS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:guideline-21:REFERENCES:document:guideline-26",
+   "source_stable_key": "document:guideline-21",
+   "target_stable_key": "document:guideline-26",
+   "relation_type_id": "REFERENCES",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:pipeline-02:REFERENCES:document:guideline-26",
+   "source_stable_key": "document:pipeline-02",
+   "target_stable_key": "document:guideline-26",
+   "relation_type_id": "REFERENCES",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:pipeline-04:DOCUMENTS:concept:hueflow-hang",
+   "source_stable_key": "document:pipeline-04",
+   "target_stable_key": "concept:hueflow-hang",
+   "relation_type_id": "DOCUMENTS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:pipeline-04:DOCUMENTS:concept:prefs-disabled",
+   "source_stable_key": "document:pipeline-04",
+   "target_stable_key": "concept:prefs-disabled",
+   "relation_type_id": "DOCUMENTS",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  },
+  {
+   "stable_key": "document:guideline-26:PART_OF:project:sion-ontology",
+   "source_stable_key": "document:guideline-26",
+   "target_stable_key": "project:sion-ontology",
+   "relation_type_id": "PART_OF",
+   "confidence": 1.0,
+   "verification_state": "human_verified",
+   "source_kind": "imported",
+   "properties": {}
+  }
+ ]
+}

@@ -10,7 +10,60 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Iterable
+
+# Review buckets (Issue #80 step 1). ``verified`` covers both human and machine
+# verification; ``unverified`` is pending review; ``rejected`` was turned down.
+REVIEW_STATE_GROUPS: dict[str, frozenset[str]] = {
+    "verified": frozenset({"human_verified", "machine_verified"}),
+    "unverified": frozenset({"unverified"}),
+    "rejected": frozenset({"rejected"}),
+}
+
+# What the live GraphRAG index receives by default (Issue #80): approved and pending
+# relations, never rejected ones. Rejected rows stay in the database for audit and are
+# projected only when a caller asks for them explicitly.
+DEFAULT_PROJECTION_REVIEW_STATES: tuple[str, ...] = ("verified", "unverified")
+AUDIT_PROJECTION_REVIEW_STATES: tuple[str, ...] = ("verified", "unverified", "rejected")
+
+
+# Issue #80 step 3: bounded, idempotent approval boost.
+# LightRAG floors a weight at its evidence count (one chunk here); canonical
+# confidence (clamped to [0, 1]) rides on top as a ranking boost, and a human
+# /review approval adds a fixed APPROVAL_WEIGHT_BOOST. The boost depends only on
+# the current verification_state, never on how many times a relation was
+# approved (approve -> reopen -> approve cycles grow review_history, not weight),
+# and the total is capped at MAX_RELATION_WEIGHT = floor + max confidence, so a
+# relation can never outrank a fully confident one just by being re-approved.
+BASE_RELATION_WEIGHT = 1.0
+APPROVAL_WEIGHT_BOOST = 0.25
+MAX_RELATION_WEIGHT = 2.0
+
+
+def relation_weight(confidence: float | None, verification_state: str | None) -> float:
+    """LightRAG relationship weight for a canonical relation, capped at ``MAX_RELATION_WEIGHT``."""
+    conf = 0.0 if confidence is None else min(max(float(confidence), 0.0), 1.0)
+    boost = APPROVAL_WEIGHT_BOOST if verification_state == "human_verified" else 0.0
+    return min(BASE_RELATION_WEIGHT + conf + boost, MAX_RELATION_WEIGHT)
+
+
+def resolve_verification_states(review_states: Iterable[str] | None) -> frozenset[str] | None:
+    """Map review buckets (verified/unverified/rejected) or raw states to raw states.
+
+    ``None`` means no filtering. Unknown names raise ``ValueError``.
+    """
+    if review_states is None:
+        return None
+    raw_states = set().union(*REVIEW_STATE_GROUPS.values())
+    resolved: set[str] = set()
+    for name in review_states:
+        if name in REVIEW_STATE_GROUPS:
+            resolved |= REVIEW_STATE_GROUPS[name]
+        elif name in raw_states:
+            resolved.add(name)
+        else:
+            raise ValueError(f"unknown review state: {name!r}")
+    return frozenset(resolved)
 
 from sion_api import models
 from sqlalchemy import and_, or_, select
@@ -22,6 +75,13 @@ def _active_at(at: datetime):
         or_(models.Relation.valid_from.is_(None), models.Relation.valid_from <= at),
         or_(models.Relation.valid_to.is_(None), models.Relation.valid_to > at),
     )
+
+
+def _relation_query(at: datetime, allowed_states: frozenset[str] | None):
+    query = select(models.Relation).where(_active_at(at))
+    if allowed_states is not None:
+        query = query.where(models.Relation.verification_state.in_(sorted(allowed_states)))
+    return query
 
 
 def _properties_text(properties: dict[str, Any] | None) -> str:
@@ -39,8 +99,19 @@ def _evidence_lines(rows: list[models.Evidence]) -> list[str]:
     ]
 
 
-def build_custom_kg(session: Session, *, at: datetime | None = None) -> dict[str, list[dict[str, Any]]]:
-    """Return a LightRAG ``custom_kg`` built from relations valid at ``at`` (default: now)."""
+def build_custom_kg(
+    session: Session,
+    *,
+    at: datetime | None = None,
+    review_states: Iterable[str] | None = None,
+) -> dict[str, list[dict[str, Any]]]:
+    """Return a LightRAG ``custom_kg`` built from relations valid at ``at`` (default: now).
+
+    ``review_states`` restricts relationships (and their weights) to the given
+    review buckets (``verified``/``unverified``/``rejected``) or raw
+    ``verification_state`` values. ``None`` keeps every relation.
+    """
+    allowed_states = resolve_verification_states(review_states)
     effective_at = at or datetime.now(timezone.utc)
     if effective_at.tzinfo is None:
         effective_at = effective_at.replace(tzinfo=timezone.utc)
@@ -48,7 +119,7 @@ def build_custom_kg(session: Session, *, at: datetime | None = None) -> dict[str
     entities = list(session.scalars(select(models.Entity).order_by(models.Entity.stable_key)))
     relations = list(
         session.scalars(
-            select(models.Relation).where(_active_at(effective_at)).order_by(models.Relation.stable_key)
+            _relation_query(effective_at, allowed_states).order_by(models.Relation.stable_key)
         )
     )
     evidence_by_entity: dict[Any, list[models.Evidence]] = defaultdict(list)
@@ -110,9 +181,7 @@ def build_custom_kg(session: Session, *, at: datetime | None = None) -> dict[str
             "tgt_id": target.stable_key,
             "description": content,
             "keywords": relation.relation_type_id,
-            # LightRAG floors a weight at its evidence count (one chunk here);
-            # canonical confidence rides on top as a ranking boost.
-            "weight": 1.0 + (float(relation.confidence) if relation.confidence is not None else 0.0),
+            "weight": relation_weight(relation.confidence, relation.verification_state),
             "source_id": alias,
             "file_path": f"sion://relation/{relation.stable_key}",
         })

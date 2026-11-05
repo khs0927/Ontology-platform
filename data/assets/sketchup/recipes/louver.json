@@ -1,0 +1,62 @@
+{
+ "block": false,
+ "class": "louver",
+ "definition_count": 26,
+ "examples": [
+  "su-def:0914-meeting:084b67fc-49fc-4eb6-8acf-18b8b0eebbd0",
+  "su-def:0914-meeting:0f78498b-88ec-4d89-ba97-0bac29844849",
+  "su-def:0914-meeting:22191b78-7742-4262-84c3-7bf8a921f77b",
+  "su-def:0914-meeting:3787179f-ad66-4d7f-8002-f7c60d1b6a4f",
+  "su-def:0914-meeting:562cee6f-3211-455d-8e94-10f673105178",
+  "su-def:0914-meeting:56471930-d6d8-4675-acfa-bb70b3b174e4",
+  "su-def:0914-meeting:564d46ff-eea0-451b-bf22-01400ef72031",
+  "su-def:0914-meeting:5cd55095-7fe5-4ae5-aa2e-7736456524f9",
+  "su-def:0914-meeting:5da0993d-512d-4c5e-8d11-3c0b774a7dbe",
+  "su-def:0914-meeting:5e38a976-b64c-4f9b-bc81-d02d378dbd02"
+ ],
+ "guides": [],
+ "how_to_make_ko": [
+  "단위 부재(단·멀리언·패널) 하나를 그룹으로 만든 뒤 복사 배열(Move+Ctrl, xN)",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcShadingDevice",
+  "predefined_type": "LOUVER"
+ },
+ "label_ko": "루버",
+ "material_categories": {
+  "paint-or-colour": 2
+ },
+ "proposed_zium_tag": "LOUVER",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 2340.0,
+   "median": 100.0,
+   "min": 69.3,
+   "n": 26
+  },
+  "length_mm": {
+   "max": 2340.0,
+   "median": 940.0,
+   "min": 940.0,
+   "n": 26
+  },
+  "thickness_mm": {
+   "max": 100.0,
+   "median": 87.7,
+   "min": 40.0,
+   "n": 26
+  },
+  "width_mm": {
+   "max": 940.0,
+   "median": 87.7,
+   "min": 40.0,
+   "n": 26
+  }
+ }
+}

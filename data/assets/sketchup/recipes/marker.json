@@ -1,0 +1,88 @@
+{
+ "block": false,
+ "class": "marker",
+ "definition_count": 1,
+ "examples": [
+  "su-def:0914-meeting:d02f928a-ff38-4f28-9646-725438fbadc2"
+ ],
+ "guides": [
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "top-split-by-part",
+   "tools": [
+    "hueflow.list_entities",
+    "sketchup-mcp2.list_components"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "working-markup",
+   "tools": [
+    "hueflow.list_layers",
+    "hueflow.list_components",
+    "hueflow.execute_ruby"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "guide": "step-markup",
+   "tools": [
+    "hueflow.create_group",
+    "hueflow.execute_ruby",
+    "hueflow.list_layers"
+   ]
+  },
+  {
+   "doc": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "guide": "annotation",
+   "tools": [
+    "hueflow.execute_ruby",
+    "sketchup-mcp2.find_components"
+   ]
+  }
+ ],
+ "how_to_make_ko": [
+  "선·문자 등 2D 작업 표식",
+  "최상위/2단계 인스턴스에만 의미 태그를 붙이고 내부 형상은 Layer0으로 둔다",
+  "기준 레벨(GL/1FL/2FL/RF) 바닥 높이에 원점을 맞추고 정의 원점은 부재 좌하단",
+  "건물 형태가 달라지면 윤곽만 새로 그리고 두께·높이 파라미터 범위를 재사용"
+ ],
+ "ifc": {
+  "entity": "IfcAnnotation",
+  "predefined_type": null
+ },
+ "label_ko": "표식(용도 미상)",
+ "material_categories": {
+  "paint-or-colour": 1
+ },
+ "proposed_zium_tag": "WIP",
+ "review_state": "unverified",
+ "schema": "sion-bim-recipe/1",
+ "source_model": "0914-meeting",
+ "typical_params_mm": {
+  "height_mm": {
+   "max": 250.0,
+   "median": 250.0,
+   "min": 250.0,
+   "n": 1
+  },
+  "length_mm": {
+   "max": 250.0,
+   "median": 250.0,
+   "min": 250.0,
+   "n": 1
+  },
+  "thickness_mm": {
+   "max": 10.0,
+   "median": 10.0,
+   "min": 10.0,
+   "n": 1
+  },
+  "width_mm": {
+   "max": 10.0,
+   "median": 10.0,
+   "min": 10.0,
+   "n": 1
+  }
+ }
+}

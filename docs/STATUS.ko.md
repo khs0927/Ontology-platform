@@ -1,17 +1,43 @@
 # Sion Ontology Platform — 현재 상태 (한국어 요약)
 
-갱신: 2026-10-08 저녁 (Asia/Seoul)
+갱신: 2026-10-08 22:00 KST (Asia/Seoul)
 
 ## 아키텍처 (요약)
 
 1. **메인 모노레포** `khs0927/Ontology-platform` (v0.2.0). GitHub가 코드 이력의 기준이다.
 2. **병합된 패키지**: `packages/regulation`(ArchOntos), `packages/aec`(Ontology/`aec_intelligence`), `packages/cad/god-cad`(GOD-CAD). 원본 저장소는 보관(읽기 전용).
-3. **브릿지 전용(별도 저장소)**: power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad, CAD-MCP. 버전된 JSON 계약 + 계약 테스트로만 연결. Sion은 CAD를 직접 수정하지 않는다.
+3. **브릿지 전용(별도 저장소)**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad, CAD-MCP (HS-CAD는 2026-11-03 사용 중단). 버전된 JSON 계약 + 계약 테스트로만 연결. Sion은 CAD를 직접 수정하지 않는다.
 4. **런타임 DB**: 로컬 PostgreSQL(또는 SQLite 스모크). `public` + `regulation` 스키마. 라이브 DB는 디스크에 두고, 커밋된 쓰기마다 `SION_STORAGE_ROOT`(Drive 데스크톱 폴더)로 스냅샷·그래프를 export한다.
 5. **수집**: 문서(PDF/DOCX/md…), DXF(`sion_cad.reader`), IFC, 에이전트 세션 브릿지(Antigravity/Codex/Claude + DeepSeek/Hermes/ZCode 로컬 로그 리더).
 6. **관계·리뷰**: 31노드/43관계는 `unverified` 후보로 적재. `/review`에서 사람이 승인·반려. SketchUp 0914 지식팩(노드 1,195 / 관계 4,509)도 후보·검증 혼합.
 7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색, AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
 8. **CI**: Tests(Ubuntu+Windows), Verify, AEC/CAD, Regulation, Public security. agent-bridge Windows exe는 Releases.
+
+## 현재 상태 (2026-10-08 22:00 KST 재확인)
+
+기준: `main` `e2bffe3`(#48), 커밋 316개. 열린 PR은 이 PR뿐, 열린 이슈는 #3·#33.
+
+**테스트** (지금 숫자. 아래 예전 절의 숫자는 그 시점 기록)
+
+| 범위 | 설치 | 결과 |
+|---|---|---|
+| 루트 `tests/` | `.[all,test,dev]` | **265 통과, 3 건너뜀** (3개는 `SION_TEST_POSTGRES_URL` 필요) |
+| 루트 `tests/` | 최소 `.[test]` | 239 통과, 29 건너뜀 (선택 라이브러리 없음) |
+| `packages/aec` | | 619 통과, 51 건너뜀 |
+| `packages/regulation` | 로컬, PostgreSQL 없음 | 213 통과, 39 건너뜀 (PostgreSQL 테스트는 CI에서 실행) |
+| `packages/cad/god-cad` | | 27 통과 |
+
+**CI:** `main`의 체크 15개 모두 통과 (GitHub Actions 14개 + CircleCI 1개). 목록은 `docs/STATUS.md` "Current state".
+
+**히스토리 재작성 2회** (둘 다 오너 승인, force push)
+1. **2026-10-08 03:11 KST — exe 제거.** `git filter-repo`로 `bin/sion-agent-bridge.exe`를 모든 히스토리에서 제거(팩 75.7 MiB → 2.6 MiB). exe는 Release v0.2.0에 있음.
+2. **2026-10-08 12:23 KST — 개인정보 정리.** 공개 히스토리의 이메일, Google Drive 파일 ID, 장치명을 가림. `main`과 다른 브랜치 29개(총 30개 ref)를 같은 초(12:23:55)에 force push. 이전 `main` `217ccd3` → 새 `54e1921`("Protect public privacy and local HTTP access"가 맨 위에 추가). 이전 main의 커밋 263개는 제목·작성 시각 그대로 모두 남아 있고, 트리 차이는 가린 파일 9개뿐. 사라진 커밋 없음.
+
+영향:
+- 12:23 이전에 만든 클론은 모두 **예전 히스토리**라 `origin/main`과 갈라져 `git pull --ff-only`가 실패합니다. 백업 후 `git fetch` + `git reset --hard origin/main`, 또는 새로 클론하세요(`docs/ops/MAIN-PC-TODO.ko.md` 1단계). **예전 클론·예전 로컬 브랜치에서는 절대 푸시하지 마세요.** 지운 exe와 가리기 전 정보가 다시 올라갑니다. 새 히스토리인지는 `git merge-base --is-ancestor 54e1921 HEAD`로 확인합니다.
+- 재작성된 커밋은 GitHub "Verified" 서명 표시가 사라졌습니다.
+
+**브랜치 정리 (22:00 KST):** `main`에 완전히 포함된(고유 커밋 0, 열린 PR 없음) 원격 브랜치 13개를 저장소 밖 번들로 백업한 뒤 삭제했습니다. 고유 커밋이 남은 오래된 브랜치 19개는 **그대로 두었습니다**(오너 판단). 목록은 `docs/STATUS.md` "Branch cleanup".
 
 ## 2026-10-08 저녁 스프린트 결과 (20:30 재확인)
 
@@ -21,7 +47,7 @@
 - [#39](https://github.com/khs0927/Ontology-platform/pull/39) `switch-to-monorepo.ps1` + 한국어 런북 — 기본 드라이런, `-Apply`로 실행, DB 볼륨이 바뀌면 거부.
 - [#40](https://github.com/khs0927/Ontology-platform/pull/40) netguard가 fake-IP 대역 `198.18.0.0/15`를 로컬로 오인하던 보안 문제 수정.
 - [#41](https://github.com/khs0927/Ontology-platform/pull/41) 상태 문서 + 이 한국어 요약.
-- #34·#35는 #36(Windows pytest)로 대체되어 닫음.
+- #34·#35는 #36(Windows pytest)로 대체되어 19:45에 닫음.
 
 **연결 저장소 병합** (각 저장소에서 진행)
 - power-cad-mcp #42(철골 플레이북), #40(문서 동기화), #43(`cad_hs_*` 자산 도구 10개, 전체 65개, `..` 경로 탈출 수정).
@@ -45,10 +71,30 @@
 - [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) — 메인 PC 복귀 시 순서대로 실행할 체크리스트(명령·성공 기준·롤백).
 - [`docs/guidelines/AGENT-WORKFLOW.ko.md`](guidelines/AGENT-WORKFLOW.ko.md) — 이번 주 작업에서 정리한 에이전트 작업 지침.
 
+## 2026-10-09 검증 결과 (PR #51 도면번호 추출) — 2026-10-17 정리
+
+**재평가 — 수정 후 완주, 회귀 없음**
+- `feat/drawing-number-extraction`(커밋 `2a3a5491`) 기준 20건 중립 평가 전량 재실행: 20/20 케이스, 파싱 오류 0,
+  판정 셀 **43/43 통과**(도면번호 14/14, 분류 18/18, 층 11/11). 존재 적중률 100%.
+- **측정 범위 주의:** 정답 후보의 *존재 여부*만 센다. 정밀도·재현율·전체 시트 완성도는 측정하지 않는다
+  (`semantic_accuracy`/`precision`/`full_set_recall`은 `None` 고정).
+- **비교 표기 주의:** 이전 기록의 "층 8/9 → 9/9"와 이번 "층 11/11"은 분모가 다르다(41셀·43셀). 개선으로 표기하지 않는다.
+- **provenance 주의:** 당시 평가는 미커밋 parser 작업본 기준이었다. 이후 parser 수정 커밋(`88ef0c8`)이 추가로 병합됐으며,
+  병합된 HEAD 기준 재평가 기록은 아직 없다.
+- 라벨은 에이전트가 검토한 변환 DXF 기준이며 원본 DWG/래스터 교차 검증은 없다.
+
+**PR 상태(2026-10-17 확인)**
+- #51(도면번호 추출)·#52(도면 분석 지침)·#53(관계 판정 36/7)·#54(규정 게이트웨이 계약)·#55·#56 모두 병합 완료.
+
+**RAM**
+- 커널 nonpaged 풀이 약 1.8GB로 비정상적으로 크다. poolmon 미설치로 태그 단위 귀속은 불가.
+- 사용자 모드가 아니라 커널 풀이 지배적이며, nonpaged 풀은 앱 종료로 회수되지 않고 재부팅으로만 초기화된다.
+- 수집 재개 기준(1분 간격 3회 모두 2GB 이상)은 2026-10-17 현재도 미달 → 워커 정지 유지.
+
 ## 소유자(오너) 할 일
 
 0. **최우선(어느 PC든):** HS-CAD `opencode.json`에 커밋됐던 Google AI Studio API 키 교체(2026-05-21부터 공개 히스토리, main은 #158로 환경변수 사용) → HS-CAD 비밀 스캔 알림 #1을 "Revoked"로 닫기. 선택: power-cad-mcp·hs-steel-cad·All-In-Cad에 Dependabot + 비밀 스캔 켜기. 자세한 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 맨 위.
-0b. HS-CAD PR 판단: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.
+0b. ~~HS-CAD PR 판단~~ — 2026-11-03 제외: HS-CAD 사용 중단, CAD 호스트 연동은 power-cad-mcp만 사용(HS-CAD 계약 제거). 0번 API 키 폐기는 그대로 필요. (이전 내용: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.)
 0c. All-In-Cad 브랜치 `agent/autocad-host-2027`(`edba1f9`, CI 통과)을 PR로 올려 병합할지 결정. zium-onboarding 템플릿 테스트 실패 11개 수정.
 1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33).
 2. 메인 PC 온라인 시 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 실행 — 보관된 Ontology 체크아웃 → `packages/aec` 전환(`switch-to-monorepo.ps1` 드라이런 후 `-Apply`).
@@ -56,3 +102,5 @@
 4. 전환 후 GraphRAG 재색인(FAILED 커뮤니티 6건 재시도).
 5. 운영 방화벽 스크립트 관리자 실행(18080/22217), DB 덤프를 DB와 다른 디스크로 복사.
 6. SketchUp 덤프 경로(`skp_path`) 보존 여부 결정.
+7. 12:23 이전에 만든 PC의 예전 체크아웃을 새 히스토리로 맞추거나 보관(백업 후 `fetch` + `reset --hard origin/main`). 그 전에는 거기서 푸시 금지.
+8. 고유 커밋이 남은 오래된 원격 브랜치 19개를 남길지 정리할지 결정.

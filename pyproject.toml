@@ -13,6 +13,8 @@ dependencies = [
   "sqlalchemy==2.1.3",
   "uvicorn==0.54.0",
   "psycopg[binary]==3.3.6",
+  "httpx>=0.28,<1",
+  "jsonschema>=4.26,<5",
 ]
 
 [project.scripts]
@@ -28,7 +30,7 @@ aec-mcp-http = "aec_intelligence.mcp_http:main"
 cad = [
   "ezdxf>=1.4.4,<2",
   # GOD-CAD analysis (packages/cad/god-cad): preview rendering and geometry
-  "Pillow>=11,<13",
+  "Pillow>=11,<14",
   "numpy>=2,<2.5",
 ]
 bim = [
@@ -95,8 +97,18 @@ select = ["E", "F", "W", "I"]
 ignore = ["E501", "E701", "E702", "E402"]  # existing upstream style; tighten later
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-q"
+testpaths = ["tests", "packages"]
+addopts = "-q --import-mode=importlib"
+# Subtree packages under packages/ ship test suites that import modules which are
+# not installed as distributions (extension dirs, the ArchOntos repo root for
+# `apps.*`). Put those roots on sys.path so `pytest` from the repo root collects them.
+pythonpath = [
+  "tests",  # tests/ modules import sibling helpers (importlib mode drops rootdir insertion)
+  "packages/aec/extensions/drawing_context",
+  "packages/aec/extensions/external_capabilities",
+  "packages/aec/extensions/intelligence_fabric",
+  "packages/regulation",
+]
 
 [tool.setuptools]
 packages = [
@@ -149,6 +161,7 @@ god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
 
 [tool.setuptools.package-data]
+sion_api = ["*.html"]
 sion_core = ["contracts/schemas/*.json"]
 aec_intelligence = [
   "resources/*.json",
