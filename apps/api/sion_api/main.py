@@ -315,13 +315,19 @@ def create_app(
     @app.get("/api/v1/review/report", dependencies=[Depends(read_knowledge)])
     def review_verification_report(
         include_rejected: bool = Query(
-            default=False, description="Audit/debug only: report the projection that also keeps /review-rejected relations"
+            default=False, description="Audit/debug only: report the policy that also keeps /review-rejected relations"
         ),
+        batch_id: str | None = Query(default=None, max_length=64, description="Only this bulk decision"),
+        limit: int = Query(default=100, ge=1, le=1000, description="Page size for relations and batches"),
+        offset: int = Query(default=0, ge=0),
         session: Session = Depends(get_session),
     ):
-        """Which reviewed relations the GraphRAG projection keeps, with weight, reviewer, note and batch outcomes.
+        """Which reviewed relations the review-state policy keeps, with weight, reviewer, note and batch outcomes.
 
-        Read-only. An approval is a review judgement, not a factual verification of the source.
+        Read-only and paginated (``relations`` and ``batches`` are paged independently by
+        ``limit``/``offset``). ``projected_under_policy`` describes the policy, not the live
+        GraphRAG index, which does not apply the review-state filter yet. An approval is a review
+        judgement, not a factual verification of the source.
         """
         from sion_graphrag.review_report import (
             AUDIT_REPORT_REVIEW_STATES,
@@ -330,7 +336,7 @@ def create_app(
         )
 
         states = AUDIT_REPORT_REVIEW_STATES if include_rejected else DEFAULT_REPORT_REVIEW_STATES
-        return build_review_report(session, review_states=states)
+        return build_review_report(session, review_states=states, limit=limit, offset=offset, batch_id=batch_id)
 
     @app.post(
         "/api/v1/evidence",

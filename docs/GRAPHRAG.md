@@ -111,9 +111,15 @@ from the fact that a candidate was approved.
   (aggregate `review_batch`, id = `batch_id`) with the per-id results (`applied`,
   `unchanged`, `conflict`, `not_found`, `not_candidate`, `invalid_id`) in the same transaction.
 - `GET /api/v1/review/report` (`read:knowledge`) is the verification report: per state, how many
-  relations exist and how many the projection keeps; every reviewed relation with weight,
-  reviewer, note, `batch_id` and history; and every batch with its per-id outcomes.
-  Rejected relations are reported as not projected unless `?include_rejected=true` (audit).
+  relations exist and how many the review-state policy keeps (`projected_under_policy`); a page of
+  reviewed relations with weight, reviewer, note, `batch_id` and history; and a page of batches with
+  their per-id outcomes. `limit` (1-1000, default 100) and `offset` page relations and batches
+  independently (`relations_total`, `batches_total`), and `batch_id` restricts both to one batch.
+  Rejected relations are reported as not kept by the policy unless `?include_rejected=true` (audit).
+- **The live index does not apply this policy yet**: `POST /api/v1/graphrag/project` still projects
+  every review state, so rejected relations can be in the live LightRAG index even though the report
+  shows them as not kept. The report says so (`live_index_applies_policy: false`); do not read it as
+  proof that rejected relations are absent from GraphRAG until the engine applies the same filter.
 
 ## SketchUp BIM asset index (`sion-bim-asset-index/1`)
 

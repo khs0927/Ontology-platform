@@ -105,8 +105,10 @@ up at `/review` and stay `unverified` until a person approves them.
   facts). The opposite decision is refused (`409` / `conflict`) until the candidate is reopened with
   `POST /api/v1/relations/candidates/{id}/reopen` and a required note; the previous decision
   (reviewer, note, `batch_id`) stays in `properties.review_history` and nothing is deleted.
-- `GET /api/v1/review/report` lists which reviewed relations the GraphRAG projection keeps (rejected
-  ones are excluded by default) and each bulk `batch_id` with its per-id results.
+- `GET /api/v1/review/report` (paged with `limit`/`offset`, optional `batch_id`) lists which reviewed
+  relations the review-state policy keeps (rejected ones are excluded by default) and each bulk
+  `batch_id` with its per-id results. The live GraphRAG index does not apply that policy yet
+  (`live_index_applies_policy: false`), so rejected relations may still be indexed.
 
 ## How an agent should use it
 

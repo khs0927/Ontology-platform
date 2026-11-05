@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -268,7 +268,11 @@ class BulkCandidateDecision(BaseModel):
     shared ``batch_id``; the per-id results are also kept in a ``review.batch_decided`` outbox event.
     """
 
-    ids: list[str] = Field(min_length=1, max_length=1000, description="Candidate relation ids the reviewer selected")
+    # Each id is bounded (a UUID is 36 chars) because the per-id results, including ``invalid_id``
+    # entries, are persisted in the ``review.batch_decided`` outbox payload.
+    ids: list[Annotated[str, Field(max_length=64)]] = Field(
+        min_length=1, max_length=1000, description="Candidate relation ids the reviewer selected (each at most 64 chars)"
+    )
     decision: Literal["approve", "reject"] = Field(
         description="approve -> human_verified (review judgement, not fact verification); reject -> rejected (row kept)"
     )

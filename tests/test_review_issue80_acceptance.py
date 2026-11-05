@@ -100,22 +100,22 @@ def test_fixture_report_default_and_audit(fixture_app):
         audit = build_review_report(session, review_states=AUDIT_REPORT_REVIEW_STATES)
     assert default["fact_verification"] is False and "does not verify" in default["notice"]
     assert default["counts"] == {
-        "human_verified": {"total": 1, "projected": 1},
-        "rejected": {"total": 1, "projected": 0},
-        "unverified": {"total": 1, "projected": 1},
+        "human_verified": {"total": 1, "projected_under_policy": 1},
+        "rejected": {"total": 1, "projected_under_policy": 0},
+        "unverified": {"total": 1, "projected_under_policy": 1},
     }
     by_key = {r["stable_key"]: r for r in default["relations"]}
     assert set(by_key) == {"rv:def:hv|RELATED_TO|rv:class:wall", "rv:def:rj|RELATED_TO|rv:class:wall"}
     hv, rj = by_key["rv:def:hv|RELATED_TO|rv:class:wall"], by_key["rv:def:rj|RELATED_TO|rv:class:wall"]
-    assert hv["projected"] is True and hv["weight"] == pytest.approx(1.85)
+    assert hv["projected_under_policy"] is True and hv["weight"] == pytest.approx(1.85)
     assert hv["review"]["reviewer"] == "fixture-reviewer" and hv["review"]["note"] == "checked against plan"
     assert hv["review"]["batch_id"] == data["relations"][0]["review"]["batch_id"]
-    assert rj["projected"] is False and rj["weight"] is None
+    assert rj["projected_under_policy"] is False and rj["weight"] is None
     assert {b["batch_id"]: b["current_relations"] for b in default["batches"]} == {
         "11111111-1111-4111-8111-111111111111": ["rv:def:hv|RELATED_TO|rv:class:wall"],
         "22222222-2222-4222-8222-222222222222": ["rv:def:rj|RELATED_TO|rv:class:wall"],
     }
-    assert audit["counts"]["rejected"] == {"total": 1, "projected": 1}
+    assert audit["counts"]["rejected"] == {"total": 1, "projected_under_policy": 1}
 
 
 # --- opposite decisions and the re-review path ------------------------------------------------
@@ -186,7 +186,7 @@ def test_rereview_requires_note_keeps_history_and_never_deletes():
 
         report = c.get(REPORT, headers=AUTH).json()
         [entry] = [r for r in report["relations"] if r["stable_key"] == row.stable_key]
-        assert entry["projected"] is False  # rejected is excluded by default
+        assert entry["projected_under_policy"] is False  # rejected is excluded by default
         assert entry["review"]["batch_id"] == batch_b and entry["review_history"][0]["batch_id"] == batch_a
         batches = {b["batch_id"]: b for b in report["batches"]}
         assert batches[batch_a]["decision"] == "approved" and batches[batch_a]["current_relations"] == []
@@ -250,7 +250,7 @@ def test_import_never_auto_approves_and_shows_evidence():
         assert all(x["status"] == "pending" and x["review"] is None for x in listed["candidates"])
         assert all(x["evidence_count"] >= 1 and x["evidence"] for x in listed["candidates"])
         report = c.get(REPORT, headers=AUTH).json()
-        assert report["counts"]["unverified"]["total"] == report["counts"]["unverified"]["projected"] == 43
+        assert report["counts"]["unverified"]["total"] == report["counts"]["unverified"]["projected_under_policy"] == 43
         assert report["relations"] == [] and report["batches"] == []
 
 
@@ -260,10 +260,53 @@ def test_report_excludes_rejected_by_default_and_audit_flag():
         assert c.post(BULK, json={"ids": ids[:2], "decision": "reject", "note": "weak"}, headers=AUTH).status_code == 200
         default = c.get(REPORT, headers=AUTH).json()
         audit = c.get(REPORT, params={"include_rejected": "true"}, headers=AUTH).json()
-        assert default["counts"]["rejected"] == {"total": 2, "projected": 0}
-        assert audit["counts"]["rejected"] == {"total": 2, "projected": 2}
+        assert default["counts"]["rejected"] == {"total": 2, "projected_under_policy": 0}
+        assert audit["counts"]["rejected"] == {"total": 2, "projected_under_policy": 2}
         assert "rejected" not in default["projected_states"] and "rejected" in audit["projected_states"]
         assert c.get(REPORT).status_code == 401  # read:knowledge required
+
+
+def test_report_is_paginated_and_filterable_by_batch():
+    with client() as c:
+        ids = pending_ids(c)
+        first = c.post(BULK, json={"ids": ids[:3], "decision": "approve", "note": "a"}, headers=AUTH).json()
+        second = c.post(BULK, json={"ids": ids[3:5], "decision": "reject", "note": "b"}, headers=AUTH).json()
+
+        full = c.get(REPORT, headers=AUTH).json()
+        assert full["relations_total"] == 5 and full["batches_total"] == 2
+        assert [b["batch_id"] for b in full["batches"]] == [first["batch_id"], second["batch_id"]]
+
+        page = c.get(REPORT, params={"limit": 2, "offset": 1}, headers=AUTH).json()
+        assert page["limit"] == 2 and page["offset"] == 1
+        assert page["relations_total"] == 5 and page["batches_total"] == 2
+        assert [r["stable_key"] for r in page["relations"]] == [r["stable_key"] for r in full["relations"][1:3]]
+        assert [b["batch_id"] for b in page["batches"]] == [second["batch_id"]]
+
+        only = c.get(REPORT, params={"batch_id": second["batch_id"]}, headers=AUTH).json()
+        assert only["relations_total"] == 2 and only["batches_total"] == 1
+        assert {r["review"]["batch_id"] for r in only["relations"]} == {second["batch_id"]}
+        assert len(only["batches"][0]["current_relations"]) == 2
+
+        assert c.get(REPORT, params={"batch_id": "nope"}, headers=AUTH).json()["batches"] == []
+        assert c.get(REPORT, params={"limit": 0}, headers=AUTH).status_code == 422
+        assert c.get(REPORT, params={"limit": 1001}, headers=AUTH).status_code == 422
+
+
+def test_report_says_live_index_does_not_apply_policy_yet():
+    with client() as c:
+        report = c.get(REPORT, headers=AUTH).json()
+        assert report["live_index_applies_policy"] is False
+        assert "does not apply this filter yet" in report["policy_notice"]
+
+
+def test_bulk_ids_are_length_bounded_before_they_reach_the_batch_log():
+    with client() as c:
+        ids = pending_ids(c)
+        r = c.post(BULK, json={"ids": [ids[0], "x" * 65], "decision": "approve", "note": "n"}, headers=AUTH)
+        assert r.status_code == 422
+        with c.app.state.session_factory() as s:
+            assert s.scalar(select(func.count()).select_from(models.OutboxEvent)
+                            .where(models.OutboxEvent.event_type == "review.batch_decided")) == 0
 
 
 # --- approval does not replace fact verification (UI/API/docs) -----------------------------
