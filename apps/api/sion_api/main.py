@@ -50,28 +50,23 @@ def create_app(
     project_contract_catalog: ProjectContractCatalog | None = None,
     ingest_roots: list[Path] | None = None,
     regulation_transport=None,
+    review_require_version: bool | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
+    if review_require_version is not None:
+        settings = replace(settings, review_require_version=review_require_version)
     if database_url is not None:
-        settings = Settings(
+        settings = replace(
+            settings,
             database_url=database_url,
             auto_create_schema=(
                 auto_create_schema
                 if auto_create_schema is not None
                 else database_url.startswith("sqlite")
             ),
-            ontology_path=settings.ontology_path,
-            map_inventory_path=settings.map_inventory_path,
-            cors_origins=settings.cors_origins,
         )
     elif auto_create_schema is not None:
-        settings = Settings(
-            database_url=settings.database_url,
-            auto_create_schema=auto_create_schema,
-            ontology_path=settings.ontology_path,
-            map_inventory_path=settings.map_inventory_path,
-            cors_origins=settings.cors_origins,
-        )
+        settings = replace(settings, auto_create_schema=auto_create_schema)
 
     engine = build_engine(settings.database_url)
     factory = build_session_factory(engine)
@@ -263,21 +258,69 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return review.serialize(session, row, evidence_limit=100)
 
+    def _review_error(exc: Exception) -> HTTPException:
+        """Map review-queue errors to HTTP; structured bodies for the safe-write (#71) errors."""
+        if isinstance(exc, LookupError):
+            return HTTPException(status_code=404, detail=str(exc))
+        if isinstance(exc, review.VersionConflict):
+            return HTTPException(status_code=409, detail=exc.as_detail())
+        if isinstance(exc, review.VersionRequired):
+            return HTTPException(status_code=428, detail=exc.as_detail())
+        if isinstance(exc, review.LowTrustConfirmationRequired):
+            return HTTPException(status_code=422, detail=exc.as_detail())
+        return HTTPException(status_code=409, detail=str(exc))
+
+    review_errors = (
+        LookupError,
+        review.NotACandidate,
+        review.AlreadyReviewed,
+        review.NotReviewed,
+        review.VersionConflict,
+        review.VersionRequired,
+        review.LowTrustConfirmationRequired,
+    )
+
     def _decide(relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool):
         try:
-            row = review.decide(session, relation_id, approve=approve, reviewer=payload.reviewer, note=payload.note)
-        except LookupError as exc:
-            raise HTTPException(status_code=404, detail=str(exc)) from exc
-        except (review.NotACandidate, review.AlreadyReviewed) as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
-        return review.serialize(session, row)
+            return review.decide(
+                session,
+                relation_id,
+                approve=approve,
+                reviewer=payload.reviewer,
+                note=payload.note,
+                expected_version=payload.expected_version,
+                confirm_low_trust=payload.confirm_low_trust,
+                dry_run=payload.dry_run,
+                require_version=settings.review_require_version,
+            )
+        except review_errors as exc:
+            raise _review_error(exc) from exc
 
     @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_knowledge)])
     def bulk_decide_candidate_relations(payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)):
         """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item."""
-        return review.decide_bulk(
-            session, payload.ids, approve=payload.decision == "approve", note=payload.note, reviewer=payload.reviewer
-        )
+        try:
+            return review.decide_bulk(
+                session,
+                payload.ids,
+                approve=payload.decision == "approve",
+                note=payload.note,
+                reviewer=payload.reviewer,
+                expected_versions=payload.expected_versions,
+                confirm_low_trust=payload.confirm_low_trust,
+                dry_run=payload.dry_run,
+                require_version=settings.review_require_version,
+            )
+        except review_errors as exc:
+            raise _review_error(exc) from exc
+
+    @app.get("/api/v1/relations/candidates/{relation_id}/audit", dependencies=[Depends(read_knowledge)])
+    def candidate_relation_audit(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+        """Replayable decision log of one candidate (and whether replaying it reproduces the stored state)."""
+        try:
+            return review.audit(session, relation_id)
+        except review_errors as exc:
+            raise _review_error(exc) from exc
 
     @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_knowledge)])
     def approve_candidate_relation(
@@ -305,12 +348,17 @@ def create_app(
     ):
         """Return an approved/rejected candidate to pending (note required; the reverted decision stays on record)."""
         try:
-            row = review.reopen(session, relation_id, note=payload.note, reviewer=payload.reviewer)
-        except LookupError as exc:
-            raise HTTPException(status_code=404, detail=str(exc)) from exc
-        except (review.NotACandidate, review.NotReviewed, review.AlreadyReviewed) as exc:
-            raise HTTPException(status_code=409, detail=str(exc)) from exc
-        return review.serialize(session, row)
+            return review.reopen(
+                session,
+                relation_id,
+                note=payload.note,
+                reviewer=payload.reviewer,
+                expected_version=payload.expected_version,
+                dry_run=payload.dry_run,
+                require_version=settings.review_require_version,
+            )
+        except review_errors as exc:
+            raise _review_error(exc) from exc
 
     @app.get("/api/v1/review/report", dependencies=[Depends(read_knowledge)])
     def review_verification_report(
