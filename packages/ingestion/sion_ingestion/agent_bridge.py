@@ -748,7 +748,14 @@ ON CONFLICT (id) DO NOTHING;\n""",
   ('EVIDENCED_BY', 'Evidenced by', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
   ('SUPERSEDES', 'Supersedes', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
   ('VERSION_OF', 'Version of', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
-  ('VALIDATES', 'Validates', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb)
+  ('VALIDATES', 'Validates', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('BLOCKS', 'Blocks', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('COEXISTS_WITH', 'Coexists With', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('DOCUMENTS', 'Documents', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('FALLBACK_FOR', 'Fallback For', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('MUST_NOT', 'Must Not', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('PREFERRED_FOR', 'Preferred For', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb),
+  ('USES_PORT', 'Uses Port', NULL, NULL, NULL, FALSE, FALSE, '{}'::jsonb)
 ON CONFLICT (id) DO NOTHING;\n""",
             "-- 3. Entities",
         ]
