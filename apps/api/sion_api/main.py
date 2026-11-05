@@ -35,7 +35,7 @@ from . import (
     schemas,
     vector_repository,
 )
-from .auth import AuthPolicy, require_scope
+from .auth import AuthPolicy, project_scoped, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .drive_export import DriveExporter, install_export_on_write
@@ -103,7 +103,7 @@ def create_app(
     read_aec = require_scope(auth_policy, "read:aec")
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
     law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
-    project_summary.register(app, get_session, auth_policy, read_knowledge)
+    project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
 
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()
