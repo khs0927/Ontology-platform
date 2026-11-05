@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 import hmac
 import ipaddress
 import json
 import os
+import uuid
 from dataclasses import dataclass
 from typing import Callable
 from urllib.parse import urlsplit
@@ -11,6 +13,7 @@ from urllib.parse import urlsplit
 from fastapi import HTTPException, Request
 
 VALID_MODES = frozenset({"local-only", "bearer", "local-or-bearer"})
+PROJECT_SCOPE_PREFIX = "project:"
 
 
 @dataclass(frozen=True)
@@ -123,6 +126,42 @@ class AuthPolicy:
             )
         if "*" not in scopes and scope not in scopes:
             raise HTTPException(status_code=403, detail=f"missing required scope: {scope}")
+
+    def allowed_projects(self, request: Request) -> frozenset[str] | None:
+        """Project ACL for an already authorized request; ``None`` means unrestricted.
+
+        A bearer token whose scope list contains ``project:<uuid>`` entries is limited
+        to those projects. Tokens without project entries, ``*`` tokens and trusted
+        local requests stay unrestricted. Malformed project entries fail closed: the
+        token remains restricted but the entry grants nothing.
+        """
+        if self.mode == "local-only":
+            return None
+        if self.mode == "local-or-bearer" and self._trusted_local_request(request):
+            return None
+        scopes = self._scopes_for_authorization(request.headers.get("Authorization"))
+        if scopes is None:
+            return frozenset()
+        if "*" in scopes:
+            return None
+        entries = [scope[len(PROJECT_SCOPE_PREFIX):] for scope in scopes if scope.startswith(PROJECT_SCOPE_PREFIX)]
+        if not entries:
+            return None
+        allowed: set[str] = set()
+        for entry in entries:
+            try:
+                allowed.add(str(uuid.UUID(entry)))
+            except ValueError:
+                continue
+        return frozenset(allowed)
+
+    def client_key(self, request: Request) -> str:
+        """Stable, non-secret identity for per-client throttling."""
+        authorization = request.headers.get("Authorization")
+        if authorization:
+            digest = hashlib.sha256(authorization.encode("utf-8")).hexdigest()[:32]
+            return "token:" + digest
+        return "host:" + (request.client.host if request.client else "unknown")
 
 
 def require_scope(policy: AuthPolicy, scope: str) -> Callable[[Request], None]:
