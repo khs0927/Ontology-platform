@@ -85,7 +85,9 @@ def _kordoc_evidence_checks(payload: Any) -> list[str]:
                 found.append("source_text/quote_sha256: does not match the SHA-256 of quote (UTF-8)")
     claims = payload.get("proposed_claims") if isinstance(payload, dict) else None
     if isinstance(claims, list):
-        ids = [c.get("claim_id") for c in claims if isinstance(c, dict)]
+        # only string ids are compared: a non-string claim_id is already a schema error, and
+        # hashing an unhashable one (dict/list) must not crash validation of untrusted input
+        ids = [c["claim_id"] for c in claims if isinstance(c, dict) and isinstance(c.get("claim_id"), str)]
         if len(ids) != len(set(ids)):
             found.append("proposed_claims: claim_id values must be unique")
     return found

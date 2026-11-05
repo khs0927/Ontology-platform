@@ -649,9 +649,45 @@ def test_kordoc_evidence_valid_fixtures(path):
     assert all("quote" not in c for c in payload["proposed_claims"])
 
 
+#: invalid fixture -> substring every one of its errors must contain (each file breaks exactly one rule)
+KORDOC_INVALID_RULE = {
+    "blank_project_id": "project_id: ",
+    "canonical_claims_field": "'canonical_claims' was unexpected",
+    "canonical_true": "canonical: False was expected",
+    "cell_without_table": "locator: 'table' is a dependency of 'cell'",
+    "claim_approved": "proposed_claims/0/claim_state: 'candidate' was expected",
+    "claim_carries_quote": "proposed_claims/0: Additional properties are not allowed ('quote' was unexpected)",
+    "claim_marked_canonical": "proposed_claims/0/canonical: False was expected",
+    "duplicate_claim_ids": "proposed_claims: claim_id values must be unique",
+    "human_verified_by_model": "classification/reviewer_kind: 'human' was expected",
+    "human_verified_without_reviewer": "classification: 'review",  # reviewer_kind / reviewed_by / reviewed_at
+    "missing_document_version": "source: 'document_version' is a required property",
+    "missing_parser_version": "parser: 'version' is a required property",
+    "missing_project_id": "<root>: 'project_id' is a required property",
+    "naive_timestamp": "extracted_at: ",
+    "not_evidence_only": "evidence_only: True was expected",
+    "page_zero": "locator/page: 0 is less than the minimum of 1",
+    "quote_hash_mismatch": "source_text/quote_sha256: does not match",
+    "rejected_with_claims": "is expected to be empty",
+    "rejected_without_reason": "classification: 'reason' is a required property",
+    "unknown_classification_state": "classification/state: 'auto_verified' is not one of",
+    "unverified_with_review_metadata": "should not be valid under",
+    "uppercase_source_sha256": "source/sha256: ",
+    "wrong_producer": "producer: 'khs0927/inspection-supervision-mcp' was expected",
+}
+#: fixtures whose single broken rule legitimately reports more than one error
+KORDOC_INVALID_COUNT = {"human_verified_without_reviewer": 3}
+
+
+def test_kordoc_evidence_every_invalid_fixture_names_its_rule():
+    assert {p.stem for p in KORDOC_INVALID} == set(KORDOC_INVALID_RULE)
+
+
 @pytest.mark.parametrize("path", KORDOC_INVALID, ids=lambda p: p.stem)
 def test_kordoc_evidence_invalid_fixtures(path):
-    assert contracts.errors("kordoc-evidence/1", _kordoc(path)), path.stem
+    found = contracts.errors("kordoc-evidence/1", _kordoc(path))
+    assert len(found) == KORDOC_INVALID_COUNT.get(path.stem, 1), found
+    assert all(KORDOC_INVALID_RULE[path.stem] in e for e in found), found
     with pytest.raises(ValueError, match="kordoc-evidence/1 contract violated"):
         contracts.validate("kordoc-evidence/1", _kordoc(path))
 
@@ -664,3 +700,11 @@ def test_kordoc_evidence_semantic_checks_name_the_field():
     # non-object payloads fail on the schema without crashing the semantic checks
     assert contracts.errors("kordoc-evidence/1", [])
     assert contracts.errors("kordoc-evidence/1", {"source_text": "x", "proposed_claims": "y"})
+
+
+@pytest.mark.parametrize("claim_id", [{}, [], ["a"], {"k": "v"}], ids=repr)
+def test_kordoc_evidence_unhashable_claim_id_is_rejected_not_crashed(claim_id):
+    payload = {"proposed_claims": [{"claim_id": claim_id}, {"claim_id": claim_id}]}
+    assert contracts.errors("kordoc-evidence/1", payload)
+    with pytest.raises(ValueError, match="kordoc-evidence/1 contract violated"):
+        contracts.validate("kordoc-evidence/1", payload)
