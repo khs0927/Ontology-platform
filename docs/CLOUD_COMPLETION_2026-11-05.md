@@ -23,7 +23,8 @@ Open: after merging, re-project once into a fresh `SION_GRAPHRAG_WORKSPACE` so p
 
 | Command | Result |
 |---|---|
-| `pytest` (root) | 922 passed, 7 skipped |
+| `pytest` (root, all extras) | 923 passed, 7 skipped |
+| `pytest` (root, core install as in the "SQLite and API tests" job) | 605 passed, 34 skipped |
 | `pytest` in `packages/regulation` | 270 passed, 39 skipped (PostgreSQL integration tests need `ARCHONTOS_TEST_DATABASE_URL`; CI runs them) |
 | `ruff check .` at the root and in the package, `ruff format --check .`, `mypy` in the package | passed |
 | `python scripts/check_public_privacy.py` | 0 findings |
