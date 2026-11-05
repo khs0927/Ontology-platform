@@ -64,6 +64,7 @@ def test_registry_is_data_and_drives_the_defaults(tmp_path):
     assert DEFAULTS[NS]["output"] == ROOT / "data/bootstrap/sketchup-0914-meeting.json"
     write_registry(registry, tmp_path)  # the committed file is in the writer's canonical form
     assert (tmp_path / REGISTRY_REL).read_bytes() == (ROOT / REGISTRY_REL).read_bytes()
+    assert b"\r" not in (tmp_path / REGISTRY_REL).read_bytes()  # LF on every OS (Windows CI)
 
 
 def test_cli_preflight_with_build_check():

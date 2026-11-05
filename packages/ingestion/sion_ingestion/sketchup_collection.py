@@ -149,7 +149,8 @@ def write_registry(entries: dict[str, dict[str, str]], root: Path = ROOT) -> Pat
     """Write ``namespaces.json`` deterministically (namespaces and keys sorted)."""
     path = root / REGISTRY_REL
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(registry_text(entries), encoding="utf-8")
+    # Bytes, not text mode: LF on every OS so the committed registry stays byte-identical on Windows.
+    path.write_bytes(registry_text(entries).encode("utf-8"))
     return path
 
 
@@ -815,11 +816,11 @@ def main(argv: list[str] | None = None) -> int:
             text = manifest_text(args.namespace)
             path = manifest_path(args.namespace)
             if args.check:
-                same = path.exists() and path.read_text(encoding="utf-8") == text
+                same = path.exists() and path.read_bytes() == text.encode("utf-8")
                 print(json.dumps({"namespace": args.namespace, "up_to_date": same}))
                 return 0 if same else 1
             if args.write:
-                path.write_text(text, encoding="utf-8")
+                path.write_bytes(text.encode("utf-8"))  # LF on every OS
                 print(json.dumps({"written": _rel(path, ROOT)}, ensure_ascii=False))
             else:
                 sys.stdout.write(text)
