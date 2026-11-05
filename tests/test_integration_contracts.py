@@ -1,7 +1,7 @@
 """Contract tests for the bridged repositories (docs/INTEGRATION_CONTRACTS.md).
 
 Pinned producer/consumer commits: power-cad-mcp 461df6c, hs-steel-cad cefd395,
-korean-land-mcp 9bca5ea, HS-CAD 8bf34e1, All-In-Cad 329f9ad, CAD-MCP 50ae134.
+korean-land-mcp 9bca5ea, All-In-Cad 329f9ad, CAD-MCP 50ae134.
 Draft, not pinned: kordoc-evidence/1 (khs0927/inspection-supervision-mcp; no upstream commit).
 """
 
@@ -41,7 +41,7 @@ def sha(text: str) -> str:
 
 
 def test_every_contract_schema_is_valid_draft_2020_12_and_packaged():
-    assert len(contracts.names()) == 11
+    assert len(contracts.names()) == 9
     for name in contracts.names():
         schema = contracts.load(name)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -454,32 +454,11 @@ def test_cad_mcp_fixture_dimensions_without_geometry_block_are_reported():
     assert sum("DIMENSION" in w and "geometry block" in w for w in audited["warnings"]) == 2
 
 
-# --------------------------------------------------------------------------- HS-CAD
-
-
-def test_hs_cad_scan_sample_validates():
-    objects = json.loads((FIX / "hs-cad_layer_semantic_sample.json").read_text(encoding="utf-8"))
-    assert contracts.errors("hs-cad-scan-objects", objects) == []
-    assert contracts.errors("hs-cad-scan-objects", [{"entity_type": "LINE", "layer": "0"}])  # no handle
-
-
-def test_hs_cad_command_allow_list_matches_upstream_examples():
-    accepted = {}
-    for path in sorted((FIX / "hs-cad_commands").glob("*.json")):
-        accepted[path.stem] = not contracts.errors("hs-cad-command", json.loads(path.read_text(encoding="utf-8")))
-    assert accepted == {
-        "capture_screen": False,  # upstream example outside ALLOWED_COMMANDS
-        "delete_layer_objects_safe": True,
-        "move_layer": True,
-        "replace_block_door": True,
-        "xicad_safe_wall_plan": True,
-    }
-    assert contracts.errors("hs-cad-command", {"command": "move_layer", "params": {"layer": "  "}})
-    assert contracts.errors("hs-cad-command", {"command": "xicad_safe_execute"})  # alias required
+# --------------------------------------------------------------------------- CAD host mutation boundary
 
 
 def test_sion_api_exposes_no_cad_mutation_route():
-    """Sion stays read-only towards CAD hosts: no route executes HS-CAD/power-cad/All-In-Cad plans."""
+    """Sion stays read-only towards CAD hosts: no route executes power-cad/All-In-Cad plans."""
     app = create_app(database_url="sqlite://", auto_create_schema=True)
     paths = {route.path for route in app.routes}
     assert not [p for p in paths if any(word in p for word in ("execute", "run-command", "plan.execute", "cad_create"))]

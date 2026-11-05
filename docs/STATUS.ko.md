@@ -6,7 +6,7 @@
 
 1. **메인 모노레포** `khs0927/Ontology-platform` (v0.2.0). GitHub가 코드 이력의 기준이다.
 2. **병합된 패키지**: `packages/regulation`(ArchOntos), `packages/aec`(Ontology/`aec_intelligence`), `packages/cad/god-cad`(GOD-CAD). 원본 저장소는 보관(읽기 전용).
-3. **브릿지 전용(별도 저장소)**: power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad, CAD-MCP. 버전된 JSON 계약 + 계약 테스트로만 연결. Sion은 CAD를 직접 수정하지 않는다.
+3. **브릿지 전용(별도 저장소)**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad, CAD-MCP (HS-CAD는 2026-11-03 사용 중단). 버전된 JSON 계약 + 계약 테스트로만 연결. Sion은 CAD를 직접 수정하지 않는다.
 4. **런타임 DB**: 로컬 PostgreSQL(또는 SQLite 스모크). `public` + `regulation` 스키마. 라이브 DB는 디스크에 두고, 커밋된 쓰기마다 `SION_STORAGE_ROOT`(Drive 데스크톱 폴더)로 스냅샷·그래프를 export한다.
 5. **수집**: 문서(PDF/DOCX/md…), DXF(`sion_cad.reader`), IFC, 에이전트 세션 브릿지(Antigravity/Codex/Claude + DeepSeek/Hermes/ZCode 로컬 로그 리더).
 6. **관계·리뷰**: 31노드/43관계는 `unverified` 후보로 적재. `/review`에서 사람이 승인·반려. SketchUp 0914 지식팩(노드 1,195 / 관계 4,509)도 후보·검증 혼합.
@@ -94,7 +94,7 @@
 ## 소유자(오너) 할 일
 
 0. **최우선(어느 PC든):** HS-CAD `opencode.json`에 커밋됐던 Google AI Studio API 키 교체(2026-05-21부터 공개 히스토리, main은 #158로 환경변수 사용) → HS-CAD 비밀 스캔 알림 #1을 "Revoked"로 닫기. 선택: power-cad-mcp·hs-steel-cad·All-In-Cad에 Dependabot + 비밀 스캔 켜기. 자세한 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 맨 위.
-0b. HS-CAD PR 판단: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.
+0b. ~~HS-CAD PR 판단~~ — 2026-11-03 제외: HS-CAD 사용 중단, CAD 호스트 연동은 power-cad-mcp만 사용(HS-CAD 계약 제거). 0번 API 키 폐기는 그대로 필요. (이전 내용: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.)
 0c. All-In-Cad 브랜치 `agent/autocad-host-2027`(`edba1f9`, CI 통과)을 PR로 올려 병합할지 결정. zium-onboarding 템플릿 테스트 실패 11개 수정.
 1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33).
 2. 메인 PC 온라인 시 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 실행 — 보관된 Ontology 체크아웃 → `packages/aec` 전환(`switch-to-monorepo.ps1` 드라이런 후 `-Apply`).
