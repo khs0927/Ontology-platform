@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-pytest.importorskip("archontos.review.workflow")
+# The minimal ".[test]" install has no greenlet, so importing the rules package raises
+# ImportError rather than ModuleNotFoundError; skip on both, as the other regulation tests do.
+pytest.importorskip("archontos.review.workflow", exc_type=ImportError)
 
 from archontos.review.bundle import ReviewBundle  # noqa: E402
 from archontos.review.candidates import ChecklistItem, ChecklistProfile, ProvisionTarget  # noqa: E402
