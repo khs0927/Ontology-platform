@@ -5,10 +5,11 @@ import ipaddress
 import json
 import os
 from dataclasses import dataclass
-from typing import Callable
+from typing import Any, Callable
 from urllib.parse import urlsplit
 
-from fastapi import HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.routing import APIRoute
 
 VALID_MODES = frozenset({"local-only", "bearer", "local-or-bearer"})
 
@@ -129,4 +130,60 @@ def require_scope(policy: AuthPolicy, scope: str) -> Callable[[Request], None]:
     def dependency(request: Request) -> None:
         policy.authorize(request, scope)
 
+    dependency.sion_scope = scope  # type: ignore[attr-defined]  # read by install_openapi_security
     return dependency
+
+
+BEARER_SCHEME = "SionBearer"
+
+
+def _route_scopes(route: APIRoute) -> list[str]:
+    scopes: list[str] = []
+    pending = list(route.dependant.dependencies)
+    while pending:
+        dependant = pending.pop()
+        scope = getattr(dependant.call, "sion_scope", None)
+        if isinstance(scope, str) and scope not in scopes:
+            scopes.append(scope)
+        pending.extend(dependant.dependencies)
+    return sorted(scopes)
+
+
+def install_openapi_security(app: FastAPI, policy: AuthPolicy) -> None:
+    """Declare bearer auth in the OpenAPI schema for every scope-protected route.
+
+    Only bearer-capable modes advertise the scheme; local-only deployments are not
+    reachable remotely, so their schema stays unchanged. HTTP bearer schemes carry no
+    OpenAPI scopes, so the required scope is exposed as ``x-sion-scopes``.
+    """
+    if policy.mode == "local-only":
+        return
+    original_openapi = app.openapi
+
+    def openapi_with_security() -> dict[str, Any]:
+        if app.openapi_schema is not None:
+            return app.openapi_schema
+        schema = original_openapi()
+        components = schema.setdefault("components", {})
+        components.setdefault("securitySchemes", {})[BEARER_SCHEME] = {"type": "http", "scheme": "bearer"}
+        paths = schema.get("paths", {})
+        for route in app.routes:
+            if not isinstance(route, APIRoute) or not route.include_in_schema:
+                continue
+            scopes = _route_scopes(route)
+            if not scopes:
+                continue
+            path_item = paths.get(route.path_format, {})
+            for method in route.methods or ():
+                operation = path_item.get(method.lower())
+                if operation is None:
+                    continue
+                requirement: list[dict[str, list[str]]] = [{BEARER_SCHEME: []}]
+                if policy.mode == "local-or-bearer":
+                    requirement.append({})  # trusted loopback callers need no token
+                operation["security"] = requirement
+                operation["x-sion-scopes"] = scopes
+        app.openapi_schema = schema
+        return schema
+
+    app.openapi = openapi_with_security  # type: ignore[method-assign]

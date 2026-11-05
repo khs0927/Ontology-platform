@@ -34,7 +34,7 @@ from . import (
     schemas,
     vector_repository,
 )
-from .auth import AuthPolicy, require_scope
+from .auth import AuthPolicy, install_openapi_security, require_scope
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .drive_export import DriveExporter, install_export_on_write
@@ -810,6 +810,7 @@ def create_app(
             "violations": report.violations[: shacl.MAX_VIOLATIONS],
         }
 
+    install_openapi_security(app, auth_policy)
     return app
 
 
