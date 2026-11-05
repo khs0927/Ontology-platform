@@ -100,6 +100,15 @@ up at `/review` and stay `unverified` until a person approves them.
   `not_found`, `not_candidate`, `invalid_id`), so retries are safe.
 - The `추천` badge (evidence count, confidence, co-occurrence-only rules) is display-only and is
   never applied automatically.
+- Approval is a review judgement, **not a fact verification**: confidence and evidence are not
+  changed, and an approved class edge is still an inference (take numbers from definition/placement
+  facts). The opposite decision is refused (`409` / `conflict`) until the candidate is reopened with
+  `POST /api/v1/relations/candidates/{id}/reopen` and a required note; the previous decision
+  (reviewer, note, `batch_id`) stays in `properties.review_history` and nothing is deleted.
+- `GET /api/v1/review/report` (paged with `limit`/`offset`, optional `batch_id`) lists which reviewed
+  relations the review-state policy keeps (rejected ones are excluded by default) and each bulk
+  `batch_id` with its per-id results. The live GraphRAG index does not apply that policy yet
+  (`live_index_applies_policy: false`), so rejected relations may still be indexed.
 
 ## How an agent should use it
 

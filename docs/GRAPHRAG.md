@@ -94,6 +94,33 @@ Install with `pip install -e ".[graphrag]"`. Note that importing LightRAG can
 install missing provider packages at runtime, so the package is imported only
 when the engine starts.
 
+## Review decisions and fact verification (Issue #80)
+
+A `/review` approval records a person's judgement of a candidate relation
+(`verification_state = human_verified`). **It does not replace fact verification**: the
+relation's confidence and evidence stay as extracted, and the projection only adds a
+bounded, idempotent ranking boost. Take numbers and claims from the cited evidence, not
+from the fact that a candidate was approved.
+
+- Opposite decisions never overwrite each other: approving a rejected candidate (or the
+  reverse) is `409` per item and `conflict` in bulk.
+- Re-review goes through `POST /api/v1/relations/candidates/{id}/reopen` with a required
+  `note`; the candidate returns to pending and the previous decision (reviewer, note,
+  `batch_id`) moves to `properties.review_history`. Candidates are never deleted.
+- Every bulk call that applies a decision writes a `review.batch_decided` outbox event
+  (aggregate `review_batch`, id = `batch_id`) with the per-id results (`applied`,
+  `unchanged`, `conflict`, `not_found`, `not_candidate`, `invalid_id`) in the same transaction.
+- `GET /api/v1/review/report` (`read:knowledge`) is the verification report: per state, how many
+  relations exist and how many the review-state policy keeps (`projected_under_policy`); a page of
+  reviewed relations with weight, reviewer, note, `batch_id` and history; and a page of batches with
+  their per-id outcomes. `limit` (1-1000, default 100) and `offset` page relations and batches
+  independently (`relations_total`, `batches_total`), and `batch_id` restricts both to one batch.
+  Rejected relations are reported as not kept by the policy unless `?include_rejected=true` (audit).
+- **The live index does not apply this policy yet**: `POST /api/v1/graphrag/project` still projects
+  every review state, so rejected relations can be in the live LightRAG index even though the report
+  shows them as not kept. The report says so (`live_index_applies_policy: false`); do not read it as
+  proof that rejected relations are absent from GraphRAG until the engine applies the same filter.
+
 ## SketchUp BIM asset index (`sion-bim-asset-index/1`)
 
 `sion_ingestion.asset_index` turns the SketchUp BIM asset cards (`sion-bim-asset/1`,

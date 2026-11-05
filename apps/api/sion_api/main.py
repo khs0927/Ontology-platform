@@ -285,6 +285,7 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
+        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted."""
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
@@ -293,6 +294,7 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
+        """Record a review rejection; the candidate and its evidence are kept (rejected), never deleted."""
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_knowledge)])
@@ -309,6 +311,32 @@ def create_app(
         except (review.NotACandidate, review.NotReviewed, review.AlreadyReviewed) as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         return review.serialize(session, row)
+
+    @app.get("/api/v1/review/report", dependencies=[Depends(read_knowledge)])
+    def review_verification_report(
+        include_rejected: bool = Query(
+            default=False, description="Audit/debug only: report the policy that also keeps /review-rejected relations"
+        ),
+        batch_id: str | None = Query(default=None, max_length=64, description="Only this bulk decision"),
+        limit: int = Query(default=100, ge=1, le=1000, description="Page size for relations and batches"),
+        offset: int = Query(default=0, ge=0),
+        session: Session = Depends(get_session),
+    ):
+        """Which reviewed relations the review-state policy keeps, with weight, reviewer, note and batch outcomes.
+
+        Read-only and paginated (``relations`` and ``batches`` are paged independently by
+        ``limit``/``offset``). ``projected_under_policy`` describes the policy, not the live
+        GraphRAG index, which does not apply the review-state filter yet. An approval is a review
+        judgement, not a factual verification of the source.
+        """
+        from sion_graphrag.review_report import (
+            AUDIT_REPORT_REVIEW_STATES,
+            DEFAULT_REPORT_REVIEW_STATES,
+            build_review_report,
+        )
+
+        states = AUDIT_REPORT_REVIEW_STATES if include_rejected else DEFAULT_REPORT_REVIEW_STATES
+        return build_review_report(session, review_states=states, limit=limit, offset=offset, batch_id=batch_id)
 
     @app.post(
         "/api/v1/evidence",
