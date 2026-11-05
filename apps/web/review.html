@@ -40,6 +40,25 @@
     kbd { border: 1px solid #30363d; border-radius: 4px; padding: 0 4px; font-size: 11px; }
     #msg { color: #f85149; } #ok { color: #3fb950; }
     .note { color: #8b949e; font-size: 12px; }
+    .lowtrust { color: #f85149; border: 1px solid #f85149; border-radius: 10px; padding: 1px 8px; margin-left: 8px; font-size: 12px; }
+    .sha { color: #6e7681; font-family: ui-monospace, monospace; font-size: 11px; }
+    /* phones: no sticky header eating the screen, full-width controls, finger-sized buttons */
+    @media (max-width: 640px) {
+      header { position: static; padding: 8px 10px; }
+      main { padding: 8px 10px; }
+      .row { gap: 6px; }
+      .row > label, .row > input, .row > span, .row > button { flex: 1 1 100%; }
+      label select, label input:not([type=checkbox]) { width: 100%; box-sizing: border-box; margin-top: 2px; }
+      select, input, button { font-size: 16px; padding: 8px 10px; }
+      input[type=checkbox] { width: 22px; height: 22px; }
+      .card { grid-template-columns: 26px 1fr; padding: 8px; }
+      .triple { font-size: 15px; word-break: break-word; }
+      .hint, .lowtrust { display: inline-block; margin: 4px 4px 0 0; }
+      .actions { flex-wrap: wrap; }
+      .actions input { flex: 1 1 100%; }
+      .actions button { flex: 1 1 40%; min-height: 44px; }
+      .kbd-help { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -75,9 +94,11 @@
       <input id="bulkNote" placeholder="일괄 메모 (필수: 판단 근거)" size="28">
       <button class="approve" id="bulkApprove" disabled>선택 일괄 승인</button>
       <button class="reject" id="bulkReject" disabled>선택 일괄 거절</button>
-      <span class="note">단축키: <kbd data-key="j">j</kbd>/<kbd data-key="k">k</kbd> 이동 · <kbd data-key="x">x</kbd> 선택 · <kbd data-key="a">a</kbd> 승인 · <kbd data-key="r">r</kbd> 거절</span>
+      <label><input id="dryRun" type="checkbox"> 미리보기만 (기록 안 함)</label>
+      <span class="note kbd-help">단축키: <kbd data-key="j">j</kbd>/<kbd data-key="k">k</kbd> 이동 · <kbd data-key="x">x</kbd> 선택 · <kbd data-key="a">a</kbd> 승인 · <kbd data-key="r">r</kbd> 거절</span>
     </div>
     <div class="note">'추천'은 근거 수·신뢰도·추출 규칙으로 계산한 참고 표시일 뿐이며 자동 적용되지 않습니다. 승인·거절은 사람이 고른 항목에만 기록됩니다.</div>
+    <div class="note" id="factNotice">승인은 후보에 대한 검토 판단이며 사실 검증을 대신하지 않습니다. 근거와 신뢰도는 바뀌지 않고, 반대 결정은 '되돌리기'(사유 필수)로 대기 상태로 돌린 뒤에만 다시 내릴 수 있습니다. 이전 결정은 이력에 남습니다.</div>
   </header>
   <main id="list"><p>불러오는 중…</p></main>
   <script>
@@ -112,6 +133,17 @@
       return node;
     }
     function flash(text, error) { $("msg").textContent = error ? text : ""; $("ok").textContent = error ? "" : text; }
+    // 409/422/428 bodies: plain string (legacy) or a structured object (version_conflict, ...)
+    function errText(status, body) {
+      const d = body && body.detail;
+      if (d && typeof d === "object" && d.error === "version_conflict") return `${status}: 다른 검토자가 먼저 변경했습니다 (현재 버전 ${d.current_version}, 상태 ${d.status}). 새로 불러온 뒤 다시 판단하세요.`;
+      if (d && typeof d === "object" && d.message) return `${status}: ${d.message}`;
+      return `${status}: ${typeof d === "string" ? d : JSON.stringify(d ?? "")}`;
+    }
+    const itemOf = (id) => items.find((x) => x.id === id);
+    function confirmLowTrust(n) {
+      return confirm(`신뢰도가 낮은 추론 관계(동시출현 근거만) ${n}건이 포함되어 있습니다.\n근거를 직접 확인했고 승인하시겠습니까?`);
+    }
     function replaceItem(updated) { const i = items.findIndex((x) => x.id === updated.id); if (i >= 0) items[i] = { ...items[i], ...updated }; }
 
     // ---- header totals: always re-read from the server after any decision (also covers 409 races) ----
@@ -128,11 +160,20 @@
     // ---- decisions: always for ids a person picked (the 추천 badge is display-only) ----
     async function decide(id, action, note) {
       flash("");
+      const c = itemOf(id) || {};
+      const payload = { reviewer: $("reviewer").value || null, note: note || null };
+      if (c.version != null) payload.expected_version = c.version;  // compare-and-swap: 409 if someone else changed it
+      if (action === "approve" && c.low_trust) {
+        if (!confirmLowTrust(1)) return;
+        payload.confirm_low_trust = true;
+      }
+      const dryRun = $("dryRun").checked;  // 미리보기 체크는 개별 버튼과 a/r 단축키에도 적용
+      if (dryRun) payload.dry_run = true;
       const response = await fetch(`${api}/api/v1/relations/candidates/${id}/${action}`, {
-        method: "POST", headers: headers(true),
-        body: JSON.stringify({ reviewer: $("reviewer").value || null, note: note || null }),
+        method: "POST", headers: headers(true), body: JSON.stringify(payload),
       });
-      if (!response.ok) { flash(`${response.status}: ${(await response.json()).detail || ""}`, true); await refreshCounts(); return; }
+      if (!response.ok) { flash(errText(response.status, await response.json()), true); await refreshCounts(); return; }
+      if (dryRun) { await response.json(); flash(`${action === "approve" ? "승인" : "거절"} 가능 (미리보기, 기록 안 됨)`); return; }
       replaceItem(await response.json());
       selected.delete(id);
       render();
@@ -143,11 +184,13 @@
       const note = (prompt("판정을 되돌리는 이유(필수):") || "").trim();
       if (!note) { flash("되돌리기에는 이유 메모가 필요합니다.", true); return; }
       flash("");
+      const version = itemOf(id)?.version;
       const response = await fetch(`${api}/api/v1/relations/candidates/${id}/reopen`, {
         method: "POST", headers: headers(true),
-        body: JSON.stringify({ reviewer: $("reviewer").value || null, note }),
+        body: JSON.stringify({ reviewer: $("reviewer").value || null, note, dry_run: $("dryRun").checked, ...(version != null ? { expected_version: version } : {}) }),
       });
-      if (!response.ok) { flash(`${response.status}: ${(await response.json()).detail || ""}`, true); await refreshCounts(); return; }
+      if (!response.ok) { flash(errText(response.status, await response.json()), true); await refreshCounts(); return; }
+      if ($("dryRun").checked) { await response.json(); flash("되돌리기 가능 (미리보기, 기록 안 됨)"); return; }
       replaceItem({ ...(await response.json()), review: null });
       flash("대기 상태로 되돌렸습니다.");
       render();
@@ -159,22 +202,30 @@
       if (!ids.length) { flash("선택한 대기 항목이 없습니다.", true); return; }
       if (!note) { flash("일괄 처리에는 메모(판단 근거)가 필요합니다.", true); $("bulkNote").focus(); return; }
       const word = decision === "approve" ? "승인" : "거절";
-      if (!confirm(`선택한 ${ids.length}건을 ${word}할까요?\n메모: ${note}`)) return;
+      const dryRun = $("dryRun").checked;
+      if (!dryRun && !confirm(`선택한 ${ids.length}건을 ${word}할까요?\n메모: ${note}`)) return;
+      const lowTrust = decision === "approve" ? ids.filter((id) => itemOf(id)?.low_trust).length : 0;
+      if (lowTrust && !confirmLowTrust(lowTrust)) return;
+      const expected_versions = {};
+      for (const id of ids) { const v = itemOf(id)?.version; if (v != null) expected_versions[id] = v; }
       flash("");
       const response = await fetch(`${api}/api/v1/relations/candidates/bulk`, {
         method: "POST", headers: headers(true),
-        body: JSON.stringify({ ids, decision, note, reviewer: $("reviewer").value || null }),
+        body: JSON.stringify({ ids, decision, note, reviewer: $("reviewer").value || null, expected_versions, dry_run: dryRun, confirm_low_trust: lowTrust > 0 }),
       });
       const body = await response.json();
-      if (!response.ok) { flash(`${response.status}: ${typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail)}`, true); return; }
-      const review = { decision: body.decision, reviewer: $("reviewer").value || "anonymous", note, batch_id: body.batch_id, decided_at: new Date().toISOString() };
-      for (const r of body.results) {
-        if (r.result === "applied") replaceItem({ id: r.id, status: body.decision, review });
-        selected.delete(r.id);
-      }
+      if (!response.ok) { flash(errText(response.status, body), true); return; }
       const c = body.counts;
       const fails = body.results.filter((r) => r.ok === false);
-      flash(`${word} ${c.applied}건 기록 · 이미 처리 ${c.unchanged} · 충돌 ${c.conflict} · 없음 ${c.not_found + c.not_candidate + c.invalid_id}` + (fails.length ? ` ? ??: ${fails.map((r) => `${r.id.slice(0, 8)}(${r.result}${r.reason ? ": " + r.reason : ""})`).join(", ")}` : ""), fails.length > 0);
+      const summary = `${word} ${c.applied}건 ${body.dry_run ? "예정 (미리보기, 기록 안 됨)" : "기록"} · 이미 처리 ${c.unchanged} · 충돌 ${c.conflict} · 없음 ${c.not_found + c.not_candidate + c.invalid_id}`
+        + (fails.length ? ` · 실패: ${fails.map((r) => `${r.id.slice(0, 8)}(${r.result}${r.reason ? ": " + r.reason : ""})`).join(", ")}` : "");
+      if (body.dry_run) { flash(summary, fails.length > 0); return; }
+      const review = { decision: body.decision, reviewer: $("reviewer").value || "anonymous", note, batch_id: body.batch_id, decided_at: new Date().toISOString() };
+      for (const r of body.results) {
+        if (r.result === "applied") replaceItem({ id: r.id, status: body.decision, review, version: r.version });
+        selected.delete(r.id);
+      }
+      flash(summary, fails.length > 0);
       render();
       await refreshCounts();
     }
@@ -219,7 +270,9 @@
       const hint = recommend(c);
       const evidence = el("ul", { class: "evidence" });
       for (const e of c.evidence || []) {
-        evidence.append(el("li", {}, e.excerpt || "(발췌 없음)", el("div", { class: "loc" }, `${e.source_uri || ""} @ ${e.source_locator || ""}`)));
+        evidence.append(el("li", {}, e.excerpt || "(발췌 없음)",
+          el("div", { class: "loc" }, `${e.source_uri || ""} @ ${e.source_locator || ""}`),
+          e.source_sha256 ? el("div", { class: "sha", title: e.source_sha256 }, `sha256 ${e.source_sha256.slice(0, 16)}…`) : ""));
       }
       if (c.evidence_count > (c.evidence || []).length) evidence.append(el("li", {}, `… 외 ${c.evidence_count - (c.evidence || []).length}건`));
       const actions = el("div", { class: "actions" });
@@ -237,8 +290,10 @@
         box,
         el("div", {},
           el("div", { class: "triple" }, c.source?.name || "?", el("span", { class: "type" }, c.relation_type_id), c.target?.name || "?",
-            el("span", { class: `hint hint-${hint.kind}`, title: `${hint.why} (참고용, 자동 적용되지 않음)` }, `추천: ${hint.label}`)),
-          el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "-"} · 근거 ${c.evidence_count}건 · ${c.extractor || ""} · ${(c.rules || []).join(", ")} · 출처 ${sourceOf(c)}${c.provenance?.locator ? " " + c.provenance.locator : ""}`),
+            el("span", { class: `hint hint-${hint.kind}`, title: `${hint.why} (참고용, 자동 적용되지 않음)` }, `추천: ${hint.label}`),
+            c.low_trust ? el("span", { class: "lowtrust", title: "승인하려면 근거를 직접 확인했다는 확인이 필요합니다" }, "낮은 신뢰 추론") : ""),
+          el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "-"} · 근거 ${c.evidence_count}건 · ${c.extractor || ""} · ${(c.rules || []).join(", ")} · 출처 ${sourceOf(c)}${(c.source_locator || c.provenance?.locator) ? " " + (c.source_locator || c.provenance.locator) : ""} · v${c.version ?? 0}`),
+          c.source_sha256 ? el("div", { class: "sha", title: c.source_sha256 }, `원본 sha256 ${c.source_sha256.slice(0, 16)}…`) : "",
           evidence, actions));
       node._note = note;
       return node;

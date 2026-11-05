@@ -21,6 +21,9 @@ class Settings:
     ontology_path: Path
     map_inventory_path: Path
     cors_origins: tuple[str, ...]
+    # Strict optimistic concurrency for /review writes: when on, every decision/reopen must carry
+    # the candidate's ``expected_version`` (428 otherwise). Off by default for backward compatibility.
+    review_require_version: bool = False
 
 
 def load_settings() -> Settings:
@@ -51,4 +54,5 @@ def load_settings() -> Settings:
         / "bootstrap"
         / "current-map-inventory.json",
         cors_origins=origins,
+        review_require_version=_bool_env("SION_REVIEW_REQUIRE_VERSION", False),
     )

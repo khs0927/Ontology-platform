@@ -14,9 +14,19 @@ and `evidence`; nothing is written back.
 - one text chunk per entity and per relation with name, type, description,
   properties, confidence and every evidence `source_uri @ source_locator`
 
-Weights are `1 + confidence` (LightRAG floors a weight at its evidence count).
-Projection is an idempotent upsert; to drop stale rows, project into a new
-`SION_GRAPHRAG_WORKSPACE`.
+Weights are `1 + confidence` (LightRAG floors a weight at its evidence count),
+plus a fixed `+0.25` for `/review`-approved (`human_verified`) relations, capped at
+`2.0`. Repeated approval does not raise the weight further.
+
+Review states (Issue #80): `POST /api/v1/graphrag/project` projects approved and
+pending relations only. `/review`-rejected relations stay in the database for audit
+and are projected only with `?include_rejected=true` (use a separate audit
+workspace for that). An approval records a person's judgement of a candidate; it is
+not a factual verification of the source, and the confidence and evidence of the
+relation are never overwritten by it.
+
+Projection is an idempotent upsert; to drop stale rows (for example a relation
+projected before it was rejected), project into a new `SION_GRAPHRAG_WORKSPACE`.
 
 ### Domain packs
 
@@ -86,13 +96,39 @@ Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 ## API
 
 - `GET /api/v1/graphrag/status` (`read:knowledge`)
-- `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph
+- `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph (rejected relations excluded; `?include_rejected=true` for audit)
 - `POST /api/v1/graphrag/query` (`read:knowledge`) `{"question", "mode": "mix|local|global|hybrid|naive", "top_k"}`
 - `GET /api/v1/graphrag/assets` (`read:knowledge`) SketchUp BIM asset Graph RAG (see below)
 
 Install with `pip install -e ".[graphrag]"`. Note that importing LightRAG can
 install missing provider packages at runtime, so the package is imported only
 when the engine starts.
+
+## Review decisions and fact verification (Issue #80)
+
+A `/review` approval records a person's judgement of a candidate relation
+(`verification_state = human_verified`). **It does not replace fact verification**: the
+relation's confidence and evidence stay as extracted, and the projection only adds a
+bounded, idempotent ranking boost. Take numbers and claims from the cited evidence, not
+from the fact that a candidate was approved.
+
+- Opposite decisions never overwrite each other: approving a rejected candidate (or the
+  reverse) is `409` per item and `conflict` in bulk.
+- Re-review goes through `POST /api/v1/relations/candidates/{id}/reopen` with a required
+  `note`; the candidate returns to pending and the previous decision (reviewer, note,
+  `batch_id`) moves to `properties.review_history`. Candidates are never deleted.
+- Every bulk call that applies a decision writes a `review.batch_decided` outbox event
+  (aggregate `review_batch`, id = `batch_id`) with the per-id results (`applied`,
+  `unchanged`, `conflict`, `not_found`, `not_candidate`, `invalid_id`) in the same transaction.
+- `GET /api/v1/review/report` (`read:knowledge`) is the verification report: per state, how many
+  relations exist and how many the review-state policy keeps (`projected_under_policy`); a page of
+  reviewed relations with weight, reviewer, note, `batch_id` and history; and a page of batches with
+  their per-id outcomes. `limit` (1-1000, default 100) and `offset` page relations and batches
+  independently (`relations_total`, `batches_total`), and `batch_id` restricts both to one batch.
+  Rejected relations are reported as not kept by the policy unless `?include_rejected=true` (audit).
+- The live index applies the same default policy: `POST /api/v1/graphrag/project` projects
+  verified + unverified relations and leaves rejected ones out (`?include_rejected=true` is the audit
+  projection). The report sets `live_index_applies_policy: true` when its policy is that default.
 
 ## SketchUp BIM asset index (`sion-bim-asset-index/1`)
 

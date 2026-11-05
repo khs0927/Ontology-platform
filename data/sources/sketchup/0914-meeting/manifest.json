@@ -1,0 +1,114 @@
+{
+ "schema": "sion-sketchup-collection-manifest/v1",
+ "namespace": "0914-meeting",
+ "model": {
+  "skp_file": "0914_담당미팅.skp",
+  "title": "0914_담당미팅",
+  "sketchup_version": "25.0.634",
+  "dumped_at": "2026-10-08 10:39:38 +0900",
+  "modified": true
+ },
+ "dump_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+ "probe_sha256": {
+  "geometry_probe": "c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8",
+  "grouping_probe": "e623d142271d04e5597d41ac46f4821780ad3732db5a3317c89c74fcecfa5fbb"
+ },
+ "limits": {
+  "max_input_bytes": 4194304,
+  "max_output_bytes": 16777216
+ },
+ "inputs": [
+  {
+   "path": "data/sources/sketchup/0914-meeting/classification.json",
+   "role": "classification",
+   "kind": "authored"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/classification.supplement.json",
+   "role": "classification_supplement",
+   "kind": "authored"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/geometry_probe.json",
+   "role": "geometry_probe",
+   "kind": "capture",
+   "sha256": "c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8",
+   "bytes": 46057,
+   "producer": "scripts/sketchup/geom_probe.rb"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/grouping_probe.json",
+   "role": "grouping_probe",
+   "kind": "capture",
+   "sha256": "e623d142271d04e5597d41ac46f4821780ad3732db5a3317c89c74fcecfa5fbb",
+   "bytes": 687091,
+   "producer": "scripts/sketchup/grouping_probe.rb"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/hierarchy.json",
+   "role": "hierarchy",
+   "kind": "capture",
+   "sha256": "035df31979205879329ae6c109452e1766d62a253374ca4523bc8e0ad9fafea2",
+   "bytes": 541511,
+   "producer": "scripts/sketchup/export_objects.rb"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/model_dump.json",
+   "role": "dump",
+   "kind": "capture",
+   "sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+   "bytes": 1158572,
+   "producer": "scripts/sketchup/dump_model.rb"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/objects.json",
+   "role": "objects",
+   "kind": "capture",
+   "sha256": "be70ce0a784182f879d5fd88d8ab7f2efa5d0c35187cc93a535e0ae52a022a93",
+   "bytes": 56561,
+   "producer": "scripts/sketchup/export_objects.rb"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/objects_sha.json",
+   "role": "objects_sha",
+   "kind": "capture",
+   "sha256": "15cee65d458bd55029f084b1de3bf8eff8922d7d510e1c7ee94a488dff9fbf51",
+   "bytes": 31168,
+   "producer": "scripts/sketchup/export_objects.rb"
+  },
+  {
+   "path": "data/sources/sketchup/0914-meeting/openings.json",
+   "role": "openings",
+   "kind": "capture",
+   "sha256": "695e8af3ef4583fc3b228dfafeac552eacf150a72d59b9d67e0d260ebf3f7d6b",
+   "bytes": 26452
+  },
+  {
+   "path": "data/sources/sketchup/object-classes.json",
+   "role": "classes",
+   "kind": "shared"
+  },
+  {
+   "path": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "role": "guidelines",
+   "kind": "shared"
+  },
+  {
+   "path": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "role": "grouping_doc",
+   "kind": "shared"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "data/bootstrap/sketchup-0914-meeting.json",
+   "role": "graph-export",
+   "command": "python -m sion_ingestion.sketchup_assets build --namespace 0914-meeting"
+  },
+  {
+   "path": "data/bootstrap/sketchup-0914-meeting.ontology.json",
+   "role": "ontology-export",
+   "command": "python -m sion_ingestion.sketchup_ontology"
+  }
+ ]
+}

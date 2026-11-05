@@ -24,3 +24,21 @@ SION_AUTO_CREATE_SCHEMA=0
 Production PostgreSQL uses the SQL migrations under `migrations/`.
 SQLite exists only for local smoke tests and does not replace PostgreSQL as
 the canonical deployment database.
+
+## Authorization
+
+The API is local-only by default. Remote deployments use scoped bearer tokens with
+`read:knowledge` and `write:knowledge` kept separate and an optional per-token project ACL.
+See [API authorization](../../docs/API_AUTH.md).
+
+## Operations
+
+- `GET /health/live` - liveness probe (no auth, no database access).
+- `GET /health/ready` - readiness probe: read-only `SELECT 1`; returns `503` with
+  `{"checks": {"database": "unavailable"}}` and no connection details on failure.
+- Structured access log: one JSON line per request on the `sion_api.access` logger
+  (method, path without query string, status, duration, `X-Request-ID`). Headers,
+  query strings and bodies are never logged. Disable with `SION_API_ACCESS_LOG=0`.
+
+Runbook (health checks, logs, backup/restore, cost caps, deploy flow):
+[`docs/ops/CLOUD-OPS.ko.md`](../../docs/ops/CLOUD-OPS.ko.md).

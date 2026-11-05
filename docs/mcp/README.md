@@ -10,6 +10,7 @@
 | [JEV-TYPESAFE.ko.md](JEV-TYPESAFE.ko.md) | Jev(TypeSafe System One) 사용 규칙과 jev MCP 도구 |
 | [SECRETS.ko.md](SECRETS.ko.md) | 키·토큰 취급, 자리표시자, 커밋 전 검사 |
 | [TOOL-CATALOG.ko.md](TOOL-CATALOG.ko.md) | 서버별 도구 수와 확인된 도구 이름(SketchUp 두 서버는 전체 목록) |
+| [CHATGPT-MCP-E2E-CHECKLIST.ko.md](CHATGPT-MCP-E2E-CHECKLIST.ko.md) | Issue #71 G: 자동 MCP 검토 흐름 E2E 범위와 ChatGPT(iOS) OAuth 수동 체크리스트 |
 
 관련 위치:
 - 스킬: [`skills/`](../../skills/README.md)

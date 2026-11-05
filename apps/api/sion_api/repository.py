@@ -60,6 +60,13 @@ def seed_core_types(session: Session) -> None:
         ("SUPERSEDES", "Supersedes"),
         ("VERSION_OF", "Version of"),
         ("VALIDATES", "Validates"),
+        ("BLOCKS", "Blocks"),
+        ("COEXISTS_WITH", "Coexists With"),
+        ("DOCUMENTS", "Documents"),
+        ("FALLBACK_FOR", "Fallback For"),
+        ("MUST_NOT", "Must Not"),
+        ("PREFERRED_FOR", "Preferred For"),
+        ("USES_PORT", "Uses Port"),
     ]
     for type_id, label in entity_types:
         if session.get(models.EntityType, type_id) is None:
