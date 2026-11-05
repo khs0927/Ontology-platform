@@ -2,8 +2,8 @@
 
 `khs0927/Ontology-platform` is the main monorepo. Four repositories were **merged** with git subtree
 (history kept): ArchOntos → `packages/regulation`, Ontology → `packages/aec`, GOD-CAD →
-`packages/cad/god-cad`, plus the Sion core. Six repositories stay **separate** and are connected only
-through the contracts below. They have their own runtimes (.NET 10 / AutoCAD 2027, ZWCAD COM, Node),
+`packages/cad/god-cad`, plus the Sion core. Five repositories stay **separate** and are connected only
+through the contracts below. They have their own runtimes (.NET 10 / AutoCAD 2027, Node),
 release cycles or licences, and merging them would add a CAD-host toolchain to this repo.
 
 | Repository | Language / host | Relationship | Contract(s) |
@@ -11,7 +11,6 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [power-cad-mcp](https://github.com/khs0927/power-cad-mcp) | C# .NET, AutoCAD 2027 plug-in + MCP server | **calls** the AEC REST API and the Sion API, read-only; produces execution receipts | `aec-operational-rest` (OpenAPI), `sion-aec-query-response`, `power-cad-execution-receipt/1` |
 | [hs-steel-cad](https://github.com/khs0927/hs-steel-cad) | C# .NET, MCP | hands steel draw plans, section catalogs and its asset registry to power-cad; section catalogs are also read by Sion's AEC knowledge graph | `hs-steel-draw-plan/1`, `hs-steel-section-catalog/1`, `hs-steel-asset-registry/1` |
 | [korean-land-mcp](https://github.com/khs0927/korean-land-mcp) | TypeScript, MCP (V-World) | parcel/zoning records feed regulation facts | `korean-land-parcel-analysis/2` |
-| [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
 | [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; Sion project workspace adapter | `building-regulation-report/1` |
@@ -22,13 +21,13 @@ Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 
 ```python
 from sion_core import contracts
-contracts.names()                      # the 11 contract names
+contracts.names()                      # 9 contract names (including 1 unpinned draft)
 contracts.is_pinned("kordoc-evidence/1")   # False: draft, no upstream commit pinned (DRAFT_CONTRACTS)
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
 ```
 
-Contract tests: `tests/test_integration_contracts.py` (121 tests). Upstream files used as fixtures are
+Contract tests: `tests/test_integration_contracts.py`. Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
 
@@ -41,7 +40,6 @@ The contracts were derived from these commits (read-only clones; no upstream rep
 | power-cad-mcp | `461df6c` (PR #49) | 2026-10-09 12:11 |
 | hs-steel-cad | `cefd395` (PR #8) | 2026-10-09 12:11 |
 | korean-land-mcp | `9bca5ea` (PR #2, deps only) | 2026-10-08 20:20 |
-| HS-CAD | `8bf34e1` (PR #158) | 2026-10-08 20:20 |
 | All-In-Cad | `329f9ad` | 2026-10-03 20:39 |
 | CAD-MCP | `50ae134` | 2026-10-03 20:15 |
 
@@ -267,17 +265,12 @@ two headless lanes can be cross-checked:
 All-In-Cad's native protocol (`aic.native/1`, length-prefixed JSON over a current-user named pipe,
 signed approval tokens, write leases) is host-side. Sion does not speak it.
 
-## 7. HS-CAD (`hs-cad-scan-objects`, `hs-cad-command`)
+## 7. HS-CAD (retired)
 
-- **Scan export** (`python -m src.main scan … --out objects.json`, `export_objects_json`): a list of
-  ModelSpace objects `{handle, entity_type, layer, object_name?, color?, start?, end?, insert?, points?,
-  closed?, area?, name?, effective_name?, …}`. Sion may store a scan as evidence about one DWG revision.
-  Validated against HS-CAD's own `examples/sample_objects/layer_semantic_sample.json`.
-- **Command envelope** (`run-command`): `{command, params, safety}` where `command` is in HS-CAD's
-  `ALLOWED_COMMANDS` (26 names) with the same required non-empty params as `command_validator.py`.
-  Execution needs `--execute` on HS-CAD's CLI plus backup/preview safety. Sion never sends these. The
-  schema lets Sion-side reviewers check an AI proposal before a person runs it. Upstream example
-  `capture_screen.json` is **not** accepted (not in `ALLOWED_COMMANDS`).
+HS-CAD is no longer an active bridge. `power-cad-mcp` is the only active CAD host bridge.
+Its contracts (`hs-cad-scan-objects`, `hs-cad-command`), schemas, fixtures and tests
+were retired in the integration following PR #100. Historical HS-CAD rows in the
+upstream review section remain as provenance, not active integrations.
 
 ## 8. CAD-MCP
 
