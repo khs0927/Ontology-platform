@@ -52,6 +52,7 @@ READ_ONLY_POSTS = {
 # Routes that apply the project ACL themselves and therefore accept project-restricted tokens.
 PROJECT_SCOPED_ROUTES = {
     ("GET", "/regulation"),
+    ("GET", "/api/v1/regulation/summary"),  # applies the project ACL itself (project_summary.project_scope)
     ("GET", "/api/v1/regulation/works"),
     ("POST", "/api/v1/regulation/works"),
     ("GET", "/api/v1/regulation/works/{work_id}"),
