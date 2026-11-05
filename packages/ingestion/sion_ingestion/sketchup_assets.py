@@ -1260,17 +1260,46 @@ def attach_sketchup_evidence(session, export: MapExport, *, base_uri: str | None
 
 # --------------------------------------------------------------------------- CLI
 
-DEFAULTS = {
-    "0914-meeting": {
-        "dump": ROOT / "data/sources/sketchup/0914-meeting/model_dump.json",
-        "probe": ROOT / "data/sources/sketchup/0914-meeting/geometry_probe.json",
-        "grouping_probe": ROOT / "data/sources/sketchup/0914-meeting/grouping_probe.json",
-        "grouping_doc": ROOT / "docs/sketchup/GROUPING-WORKFLOW.ko.md",
-        "classes": ROOT / "data/sources/sketchup/object-classes.json",
-        "classification": ROOT / "data/sources/sketchup/0914-meeting/classification.json",
-        "guidelines": ROOT / "docs/sketchup/MODELING-GUIDELINES.ko.md",
-        "output": ROOT / "data/bootstrap/sketchup-0914-meeting.json",
-    }
+REGISTRY_SCHEMA = "sion-sketchup-namespaces/v1"
+REGISTRY_REL = "data/sources/sketchup/namespaces.json"
+#: Keys a namespace entry may carry (repo-relative paths). ``dump``, ``classes``, ``classification``,
+#: ``guidelines`` and ``output`` are required; the probes and the grouping document are optional.
+REGISTRY_KEYS = ("dump", "probe", "grouping_probe", "grouping_doc", "classes", "classification", "guidelines", "output")
+REGISTRY_REQUIRED = ("dump", "classes", "classification", "guidelines", "output")
+
+
+def load_registry(root: Path = ROOT) -> dict[str, dict[str, str]]:
+    """Namespace -> repo-relative build paths from ``data/sources/sketchup/namespaces.json``.
+
+    The registry is data, so adding a model never rewrites this module
+    (``python -m sion_ingestion.sketchup_collection scaffold`` edits the file).
+    """
+    path = root / REGISTRY_REL
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("schema") != REGISTRY_SCHEMA:
+        raise SketchUpAssetError(f"{REGISTRY_REL}: expected schema {REGISTRY_SCHEMA}")
+    out: dict[str, dict[str, str]] = {}
+    for ns, entry in data.get("namespaces", {}).items():
+        unknown = set(entry) - set(REGISTRY_KEYS)
+        missing = [k for k in REGISTRY_REQUIRED if not entry.get(k)]
+        if unknown or missing:
+            raise SketchUpAssetError(
+                f"{REGISTRY_REL}: namespace {ns!r} has unknown keys {sorted(unknown)} / missing {missing}"
+            )
+        out[ns] = dict(entry)
+    return out
+
+
+def namespace_paths(namespace: str, root: Path = ROOT) -> dict[str, Path]:
+    """Absolute build paths for one registered namespace (empty dict if unknown)."""
+    entry = load_registry(root).get(namespace, {})
+    return {k: root / v for k, v in entry.items()}
+
+
+DEFAULTS: dict[str, dict[str, Path]] = {
+    ns: {k: ROOT / v for k, v in entry.items()} for ns, entry in load_registry().items()
 }
 
 

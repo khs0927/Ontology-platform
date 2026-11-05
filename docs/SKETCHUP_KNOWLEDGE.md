@@ -18,6 +18,9 @@ real examples from this model with sizes, levels, tags, materials and evidence.
 | `docs/sketchup/MODELING-GUIDELINES.ko.md` | 31 Korean guideline sections, each with a `sion-guide` metadata comment |
 | `docs/sketchup/GROUPING-WORKFLOW.ko.md` | How the model was grouped: 11 observed rules (`kind="pattern"`) and a 12-step grouping workflow (`kind="step"`, `implements=` rule ids) |
 | `packages/ingestion/sion_ingestion/sketchup_assets.py` | Generator, evidence attacher and CLI |
+| `data/sources/sketchup/namespaces.json` | Namespace registry (`sion-sketchup-namespaces/v1`): repo-relative build inputs/output per model; `sketchup_assets.DEFAULTS` is loaded from it |
+| `data/sources/sketchup/0914-meeting/manifest.json` | Collection manifest (`sion-sketchup-collection-manifest/v1`, `schemas/sion-sketchup-collection-manifest-1.schema.json`): model, SketchUp version, capture SHA-256, inputs, outputs |
+| `packages/ingestion/sion_ingestion/sketchup_collection.py` | `preflight`, `manifest` and `scaffold` commands for collecting further models |
 | `data/bootstrap/sketchup-0914-meeting.json` | Generated export: 1,195 nodes / 4,509 edges (tests regenerate and compare) |
 | `scripts/sketchup/*.rb` | The read-only Ruby extraction scripts |
 | `docs/sketchup/AGENT-PLAYBOOK.ko.md` | 에이전트가 GraphRAG를 조회하고 SketchUp 작업으로 옮기는 실행 플레이북 |
@@ -112,8 +115,24 @@ up at `/review` and stay `unverified` until a person approves them.
 
 ## Adding another model
 
-Dump with `scripts/sketchup/dump_model.rb` (+ `geom_probe.rb`), commit the files under
-`data/sources/sketchup/<namespace>/`, write a `classification.json` pinned to the new dump sha256,
-add a `DEFAULTS["<namespace>"]` entry, run `build`, and add a regeneration test. Guideline
-sections can cite `def:<name>`, `obj:<persistent_id>`, `tag:`, `mat:`, `scene:N`, `section:N`,
-`model:`; unknown references fail the build.
+The collection pipeline is in `sion_ingestion.sketchup_collection` (details and the full check list in
+`scripts/sketchup/README.md`):
+
+1. Run the read-only scripts (`dump_model.rb`, `geom_probe.rb`, `grouping_probe.rb`, optionally
+   `export_objects.rb`) in SketchUp.
+2. `python -m sion_ingestion.sketchup_collection scaffold --namespace <ns> --from-dir <export folder>
+   --guidelines <model guide>.md`: copies the JSON captures to `data/sources/sketchup/<ns>/`, writes
+   an empty `classification.json` pinned to the dump sha256, registers the namespace in
+   `data/sources/sketchup/namespaces.json`, runs `build` and `build --check`, writes `manifest.json`
+   and emits `tests/test_sketchup_ns_<ns>.py`.
+3. Fill `classification.json` (every assignment stays an inferred, `unverified` candidate with a
+   `basis_ko`), rebuild with `sketchup_assets build --namespace <ns>`, and extend the test stub with
+   spot facts.
+4. `python -m sion_ingestion.sketchup_collection preflight --build` before committing; CI runs the same
+   preflight through `tests/test_sketchup_collection.py`.
+
+Guideline sections can cite `def:<name>`, `obj:<persistent_id>`, `tag:`, `mat:`, `scene:N`, `section:N`,
+`model:`; unknown references fail the build, so a new model needs a guideline document whose evidence
+references exist in its own dump. The guideline, workflow and class nodes (`sketchup:guide:*`,
+`sketchup:workflow:*`, `sketchup:class:*`) are not namespaced, so two exports built from the same
+documents share them on import.

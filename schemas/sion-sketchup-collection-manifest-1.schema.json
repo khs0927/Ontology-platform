@@ -1,0 +1,84 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/khs0927/Ontology-platform/schemas/sion-sketchup-collection-manifest-1.schema.json",
+ "title": "sion-sketchup-collection-manifest/v1",
+ "description": "One SketchUp model collection (namespace): the read-only captures with their SHA-256, the authored overlays, the shared inputs and the generated outputs. Checked by `python -m sion_ingestion.sketchup_collection preflight`.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": ["schema", "namespace", "model", "dump_sha256", "probe_sha256", "limits", "inputs", "outputs"],
+ "$defs": {
+  "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+  "relpath": {
+   "type": "string",
+   "minLength": 1,
+   "pattern": "^(?![A-Za-z]:)(?!/)(?!.*\\\\)(?!.*(^|/)\\.\\.(/|$)).+$",
+   "description": "Repo-relative POSIX path (no drive letter, no leading slash, no backslash, no '..')."
+  }
+ },
+ "properties": {
+  "schema": {"const": "sion-sketchup-collection-manifest/v1"},
+  "namespace": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"},
+  "model": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["skp_file", "title", "sketchup_version"],
+   "properties": {
+    "skp_file": {"type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$", "description": "File name only; never the local absolute path."},
+    "title": {"type": "string"},
+    "sketchup_version": {"type": "string", "minLength": 1},
+    "dumped_at": {"type": ["string", "null"]},
+    "modified": {"type": ["boolean", "null"], "description": "model.modified? at dump time (unsaved changes)."}
+   }
+  },
+  "dump_sha256": {"$ref": "#/$defs/sha256"},
+  "probe_sha256": {
+   "type": "object",
+   "description": "Role -> SHA-256 for every probe capture (geometry_probe, grouping_probe, ...).",
+   "additionalProperties": {"$ref": "#/$defs/sha256"}
+  },
+  "limits": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["max_input_bytes", "max_output_bytes"],
+   "properties": {
+    "max_input_bytes": {"type": "integer", "minimum": 1},
+    "max_output_bytes": {"type": "integer", "minimum": 1}
+   }
+  },
+  "inputs": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["path", "role", "kind"],
+    "properties": {
+     "path": {"$ref": "#/$defs/relpath"},
+     "role": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+     "kind": {
+      "enum": ["capture", "authored", "shared"],
+      "description": "capture = read-only extraction from SketchUp (byte-identical, sha256 required); authored = per-model overlay written by people/agents; shared = vocabulary or document used by several namespaces."
+     },
+     "sha256": {"$ref": "#/$defs/sha256"},
+     "bytes": {"type": "integer", "minimum": 0},
+     "producer": {"type": "string"}
+    },
+    "if": {"properties": {"kind": {"const": "capture"}}},
+    "then": {"required": ["sha256", "bytes"]}
+   }
+  },
+  "outputs": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["path", "role", "command"],
+    "properties": {
+     "path": {"$ref": "#/$defs/relpath"},
+     "role": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"},
+     "command": {"type": "string", "minLength": 1}
+    }
+   }
+  }
+ }
+}
