@@ -93,7 +93,8 @@ class AuthPolicy:
         same_origin = f"{request.url.scheme}://{hosts[0]}"
         return origins[0] == same_origin or origins[0] in self.trusted_origins
 
-    def _scopes_for_authorization(self, authorization: str | None) -> frozenset[str] | None:
+    def _matched_token(self, authorization: str | None) -> tuple[str, frozenset[str]] | None:
+        """Return the configured ``(token, scopes)`` entry the header authenticates as."""
         if not authorization:
             return None
         scheme, separator, token = authorization.partition(" ")
@@ -101,8 +102,12 @@ class AuthPolicy:
             return None
         for expected, scopes in self.token_scopes:
             if hmac.compare_digest(token.encode("utf-8"), expected.encode("utf-8")):
-                return scopes
+                return expected, scopes
         return None
+
+    def _scopes_for_authorization(self, authorization: str | None) -> frozenset[str] | None:
+        matched = self._matched_token(authorization)
+        return matched[1] if matched else None
 
     def authorize(self, request: Request, scope: str) -> None:
         is_local = self._trusted_local_request(request)
@@ -156,12 +161,21 @@ class AuthPolicy:
         return frozenset(allowed)
 
     def client_key(self, request: Request) -> str:
-        """Stable, non-secret identity for per-client throttling."""
-        authorization = request.headers.get("Authorization")
-        if authorization:
-            digest = hashlib.sha256(authorization.encode("utf-8")).hexdigest()[:32]
-            return "token:" + digest
-        return "host:" + (request.client.host if request.client else "unknown")
+        """Stable, non-secret identity for per-client throttling.
+
+        The key comes from the authenticated identity, never from raw header text, so
+        re-spelling the ``Bearer`` scheme or sending arbitrary headers from a trusted
+        local peer cannot mint fresh buckets. Trusted local requests key on the peer
+        address (mirroring ``authorize``); bearer requests key on a digest of the
+        matched configured token.
+        """
+        host = "host:" + (request.client.host if request.client else "unknown")
+        if self.mode != "bearer" and self._trusted_local_request(request):
+            return host
+        matched = self._matched_token(request.headers.get("Authorization"))
+        if matched is not None:
+            return "token:" + hashlib.sha256(matched[0].encode("utf-8")).hexdigest()[:32]
+        return host
 
 
 def require_scope(policy: AuthPolicy, scope: str) -> Callable[[Request], None]:

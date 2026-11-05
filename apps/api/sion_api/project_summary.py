@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from fastapi import Depends, HTTPException, Query, Request
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from . import models
 from .auth import AuthPolicy
@@ -165,39 +165,56 @@ def register(app, get_session, policy: AuthPolicy, read) -> None:
         projects = projects[:limit]
 
         ids = [str(row.id) for row in projects]
-        works: dict[str, list] = {pid: [] for pid in ids}
+        counts_by_project: dict[str, dict[str, int]] = {}
+        latest_by_project: dict[str, object] = {}
         if ids:
             props = models.Entity.properties
-            work_rows = session.execute(
+            project_key = props["project_id"].as_string()
+            status_key = props["status"].as_string()
+            in_scope = (models.Entity.category == "regulation_work", project_key.in_(ids))
+            # Aggregate in the database so the rows loaded here do not grow with the number of works.
+            for row in session.execute(
+                select(project_key.label("project_id"), status_key.label("status"), func.count().label("n"))
+                .where(*in_scope)
+                .group_by(project_key, status_key)
+            ):
+                counts = counts_by_project.setdefault(row.project_id, {})
+                counts[row.status] = counts.get(row.status, 0) + row.n
+            ranked = (
                 select(
                     models.Entity.id,
                     models.Entity.name,
                     models.Entity.updated_at,
-                    props["project_id"].as_string().label("project_id"),
-                    props["status"].as_string().label("status"),
+                    project_key.label("project_id"),
+                    status_key.label("status"),
                     props[("report", "decision", "status")].as_string().label("decision_status"),
                     props[("report", "as_of")].as_string().label("as_of"),
+                    func.row_number()
+                    .over(
+                        partition_by=project_key,
+                        order_by=(models.Entity.updated_at.desc(), models.Entity.id),
+                    )
+                    .label("rank"),
                 )
-                .where(models.Entity.category == "regulation_work")
-                .where(props["project_id"].as_string().in_(ids))
-                .order_by(models.Entity.updated_at.desc(), models.Entity.id)
-            ).all()
-            for row in work_rows:
-                works.setdefault(row.project_id, []).append(row)
+                .where(*in_scope)
+                .subquery()
+            )
+            for row in session.execute(select(ranked).where(ranked.c.rank == 1)):
+                latest_by_project[row.project_id] = row
 
         items = []
         for project in projects:
-            rows = works.get(str(project.id), [])
+            raw_counts = counts_by_project.get(str(project.id), {})
             counts = {status: 0 for status in WORK_STATUSES}
-            for row in rows:
-                key = row.status if row.status in counts else "other"
-                counts[key] = counts.get(key, 0) + 1
-            latest = rows[0] if rows else None
+            for status, n in raw_counts.items():
+                key = status if status in counts else "other"
+                counts[key] = counts.get(key, 0) + n
+            latest = latest_by_project.get(str(project.id))
             items.append(
                 {
                     "project_id": str(project.id),
                     "project_name": _clip(project.name),
-                    "work_count": len(rows),
+                    "work_count": sum(raw_counts.values()),
                     "status_counts": counts,
                     "latest_work": (
                         {
@@ -231,6 +248,11 @@ def _envelope(items: list[dict], has_more: bool, limit: int, max_bytes: int) -> 
     used = 0
     for item in items:
         cost = _size(item) + 2
+        if cost > budget:
+            # A single item can outgrow the budget (e.g. control characters escape to
+            # six bytes each); replace it with a minimal stub so the bound stays strict.
+            item = {"project_id": item["project_id"], "item_truncated": True}
+            cost = _size(item) + 2
         if kept and used + cost > budget:
             body["truncated"] = True
             break

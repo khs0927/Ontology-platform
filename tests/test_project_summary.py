@@ -232,3 +232,73 @@ def test_malformed_project_scope_fails_closed():
     with TestClient(app) as c:
         body = c.get(URL, headers={"Authorization": f"Bearer {READ}"}).json()
         assert body["items"] == [] and body["next_cursor"] is None
+
+
+def test_rate_limit_ignores_bearer_scheme_casing():
+    app = bearer_app()
+    app.state.summary_rate_limiter = RateLimiter(1, 60, clock=lambda: 0.0)
+    with TestClient(app) as c:
+        assert c.get(URL, headers={"Authorization": f"Bearer {READ}"}).status_code == 200
+        for scheme in ("bearer", "BEARER", "bEaReR"):
+            assert c.get(URL, headers={"Authorization": f"{scheme} {READ}"}).status_code == 429
+
+
+def test_rate_limit_local_peer_cannot_mint_buckets_with_headers():
+    policy = AuthPolicy(mode="local-or-bearer", token_scopes=((READ, frozenset({"read:knowledge"})),))
+    app = create_app(database_url="sqlite://", auth_policy=policy)
+    app.state.summary_rate_limiter = RateLimiter(1, 60, clock=lambda: 0.0)
+    with local_client(app) as c:
+        assert c.get(URL).status_code == 200
+        for i in range(3):
+            assert c.get(URL, headers={"Authorization": f"junk-{i}"}).status_code == 429
+
+
+def test_single_oversized_item_is_stubbed_within_bound(local_app):
+    nasty = "\x01" * 1000
+    with local_app.state.session_factory() as s:
+        project = models.Entity(stable_key="ctrl-project", entity_type_id="Project", name=nasty)
+        s.add(project)
+        s.flush()
+        s.add(
+            models.Entity(
+                stable_key="ctrl-work",
+                entity_type_id="Document",
+                name=nasty,
+                category="regulation_work",
+                properties={
+                    "project_id": str(project.id),
+                    "status": nasty,
+                    "report": {"as_of": nasty, "decision": {"status": nasty}},
+                },
+            )
+        )
+        s.commit()
+        project_id = str(project.id)
+    local_app.state.summary_limits = SummaryLimits(max_bytes=4096)
+    with local_client(local_app) as c:
+        response = c.get(URL)
+    assert response.status_code == 200
+    assert len(response.content) <= 4096
+    assert response.json()["items"] == [{"project_id": project_id, "item_truncated": True}]
+
+
+def test_counts_and_latest_are_aggregated_per_project(local_app):
+    projects = seed(local_app, count=2, works_per_project=3)
+    with local_app.state.session_factory() as s:
+        s.add(
+            models.Entity(
+                stable_key="odd-status",
+                entity_type_id="Document",
+                name="검토 odd",
+                category="regulation_work",
+                properties={"project_id": projects[0], "status": "archived"},
+            )
+        )
+        s.commit()
+    with local_client(local_app) as c:
+        items = {item["project_id"]: item for item in c.get(URL).json()["items"]}
+    assert items[projects[0]]["work_count"] == 4
+    assert items[projects[0]]["status_counts"] == {"open": 2, "in_review": 0, "done": 1, "other": 1}
+    assert items[projects[1]]["work_count"] == 3
+    assert items[projects[1]]["status_counts"] == {"open": 2, "in_review": 0, "done": 1}
+    assert items[projects[1]]["latest_work"] is not None

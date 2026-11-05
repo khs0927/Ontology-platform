@@ -108,7 +108,12 @@ Supported scopes:
 - `read:knowledge` — ontology schema, inventories, entities, relations, evidence, graph, artifacts, and vector search.
 - `write:knowledge` — entity/relation/evidence/artifact/embedding writes.
 - `*` — all scopes.
-- `project:<uuid>` — optional project ACL entry. A token that lists one or more `project:` entries is limited to those projects on project-scoped read routes (currently `GET /api/v1/regulation/summary`); malformed entries grant nothing. Tokens without `project:` entries, `*` tokens and trusted local requests are unrestricted.
+- `project:<uuid>` — optional project ACL entry. A token that lists one or more `project:` entries is limited to those projects on `GET /api/v1/regulation/summary` only; malformed entries grant nothing. Tokens without `project:` entries, `*` tokens and trusted local requests are unrestricted.
+
+> **Project scopes are not an isolation boundary yet.** Only the summary route enforces them. A project-scoped
+> token that also holds `read:knowledge` can still read every project's full reports through
+> `GET /api/v1/regulation/works` and the other `read:knowledge` routes. Do not issue such a token to a party that
+> must be confined to its projects; enforcing the ACL on the remaining per-project read routes is follow-up work.
 
 `local-or-bearer` is also available when loopback access should remain token-free while remote callers use bearer tokens. Tokens are compared in constant time and are never written to API responses.
 
@@ -124,8 +129,10 @@ carries `project_id`, `project_name`, `work_count`, `status_counts` (`open`/`in_
 - Filter: repeatable `project_id=<uuid>` (at most 50).
 - Pagination: keyset cursor. `limit` defaults to 20 (max 50); pass the returned `next_cursor` as `cursor` until it is `null`.
 - Size bound: the body stays under `SION_SUMMARY_MAX_BYTES` (default 65536, minimum 4096). When the bound cuts a
-  page short, `truncated` is `true` and `next_cursor` resumes after the last returned project. Names are clipped to 200 characters.
-- Rate limit: in-process sliding window per client (bearer token digest, else peer address), configured with
+  page short, `truncated` is `true` and `next_cursor` resumes after the last returned project. Names are clipped to 200 characters;
+  an item that alone would not fit is replaced by `{"project_id": ..., "item_truncated": true}`.
+- Rate limit: in-process sliding window per client (digest of the matched configured token, else peer address for
+  trusted local requests), configured with
   `SION_SUMMARY_RATE_LIMIT=<requests>/<seconds>` (default `60/60`, `0` disables). Excess requests get 429 with
   `Retry-After`. The limiter is per process and is not shared between workers.
 
