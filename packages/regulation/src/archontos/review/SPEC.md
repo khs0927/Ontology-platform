@@ -24,3 +24,7 @@ conflicting evidence; private project evidence never crosses projects; LLM is op
 | `citations.py` | W11 | `verify_citations(citations, evidence_index, provisions) -> list[Citation]` (unknown evidence id / provision mismatch / excerpt not found ⇒ verified False with reason; drop unverified claims from briefing) | S23 |
 | `impact.py` | W13 | `ImpactGraph` linking provision version → rule versions → evaluations → works; `classify_change(old, new)` (hash-only vs text vs effectivity change); `impacted_works(change) -> list[ReviewTask]`-like records; old reports stay on their snapshot | S28 |
 | `workflow.py` | integration | `plan_review(...)`, `start_review(...)`, `get_review`, `resume_review`, `get_basis`, `explain` (deterministic structured explanation, optional LLM hook), `compare(run_a, run_b)`, `briefing(run)` — composes the modules above; output follows the common output fields of §13 | all |
+| `retrieval.py` | W11 | `RetrievalScope`, `retrieve(question, scope, catalog, evidence, required, search=None)`: filter by project/date/jurisdiction first, exact label match, reference paths, optional search hook; required provisions are never cut; a failed hook degrades to the deterministic result | S23, S25, S30 |
+| `bundle.py` | W03/W10 | `ReviewBundle`, `load_bundle(path)`: validated JSON of catalog, links, profile, rules and conditions that an operator ships to a workflow | D03, D08 |
+
+Current status per work package and the D01–D10 readiness table: `docs/regulation/IMPLEMENTATION-STATUS.md`.

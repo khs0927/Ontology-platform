@@ -281,6 +281,7 @@ class ProvisionRef(_Model):
     branch: int | None = Field(default=None, ge=1)  # 가지번호: 제12조의2 -> article=12, branch=2
     paragraph: int | None = Field(default=None, ge=1)
     item: int | None = Field(default=None, ge=1)
+    item_branch: int | None = Field(default=None, ge=1)  # 제1호의2 -> item=1, item_branch=2
     sub_item: str | None = None
     annex_no: str | None = None  # 별표 번호 ("1", "2의3")
     addendum_key: str | None = None  # 부칙 공포번호/일자 key
@@ -293,6 +294,7 @@ class ProvisionRef(_Model):
             "branch",
             "paragraph",
             "item",
+            "item_branch",
             "sub_item",
             "annex_no",
             "addendum_key",
