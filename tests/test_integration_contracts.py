@@ -2,6 +2,7 @@
 
 Pinned producer/consumer commits: power-cad-mcp 461df6c, hs-steel-cad cefd395,
 korean-land-mcp 9bca5ea, HS-CAD 8bf34e1, All-In-Cad 329f9ad, CAD-MCP 50ae134.
+Draft, not pinned: kordoc-evidence/1 (khs0927/inspection-supervision-mcp; no upstream commit).
 """
 
 from __future__ import annotations
@@ -40,7 +41,7 @@ def sha(text: str) -> str:
 
 
 def test_every_contract_schema_is_valid_draft_2020_12_and_packaged():
-    assert len(contracts.names()) == 10
+    assert len(contracts.names()) == 11
     for name in contracts.names():
         schema = contracts.load(name)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -604,3 +605,62 @@ def test_building_regulation_report_contract():
     assert contracts.errors("building-regulation-report/1", report) == []
     report["decision"]["status"] = "unsupported_verdict"  # unknown statuses are rejected
     assert contracts.errors("building-regulation-report/1", report)
+
+
+# --------------------------------------------------------------------------- inspection-supervision-mcp (Kordoc) -> Sion evidence
+
+KORDOC_FIX = FIX / "kordoc-evidence"
+KORDOC_VALID = sorted((KORDOC_FIX / "valid").glob("*.json"))
+KORDOC_INVALID = sorted((KORDOC_FIX / "invalid").glob("*.json"))
+
+
+def _kordoc(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_kordoc_evidence_is_marked_draft_and_not_pinned():
+    """No upstream commit of khs0927/inspection-supervision-mcp is pinned; code, schema and docs say so."""
+    assert contracts.is_pinned("kordoc-evidence/1") is False
+    assert contracts.DRAFT_CONTRACTS == {"kordoc-evidence/1": "khs0927/inspection-supervision-mcp"}
+    assert all(contracts.is_pinned(name) for name in contracts.names() if name != "kordoc-evidence/1")
+    schema = contracts.load("kordoc-evidence/1")
+    assert schema["x-sion-contract"] == {"status": "draft", "pinned": False,
+                                         "upstream": "khs0927/inspection-supervision-mcp", "upstream_commit": None}
+    assert schema["description"].startswith("DRAFT / NOT PINNED")
+    docs = (ROOT / "docs" / "INTEGRATION_CONTRACTS.md").read_text(encoding="utf-8")
+    assert "kordoc-evidence/1" in docs and "draft / not pinned" in docs
+    with pytest.raises(KeyError):
+        contracts.is_pinned("nope")
+
+
+def test_kordoc_evidence_fixture_sets_are_present():
+    assert {p.stem for p in KORDOC_VALID} == {"unverified_table_cell", "human_verified_page_only", "rejected_without_claims"}
+    assert len(KORDOC_INVALID) >= 20
+
+
+@pytest.mark.parametrize("path", KORDOC_VALID, ids=lambda p: p.stem)
+def test_kordoc_evidence_valid_fixtures(path):
+    payload = _kordoc(path)
+    assert contracts.errors("kordoc-evidence/1", payload) == []
+    # quoted source text and interpretations stay in separate members; neither is canonical
+    assert payload["canonical"] is False and payload["evidence_only"] is True
+    assert hashlib.sha256(payload["source_text"]["quote"].encode("utf-8")).hexdigest() == payload["source_text"]["quote_sha256"]
+    assert all(c["canonical"] is False and c["claim_state"] == "candidate" for c in payload["proposed_claims"])
+    assert all("quote" not in c for c in payload["proposed_claims"])
+
+
+@pytest.mark.parametrize("path", KORDOC_INVALID, ids=lambda p: p.stem)
+def test_kordoc_evidence_invalid_fixtures(path):
+    assert contracts.errors("kordoc-evidence/1", _kordoc(path)), path.stem
+    with pytest.raises(ValueError, match="kordoc-evidence/1 contract violated"):
+        contracts.validate("kordoc-evidence/1", _kordoc(path))
+
+
+def test_kordoc_evidence_semantic_checks_name_the_field():
+    bad_hash = contracts.errors("kordoc-evidence/1", _kordoc(KORDOC_FIX / "invalid" / "quote_hash_mismatch.json"))
+    assert bad_hash == ["source_text/quote_sha256: does not match the SHA-256 of quote (UTF-8)"]
+    dup = contracts.errors("kordoc-evidence/1", _kordoc(KORDOC_FIX / "invalid" / "duplicate_claim_ids.json"))
+    assert dup == ["proposed_claims: claim_id values must be unique"]
+    # non-object payloads fail on the schema without crashing the semantic checks
+    assert contracts.errors("kordoc-evidence/1", [])
+    assert contracts.errors("kordoc-evidence/1", {"source_text": "x", "proposed_claims": "y"})

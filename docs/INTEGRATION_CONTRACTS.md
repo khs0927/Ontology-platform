@@ -15,18 +15,20 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
 | [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; Sion project workspace adapter | `building-regulation-report/1` |
+| [inspection-supervision-mcp](https://github.com/khs0927/inspection-supervision-mcp) | MCP (Kordoc document parsing) | located document excerpts are evidence for one project; **draft / not pinned** (§10) | `kordoc-evidence/1` |
 
 Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 `sion_core/contracts/schemas/` (`packages/core/sion_core/contracts/`). Python access:
 
 ```python
 from sion_core import contracts
-contracts.names()                      # the 10 contract names
+contracts.names()                      # the 11 contract names
+contracts.is_pinned("kordoc-evidence/1")   # False: draft, no upstream commit pinned (DRAFT_CONTRACTS)
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
 ```
 
-Contract tests: `tests/test_integration_contracts.py` (82 tests). Upstream files used as fixtures are
+Contract tests: `tests/test_integration_contracts.py` (116 tests). Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
 
@@ -45,6 +47,10 @@ The contracts were derived from these commits (read-only clones; no upstream rep
 
 When an upstream changes one of the files named below, update the schema and the pin in this table
 and the test module docstring in the same PR.
+
+Not pinned: `kordoc-evidence/1` (khs0927/inspection-supervision-mcp). Its producer side is an open draft
+(PR #3) that could not be checked from here, so the table has no row for it. Code marks it with
+`contracts.DRAFT_CONTRACTS` / `contracts.is_pinned()`, and the schema with `x-sion-contract.pinned=false`.
 
 ### Upstream changes reviewed at the 2026-10-09 pin
 
@@ -289,6 +295,37 @@ Producer: `khs0927/building-regulation-gateway` @ `21e146574c2ba173ed436c685b376
 Sion provides an authenticated HTTP bridge and a project workspace at `/regulation`. Saved reports are advisory (`canonical:false`), with source evidence and project relationships recorded through existing transactions/outbox. No CAD mutation is performed. Contract schema and tests cover the v0.2 statuses and require review metadata for determinate decisions. See [REGULATION-WORKSPACE.ko.md](REGULATION-WORKSPACE.ko.md) for endpoints, configuration and MCP router adapter.
 
 Gateway runtime remains isolated (its own SQLite or PostgreSQL snapshot store and MCP dependencies). The platform owns project work, notes and tasks in its existing entity/evidence tables. Check service ports per PC; tokens come from process environment.
+
+## 10. inspection-supervision-mcp (Kordoc) → Sion evidence (`kordoc-evidence/1`) — draft / not pinned
+
+Status: **draft / not pinned.** Issue #71 step I. The producer is `khs0927/inspection-supervision-mcp`
+(Kordoc document parsing; read-only mobile connection in its draft PR #3). No upstream commit is pinned
+and no upstream file is vendored. The schema `kordoc-evidence-1.schema.json` describes what Sion accepts.
+It does not mirror producer code. Once the producer ships the shape, pin the commit in the table above,
+add captured fixtures with provenance and remove the entry from `contracts.DRAFT_CONTRACTS`, all in one PR.
+
+One payload is one located excerpt of one source document revision:
+
+| Member | Rule |
+|---|---|
+| `schema`, `producer` | `kordoc-evidence/1`, `khs0927/inspection-supervision-mcp` |
+| `project_id` | required, non-blank, ≤ 200 chars. Readers enforce project ACL on it; evidence without a project is rejected |
+| `source` | `sha256` (lowercase hex of the file bytes), `document_id`, `document_version` required; `file_name`, `media_type`, `source_uri` optional. `source_uri` is a reference, never a grant to change the original |
+| `parser` | `name`, `version` required (e.g. `kordoc` and its version) |
+| `locator` | `page` (1-based) required; `table` and `cell {row, col}` (1-based) optional; a `cell` needs a `table` |
+| `source_text` | verbatim `quote` and `quote_sha256` (SHA-256 of the UTF-8 quote, checked by `contracts.errors`) |
+| `classification.state` | `unverified` (no review metadata allowed), `human_verified` or `rejected` (both need `reviewer_kind="human"`, `reviewed_by`, `reviewed_at`; `rejected` also needs `reason` and no `proposed_claims`) |
+| `proposed_claims[]` | producer interpretations: `claim_id` (unique), `statement`, optional `subject/predicate/object`, `claim_state="candidate"`, `canonical=false`. No quote inside a claim |
+| `canonical`, `evidence_only` | always `false`, `true`. Unknown top-level members (e.g. `canonical_claims`) are rejected |
+
+**Quoted text vs. canonical claims.** `source_text` is what the document says at the locator.
+`proposed_claims` are someone's reading of it. Both stay evidence. Sion canonical claims are created only
+through Sion's own review flow, never from this payload. `human_verified` means a person checked the
+excerpt against the source revision. It does not approve a claim. Machine-assigned verification is
+rejected (`reviewer_kind` must be `human`), and Sion never auto-approves candidates from this payload.
+
+Tests: `tests/contracts/fixtures/kordoc-evidence/` holds synthetic valid (3) and invalid (23) payloads,
+each invalid file breaking one rule (see PROVENANCE.md).
 
 ## In-repo contracts (for reference)
 
