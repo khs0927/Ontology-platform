@@ -32,6 +32,8 @@ MUTATING = {"POST", "PUT", "PATCH", "DELETE"}
 # Unauthenticated by design. Keep this list short and justified.
 PUBLIC_ROUTES = {
     ("GET", "/health"),  # liveness probe; returns no knowledge data
+    ("GET", "/health/live"),  # liveness probe; no auth, no database access
+    ("GET", "/health/ready"),  # readiness probe; read-only SELECT 1, no connection details
     ("GET", "/review"),  # static HTML shell; data calls behind it are scoped
     ("GET", "/map"),  # static HTML shell; data calls behind it are scoped
     ("GET", "/openapi.json"),  # FastAPI schema
