@@ -26,6 +26,7 @@ from . import (
     __version__,
     law_knowledge,
     models,
+    ops,
     outbox,
     regulation,
     regulation_workspace,
@@ -129,6 +130,9 @@ def create_app(
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["*"],
     )
+    # Outermost: one JSON access-log line per request; headers/query strings are never logged.
+    app.add_middleware(ops.AccessLogMiddleware)
+    ops.register(app, engine, __version__)
 
     @app.get("/health")
     def health():
