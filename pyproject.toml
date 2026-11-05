@@ -110,6 +110,7 @@ packages = [
   "sion_cair",
   "sion_drive_store",
   "sion_graphrag",
+  "sion_embedhub",
   # ArchOntos (git subtree at packages/regulation, src layout)
   "archontos",
   "archontos.actions",
@@ -142,6 +143,7 @@ sion_bim = "packages/bim/sion_bim"
 sion_cair = "packages/cair/sion_cair"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
+sion_embedhub = "packages/embedhub/sion_embedhub"
 archontos = "packages/regulation/src/archontos"
 god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
