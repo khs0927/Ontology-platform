@@ -105,9 +105,13 @@ $env:SION_API_TOKENS_JSON = '{"replace-with-long-token":["read:aec","read:knowle
 
 Supported scopes:
 - `read:aec` — AEC/CAIR federation status and queries.
-- `read:knowledge` — ontology schema, inventories, entities, relations, evidence, graph, artifacts, and vector search.
-- `write:knowledge` — entity/relation/evidence/artifact/embedding writes.
+- `read:knowledge` — every read-only knowledge route: ontology schema, inventories, entities, relations, review candidates, evidence, graph, artifacts, vector search and GraphRAG queries.
+- `write:knowledge` — every write: entity/relation/evidence/artifact/embedding writes, relation review decisions, imports and ingestion.
 - `*` — all scopes.
+
+Scopes are disjoint: `write:knowledge` does not imply `read:knowledge`. A token can also be limited to
+specific projects with `{"scopes": [...], "projects": ["<project-uuid>"]}`. See
+[API authorization](docs/API_AUTH.md) for the project ACL and the route-coverage test.
 
 `local-or-bearer` is also available when loopback access should remain token-free while remote callers use bearer tokens. Tokens are compared in constant time and are never written to API responses.
 
