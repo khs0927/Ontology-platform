@@ -5,7 +5,8 @@ any other plain file) under one *root* directory, :func:`create_manifest` descri
 changing it:
 
 * per file: root-relative ``source_uri``, byte size and SHA-256;
-* SQLite files (detected by header): opened with ``file:...?mode=ro`` plus ``PRAGMA query_only``,
+* SQLite files (detected by header): opened with ``file:...?mode=ro&immutable=1`` plus
+  ``PRAGMA query_only``,
   row counts per table, ``user_version``, recorded core migrations (``sion_schema_migrations``,
   ``schema_migrations``, ``alembic_version`` when present) and a fingerprint of ``sqlite_master``;
 * ``sion-map-export/v1`` JSON: node/edge counts (an export whose ``expected_*_count`` disagrees
@@ -13,11 +14,14 @@ changing it:
 * ``.jsonl``: record count.
 
 :func:`verify_manifest` recomputes everything and returns the mismatches; the CLI exits non-zero
-on any of them (fail closed).
+on any of them (fail closed). The manifest also records its root-relative ``sources``; verify walks
+them again and reports any file that is not listed (added after the manifest was made).
 
 Safety rules, all enforced here rather than left to the caller:
 
 * sources are only ever opened for reading; the manifest may not be written inside a source;
+  SQLite files are opened ``immutable=1`` so that a WAL-mode database does not get ``-shm``/``-wal``
+  files created next to it (safe because the file is hashed before and after it is read);
 * every file is hashed before and after it is inspected, so a source that changes while the
   manifest is built is an error, not a silently inconsistent snapshot;
 * a SQLite file with a non-empty ``-wal``/``-journal`` sidecar is a live database and is refused
@@ -149,8 +153,13 @@ def _quote_ident(name: str) -> str:
 
 
 def sqlite_readonly_uri(path: Path) -> str:
-    """``file:`` URI opening ``path`` read-only (``?`` and ``#`` in the path are percent-encoded)."""
-    return path.resolve().as_uri() + "?mode=ro"
+    """``file:`` URI opening ``path`` read-only (``?`` and ``#`` in the path are percent-encoded).
+
+    ``immutable=1`` stops SQLite from creating ``-shm``/``-wal`` files next to a WAL-mode database,
+    which ``mode=ro`` alone still does. A non-empty ``-wal`` is refused before opening, and the file
+    is hashed before and after it is read, so nothing is hidden by skipping SQLite's locking.
+    """
+    return path.resolve().as_uri() + "?mode=ro&immutable=1"
 
 
 def inspect_sqlite(path: Path) -> dict[str, Any]:
@@ -196,7 +205,7 @@ def inspect_sqlite(path: Path) -> dict[str, Any]:
         raise SnapshotError(f"{path.name} failed PRAGMA quick_check: {integrity}")
     return {
         "kind": "sqlite",
-        "open_uri": f"file:{path.name}?mode=ro",
+        "open_uri": f"file:{path.name}?mode=ro&immutable=1",
         "row_counts": row_counts,
         "schema": {
             "user_version": user_version,
@@ -351,7 +360,12 @@ def create_manifest(
     if not root_path.is_dir():
         raise SnapshotError("--root must be an existing directory")
     created_at = validate_created_at(created_at)
-    walk = collect_sources(root_path, list(sources))
+    source_list = list(sources)
+    walk = collect_sources(root_path, source_list)
+    recorded_sources = sorted({
+        _relative((Path(s) if Path(s).is_absolute() else root_path / s).resolve(), root_path) or "."
+        for s in source_list or ["."]
+    })
     if not walk.files:
         raise SnapshotError("no files to snapshot")
     files = [_describe(path, root_path, allow_cad_hash_only=allow_cad_hash_only) for path in walk.files]
@@ -359,6 +373,7 @@ def create_manifest(
         "schema": SCHEMA,
         "created_at": created_at,
         "options": {"allow_cad_hash_only": allow_cad_hash_only},
+        "sources": recorded_sources,
         "file_count": len(files),
         "total_bytes": sum(item["size_bytes"] for item in files),
         "excluded": dict(sorted(walk.excluded.items())),
@@ -424,6 +439,35 @@ def verify_manifest(manifest: dict[str, Any], root: str | Path) -> list[str]:
         for key in sorted(set(recorded) | set(actual)):
             if recorded.get(key) != actual.get(key):
                 problems.append(f"{uri}: {key} differs (recorded {recorded.get(key)!r}, now {actual.get(key)!r})")
+    problems.extend(_unlisted_files(manifest.get("sources"), files, root_path))
+    return problems
+
+
+def _unlisted_files(sources: Any, files: list[Any], root: Path) -> list[str]:
+    """Files under the recorded ``sources`` that the manifest does not list (added afterwards)."""
+    if sources is None:  # manifest without a source list: only the listed files can be checked
+        return []
+    if not isinstance(sources, list) or not all(isinstance(s, str) for s in sources):
+        return ["manifest sources is not a list of root-relative paths"]
+    problems: list[str] = []
+    walk_sources: list[Path] = []
+    for source in sources:
+        relative = PurePosixPath(source)
+        if relative.is_absolute() or ".." in relative.parts:
+            problems.append(f"source {source!r}: path escapes the root")
+        else:
+            walk_sources.append(root.joinpath(*relative.parts))
+    if problems:
+        return problems
+    try:
+        walk = collect_sources(root, walk_sources)
+    except SnapshotError as exc:
+        return [f"cannot re-walk the recorded sources: {exc}"]
+    listed = {item.get("source_uri") for item in files if isinstance(item, dict)}
+    for path in walk.files:
+        uri = "snapshot:" + _relative(path, root)
+        if uri not in listed:
+            problems.append(f"{uri}: not in the manifest (added after it was made)")
     return problems
 
 

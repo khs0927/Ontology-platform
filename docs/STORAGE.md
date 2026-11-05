@@ -98,17 +98,22 @@ The `sion-bootstrap-snapshot/v1` manifest lists, per file, a root-relative `sour
 
 | File | Extra facts |
 | --- | --- |
-| SQLite (detected by header) | `open_uri` (`file:<name>?mode=ro`), `row_counts` per table, `schema.user_version`, recorded migrations (`sion_schema_migrations`, `schema_migrations`, `alembic_version`), `schema.sqlite_master_sha256` |
+| SQLite (detected by header) | `open_uri` (`file:<name>?mode=ro&immutable=1`), `row_counts` per table, `schema.user_version`, recorded migrations (`sion_schema_migrations`, `schema_migrations`, `alembic_version`), `schema.sqlite_master_sha256` |
 | `sion-map-export/v1` JSON | `row_counts.nodes` / `edges`, `export_source`, `ontology_versions` |
 | `.jsonl` (e.g. evidence) | `row_counts.records` |
 | CAD original, only with `--allow-cad-hash-only` | `kind: cad-original`, `hash_only: true` (size and SHA-256, nothing else) |
 
 `created_at` is passed in (timezone-aware ISO-8601), so the same inputs give the same manifest.
-`content_sha256` covers the file list, so an edited manifest fails verification too.
+`content_sha256` covers the file list, so an edited manifest fails verification too. `sources`
+records the root-relative sources that were walked; verify walks them again and reports any file
+that is not in the manifest (added after it was made). Files outside the recorded sources are not
+checked.
 
 Fail-closed rules:
 
-- SQLite is opened with `mode=ro` and `PRAGMA query_only`; every file is hashed before and after
+- SQLite is opened with `mode=ro&immutable=1` and `PRAGMA query_only`, so a WAL-mode database
+  (a `sqlite3` backup of a WAL source stays in WAL mode) gets no `-shm`/`-wal` files created next
+  to it. Every file is hashed before and after
   it is read, and a file that changed meanwhile aborts the run. `PRAGMA quick_check` must be `ok`.
 - A database with a non-empty `-wal`/`-journal` file is treated as live and refused: snapshot it
   first (`python -m sion_api.drive_export snapshot`) and point the tool at the copy.

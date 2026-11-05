@@ -82,7 +82,8 @@ def test_manifest_describes_export_and_db(export_root: Path) -> None:
     }
     db = by_uri["snapshot:db/sion-latest.db"]
     assert db["kind"] == "sqlite"
-    assert db["open_uri"] == "file:sion-latest.db?mode=ro"
+    assert db["open_uri"] == "file:sion-latest.db?mode=ro&immutable=1"
+    assert manifest["sources"] == ["."]
     assert db["row_counts"] == {"entities": 3, 'odd "name"': 0, "sion_schema_migrations": 2}
     assert db["schema"]["user_version"] == 7
     assert db["schema"]["migrations"] == {"sion_schema_migrations": ["001_core", "002_vector"]}
@@ -104,6 +105,46 @@ def test_snapshot_never_writes_to_the_source(export_root: Path) -> None:
     assert verify_manifest(manifest, export_root) == []
     assert _snapshot_state(export_root) == before
     assert not list(export_root.rglob("*-wal")) and not list(export_root.rglob("*-journal"))
+    assert not list(export_root.rglob("*-shm"))
+
+
+def test_wal_mode_database_gets_no_sidecars(tmp_path: Path) -> None:
+    # sqlite3 backup() of a WAL source keeps WAL mode, so snapshots can be WAL-mode databases
+    root = tmp_path / "export"
+    root.mkdir()
+    db = root / "wal.db"
+    conn = sqlite3.connect(db)
+    assert conn.execute("PRAGMA journal_mode=wal").fetchone()[0] == "wal"
+    conn.execute("CREATE TABLE t (x INTEGER)")
+    conn.execute("INSERT INTO t VALUES (1), (2)")
+    conn.commit()
+    conn.close()
+    assert db.read_bytes()[18:20] == b"\x02\x02"
+    for sidecar in ("-wal", "-shm"):
+        db.with_name(db.name + sidecar).unlink(missing_ok=True)
+    before = _snapshot_state(root)
+
+    manifest = create_manifest(root, created_at=CREATED_AT)
+    assert manifest["files"][0]["row_counts"] == {"t": 2}
+    assert verify_manifest(manifest, root) == []
+    assert _snapshot_state(root) == before
+    assert sorted(p.name for p in root.iterdir()) == ["wal.db"]
+
+
+def test_verify_reports_files_added_after_the_manifest(export_root: Path) -> None:
+    manifest = create_manifest(export_root, ["graph"], created_at=CREATED_AT)
+    assert manifest["sources"] == ["graph"]
+    (export_root / "graph" / "late.jsonl").write_text('{"a":1}\n', encoding="utf-8")
+    (export_root / "db" / "outside-the-sources.txt").write_text("x", encoding="utf-8")
+    assert verify_manifest(manifest, export_root) == [
+        "snapshot:graph/late.jsonl: not in the manifest (added after it was made)"
+    ]
+
+
+def test_verify_rejects_escaping_recorded_sources(export_root: Path) -> None:
+    manifest = create_manifest(export_root, created_at=CREATED_AT)
+    manifest["sources"] = ["../elsewhere"]
+    assert verify_manifest(manifest, export_root) == ["source '../elsewhere': path escapes the root"]
 
 
 def test_manifest_is_reproducible(export_root: Path) -> None:
