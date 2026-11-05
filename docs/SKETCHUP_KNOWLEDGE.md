@@ -98,6 +98,19 @@ up at `/review` and stay `unverified` until a person approves them.
   record and evidence-row copy as the per-item route plus a shared `batch_id`. The response has a
   per-id `result` (`applied`, `unchanged` on repeat, `conflict` if the opposite decision exists,
   `not_found`, `not_candidate`, `invalid_id`), so retries are safe.
+- Safe writes (#71): every candidate carries a `version` (bumped by each approve/reject/reopen).
+  Per-item routes accept `expected_version` and answer `409` with
+  `{"error": "version_conflict", "current_version": n, ...}` when someone changed it first; bulk
+  accepts `expected_versions: {id: n}` and reports a per-id `conflict` with the current `version`.
+  Without it the old behaviour is kept unless `SION_REVIEW_REQUIRE_VERSION=1` (then `428`).
+  `dry_run: true` (per-item, bulk, reopen) returns the exact would-be result and writes nothing
+  (the `미리보기만` checkbox on the page). Inferred co-occurrence-only edges (or `trust: low` / `low_trust`)
+  are flagged `low_trust` and need `confirm_low_trust: true` to be approved (`422` otherwise).
+  `GET /api/v1/relations/candidates/{id}/audit` returns the append-only decision log
+  (`properties.review_log`: action, reviewer, note, batch_id, prior/new state, from/to version,
+  time) and whether replaying it reproduces the stored state.
+- The page is usable on a phone (single-column controls, 44px buttons) and shows each
+  candidate's source locator and source `sha256` when the import recorded them.
 - The `추천` badge (evidence count, confidence, co-occurrence-only rules) is display-only and is
   never applied automatically.
 

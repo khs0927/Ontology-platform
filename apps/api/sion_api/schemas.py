@@ -253,6 +253,13 @@ class RegulationEvaluate(BaseModel):
 class CandidateDecision(BaseModel):
     reviewer: str | None = Field(default=None, max_length=200)
     note: str | None = Field(default=None, max_length=2000)
+    # Optimistic concurrency: the candidate ``version`` the reviewer saw (409 with the current one on
+    # mismatch). Optional unless SION_REVIEW_REQUIRE_VERSION is on.
+    expected_version: int | None = Field(default=None, ge=0)
+    # Return the exact would-be result without writing anything.
+    dry_run: bool = False
+    # Explicit human confirmation for approving a low-trust inferred edge.
+    confirm_low_trust: bool = False
 
 
 class BulkCandidateDecision(BaseModel):
@@ -262,6 +269,10 @@ class BulkCandidateDecision(BaseModel):
     decision: Literal["approve", "reject"]
     note: str = Field(min_length=1, max_length=2000)
     reviewer: str | None = Field(default=None, max_length=200)
+    # id -> version the reviewer saw; a mismatch is a per-item ``conflict`` carrying the current version.
+    expected_versions: dict[str, int] | None = None
+    dry_run: bool = False
+    confirm_low_trust: bool = False
 
     @field_validator("note")
     @classmethod
@@ -277,6 +288,8 @@ class CandidateReopen(BaseModel):
 
     note: str = Field(min_length=1, max_length=2000)
     reviewer: str | None = Field(default=None, max_length=200)
+    expected_version: int | None = Field(default=None, ge=0)
+    dry_run: bool = False
 
     @field_validator("note")
     @classmethod

@@ -60,7 +60,7 @@ LLM이 설정되지 않은 서버는 검색 문맥만 반환한다.
 - `IMPLEMENTS`, `SUPPORTS`: 분류 후보와 그룹화 규칙/워크플로 연결.
 - `DEPENDS_ON`, `RELATED_TO`: 순서가 있는 지침·그룹화 단계 연결.
 
-분류·지침 연결 후보는 `properties.candidate = true`와 `verification_state = "unverified"`를 확인한다. 승인 작업은 명시적인 후보 id 목록에 대해 `POST /api/v1/relations/candidates/bulk`와 `{"ids":[...],"decision":"approve"|"reject","note":"...","reviewer":"..." }`를 사용하며, 승인 여부를 에이전트가 추측하지 않는다.
+분류·지침 연결 후보는 `properties.candidate = true`와 `verification_state = "unverified"`를 확인한다. 승인 작업은 명시적인 후보 id 목록에 대해 `POST /api/v1/relations/candidates/bulk`와 `{"ids":[...],"decision":"approve"|"reject","note":"...","reviewer":"..." }`를 사용하며, 승인 여부를 에이전트가 추측하지 않는다. 동시 검토 충돌을 막으려면 후보를 읽을 때 받은 `version`을 `expected_versions: {id: version}`로 함께 보내고(불일치 시 해당 id가 `conflict`와 현재 `version`으로 보고됨), 실제 기록 전에는 `dry_run: true`로 결과를 미리 확인한다. `low_trust`로 표시된 추론 관계는 사람이 근거를 확인하고 `confirm_low_trust: true`를 명시해야만 승인된다. 판정 이력은 `GET /api/v1/relations/candidates/{id}/audit`로 재생·검증할 수 있다.
 
 ## 2. 새 객체 그리기
 
