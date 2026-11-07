@@ -47,6 +47,7 @@ READ_ONLY_POSTS = {
     "/api/v1/vector/search",  # similarity search over stored embeddings
     "/api/v1/analyze/dxf",  # GOD-CAD analysis of a confined server file; no writes
     "/api/v1/graphrag/query",  # LightRAG query; derived answer, canonical=False
+    "/api/v1/nvidia/ask",  # upstream NVIDIA question; never executes SQL inside Sion
     "/api/v1/regulation/evaluate",  # ArchOntos rule evaluation over request facts
     "/api/v1/regulation/gateway/report",  # advisory gateway report; not saved
 }
