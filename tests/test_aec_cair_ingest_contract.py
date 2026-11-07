@@ -147,6 +147,7 @@ def test_unsupported_suffix_and_bad_project_id_are_refused(tmp_path):
         run_ontology_ingest(AEC_FIXTURES / "simple_house.dxf", "p1", ontology_root=tmp_path)
 
 
+@pytest.mark.skipif(not is_available("ezdxf"), reason="needs the 'cad' (or 'aec') extra")
 def test_live_bundled_dxf_ingest_round_trip():
     session = _session()
     result = ingest_with_ontology(session, AEC_FIXTURES / "simple_house.dxf", "simple-house-dxf")
