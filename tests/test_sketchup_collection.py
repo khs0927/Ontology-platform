@@ -303,6 +303,39 @@ def test_scaffold_failed_build_leaves_nothing_behind(fresh_root):
     assert preflight("other-model", root) == []
 
 
+def test_scaffold_failed_preflight_leaves_nothing_behind(fresh_root):
+    root, export = fresh_root
+    namespace = root / "data/sources/sketchup/fixture-model"
+    namespace.mkdir(parents=True)
+    (namespace / "model.skp").write_bytes(b"SketchUp Model")
+    before = _tree(root)
+
+    result = scaffold("fixture-model", root, from_dir=export)
+
+    assert not result["ok"]
+    assert result["actions"] == []
+    assert any(f["check"] == "skp-binary" for f in result["preflight"])
+    assert _tree(root) == before
+
+
+def test_scaffold_refuses_symlinked_output(fresh_root, tmp_path):
+    root, export = fresh_root
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    output_dir = root / "data/bootstrap"
+    try:
+        output_dir.symlink_to(outside, target_is_directory=True)
+    except OSError:
+        pytest.skip("directory symlinks are unavailable")
+    before = _tree(root)
+
+    with pytest.raises(CollectionError, match="output must be a direct path"):
+        scaffold("fixture-model", root, from_dir=export)
+
+    assert _tree(root) == before
+    assert list(outside.iterdir()) == []
+
+
 def test_scaffold_replaces_an_unbuilt_registry_entry_without_force(fresh_root):
     root, export = fresh_root
     entry = {
