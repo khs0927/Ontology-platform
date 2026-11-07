@@ -18,7 +18,7 @@ from sion_api.auth import AuthPolicy
 from sion_api.main import create_app
 
 SION_TOKEN = "sion-gh-ci-temporary-token-2026-1107"
-UPSTREAM = "http://127.0.0.1:3000"
+UPSTREAM = "http://localhost:3000"
 
 
 def config() -> dict[str, str]:
