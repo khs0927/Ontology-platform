@@ -1,0 +1,28 @@
+{"type": "query", "q": "계단 난간 높이는 얼마인가", "relevant": ["A-601"]}
+{"type": "query", "q": "계단 디딤판 마감 재료와 미끄럼 방지", "relevant": ["A-601"]}
+{"type": "query", "q": "외벽 마감재", "relevant": ["A-201"]}
+{"type": "query", "q": "드라이비트 외단열 공법", "relevant": ["A-201"]}
+{"type": "query", "q": "천장 높이", "relevant": ["A-301"]}
+{"type": "query", "q": "복층유리 구성 두께", "relevant": ["A-501", "A-901"]}
+{"type": "query", "q": "창호 주변 단열재와 실링 상세", "relevant": ["A-501"]}
+{"type": "query", "q": "창 종류별 수량과 규격", "relevant": ["A-901"]}
+{"type": "query", "q": "출입문 크기 목록", "relevant": ["A-901"]}
+{"type": "query", "q": "H형강 기둥 보 접합부 볼트", "relevant": ["S-301"]}
+{"type": "query", "q": "고장력볼트 체결 방법", "relevant": ["S-301"]}
+{"type": "query", "q": "용접 사양 필릿", "relevant": ["S-301"]}
+{"type": "query", "q": "큰보 G1 단면 규격", "relevant": ["S-201", "S-301"]}
+{"type": "query", "q": "데크플레이트 슬래브 두께", "relevant": ["S-201"]}
+{"type": "query", "q": "거실 면적", "relevant": ["A-101", "A-102"]}
+{"type": "query", "q": "화장실 보일러실 배치", "relevant": ["A-101"]}
+{"type": "query", "q": "2층 평면에 있는 방", "relevant": ["A-102"]}
+{"type": "query", "q": "도면 치수 단위와 마감 참조 특기사항", "relevant": ["A-101"]}
+{"type": "query", "q": "구조 강재 재질 SS275", "relevant": ["S-301"]}
+{"type": "query", "q": "창호 상세도 축척 1/5", "relevant": ["A-501"]}
+{"type": "query", "q": "계단 단높이와 단수", "relevant": ["A-601"]}
+{"type": "query", "q": "AW-02 알루미늄 창호 하부 상세", "relevant": ["A-501", "A-901"]}
+{"type": "query", "q": "철골 기둥 C1 단면", "relevant": ["S-201", "S-301"]}
+{"type": "query", "q": "다용도실과 창고 면적", "relevant": ["A-101"]}
+{"type": "query", "q": "PVC 이중창", "relevant": ["A-901"]}
+{"type": "query", "q": "정면 입면도", "relevant": ["A-201"]}
+{"type": "query", "q": "stair railing stainless steel height", "relevant": ["A-601"]}
+{"type": "query", "q": "steel beam to column bolted connection", "relevant": ["S-301"]}
