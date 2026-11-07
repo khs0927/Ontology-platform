@@ -38,7 +38,9 @@ def wait_ready(client: httpx.Client, path: str, timeout: int = 120) -> httpx.Res
         try:
             response = client.get(path, timeout=5)
             last = f"HTTP {response.status_code}"
-            if response.status_code == 200:
+            if response.status_code == 200 or (
+                path == "/" and response.status_code in {301, 302, 303, 307, 308}
+            ):
                 return response
         except httpx.HTTPError as exc:
             last = type(exc).__name__
