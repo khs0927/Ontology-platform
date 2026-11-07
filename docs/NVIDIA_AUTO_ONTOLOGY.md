@@ -119,3 +119,31 @@ sent to the user. This probe works without any model API call.
    measurements under an explicit spending cap.
 4. No production customer documents or Sion canonical database tables may
    be attached to NVIDIA until those checks pass.
+
+### Free ephemeral full-stack HTTP smoke
+
+A separate workflow, \`.github/workflows/nvidia-full-stack-smoke.yml\`,
+builds and starts **NVIDIA's real pinned Docker Compose** Postgres, backend,
+ingestion worker, migrations and frontend **only inside a temporary public
+GitHub Actions runner**. No paid runner, no production deployment, no NVIDIA
+model key and no real user data.
+
+The independent \`sion_nvidia_ci\` database holds only nine synthetic Sion
+entities and a project-locked SELECT-only view. A throwaway bootstrap account
+signs in to the actual NVIDIA Next.js gateway, creates an expiring API token,
+and Sion's real (non-mocked) adapter calls readiness and glossary endpoints.
+Sion's natural-language \`/ask\` remains DISABLED. The workflow verifies
+that a configured/compiled flag never claims SQL execution without an actual
+approved query.
+
+Implementation: \`integrations/nvidia-auto-ontology/ci/prepare_ephemeral_env.py\`,
+\`docker-compose.ci.yml\` and \`full_stack_smoke.py\`. It binds published
+ports to 127.0.0.1, never exposes the temporary admin token, and destroys the
+PostgreSQL volume at the end. Model endpoints point to unreachable loopback so
+a broken test cannot spend money on inference. It does not deploy to Railway or
+Render and cannot persist as a live user-facing service.
+
+Limit: even a passing full-stack smoke does NOT prove semantic compilation,
+model response quality, or a production-grade tenant ACL. Those must be
+measured separately with an expressly approved credential, actual source data
+authorization and hard cost/rate budget.
