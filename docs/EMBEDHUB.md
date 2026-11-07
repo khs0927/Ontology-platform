@@ -43,6 +43,53 @@ Search each space separately, fuse with `rrf()`, and use `agreement()` as the co
 `confirmed` = top-1 matches, `conflict` = no overlap -> human review. Calibrate "probability" only against a
 labelled query set; the tiny sample in the first benchmark was saturated and says nothing about real drawings.
 
+## Real-drawing benchmark (2026-11-07)
+
+Corpus: the 9 Korean DXF sheets in `packages/aec/tests/fixtures/drawings_ko` (text extracted with ezdxf, image
+rendered with matplotlib), 28 hand-labelled queries (`packages/embedhub/bench/drawing_queries.jsonl`, Korean and a
+few English). Rebuild with `python packages/embedhub/bench/build_drawings_dataset.py OUT_DIR`, then
+`python -m sion_embedhub.cli bench OUT_DIR/drawings.jsonl --models nv-1b:1024 nv-8b:1024 nv-vl:1024 nv-vl@image:1024 bge-m3`
+(`@image` indexes the rendered sheet instead of its text).
+
+| space | recall@1 | MRR |
+| --- | --- | --- |
+| nv-1b 1024d (text) | 1.00 | 1.00 |
+| nv-8b 1024d (text) | 1.00 | 1.00 |
+| nv-vl 1024d (text) | 0.96 | 0.98 |
+| bge-m3 (text, local) | 0.89 | 0.94 |
+| nv-vl 1024d (**image** of the sheet) | 0.61 | 0.71 |
+| RRF of all five | 1.00 | 1.00 |
+
+Reading it honestly: 9 sheets / 28 queries is still small, and the sheets' own text is tiny in the render, so the
+image space is the weakest signal. Use **text as the primary index, the image space as the independent check**
+(verdict `confirmed` when top-1 agrees, `conflict` -> review). nv-8b did not beat nv-1b, so nv-1b @ 1024d is the
+default. Re-run on real project sheets before trusting any threshold.
+
+## Canonical choice
+
+* Text embedding for GraphRAG: **`nv-1b` @ 1024d** - identical to the vectors already stored by `sion_graphrag`
+  (`nvidia/nemotron-3.5-embed-1b`, 1024d), so nothing needs re-embedding. Sensitive content: `bge-m3` (local).
+* Drawing images: `nv-vl` (separate space, never mixed with the text table).
+* ArchOntos `embedding_projection` is `vector(1536)`; none of these models emits 1536, so keep its own embedder
+  (zero-padded) and do not share it with the drawing spaces.
+
+## Using it from sion_graphrag
+
+`GraphRagConfig` accepts `SION_GRAPHRAG_EMBED_PROVIDER=embedhub`; `SION_GRAPHRAG_EMBED_MODEL` is then a registry key:
+
+```bash
+SION_GRAPHRAG_EMBED_PROVIDER=embedhub
+SION_GRAPHRAG_EMBED_MODEL=nv-1b
+SION_GRAPHRAG_EMBED_DIM=1024
+# keys come from NVIDIA_API_KEY, NVIDIA_API_KEY_1, ... (never from this config)
+```
+
+Documents are embedded as `passage`, searches as `query` (`sion_embedhub.lightrag.as_query()`), and LightRAG's table
+name uses the real model id so existing `nemotron-3.5-embed-1b` 1024d tables are reused. Verified live against a
+LightRAG local-storage workspace (3/3 queries returned the right sheet first). The default stays `openai`.
+Note: a workstation whose env still has `SION_GRAPHRAG_EMBED_MODEL=paraphrase-multilingual-MiniLM-L12-v2`,
+`DIM=384`, `STORAGE=local` does **not** match the Postgres projection (1024d NVIDIA); set the block above to use it.
+
 ## Data handling
 
 Anything sent to the NVIDIA API leaves the machine. Use it only for content cleared for cloud processing;

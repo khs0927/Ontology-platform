@@ -53,7 +53,7 @@ def main(argv=None) -> int:
     dims, embedders = {}, {}
     for token in a.models:
         key, _, d = token.partition(":")
-        spec = reg.get(key)
+        spec = reg.get(key.split("@", 1)[0])  # "nv-vl@image" = same model, index the image side
         embedders[token] = _embedder(spec, pool)
         if d:
             dims[token] = int(d)

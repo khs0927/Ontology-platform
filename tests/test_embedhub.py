@@ -116,3 +116,24 @@ def test_embedder_halves_batch_when_service_rejects_large_batches():
         return 200, {"data": [{"index": i, "embedding": [1.0] * 2048} for i in range(len(body["input"]))]}
     e = Embedder(spec, KeyPool([_Slot("K", "x")]), picky, retries=1, sleep=lambda s: None)
     assert len(e.embed(["t"] * 7)) == 7
+
+
+def test_lightrag_adapter_uses_passage_by_default_and_query_inside_as_query():
+    import asyncio
+
+    pytest.importorskip("numpy")
+    from sion_embedhub.lightrag import as_query, lightrag_embedding_func
+
+    spec = default_registry().get("nv-1b")
+    tr, calls = _fake(lambda x, b: [1.0] + [0.0] * (b.get("dimensions", 2048) - 1))
+    fn = lightrag_embedding_func(Embedder(spec, KeyPool([_Slot("K", "x")]), tr), 1024)
+
+    async def go():
+        a = await fn(["doc"])
+        with as_query():
+            b = await fn(["q"])
+        return a, b
+
+    a, b = asyncio.run(go())
+    assert a.shape == (1, 1024) and b.shape == (1, 1024)
+    assert [c["input_type"] for c in calls] == ["passage", "query"]

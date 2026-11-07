@@ -31,15 +31,22 @@ def load_dataset(path: str | Path) -> tuple[list[dict], list[dict]]:
     return docs, qs
 
 
-def rank_for_model(emb: Embedder, docs: list[dict], queries: list[dict], dim: int | None = None, base_dir: Path | None = None) -> list[list[str]]:
-    """One ranked doc-id list per query, in this model's own space."""
+def rank_for_model(emb: Embedder, docs: list[dict], queries: list[dict], dim: int | None = None, base_dir: Path | None = None,
+                   prefer: str = "text") -> list[list[str]]:
+    """One ranked doc-id list per query, in this model's own space.
+
+    ``prefer`` picks which side of a doc carrying both text and image gets indexed
+    ("text" or "image"); a doc lacking the preferred side falls back to the other one.
+    """
     mods = emb.spec.modalities
+    order_ = ("image", "text") if prefer == "image" else ("text", "image")
     ids, payload = [], []
     for d in docs:
-        if "text" in d and "text" in mods:
-            ids.append(d["id"]); payload.append(d["text"])
-        elif "image" in d and "image" in mods:
-            ids.append(d["id"]); payload.append(image_to_data_url((base_dir or Path()) / d["image"]))
+        for side in order_:
+            if side in d and side in mods:
+                ids.append(d["id"])
+                payload.append(d["text"] if side == "text" else image_to_data_url((base_dir or Path()) / d["image"]))
+                break
     if not ids:
         return [[] for _ in queries]
     dv = emb.embed(payload, "passage", dim)
@@ -64,7 +71,10 @@ def metrics(ranked: list[list[str]], queries: list[dict], ks: Sequence[int] = (1
 
 
 def run(embedders: Mapping[str, Embedder], docs: list[dict], queries: list[dict], dims: Mapping[str, int] | None = None, base_dir: Path | None = None) -> dict:
-    per_model = {name: rank_for_model(e, docs, queries, (dims or {}).get(name), base_dir) for name, e in embedders.items()}
+    # a run name like "nv-vl@image:1024" indexes the image side of each doc (see cli); plain names index text
+    per_model = {name: rank_for_model(e, docs, queries, (dims or {}).get(name), base_dir,
+                                      "image" if "@image" in name else "text")
+                 for name, e in embedders.items()}
     report = {"models": {name: metrics(r, queries) for name, r in per_model.items()}}
     fused = []
     verdicts: dict[str, int] = {}
