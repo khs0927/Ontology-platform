@@ -153,6 +153,41 @@ class NvidiaBridge:
             trust_env=False,
         )
 
+    async def readiness(self) -> dict[str, Any]:
+        """Probe actual NVIDIA semantic compilation status without invoking an LLM.
+
+        A compiled semantic catalog does NOT prove a connected database can run
+        SQL. Database execution stays unknown until a separately approved,
+        controlled live query is performed.
+        """
+        try:
+            async with self._client() as client:
+                async with client.stream("GET", "api/semantic-compilation/status") as response:
+                    _check_status(response.status_code)
+                    raw = bytearray()
+                    async for chunk in response.aiter_bytes():
+                        raw.extend(chunk)
+                        if len(raw) > MAX_BYTES:
+                            raise NvidiaBridgeError(502, "NVIDIA readiness response exceeded size limit")
+            parsed = json.loads(raw)
+        except NvidiaBridgeError:
+            raise
+        except (httpx.HTTPError, UnicodeDecodeError, ValueError):
+            raise NvidiaBridgeError(502, "NVIDIA readiness response unavailable or invalid") from None
+        if not isinstance(parsed, dict) or type(parsed.get("calculated")) is not bool:
+            raise NvidiaBridgeError(502, "NVIDIA readiness schema did not match the pinned API")
+        return {
+            "source": SOURCE,
+            "source_revision": UPSTREAM_REVISION,
+            "canonical": False,
+            "read_only": True,
+            "upstream_reachable": True,
+            "semantic_calculated": parsed["calculated"],
+            "compilation_running": parsed.get("running") is True,
+            "can_execute_sql": None,
+            "reason": "Database connectivity and SQL execution were not verified by this probe",
+        }
+
     async def terms(self, query: str | None, skip: int, limit: int) -> dict[str, Any]:
         try:
             async with self._client() as client:
@@ -308,6 +343,13 @@ def register(
         if bridge is None:
             raise HTTPException(status_code=503, detail="NVIDIA federation is not configured")
         return bridge
+
+    @app.get("/api/v1/nvidia/readiness", dependencies=[Depends(read_knowledge)])
+    async def nvidia_readiness() -> dict[str, Any]:
+        try:
+            return await require_bridge().readiness()
+        except NvidiaBridgeError as exc:
+            raise HTTPException(status_code=exc.status_code, detail=exc.detail) from None
 
     @app.get("/api/v1/nvidia/terms", dependencies=[Depends(read_knowledge)])
     async def nvidia_terms(

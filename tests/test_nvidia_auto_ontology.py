@@ -240,3 +240,51 @@ def test_unknown_question_fields_do_not_escape(monkeypatch):
             json={"question": "door", "target_db": "other-project"},
             headers=_auth(),
         ).status_code == 422
+
+
+def test_nvidia_readiness_queries_real_upstream_status_without_sql(monkeypatch):
+    seen = []
+
+    def handler(req):
+        seen.append((req.method, req.url.path))
+        assert req.headers["x-api-key"] == API_SECRET
+        return httpx.Response(
+            200,
+            json={
+                "calculated": True,
+                "running": False,
+                "last_success_at": "2026-11-07T10:00:00Z",
+                "last_failure_at": None,
+            },
+        )
+
+    with _client(monkeypatch, handler) as client:
+        response = client.get("/api/v1/nvidia/readiness", headers=_auth())
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["upstream_reachable"] is True
+        assert body["semantic_calculated"] is True
+        assert body["can_execute_sql"] is None
+        assert body["canonical"] is False
+        assert API_SECRET not in response.text
+        assert client.get("/api/v1/nvidia/readiness", headers=_auth(WRITE)).status_code == 403
+        assert client.get("/api/v1/nvidia/readiness", headers=_auth(RESTRICTED)).status_code == 403
+    assert seen == [("GET", "/api/semantic-compilation/status")]
+
+
+@pytest.mark.parametrize("payload", [{}, {"calculated": "yes"}, ["calculated"]])
+def test_nvidia_readiness_fails_closed_on_schema_changes(monkeypatch, payload):
+    with _client(monkeypatch, lambda req: httpx.Response(200, json=payload)) as client:
+        response = client.get("/api/v1/nvidia/readiness", headers=_auth())
+        assert response.status_code == 502
+        assert response.json()["detail"] == "NVIDIA readiness schema did not match the pinned API"
+
+
+def test_nvidia_readiness_is_unavailable_when_integration_disabled(monkeypatch):
+    monkeypatch.delenv("SION_NVIDIA_AUTO_ONTOLOGY_URL", raising=False)
+    monkeypatch.delenv("SION_NVIDIA_AUTO_ONTOLOGY_API_TOKEN", raising=False)
+    with TestClient(
+        create_app(database_url="sqlite://", auto_create_schema=True, auth_policy=POLICY),
+        client=("203.0.113.7", 47001),
+    ) as client:
+        assert client.get("/api/v1/nvidia/readiness", headers=_auth()).status_code == 503

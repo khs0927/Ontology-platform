@@ -79,3 +79,43 @@ errors; API tokens are excluded from responses and logs.
 
 If upstream modifies the API, update the pinned revision, integration contract
 and recorded tests together. Do not auto-update images or silently migrate Sion.
+
+
+## Updated validation: real upstream NVIDIA connector with restricted Sion PostgreSQL view
+
+The GitHub Actions run at https://github.com/khs0927/Ontology-platform/actions/runs/42377768410
+tested the exact pinned NVIDIA PostgresDatabase against a disposable PostgreSQL
+17 Sion schema populated with synthetic entities, relations and evidence.
+
+Results: NVIDIA discovered exactly one project-locked view and its five
+allowlisted columns, returned only two verified Project A door records, and
+refused six forbidden direct reads/writes with PostgreSQL permission errors.
+Project B, rejected, unverified-evidence, expired and future rows were
+excluded. This does **not** test live frontend OAuth, models, semantic
+compilation or actual production sources.
+
+The CI-only SQL lives in integrations/nvidia-auto-ontology/ci. Its database
+guard rejects any database other than sion_nvidia_ci. Its throwaway test
+credentials must never be used for production or published as a service.
+
+### Non-inference readiness endpoint
+
+GET /api/v1/nvidia/readiness is scope-protected and calls NVIDIA's
+GET /api/semantic-compilation/status on the authenticated frontend. It
+reports semantic_calculated and compilation_running, but keeps
+can_execute_sql=null because no read-only live SQL has been executed.
+A successful response is **not** proof that the catalog can answer questions.
+A missing server or token produces a controlled error; the API key is never
+sent to the user. This probe works without any model API call.
+
+### Still pending explicit, separately reviewed runtime setup
+
+1. A resource-capable server running the NVIDIA app/frontend, ingestion
+   service and separate catalog PostgreSQL; Railway/Render trial limits do
+   not yet demonstrate that this complete stack fits without payment.
+2. The actual viewer API token and HTTPS URL, added to server-side secret
+   storage, plus a separately approved project-specific read-only DB export.
+3. Reproducible live natural-language query benchmarks and token/usage
+   measurements under an explicit spending cap.
+4. No production customer documents or Sion canonical database tables may
+   be attached to NVIDIA until those checks pass.
