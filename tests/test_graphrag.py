@@ -6,8 +6,10 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sion_api import models
 from sion_api.main import create_app
 from sion_graphrag import GraphRagConfig, build_custom_kg
+from sqlalchemy import select
 
 
 def _seed(c: TestClient) -> None:
@@ -120,12 +122,25 @@ def test_lightrag_round_trip_on_local_storage(tmp_path: Path):
     async def run():
         try:
             written = await engine.project(app.state.session_factory)
+            with app.state.session_factory() as session:
+                original = session.scalars(select(models.Relation)).one()
+                session.add(models.Relation(
+                    stable_key="audit-rejected-only",
+                    source_entity_id=original.source_entity_id,
+                    target_entity_id=original.target_entity_id,
+                    relation_type_id=original.relation_type_id,
+                    verification_state="rejected",
+                ))
+                session.commit()
+            preview = await engine.project(app.state.session_factory, include_rejected=True)
             result = await engine.query("Main Door D1 Exterior Wall W1", mode="mix")
         finally:
             await engine.close()
-        return written, result
+        return written, preview, result
 
-    written, result = asyncio.run(run())
+    written, preview, result = asyncio.run(run())
     assert written == {"chunks": 3, "entities": 2, "relationships": 1}
+    assert preview == {"chunks": 4, "entities": 2, "relationships": 2}
     assert "context" in result
     assert "aec:door:d1" in result["context"]
+    assert "audit-rejected-only" not in result["context"]

@@ -163,16 +163,12 @@ class SionGraphRag:
     async def project(
         self, session_factory: sessionmaker[Session], *, include_rejected: bool = False
     ) -> dict[str, int]:
-        """Upsert the canonical graph into LightRAG and return what was written.
-
-        Rejected relations are left out unless ``include_rejected`` is set (audit/debug
-        workspaces only), so a /review rejection never feeds a default answer.
-        """
+        """Upsert the default projection, or count the audit projection without indexing it."""
         states = AUDIT_PROJECTION_REVIEW_STATES if include_rejected else DEFAULT_PROJECTION_REVIEW_STATES
         with session_factory() as session:
             custom_kg = build_custom_kg(session, review_states=states)
-        await self.start()
-        if custom_kg["chunks"]:
+        if not include_rejected and custom_kg["chunks"]:
+            await self.start()
             await self._rag.ainsert_custom_kg(custom_kg, full_doc_id=f"sion-canonical-{self.config.workspace}")
         return {key: len(value) for key, value in custom_kg.items()}
 
