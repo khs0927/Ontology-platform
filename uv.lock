@@ -2785,6 +2785,12 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+aec = [
+    { name = "ezdxf" },
+    { name = "ifcopenshell" },
+    { name = "numpy" },
+    { name = "pillow" },
+]
 all = [
     { name = "asyncpg" },
     { name = "ezdxf" },
@@ -2906,6 +2912,7 @@ requires-dist = [
     { name = "rdflib", marker = "extra == 'validation'", specifier = ">=7.6,<8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.16.10" },
     { name = "sion-ontology-platform", extras = ["bim"], marker = "extra == 'ifc'" },
+    { name = "sion-ontology-platform", extras = ["cad", "bim"], marker = "extra == 'aec'" },
     { name = "sion-ontology-platform", extras = ["cad"], marker = "extra == 'dxf'" },
     { name = "sion-ontology-platform", extras = ["cad", "bim", "rag", "drive", "regulation", "documents", "validation"], marker = "extra == 'all'" },
     { name = "sion-ontology-platform", extras = ["rag"], marker = "extra == 'graphrag'" },
