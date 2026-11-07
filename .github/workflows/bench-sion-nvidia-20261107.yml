@@ -1,0 +1,137 @@
+# Reproducible independent CI baselines; NOT an NL-to-SQL accuracy benchmark.
+# This workflow makes no production deployment, no external inference calls,
+# and uses no user credentials or model API keys.
+name: Sion vs NVIDIA - evidence-only CI baseline
+
+on:
+  push:
+    branches:
+      - bench/sion-nvidia-actual-ci-20261107
+
+permissions:
+  contents: read
+
+jobs:
+  sion:
+    name: Sion full test suite (Ubuntu, pinned)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout pinned Sion revision
+        uses: actions/checkout@v4
+        with:
+          ref: a89a9f263e0176e00a95a0c1644a43bd8f2abe62
+
+      - name: Configure uv and Python 3.12
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Print immutable input revision
+        run: |
+          printf "PROJECT=Sion\n"
+          git rev-parse HEAD
+          uv --version
+          python --version
+
+      - name: Install Sion locked dependencies
+        run: uv sync --locked --extra all --extra dev
+
+      - name: Execute Sion full test suite
+        run: |
+          set -o pipefail
+          uv run --locked pytest -q --durations=10 2>&1 | tee sion-test-results.txt
+
+      - name: Store actual Sion test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sion-baseline-test-log
+          path: sion-test-results.txt
+          if-no-files-found: ignore
+          retention-days: 7
+
+  nvidia:
+    name: NVIDIA full test suite (PostgreSQL fixture, pinned)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: auto_ontology
+          POSTGRES_PASSWORD: auto_ontology
+          POSTGRES_DB: auto_ontology
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U auto_ontology -d auto_ontology"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: auto_ontology
+      POSTGRES_PASSWORD: auto_ontology
+      POSTGRES_DATABASE: auto_ontology
+
+    steps:
+      - name: Checkout pinned NVIDIA source
+        uses: actions/checkout@v4
+        with:
+          repository: NVIDIA/auto-ontology
+          ref: c447003f72a822301e927196a4ecb5b597c308d5
+          path: nvidia
+
+      - name: Configure uv and Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: nvidia/uv.lock
+
+      - name: Print immutable input revision
+        working-directory: nvidia
+        run: |
+          printf "PROJECT=NVIDIA_Auto_Ontology\n"
+          git rev-parse HEAD
+          uv --version
+
+      - name: Install NVIDIA locked dependencies
+        working-directory: nvidia
+        run: uv sync --locked --extra kumo
+
+      - name: Seed published Pagila and Chinook test fixtures
+        working-directory: nvidia
+        run: uv run --no-sync python -m dev_tools.fixtures.seed_fixtures
+
+      - name: Apply NVIDIA catalog migrations
+        working-directory: nvidia
+        run: uv run --no-sync alembic upgrade head
+
+      - name: Seed deterministic graph fixture without live LLM
+        working-directory: nvidia
+        env:
+          CONNECTION_STRINGS: "postgresql://auto_ontology:auto_ontology@localhost:5432/pagila,sqlite:///${{ github.workspace }}/nvidia/dev_tools/fixtures/sql/chinook.sqlite"
+        run: uv run --no-sync python -m dev_tools.fixtures.seed_graph_fixture --reset
+
+      - name: Verify NVIDIA migrations against ORM
+        working-directory: nvidia
+        run: uv run --no-sync alembic check
+
+      - name: Execute NVIDIA full test suite
+        working-directory: nvidia
+        run: |
+          set -o pipefail
+          uv run --no-sync pytest auto_ontology dev_tools -q --durations=10 2>&1 | tee nvidia-test-results.txt
+
+      - name: Store actual NVIDIA test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nvidia-baseline-test-log
+          path: nvidia/nvidia-test-results.txt
+          if-no-files-found: ignore
+          retention-days: 7
