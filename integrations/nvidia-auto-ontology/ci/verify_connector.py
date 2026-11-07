@@ -4,6 +4,7 @@ This script is launched from a SHA-pinned NVIDIA checkout in GitHub Actions.
 No mock transport, customer data, LLM inference or deployed server.
 """
 import os
+
 import psycopg
 from auto_ontology.connectors.registry import create_connector
 
