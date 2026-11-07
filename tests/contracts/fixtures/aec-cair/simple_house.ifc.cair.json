@@ -1,0 +1,428 @@
+{
+  "schema_version": "0.1.0",
+  "snapshot_id": "cair-20261107T144224Z-e9c87603",
+  "created_at": "2026-11-07T14:42:24Z",
+  "project_id": "simple-house-ifc",
+  "status": "SUCCESS",
+  "metadata": {
+    "source_format": "IFC",
+    "schema": "IFC4",
+    "parser": "IfcOpenShell",
+    "parser_version": "0.1.0",
+    "unmapped_ifc_types": [],
+    "geometry": {
+      "representation_context_count": 0,
+      "product_representation_count": 0,
+      "shape_representation_count": 0,
+      "extracted_geometry_count": 0
+    }
+  },
+  "objects": [
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/80f47aee-b7e1-5dfe-91fa-2293b2500dc7",
+      "project_id": "simple-house-ifc",
+      "type": "Window",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "0000000000000000W=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/0000000000000000W=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcWindow",
+        "name": "Living Window",
+        "predefined_type": "WINDOW"
+      },
+      "classification": {
+        "label": "ifc:IfcWindow",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcWindow"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "0000000000000000W=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/ffb8b819-7908-59e5-a6af-6d3a8b7cc2fe",
+      "project_id": "simple-house-ifc",
+      "type": "Door",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "0000000000000000S=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/0000000000000000S=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcDoor",
+        "name": "Main Door",
+        "predefined_type": "DOOR"
+      },
+      "classification": {
+        "label": "ifc:IfcDoor",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcDoor"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "0000000000000000S=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/0e7730cd-b331-5f9d-b09b-4ee29c554448",
+      "project_id": "simple-house-ifc",
+      "type": "Wall",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "0000000000000000O=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/0000000000000000O=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcWall",
+        "name": "External Wall",
+        "predefined_type": "STANDARD"
+      },
+      "classification": {
+        "label": "ifc:IfcWall",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcWall"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "0000000000000000O=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/756d4581-0be3-53d4-ac0a-bb11410524b7",
+      "project_id": "simple-house-ifc",
+      "type": "Space",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "0000000000000000K=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/0000000000000000K=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcSpace",
+        "name": "Living Room",
+        "predefined_type": "INTERNAL"
+      },
+      "classification": {
+        "label": "ifc:IfcSpace",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcSpace"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "0000000000000000K=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/4eaf8c18-5795-5bf6-8adc-547b63b49c52",
+      "project_id": "simple-house-ifc",
+      "type": "Storey",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "0000000000000000G=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/0000000000000000G=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcBuildingStorey",
+        "name": "Ground Floor"
+      },
+      "classification": {
+        "label": "ifc:IfcBuildingStorey",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcBuildingStorey"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "0000000000000000G=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/08d3ecba-5501-5f4e-8c51-74594fe470fe",
+      "project_id": "simple-house-ifc",
+      "type": "Building",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "0000000000000000C=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/0000000000000000C=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcBuilding",
+        "name": "Simple House Building"
+      },
+      "classification": {
+        "label": "ifc:IfcBuilding",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcBuilding"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "0000000000000000C=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/ae614b73-6246-5ddf-b7bf-998038523e58",
+      "project_id": "simple-house-ifc",
+      "type": "Site",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "00000000000000008=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/00000000000000008=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcSite",
+        "name": "Simple House Site"
+      },
+      "classification": {
+        "label": "ifc:IfcSite",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcSite"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "00000000000000008=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-ifc/ifcentity/a25a4f61-0d16-5b55-b2e4-1edb1c8ecb96",
+      "project_id": "simple-house-ifc",
+      "type": "Project",
+      "source": {
+        "file": "fixtures/simple_house.ifc",
+        "format": "IFC",
+        "entity_id": "00000000000000004=",
+        "layer": null,
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-IFC-BIM-IFC-9301A4A680918D40"
+      },
+      "geometry_ref": "ifc://project/simple-house-ifc/00000000000000004=",
+      "bbox": {},
+      "placement": {},
+      "properties": {
+        "ifc_type": "IfcProject",
+        "name": "Simple House Project"
+      },
+      "classification": {
+        "label": "ifc:IfcProject",
+        "confidence": 1.0,
+        "method": "ifc-schema-type",
+        "evidence": [
+          "IFC entity declaration: IfcProject"
+        ],
+        "state": "AUTO_ACCEPT"
+      },
+      "provenance": {
+        "source_file": "fixtures/simple_house.ifc",
+        "source_object": "00000000000000004=",
+        "source_format": "IFC",
+        "source_hash": "9301a4a680918d4018fc3f2abd295d855aba7d4024527fe1caf56ec70566da34",
+        "parser": "IfcOpenShell",
+        "parser_version": "0.1.0",
+        "timestamp": "2026-11-07T14:42:24Z",
+        "agent": "aec-ifc-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:24Z"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "subject": "aec://project/simple-house-ifc/ifcentity/4eaf8c18-5795-5bf6-8adc-547b63b49c52",
+      "predicate": "contains",
+      "object": "aec://project/simple-house-ifc/ifcentity/756d4581-0be3-53d4-ac0a-bb11410524b7",
+      "confidence": 1.0,
+      "provenance": {
+        "parser": "IfcOpenShell",
+        "ifc_relation": "IfcRelAggregates"
+      }
+    },
+    {
+      "subject": "aec://project/simple-house-ifc/ifcentity/08d3ecba-5501-5f4e-8c51-74594fe470fe",
+      "predicate": "contains",
+      "object": "aec://project/simple-house-ifc/ifcentity/4eaf8c18-5795-5bf6-8adc-547b63b49c52",
+      "confidence": 1.0,
+      "provenance": {
+        "parser": "IfcOpenShell",
+        "ifc_relation": "IfcRelAggregates"
+      }
+    },
+    {
+      "subject": "aec://project/simple-house-ifc/ifcentity/ae614b73-6246-5ddf-b7bf-998038523e58",
+      "predicate": "contains",
+      "object": "aec://project/simple-house-ifc/ifcentity/08d3ecba-5501-5f4e-8c51-74594fe470fe",
+      "confidence": 1.0,
+      "provenance": {
+        "parser": "IfcOpenShell",
+        "ifc_relation": "IfcRelAggregates"
+      }
+    },
+    {
+      "subject": "aec://project/simple-house-ifc/ifcentity/a25a4f61-0d16-5b55-b2e4-1edb1c8ecb96",
+      "predicate": "contains",
+      "object": "aec://project/simple-house-ifc/ifcentity/ae614b73-6246-5ddf-b7bf-998038523e58",
+      "confidence": 1.0,
+      "provenance": {
+        "parser": "IfcOpenShell",
+        "ifc_relation": "IfcRelAggregates"
+      }
+    }
+  ]
+}

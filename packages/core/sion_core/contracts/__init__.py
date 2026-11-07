@@ -36,6 +36,7 @@ CONTRACTS: dict[str, tuple[str, str, str]] = {
     "korean-land-parcel-analysis/2": ("korean-land-parcel-analysis-2.schema.json", "korean-land-mcp analyze_parcel", "Sion regulation facts"),
     "all-in-cad-dxf-evidence": ("all-in-cad-dxf-evidence.schema.json", "Sion sion_cad.reader.dxf_census / All-In-Cad inspect_dxf", "cross-lane DXF verification"),
     "building-regulation-report/1": ("building-regulation-report-1.schema.json", "building-regulation-gateway produce-compliance-report", "Sion regulation evidence (advisory, evidence-only)"),
+    "aec-cair-snapshot/1": ("aec-cair-snapshot-1.schema.json", "khs0927/Ontology aec ingest-dxf / ingest-file (CAIR)", "sion_cair.ingest -> Sion graph + evidence (unverified)"),
     "kordoc-evidence/1": ("kordoc-evidence-1.schema.json", "inspection-supervision-mcp (Kordoc parser)", "Sion evidence (evidence-only, project ACL)"),
 }
 

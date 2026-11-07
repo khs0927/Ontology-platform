@@ -21,7 +21,7 @@ Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 
 ```python
 from sion_core import contracts
-contracts.names()                      # 9 contract names (including 1 unpinned draft)
+contracts.names()                      # 10 contract names (including 1 unpinned draft)
 contracts.is_pinned("kordoc-evidence/1")   # False: draft, no upstream commit pinned (DRAFT_CONTRACTS)
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
@@ -42,6 +42,7 @@ The contracts were derived from these commits (read-only clones; no upstream rep
 | korean-land-mcp | `9bca5ea` (PR #2, deps only) | 2026-10-08 20:20 |
 | All-In-Cad | `329f9ad` | 2026-10-03 20:39 |
 | CAD-MCP | `50ae134` | 2026-10-03 20:15 |
+| Ontology (`aec-cair-snapshot/1`, §11) | `d81598f` (PR #100) | 2026-10-17 |
 
 When an upstream changes one of the files named below, update the schema and the pin in this table
 and the test module docstring in the same PR.
@@ -319,6 +320,32 @@ rejected (`reviewer_kind` must be `human`), and Sion never auto-approves candida
 
 Tests: `tests/contracts/fixtures/kordoc-evidence/` holds synthetic valid (3) and invalid (23) payloads,
 each invalid file breaking one rule (see PROVENANCE.md).
+
+## 11. khs0927/Ontology ingestion → Sion graph + evidence (`aec-cair-snapshot/1`)
+
+Consolidation phase 1 ([CONSOLIDATION_PLAN.md](CONSOLIDATION_PLAN.md)). Producer: Ontology's own CLI
+(`aec ingest-dxf`, `aec ingest-file` for IFC) writing `projects/<id>/03_CAIR/project-cair.json`
+(`CAIRSnapshot.to_dict()`, `schema_version` 0.x). Consumer: `sion_cair.ingest`
+(`run_ontology_ingest`, `cair_snapshot_to_map_export`, `ingest_cair_snapshot`, `ingest_with_ontology`).
+
+| Ontology runtime | How to select it |
+|---|---|
+| bundled subtree `packages/aec` (default) | `ontology_root=None` or `"bundled"` |
+| external checkout (local path, e.g. `C:\CODE\Ontology`) | `ontology_root="C:\CODE\Ontology"` (its `src` goes on `PYTHONPATH` of the subprocess) |
+| pinned install in a separate venv | `python="C:\venvs\aec\Scripts\python.exe"` after `pip install "aec-intelligence[cad,bim] @ git+https://github.com/khs0927/Ontology@d81598f"` |
+
+Ontology always runs in a **subprocess** against a temporary repository root, so two copies of the
+`aec_intelligence` import package never share an interpreter. Mapping: one `Artifact` node per source
+file (key = source SHA-256, `external_uri=urn:sha256:…`), one `Concept` node per CAIR object
+(key `cair:<CAIR id>`), `EXTRACTED_FROM` object → artifact with the classification confidence and one
+evidence row (`extractor=aec-cair/<parser>`, locator = `geometry_ref`). Object↔object relations map to
+`PART_OF` (`hostedBy`, `containedIn`; IFC `contains` reversed), `CONNECTS_TO`, `REFERENCES`,
+`DERIVED_FROM`, else `RELATED_TO` with `properties.cair_predicate`. `containsElement` is not imported.
+Everything is `unverified`; import is idempotent. A snapshot with `status=FAILED` or a missing
+`schema_version`/`objects`/`source` is refused (`AecCairError`).
+
+Install: `pip install -e '.[aec]'` (= `cad` + `bim`). Fixtures: `tests/contracts/fixtures/aec-cair/`
+(captured from Ontology @ `d81598f`, see PROVENANCE.md). Tests: `tests/test_aec_cair_ingest_contract.py`.
 
 ## In-repo contracts (for reference)
 

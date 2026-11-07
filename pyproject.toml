@@ -83,6 +83,11 @@ dev = [
   "ruff==0.16.10",
   "build==1.6.1",
 ]
+# khs0927/Ontology DXF/IFC ingestion through sion_cair.ingest (consolidation phase 1).
+# The aec_intelligence code itself ships in this distribution (packages/aec subtree);
+# this extra only pulls its parser dependencies. For an external or pinned Ontology,
+# see docs/INTEGRATION_CONTRACTS.md section 11.
+aec = ["sion-ontology-platform[cad,bim]"]
 # Backwards-compatible aliases (0.1.x names)
 dxf = ["sion-ontology-platform[cad]"]
 ifc = ["sion-ontology-platform[bim]"]
