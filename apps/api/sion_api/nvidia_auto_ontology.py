@@ -208,10 +208,10 @@ class NvidiaBridge:
         except (httpx.HTTPError, ValueError, UnicodeDecodeError):
             raise NvidiaBridgeError(502, "NVIDIA glossary response unavailable or invalid") from None
 
-        if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
+        if not isinstance(payload, dict) or not isinstance(payload.get("terms"), list):
             raise NvidiaBridgeError(502, "NVIDIA glossary schema did not match the pinned API")
         candidates: list[dict[str, Any]] = []
-        for term in payload["data"][:limit]:
+        for term in payload["terms"][:limit]:
             if not isinstance(term, dict):
                 continue
             term_id = term.get("id")

@@ -147,3 +147,16 @@ Limit: even a passing full-stack smoke does NOT prove semantic compilation,
 model response quality, or a production-grade tenant ACL. Those must be
 measured separately with an expressly approved credential, actual source data
 authorization and hard cost/rate budget.
+
+
+### Real frontend schema correction (verified from NVIDIA upstream)
+
+The full-stack CI revealed that the NVIDIA \`GET /api/terms\` output
+is **\`{"terms":[...],"total":N,...}\`**, not a \`{"data":[...]}\`
+envelope. This is defined explicitly by NVIDIA
+\`auto_ontology/server/responses.py:TermsPageResponse\` and
+\`auto_ontology/server/terms/service.py:list_terms_page\`.
+The Sion bridge was corrected to parse \`terms\`, the fixture tests now
+match the pinned upstream contract, and a negative test rejects the
+incorrect \`data\` variant. See PR CI history for the failing real
+end-to-end run before the fix.

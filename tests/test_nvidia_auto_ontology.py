@@ -104,7 +104,7 @@ def test_terms_are_explicit_unverified_candidates_and_sion_is_unchanged(monkeypa
         return httpx.Response(
             200,
             json={
-                "data": [
+                "terms": [
                     {
                         "id": "term-01",
                         "name": "Fire Door",
@@ -288,3 +288,14 @@ def test_nvidia_readiness_is_unavailable_when_integration_disabled(monkeypatch):
         client=("203.0.113.7", 47001),
     ) as client:
         assert client.get("/api/v1/nvidia/readiness", headers=_auth()).status_code == 503
+
+
+def test_glossary_rejects_legacy_data_envelope_that_upstream_does_not_use(monkeypatch):
+    """Pinned NVIDIA TermsPageResponse has 'terms', not ListResponse 'data'."""
+    with _client(
+        monkeypatch,
+        lambda req: httpx.Response(200, json={"data": [], "total": 0}),
+    ) as client:
+        response = client.get("/api/v1/nvidia/terms", headers=_auth())
+        assert response.status_code == 502
+        assert "schema" in response.json()["detail"].lower()
