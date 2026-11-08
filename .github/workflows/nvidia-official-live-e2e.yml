@@ -78,6 +78,9 @@ jobs:
       - name: Install pinned HTTP/test packages
         run: uv sync --locked --extra test
 
+      - name: Diagnose isolated reader capacity and catalog counts (no secrets)
+        run: uv run --no-sync python integrations/nvidia-auto-ontology/ci/official_catalog_diagnostics.py
+
       - name: Real official ontology compilation plus NL2SQL on synthetic project
         run: uv run --no-sync python integrations/nvidia-auto-ontology/ci/official_live_pipeline.py
 
