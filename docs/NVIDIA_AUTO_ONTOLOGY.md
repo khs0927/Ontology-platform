@@ -188,3 +188,51 @@ or full upstream text-to-SQL agent. SQL executed only on synthetic SQLite
 data, not on Sion production or the upstream PostgreSQL data source.
 The Sion /ask flag remains off. No production deployment and no proof
 of remaining free credit balance, broad SQL accuracy or safety in production.
+
+## 2026-11-08 — 16 live NVIDIA-generated SQL goldens against PostgreSQL
+
+CI evidence: https://github.com/khs0927/Ontology-platform/actions/runs/42494644968
+Workflow: .github/workflows/nvidia-real-model-sql.yml
+Implementation: integrations/nvidia-auto-ontology/ci/nvidia_model_sql_goldens.py
+
+An NVIDIA hosted Nemotron 3.5 Lightning inference generates a fresh SQL
+statement for each of 16 questions. The evaluator checks that every
+statement is a single SELECT COUNT over only the security-barrier view
+`sion_nv_pilot.verified_project_objects`, executes it using the actual
+`nvidia_pilot_reader` PostgreSQL account, and compares the returned integer
+with an independently specified golden answer. It also verifies that
+selecting `public.entities` is denied by PostgreSQL permissions.
+
+Results:
+- Initial schema-only prompt: **15/16**; Door-102 mismatch.
+- Exact-name prompt without sufficient ontology context: **13/16**;
+  a regression that must not be hidden.
+- Grounded schema + two fabricated visible sample rows + explicit semantic
+  mapping (`Door-101` and `Door-102` have object_type `Concept`, not `Door`):
+  **16/16**; elapsed 12 seconds across 16 real requests.
+
+The questions include aggregates, distinct values, exact names, name prefix,
+project allowlisting, rejected/unverified source exclusions, expired/future
+relations and restricted Project B records. All data is synthetic.
+
+This illustrates that ontology/schema grounding affects SQL accuracy;
+it does **not** prove general accuracy on unseen data or that the official
+NVIDIA ingestion/semantic compiler successfully created the grounding.
+The benchmark explicitly provides schema, known project IDs and synthetic
+sample rows in its model prompt. Failure results and steps are retained in
+GitHub Actions; SQL text, model responses, keys and real Sion data are not
+logged or persisted.
+
+## Official upstream compiler CI (distinct from the direct-model benchmark)
+
+Workflow: .github/workflows/nvidia-official-semantic-e2e.yml
+Scripts: integrations/nvidia-auto-ontology/ci/prepare_live_models.py and
+integrations/nvidia-auto-ontology/ci/official_semantic_smoke.py
+
+This separate CI boots pinned upstream NVIDIA frontend, backend, ingestion,
+and PostgreSQL with real hosted model-role configuration. It enables semantic
+compilation via the official admin API, checks for persisted semantic terms,
+and sends two questions through the official authenticated chat SSE API.
+It uses only the project-scoped synthetic read-only Sion view; it cannot
+read other canonical tables. The official compiler's validation result
+is separate and must be determined from its actual workflow logs.
