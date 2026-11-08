@@ -93,6 +93,42 @@ def verify_catalog_source(values: dict[str, str]) -> None:
     log("PASS synthetic PostgreSQL reader: 2 allowed rows, cross-project and rejected rows denied")
 
 
+
+def wait_for_ingested_catalog(values: dict[str, str]) -> None:
+    """Fail fast when NVIDIA ingestion has not actually materialized source tables.
+
+    Do not mistake an enabled semantic flag for a populated catalog. Query only
+    aggregate counts in the disposable NVIDIA metadata database, not source data.
+    """
+    import psycopg
+
+    deadline = time.monotonic() + 180
+    observations = 0
+    while time.monotonic() < deadline:
+        try:
+            with psycopg.connect(
+                host="127.0.0.1", port=15432, dbname="auto_ontology",
+                user="sion_owner", password=values["POSTGRES_PASSWORD"],
+                connect_timeout=8, autocommit=True,
+            ) as catalog:
+                count = catalog.execute(
+                    "SELECT COUNT(*) FROM public.catalog_table"
+                ).fetchone()[0]
+            if count >= 1:
+                log(f"PASS actual NVIDIA ingestion catalog contains {count} table(s)")
+                return
+            observations += 1
+        except psycopg.Error as error:
+            # Only categorical diagnostics; never print credentials, DSNs or SQL.
+            log("NVIDIA catalog preflight retry class=" + type(error).__name__
+                + " SQLSTATE=" + str(error.sqlstate or "none"))
+        time.sleep(8)
+    raise RuntimeError(
+        "NVIDIA catalog has no ingested tables after 180s; "
+        "check source-reader capacity and ingestion scheduler before model calls"
+    )
+
+
 def sign_in_and_issue_token(client: httpx.Client, values: dict[str, str]) -> dict[str, str]:
     end = time.monotonic() + 150
     while time.monotonic() < end:
@@ -260,6 +296,7 @@ def main() -> None:
     if values.get("POSTGRES_DATABASE") != "auto_ontology" or not values.get("DEFAULT_MODELS_API_KEY", "").startswith("nvapi-"):
         raise RuntimeError("wrong isolation environment or missing NIM")
     verify_catalog_source(values)
+    wait_for_ingested_catalog(values)
     with httpx.Client(base_url=BASE, follow_redirects=False, trust_env=False) as client:
         auth = sign_in_and_issue_token(client, values)
         run_compile(client, auth)
