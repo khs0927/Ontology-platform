@@ -194,13 +194,17 @@ def infer(opener, model: str, key: str, prompt: str, max_tokens: int) -> tuple[d
                      {"role": "user", "content": prompt}],
         "max_tokens": max_tokens,
         "temperature": 0,
+        "chat_template_kwargs": {"enable_thinking": False},
         "stream": False,
     }
     obj = request_json(opener, "/chat/completions", key, payload)
     choices = obj.get("choices", [])
     if not choices or not isinstance(choices[0], dict):
         raise ValueError("missing choices")
-    answer = choices[0].get("message", {}).get("content", "")
+    message = choices[0].get("message", {}) or {}
+    answer = message.get("content") or ""
+    if not answer:
+        report("INFERENCE_DIAGNOSTIC: no visible content; finish_reason=" + str(choices[0].get("finish_reason", "unknown"))[:30])
     return extract_object(answer), obj.get("usage", {})
 
 
