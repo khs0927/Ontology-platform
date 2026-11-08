@@ -71,27 +71,41 @@ def enable_compilation(values: dict[str, str]) -> None:
 
 
 def verify_catalog_source(values: dict[str, str]) -> None:
-    """Inspect only the user's CI synthetic view via a dedicated reader account."""
-    env = {
-        **os.environ,
-        "PGHOST": "127.0.0.1", "PGPORT": "15432",
-        "PGUSER": "nvidia_pilot_reader",
-        "PGPASSWORD": "ci_only_test_password_0101",
-        "PGDATABASE": "sion_nvidia_ci",
-        "PGOPTIONS": "-c default_transaction_read_only=on",
-    }
-    tests = {
-        "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects": "2",
-        "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects WHERE object_name='Door-Rejected'": "0",
-        "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects WHERE object_name='Project-B-Private-Door'": "0",
-    }
-    for sql, expected in tests.items():
-        result = subprocess.run(
-            ["psql", "-X", "-A", "-t", "-v", "ON_ERROR_STOP=1", "-c", sql],
-            env=env, capture_output=True, text=True, check=False, timeout=15,
-        )
-        if result.returncode != 0 or result.stdout.strip() != expected:
-            raise AssertionError("synthetic reader scope preflight failed")
+    """Prove source rows, isolation and read-only role via real psycopg."""
+    import psycopg
+
+    tests = (
+        ("allowlist", "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects", 2),
+        ("rejected", "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects WHERE object_name='Door-Rejected'", 0),
+        ("other-project", "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects WHERE object_name='Project-B-Private-Door'", 0),
+    )
+    try:
+        with psycopg.connect(
+            host="127.0.0.1", port=15432,
+            dbname="sion_nvidia_ci",
+            user="nvidia_pilot_reader",
+            password="ci_only_test_password_0101",
+            connect_timeout=10,
+            autocommit=True,
+        ) as conn:
+            state = conn.execute("SHOW default_transaction_read_only").fetchone()
+            if not state or state[0] != "on":
+                raise AssertionError("synthetic source account is not read-only")
+            for label, sql, expected in tests:
+                actual = conn.execute(sql).fetchone()
+                if not actual or actual[0] != expected:
+                    raise AssertionError(f"synthetic {label} view count mismatch")
+            try:
+                conn.execute("SELECT COUNT(*) FROM public.entities").fetchone()
+            except psycopg.Error as error:
+                if error.sqlstate not in ("42501", "42P01"):
+                    raise AssertionError("unexpected permissions failure") from None
+            else:
+                raise AssertionError("synthetic source can read restricted canonical table")
+    except psycopg.Error as error:
+        # SQLSTATE is an error category, not a credential or response payload.
+        log("FAIL synthetic PostgreSQL preflight SQLSTATE=" + str(error.sqlstate or "unknown"))
+        raise AssertionError("synthetic source preflight failed") from None
     log("PASS synthetic PostgreSQL reader: 2 allowed rows, cross-project and rejected rows denied")
 
 
