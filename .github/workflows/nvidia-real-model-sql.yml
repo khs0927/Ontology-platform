@@ -46,7 +46,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: uv.lock
       - run: uv sync --locked --extra test
-      - name: Sixteen real-model NL2SQL safety and accuracy goldens
+      - name: Twenty real-model NL2SQL safety and accuracy goldens
         env:
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           SION_NVIDIA_PILOT_RO_DSN: postgresql://nvidia_pilot_reader:ci_only_test_password_0101@127.0.0.1:15432/sion_nvidia_ci

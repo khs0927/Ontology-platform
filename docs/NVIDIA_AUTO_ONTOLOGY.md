@@ -259,3 +259,25 @@ These tests do not prove full semantic compilation, production retrieval
 accuracy, tenant isolation at scale, or official agent SQL correctness.
 Only synthetic examples were transmitted, and API keys/vector payloads
 were not logged. The official semantic-compiler run has separate evidence.
+
+## 2026-11-09 — Korean plus English NL-to-SQL: 20/20 real model checks
+
+Evidence: https://github.com/khs0927/Ontology-platform/actions/runs/42496877482
+
+Four Korean questions were added to the previous 16 English synthetic
+PostgreSQL safety/accuracy questions. Every test makes a separate hosted
+Nemotron 3.5 Lightning text-to-SQL call; a restricted PostgreSQL role
+executes only against the project-filtered view. The final pass scored
+20/20, including 4/4 Korean questions. The model-to-database pipeline
+remained separated from NVIDIA's official semantic compiler.
+
+Regression transparency: the first multilingual attempt scored 19/20,
+with a Korean Project B query error. Adding UUID guidance to the *global*
+schema caused a regression to 14/20 (including incorrect English queries).
+The final working revision reverted the global change and added the UUID
+disambiguation only to the ambiguous Korean Project B test prompt.
+SQLSTATE and output error categories are logged without SQL or secrets.
+
+These are small synthetic data fixtures and explicit schema-grounded
+prompts, not a statistical benchmark of unseen business queries. The
+20/20 result should not be interpreted as a general accuracy guarantee.
