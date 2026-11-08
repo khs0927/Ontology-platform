@@ -1,5 +1,16 @@
 # gdrive_cad - Google Drive CAD GraphRAG pack (project key `GDRIVE_CAD`)
 
+> **Sion monorepo import (2026-11-09):** This source pack lives at
+> `packages/aec/library/gdrive_cad/`. The original commands below refer to the
+> standalone `Ontology` checkout. From the monorepo root, prefix each
+> `library/gdrive_cad/` path with `packages/aec/`.
+>
+> Only scripts, tests and aggregate metadata were ported. No customer drawings,
+> Drive file inventories, rendered graphs, vector corpora or SQL load artifacts
+> are bundled. Rebuilding requires separately approved and locally accessible
+> source files. `load_gdrive_cad.py --apply` writes to the configured AEC
+> database and is **not** run by Sion CI or this import.
+
 ArchiOffice pack (`library/archioffice`)와 같은 구조의 자산 팩. 구글 드라이브의 CAD 파일 전체를
 `ask --project GDRIVE_CAD` 로 검색할 수 있게 한다.
 
