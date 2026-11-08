@@ -39,35 +39,30 @@ def env() -> dict[str, str]:
 def main() -> int:
     values = env()
     with psycopg.connect(
-        host="127.0.0.1", port=15432, dbname="sion_nvidia_ci",
-        user="nvidia_pilot_reader", password="ci_only_test_password_0101",
-        connect_timeout=6, autocommit=True,
-    ) as src:
-        rows = src.execute(
-            "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects"
-        ).fetchone()[0]
-        if rows != 2:
-            raise RuntimeError("source fixture rows not equal to expected two")
-    print("PASS isolated source: 2 authorized synthetic rows, no other schema readable")
-
-    with psycopg.connect(
         host="127.0.0.1", port=15432, dbname="auto_ontology",
         user="sion_owner", password=values["POSTGRES_PASSWORD"],
         connect_timeout=8, autocommit=True,
     ) as catalog:
+        active = catalog.execute(
+            "SELECT COUNT(*) FROM pg_stat_activity WHERE usename=%s",
+            ("nvidia_pilot_reader",),
+        ).fetchone()[0]
+        capacity = catalog.execute(
+            "SELECT rolconnlimit FROM pg_roles WHERE rolname=%s",
+            ("nvidia_pilot_reader",),
+        ).fetchone()
+        print(f"READER_CAPACITY: active={active} max={capacity[0] if capacity else 'missing'}")
         status = {}
         for name in TABLES:
-            # Table names are hard-coded, never drawn from external text.
             exists = catalog.execute(
                 "SELECT to_regclass(%s) IS NOT NULL", ("public." + name,)
             ).fetchone()[0]
             if not exists:
                 status[name] = "missing"
             else:
-                count = catalog.execute(
+                status[name] = int(catalog.execute(
                     "SELECT COUNT(*) FROM public." + name
-                ).fetchone()[0]
-                status[name] = int(count)
+                ).fetchone()[0])
         print("CATALOG_ROWS:", " ".join(f"{k}={v}" for k, v in status.items()))
         flag = catalog.execute(
             "SELECT value FROM frontend.configurations WHERE key = %s",
@@ -75,17 +70,33 @@ def main() -> int:
         ).fetchone()
         print("SEMANTIC_ENABLED:", (flag[0] if flag and flag[0] in ("true", "false") else "unknown"))
         if isinstance(status["semantic_compilation_history"], int):
-            grouped = catalog.execute(
+            groups = catalog.execute(
                 "SELECT COALESCE(status, 'unfinished'), COUNT(*) "
                 "FROM public.semantic_compilation_history "
-                "GROUP BY COALESCE(status,'unfinished') ORDER BY 1"
+                "GROUP BY COALESCE(status, 'unfinished') ORDER BY 1"
             ).fetchall()
             print("COMPILATION_HISTORY:", " ".join(
-                f"{key}={int(total)}" for key, total in grouped
+                f"{key}={int(total)}" for key, total in groups
             ) or "none")
+
+    try:
+        with psycopg.connect(
+            host="127.0.0.1", port=15432, dbname="sion_nvidia_ci",
+            user="nvidia_pilot_reader", password="ci_only_test_password_0101",
+            connect_timeout=6, autocommit=True,
+        ) as src:
+            rows = src.execute(
+                "SELECT COUNT(*) FROM sion_nv_pilot.verified_project_objects"
+            ).fetchone()[0]
+            if rows != 2:
+                raise RuntimeError("source fixture count != expected two")
+    except psycopg.Error as error:
+        print("READER_PREFLIGHT_FAILURE: type=" + type(error).__name__
+              + " sqlstate=" + str(error.sqlstate or "none"))
+        return 2
+    print("PASS isolated source: 2 authorized synthetic rows")
     print("Diagnostic complete. No real Sion data or credentials accessed.")
     return 0
-
 
 if __name__ == "__main__":
     try:
