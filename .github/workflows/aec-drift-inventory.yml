@@ -7,6 +7,11 @@ on:
       - scripts/aec_drift_report.py
       - tests/test_aec_drift_report.py
       - .github/workflows/aec-drift-inventory.yml
+  pull_request:
+    paths:
+      - scripts/aec_drift_report.py
+      - tests/test_aec_drift_report.py
+      - .github/workflows/aec-drift-inventory.yml
   workflow_dispatch:
 
 permissions:
