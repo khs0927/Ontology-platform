@@ -236,3 +236,26 @@ and sends two questions through the official authenticated chat SSE API.
 It uses only the project-scoped synthetic read-only Sion view; it cannot
 read other canonical tables. The official compiler's validation result
 is separate and must be determined from its actual workflow logs.
+
+## 2026-11-09 — real NIM embedding, retrieval and rerank compatibility
+
+Verified GitHub Actions run: https://github.com/khs0927/Ontology-platform/actions/runs/42496330118
+Workflow: .github/workflows/nvidia-model-roles.yml
+Code: integrations/nvidia-auto-ontology/ci/model_roles_probe.py
+
+- NVIDIA nemotron-3.5-embed-1b at the advertised hosted endpoint returned
+  HTTP 500 in the first isolated probe. This does not distinguish transient
+  hosting failure from other server-side causes.
+- The account-listed NVIDIA nemotron-3-embed-1b succeeded: 2 embedding vectors
+  with 2048 dimensions each for fictional passage texts.
+- Two different fictional query texts embedded in query mode each retrieved
+  their respective passages at rank 1: 2/2 asymmetric retrieval sanity checks.
+- NVIDIA nemotron-3.5-rerank-8b succeeded at its separate reranking endpoint,
+  preferring the matching fictional document over an unrelated passage.
+- The official E2E runner-only model configuration now selects the verified
+  nemotron-3-embed-1b for both ingest and query to avoid mismatched vectors.
+
+These tests do not prove full semantic compilation, production retrieval
+accuracy, tenant isolation at scale, or official agent SQL correctness.
+Only synthetic examples were transmitted, and API keys/vector payloads
+were not logged. The official semantic-compiler run has separate evidence.
