@@ -32,8 +32,10 @@ AREA_TAG_RE = re.compile(r'AREA|면적', re.IGNORECASE)
 AREA_TEXT_RE = re.compile(r'^\(?\s*(\d{1,5}(?:[.,]\d{1,3})?)\s*(?:㎡|m2|m²|sqm)\s*\)?\Z', re.IGNORECASE)
 SECTION_TAG_RE = re.compile(r'SIZE|SECTION|PROFILE|MEMBER|규격|부재|단면', re.IGNORECASE)
 # Sheet numbers such as A-101, MC-008, T-18, E-03, S101, A-101-1 (one to three discipline letters).
-SHEET_NUMBER_RE = re.compile(r'([A-Z]{1,3}-?\d{2,4}(?:-\d{1,3})?)(?![A-Z0-9])')
-_ORDER_PREFIX_RE = re.compile(r'^(?:\d{1,3}[_.]\s*|\d{1,3}\s+-\s+(?=[A-Za-z]{1,3}-?\d))')
+SHEET_NUMBER_RE = re.compile(
+    r'([A-Z]{1,3}-?\d{2,4}(?:-\d{1,3})?|(?:소방|통신|토목|전기|기계|건축|구조)-?\d{1,4}(?:-\d{1,3})?)(?![A-Z0-9가-힣])'
+)
+_ORDER_PREFIX_RE = re.compile(r'^(?:\d{1,3}[_.]\s*|\d{1,3}\s+-\s+(?=[A-Za-z가-힣]{1,3}-?\d))')
 
 # A sheet number written as plain title-block text, as Korean sheets usually draw it: "A-101", "C - 010",
 # "MC-008", "S- 101", "A-101-1", "건축-01". The whole text must be the number.
@@ -118,7 +120,7 @@ def filename_sheet_fields(name):
     if not match:
         return None, (stem.strip(' -_[]') or None)
     title = stem[match.end():]
-    title = re.sub(r'^\s*~\s*[A-Za-z]{0,3}-?\d{1,4}', '', title)  # rest of a "S-101~132" range
+    title = re.sub(r'^\s*~\s*[A-Za-z가-힣]{0,3}-?\d{1,4}', '', title)  # rest of a "S-101~132" range
     title = re.sub(r'[_\s\-\[\]]+', ' ', title).strip()
     return match.group(1), (title or None)
 
