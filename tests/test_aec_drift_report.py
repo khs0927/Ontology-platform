@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import importlib.util
 import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.aec_drift_report import compare, inventory
+_SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "aec_drift_report.py"
+_SPEC = importlib.util.spec_from_file_location("aec_drift_report", _SCRIPT)
+assert _SPEC is not None and _SPEC.loader is not None
+_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+compare = _MODULE.compare
+inventory = _MODULE.inventory
 
 
 class DriftInventoryTest(unittest.TestCase):
