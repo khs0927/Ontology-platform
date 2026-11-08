@@ -1,0 +1,25 @@
+name: NVIDIA real embedding and rerank compatibility - synthetic
+on:
+  push:
+    branches: [feat/nvidia-auto-ontology-federation-20261107]
+    paths:
+      - .github/workflows/nvidia-model-roles.yml
+      - integrations/nvidia-auto-ontology/ci/model_roles_probe.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nim-roles:
+    if: github.repository == 'khs0927/Ontology-platform'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test offline response contracts first
+        run: python integrations/nvidia-auto-ontology/ci/model_roles_probe.py
+      - name: Probe real embedding and rerank endpoints
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: python integrations/nvidia-auto-ontology/ci/model_roles_probe.py --live
