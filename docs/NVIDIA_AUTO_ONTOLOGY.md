@@ -160,3 +160,31 @@ The Sion bridge was corrected to parse \`terms\`, the fixture tests now
 match the pinned upstream contract, and a negative test rejects the
 incorrect \`data\` variant. See PR CI history for the failing real
 end-to-end run before the fix.
+
+## 2026-11-08 — bounded live NVIDIA inference: synthetic ontology and NL2SQL
+
+Evidence: https://github.com/khs0927/Ontology-platform/actions/runs/42491711564
+CI script: integrations/nvidia-auto-ontology/ci/nvidia_synthetic_nl2sql.py
+Workflow: .github/workflows/nvidia-synthetic-nl2sql.yml
+
+This experiment is the first real NVIDIA-hosted model inference for this
+PR, independent of the successful model-list-only credential probe.
+Listed model: nvidia/nemotron-3.5-lightning-30b-a3b.
+The first call generated an unverified synthetic Door and Project ontology
+with Door PART_OF Project; structural schema validation passed.
+The second call converted a synthetic natural-language door count question
+into SQL. A strict in-memory SQLite authorizer denied other tables and
+mutations. The generated SELECT returned exactly 2, matching the golden.
+
+Pass: 2/2 inference calls, 364 total API-reported tokens, no retry.
+The initial attempt without reasoning disabled stopped after one call
+with an unusable JSON response; the verified successful run disabled
+thinking using chat_template_kwargs.enable_thinking=false.
+Model outputs and API keys were not logged. No real user data was sent.
+
+Limitations: this is a direct-model synthetic pilot, NOT the official
+NVIDIA Auto Ontology semantic compiler, embedded catalog, reranker,
+or full upstream text-to-SQL agent. SQL executed only on synthetic SQLite
+data, not on Sion production or the upstream PostgreSQL data source.
+The Sion /ask flag remains off. No production deployment and no proof
+of remaining free credit balance, broad SQL accuracy or safety in production.
