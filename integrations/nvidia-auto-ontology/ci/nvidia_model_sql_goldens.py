@@ -51,6 +51,9 @@ SCHEMA = (
     "This security-barrier view already filters human-verified evidence, "
     "unexpired associations, and an authorized project. "
     f"Project A identifier is {PROJECT_A}; Project B identifier is {PROJECT_B}. "
+    "When asked in Korean (e.g. Project B에 속한 객체는 몇 개인가?), "
+    "map the project name to its exact UUID value before writing SQL; "
+    "project_id is UUID, not a string containing the words Project B. "
     "All other database tables and schemas are forbidden. "
     "Representative visible sample rows are (Door-101, Concept, Project A, PART_OF) "
     "and (Door-102, Concept, Project A, PART_OF). "
@@ -182,8 +185,10 @@ def run() -> None:
             except HTTPError as error:
                 report(f"Case {label}: MODEL_HTTP_{error.code}; stopping.")
                 break
-            except (psycopg.Error, ValueError, KeyError, TypeError, IndexError, OSError):
-                report(f"Case {label}: INVALID_OR_DENIED")
+            except psycopg.Error as error:
+                report(f"Case {label}: SQL_REJECTED state={error.sqlstate}")
+            except (ValueError, KeyError, TypeError, IndexError, OSError) as error:
+                report(f"Case {label}: INVALID_MODEL_OUTPUT type={type(error).__name__}")
     report(f"Real model SQL correctness: {good}/{len(CASES)} goldens")
     report(f"Elapsed: {int(time.monotonic() - started)}s; model: {MODEL}")
     report("No model SQL, request answers, API keys or production data persisted")
