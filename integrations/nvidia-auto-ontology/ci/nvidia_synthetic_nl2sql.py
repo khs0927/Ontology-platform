@@ -10,11 +10,11 @@ import json
 import os
 import re
 import sqlite3
+import ssl
 import sys
 import time
 from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
-import ssl
 
 API = "https://integrate.api.nvidia.com/v1"
 EXPECTED = ("nvidia/nemotron-3.5-lightning-30b-a3b",
