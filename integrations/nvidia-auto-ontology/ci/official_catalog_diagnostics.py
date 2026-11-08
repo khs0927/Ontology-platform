@@ -7,8 +7,8 @@ loopback database created by nvidia-official-semantic-e2e.yml.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import psycopg
 
