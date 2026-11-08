@@ -49,6 +49,9 @@ SCHEMA = (
     f"Project A identifier is {PROJECT_A}; Project B identifier is {PROJECT_B}. "
     "All other database tables and schemas are forbidden. "
     "Do not assume excluded records are visible. "
+    "For an exact object name use case-sensitive equality; never use a "
+    "partial LIKE pattern unless the user explicitly asks for a prefix. "
+    "Preserve identifiers and filter literals verbatim from the question. "
     "Return JSON only: {\"sql\":\"SELECT count(*) ...\"}."
 )
 
@@ -166,7 +169,7 @@ def run() -> None:
                     raise ValueError("non-scalar model SQL result")
                 actual = rows[0][0]
                 ok = isinstance(actual, int) and actual == expected
-                report(f"Case {label}: " + ("PASS" if ok else "WRONG_ANSWER"))
+                report(f"Case {label}: " + ("PASS" if ok else f"WRONG_ANSWER observed={actual}, expected={expected}"))
                 good += int(ok)
             except HTTPError as error:
                 report(f"Case {label}: MODEL_HTTP_{error.code}; stopping.")
