@@ -16,7 +16,7 @@ from pathlib import Path
 
 import httpx
 
-BASE = "http://127.0.0.1:3000"
+BASE = "http://localhost:3000"
 TIMEOUT = 1500
 GOLD = 2
 ALLOWLIST_VIEW = "sion_nv_pilot.verified_project_objects"

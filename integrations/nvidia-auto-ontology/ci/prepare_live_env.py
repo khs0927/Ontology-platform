@@ -33,7 +33,7 @@ def main() -> None:
         "NON_REASONING_MODEL": "nvidia/nemotron-3.5-lightning-30b-a3b",
         "NON_REASONING_API_KEY": key,
         "EMBED_ENDPOINT": "https://integrate.api.nvidia.com/v1",
-        "EMBED_MODEL": "nvidia/nemotron-3.5-embed-1b",
+        "EMBED_MODEL": "nvidia/nemotron-3-embed-1b",
         "EMBED_API_KEY": key,
         "RERANK_ENDPOINT": (
             "https://ai.api.nvidia.com/v1/retrieval/nvidia/"
