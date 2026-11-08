@@ -15,7 +15,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 
 EMBED_URL = "https://integrate.api.nvidia.com/v1/embeddings"
-EMBED_MODEL = "nvidia/nemotron-3.5-embed-1b"
+EMBED_MODEL = "nvidia/nemotron-3-embed-1b"
 RERANK_URL = "https://ai.api.nvidia.com/v1/retrieval/nvidia/nemotron-3.5-rerank-8b/reranking"
 RERANK_MODEL = "nvidia/nemotron-3.5-rerank-8b"
 PASSAGE = "Door-101 belongs to Project A. Relation PART_OF is human verified."
