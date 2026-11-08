@@ -15,7 +15,7 @@ from pathlib import Path
 
 import httpx
 
-UPSTREAM = "http://127.0.0.1:3000"
+UPSTREAM = "http://localhost:3000"
 COMPILE_DEADLINE_S = 960
 QUESTION_TIMEOUT_S = 500
 QUESTIONS = (
@@ -216,6 +216,9 @@ if __name__ == "__main__":
     try:
         main()
     except (httpx.HTTPError, RuntimeError, ValueError, OSError, json.JSONDecodeError) as error:
-        # Model errors and API bodies are deliberately not printed.
-        report(f"FAIL official NVIDIA E2E: {type(error).__name__}")
+        # Print only diagnostics authored by this script. Never print provider bodies.
+        if isinstance(error, RuntimeError):
+            report("FAIL official NVIDIA E2E: " + str(error))
+        else:
+            report(f"FAIL official NVIDIA E2E: {type(error).__name__}")
         raise SystemExit(1) from None
