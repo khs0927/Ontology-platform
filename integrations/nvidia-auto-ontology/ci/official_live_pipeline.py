@@ -103,7 +103,6 @@ def wait_for_ingested_catalog(values: dict[str, str]) -> None:
     import psycopg
 
     deadline = time.monotonic() + 180
-    observations = 0
     while time.monotonic() < deadline:
         try:
             with psycopg.connect(
@@ -117,7 +116,6 @@ def wait_for_ingested_catalog(values: dict[str, str]) -> None:
             if count >= 1:
                 log(f"PASS actual NVIDIA ingestion catalog contains {count} table(s)")
                 return
-            observations += 1
         except psycopg.Error as error:
             # Only categorical diagnostics; never print credentials, DSNs or SQL.
             log("NVIDIA catalog preflight retry class=" + type(error).__name__
