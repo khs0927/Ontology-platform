@@ -37,7 +37,7 @@ def main() -> None:
 
     llm_url = "https://integrate.api.nvidia.com/v1"
     llm_id = "nvidia/nemotron-3.5-lightning-30b-a3b"
-    emb_id = "nvidia/nemotron-3.5-embed-1b"
+    emb_id = "nvidia/nemotron-3-embed-1b"
     rerank_id = "nvidia/nemotron-3.5-rerank-8b"
 
     for role in ("DEFAULT_MODELS", "REASONING", "NON_REASONING", "EMBED", "RERANK"):
@@ -60,7 +60,7 @@ def main() -> None:
     target.write_text(content, encoding="utf-8")
     target.chmod(0o600)
     print("PASS ephemeral NIM model roles configured (credentials hidden)")
-    print("Models: Nemotron Lightning chat, Nemotron 3.5 embed and rerank")
+    print("Models: Nemotron Lightning chat, verified Nemotron 3 embed and 3.5 rerank")
 
 
 if __name__ == "__main__":
