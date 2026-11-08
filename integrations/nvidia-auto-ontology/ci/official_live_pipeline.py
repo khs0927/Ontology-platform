@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -37,37 +36,6 @@ def cfg() -> dict[str, str]:
         line.partition("=")[::2] for line in ENV_FILE.read_text().splitlines()
         if line and not line.startswith("#") and "=" in line
     )
-
-
-def enable_compilation(values: dict[str, str]) -> None:
-    """Update ONLY the throwaway NVIDIA catalog metadata DB, not Sion."""
-    sql = (
-        "DO $guard$ BEGIN IF current_database() <> 'auto_ontology' "
-        "THEN RAISE EXCEPTION 'not isolated auto_ontology CI database'; END IF; "
-        "END $guard$; "
-        "INSERT INTO frontend.configurations (key,value,updated_at) "
-        "VALUES ('semantic_compilation_enabled','true',CURRENT_TIMESTAMP) "
-        "ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value,"
-        "updated_at=CURRENT_TIMESTAMP;"
-    )
-    env = {
-        **os.environ,
-        "PGHOST": "127.0.0.1",
-        "PGPORT": "15432",
-        "PGUSER": "sion_owner",
-        "PGPASSWORD": values["POSTGRES_PASSWORD"],
-        "PGDATABASE": "auto_ontology",
-        "PGCONNECT_TIMEOUT": "10",
-    }
-    proc = subprocess.run(
-        ["psql", "-X", "-q", "-v", "ON_ERROR_STOP=1", "-c", sql],
-        env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-        check=False, timeout=20,
-    )
-    if proc.returncode != 0:
-        # Do not print DB errors, which may contain connection strings.
-        raise RuntimeError(f"failed to enable isolated semantic compilation: exit {proc.returncode}")
-    log("PASS isolated NVIDIA catalog semantic_compilation_enabled=true")
 
 
 def verify_catalog_source(values: dict[str, str]) -> None:
@@ -164,14 +132,18 @@ def sign_in_and_issue_token(client: httpx.Client, values: dict[str, str]) -> dic
 def run_compile(client: httpx.Client, auth: dict[str, str]) -> dict:
     # Initial metadata ingestion starts at service boot. The official semantic
     # scheduler itself waits for the first ingestion pass, avoiding a race.
-    start = client.post(
-        "/api/semantic-compilation/trigger",
-        headers=auth,
-        timeout=20,
+    # The public Next.js gateway exposes PUT /api/configurations/semantic-compilation,
+    # which stores the flag and relays the trigger to private FastAPI. The
+    # backend-only /api/semantic-compilation/trigger is deliberately not
+    # published by Next.js and returns 404 on :3000.
+    start = client.put(
+        "/api/configurations/semantic-compilation",
+        headers=auth, json={"enabled": True},
+        timeout=25,
     )
-    if start.status_code != 202:
-        raise RuntimeError(f"semantic compilation trigger HTTP {start.status_code}")
-    log("PASS official NVIDIA semantic compilation accepted (202)")
+    if start.status_code != 200 or start.json().get("enabled") is not True:
+        raise RuntimeError(f"frontend semantic compilation enable HTTP {start.status_code}")
+    log("PASS official public NVIDIA frontend compilation flag enabled and trigger dispatched")
     deadline = time.monotonic() + TIMEOUT
     last_notice = 0.0
     seen_running = False
@@ -290,7 +262,6 @@ def main() -> None:
     verify_catalog_source(values)
     with httpx.Client(base_url=BASE, follow_redirects=False, trust_env=False) as client:
         auth = sign_in_and_issue_token(client, values)
-        enable_compilation(values)
         run_compile(client, auth)
         verify_terms(client, auth)
         ask_official_agent(client, auth)
