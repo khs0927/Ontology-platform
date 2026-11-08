@@ -51,9 +51,6 @@ SCHEMA = (
     "This security-barrier view already filters human-verified evidence, "
     "unexpired associations, and an authorized project. "
     f"Project A identifier is {PROJECT_A}; Project B identifier is {PROJECT_B}. "
-    "When asked in Korean (e.g. Project B에 속한 객체는 몇 개인가?), "
-    "map the project name to its exact UUID value before writing SQL; "
-    "project_id is UUID, not a string containing the words Project B. "
     "All other database tables and schemas are forbidden. "
     "Representative visible sample rows are (Door-101, Concept, Project A, PART_OF) "
     "and (Door-102, Concept, Project A, PART_OF). "
@@ -83,7 +80,11 @@ def generated_sql(key: str, question: str) -> str:
                 "You generate exactly one read-only PostgreSQL SELECT COUNT "
                 "statement and return only a JSON object containing sql."
             )},
-            {"role": "user", "content": SCHEMA + "\nQuestion: " + question},
+            {"role": "user", "content": SCHEMA + "\nQuestion: " + question + (
+                f"\nThe Korean phrase Project B means the UUID {PROJECT_B}, "
+                "never the text label, for project_id column."
+                if "Project B" in question and "속" in question else ""
+            )},
         ],
         "chat_template_kwargs": {"enable_thinking": False},
         "temperature": 0,
