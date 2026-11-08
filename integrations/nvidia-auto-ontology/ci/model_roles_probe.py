@@ -72,7 +72,7 @@ def check_embedding(payload: dict) -> tuple[int, list[float]]:
     for vec in arrays:
         if not all(type(v) in (int, float) and math.isfinite(v) for v in vec):
             raise ValueError("invalid embedding component")
-    return len(arrays[0]), arrays[0]
+    return len(arrays[0]), arrays
 
 
 def check_rerank(payload: dict) -> tuple[int, float]:
@@ -124,8 +124,36 @@ def live() -> int:
             "input_type": "passage", "truncate": "END",
             "modality": "text", "encoding_format": "float",
         })
-        dims, _ = check_embedding(embed)
+        dims, passage_vectors = check_embedding(embed)
         report(f"PASS real NVIDIA embeddings: {EMBED_MODEL}; vectors=2, dimensions={dims}")
+        query_embed = request_payload(opener, EMBED_URL, key, {
+            "model": EMBED_MODEL,
+            "input": [QUERY, "Where are green apples harvested?"],
+            "input_type": "query", "truncate": "END",
+            "modality": "text", "encoding_format": "float",
+        })
+        query_dim, query_vectors = check_embedding(query_embed)
+        if query_dim != dims:
+            raise ValueError("query/passage embeddings used different dimensions")
+
+        def cosine(x: list[float], y: list[float]) -> float:
+            denominator = math.sqrt(math.fsum(t * t for t in x)) * math.sqrt(
+                math.fsum(t * t for t in y)
+            )
+            if denominator <= 0:
+                raise ValueError("zero norm embedding")
+            return math.fsum(a * b for a, b in zip(x, y)) / denominator
+
+        # A deterministic two-document, two-query retrieval sanity check.
+        if cosine(query_vectors[0], passage_vectors[0]) <= cosine(
+            query_vectors[0], passage_vectors[1]
+        ):
+            raise ValueError("door query did not retrieve the door passage")
+        if cosine(query_vectors[1], passage_vectors[1]) <= cosine(
+            query_vectors[1], passage_vectors[0]
+        ):
+            raise ValueError("apple query did not retrieve the apple passage")
+        report("PASS asymmetric query/passage retrieval: 2/2 synthetic top-1 matches")
     except HTTPError as exc:
         report(f"FAIL embeddings endpoint HTTP {exc.code}; model output hidden")
         return 2
