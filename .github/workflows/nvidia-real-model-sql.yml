@@ -25,7 +25,7 @@ jobs:
           POSTGRES_DB: sion_nvidia_ci
         ports: ['15432:5432']
         options: >-
-          --health-cmd 'pg_isready -U sion_owner -d sion_nvidia_ci'
+          --health-cmd pg_isready
           --health-interval 5s
           --health-timeout 5s
           --health-retries 15
