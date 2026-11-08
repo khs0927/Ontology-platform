@@ -59,6 +59,9 @@ jobs:
           psql "$URL" -X -v ON_ERROR_STOP=1 -f migrations/004_seed_core_types.sql
           psql "$URL" -X -v ON_ERROR_STOP=1 -f integrations/nvidia-auto-ontology/ci/seed.sql
           psql "$URL" -X -v ON_ERROR_STOP=1 -v project_id=00000000-0000-0000-0000-0000000000a1 -v role_password=ci_only_test_password_0101 -f integrations/nvidia-auto-ontology/ci/readonly.sql
+          # CI-only worker concurrency cap; grants remain read-only on one security-barrier view.
+          psql "$URL" -X -v ON_ERROR_STOP=1 -c "ALTER ROLE nvidia_pilot_reader CONNECTION LIMIT 16"
+          PGPASSWORD=ci_only_test_password_0101 psql -X -h 127.0.0.1 -p 15432 -U nvidia_pilot_reader -d sion_nvidia_ci -A -t -v ON_ERROR_STOP=1 -c "SELECT count(*) FROM sion_nv_pilot.verified_project_objects" | grep -qx 2
 
       - name: Build and boot actual NVIDIA frontend, backend and ingestion
         working-directory: nvidia

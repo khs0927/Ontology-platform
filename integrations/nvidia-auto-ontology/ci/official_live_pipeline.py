@@ -104,7 +104,23 @@ def verify_catalog_source(values: dict[str, str]) -> None:
                 raise AssertionError("synthetic source can read restricted canonical table")
     except psycopg.Error as error:
         # SQLSTATE is an error category, not a credential or response payload.
-        log("FAIL synthetic PostgreSQL preflight SQLSTATE=" + str(error.sqlstate or "unknown"))
+        category = "other"
+        description = str(error).casefold()
+        for term, label in (
+            ("too many connections", "role_connection_limit"),
+            ("connection limit", "role_connection_limit"),
+            ("remaining connection slots", "server_connection_limit"),
+            ("connection refused", "connection_refused"),
+            ("password authentication", "auth_failure"),
+            ("no pg_hba", "pg_hba_denied"),
+            ("timeout", "connection_timeout"),
+        ):
+            if term in description:
+                category = label
+                break
+        log("FAIL synthetic PostgreSQL preflight category=" + category
+            + " class=" + type(error).__name__
+            + " SQLSTATE=" + str(error.sqlstate or "none"))
         raise AssertionError("synthetic source preflight failed") from None
     log("PASS synthetic PostgreSQL reader: 2 allowed rows, cross-project and rejected rows denied")
 
