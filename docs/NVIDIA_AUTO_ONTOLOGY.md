@@ -281,3 +281,28 @@ SQLSTATE and output error categories are logged without SQL or secrets.
 These are small synthetic data fixtures and explicit schema-grounded
 prompts, not a statistical benchmark of unseen business queries. The
 20/20 result should not be interpreted as a general accuracy guarantee.
+
+## 2026-11-09 — official full-pipeline integration diagnostics (not yet passed)
+
+Two distinct full-upstream CI probes are still separate from the direct
+hosted-model successes above:
+
+- https://github.com/khs0927/Ontology-platform/actions/runs/42495996042
+  authenticated and enabled semantic compilation, but after its allotted
+  polling period the catalog had no successful compilation/Term evidence.
+- https://github.com/khs0927/Ontology-platform/actions/runs/42497352242
+  booted the real upstream services with passing health checks, but failed
+  an isolated PostgreSQL reader preflight with an unclassified psycopg
+  connection error (no SQLSTATE). This does NOT prove an NIM model problem.
+
+The separate CI role originally had a 4-connection cap; a subsequent
+**temporary synthetic-CI-only** workflow experiment raised this to 16.
+The cause is still a hypothesis until the next diagnostics check.
+Read-only schema access, project security-barrier view and PostgreSQL
+permissions were NOT widened. `official_catalog_diagnostics.py` now
+reports counts only: active reader sessions, role limit, catalog table/term
+row counts, and compilation history. No source values or credentials are
+printed. These checks do not modify any production resource.
+
+The official NVIDIA compiler + complete SSE agent remain unverified until
+the actual official workflow returns persisted Terms and successful SQL.
