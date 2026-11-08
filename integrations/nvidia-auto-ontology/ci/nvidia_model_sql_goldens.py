@@ -39,6 +39,10 @@ CASES = (
     ("private-excluded", "How many objects are named Project-B-Private-Door?", 0),
     ("name-prefix", "How many objects have names beginning with Door-1?", 2),
     ("filtered-aggregate", "How many visible objects are specifically Door-101?", 1),
+    ("ko-project-a", "Project A에 속한 승인된 객체 수는 몇 개인가?", 2),
+    ("ko-door-101", "이 데이터에서 Door-101이라는 이름의 객체는 몇 개인가?", 1),
+    ("ko-private-b", "Project B에 속한 객체는 몇 개 조회되는가?", 0),
+    ("ko-unverified", "Door-No-Evidence 객체가 몇 개 보이는가?", 0),
 )
 SCHEMA = (
     "PostgreSQL database sion_nvidia_ci. Exactly one authorized source "
