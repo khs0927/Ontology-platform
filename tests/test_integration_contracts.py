@@ -687,3 +687,77 @@ def test_kordoc_evidence_unhashable_claim_id_is_rejected_not_crashed(claim_id):
     assert contracts.errors("kordoc-evidence/1", payload)
     with pytest.raises(ValueError, match="kordoc-evidence/1 contract violated"):
         contracts.validate("kordoc-evidence/1", payload)
+
+
+KORDOC_BASE = KORDOC_FIX / "valid" / "unverified_table_cell.json"
+KORDOC_REQUIRED = [
+    (), ("source",), ("parser",), ("locator",), ("source_text",), ("classification",),
+]
+
+
+def _kordoc_required_paths():
+    schema = contracts.load("kordoc-evidence/1")
+    paths = []
+    for parent in KORDOC_REQUIRED:
+        node = schema
+        for key in parent:
+            node = node["properties"][key]
+        paths += [(*parent, field) for field in node["required"]]
+    return paths
+
+
+@pytest.mark.parametrize("path", _kordoc_required_paths(), ids=lambda p: ".".join(p))
+def test_kordoc_evidence_each_required_field_is_enforced(path):
+    payload = _kordoc(KORDOC_BASE)
+    node = payload
+    for key in path[:-1]:
+        node = node[key]
+    del node[path[-1]]
+    assert contracts.errors("kordoc-evidence/1", payload), path
+
+
+def test_kordoc_evidence_covers_issue_71_fields():
+    required = set(_kordoc_required_paths())
+    for field in [
+        ("source", "sha256"), ("source", "document_version"), ("parser", "name"), ("parser", "version"),
+        ("locator", "page"), ("classification", "state"), ("project_id",), ("source_text",),
+        ("proposed_claims",), ("canonical",), ("evidence_only",),
+    ]:
+        assert field in required, field
+
+
+@pytest.mark.parametrize(
+    ("locator", "ok"),
+    [
+        ({"page": 1}, True),
+        ({"page": 2, "table": 3}, True),
+        ({"page": 2, "table": 3, "cell": {"row": 1, "col": 1}}, True),
+        ({"page": 2, "cell": {"row": 1, "col": 1}}, False),
+        ({"table": 1}, False),
+        ({"page": 1, "table": 0}, False),
+        ({"page": 1, "table": 1, "cell": {"row": 1}}, False),
+        ({"page": 1, "table": 1, "cell": {"row": 0, "col": 1}}, False),
+        ({"page": 1, "line": 4}, False),
+    ],
+)
+def test_kordoc_evidence_locator_variants(locator, ok):
+    payload = _kordoc(KORDOC_BASE)
+    payload["locator"] = locator
+    assert (contracts.errors("kordoc-evidence/1", payload) == []) is ok
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda p: p.update(canonical=True),
+        lambda p: p["source_text"].update(canonical=True),
+        lambda p: p["proposed_claims"][0].update(canonical=True),
+        lambda p: p.update(canonical_claims=[{"statement": p["source_text"]["quote"]}]),
+        lambda p: p["proposed_claims"][0].update(quote=p["source_text"]["quote"]),
+    ],
+    ids=["payload", "source_text", "claim", "canonical_claims", "claim_quote"],
+)
+def test_kordoc_evidence_source_text_cannot_be_marked_canonical(mutate):
+    payload = _kordoc(KORDOC_BASE)
+    mutate(payload)
+    assert contracts.errors("kordoc-evidence/1", payload)
