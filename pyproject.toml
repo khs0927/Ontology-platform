@@ -109,6 +109,7 @@ addopts = "-q --import-mode=importlib"
 # `apps.*`). Put those roots on sys.path so `pytest` from the repo root collects them.
 pythonpath = [
   "tests",  # tests/ modules import sibling helpers (importlib mode drops rootdir insertion)
+  "packages/aec/tests",  # AEC acceptance suites import the sibling _runtimes helper
   "packages/aec/extensions/drawing_context",
   "packages/aec/extensions/external_capabilities",
   "packages/aec/extensions/intelligence_fabric",
