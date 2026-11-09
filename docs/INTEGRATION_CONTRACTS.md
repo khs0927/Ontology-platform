@@ -36,7 +36,7 @@ copied verbatim into `tests/contracts/fixtures/` with their source commit
 
 | Dependency | Pinned commit | Declared in |
 |---|---|---|
-| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) (`archontos`) | `b968c69895f317d76612c3a986b6aa9201849c5b` | root `pyproject.toml`, `regulation` extra (`archontos @ git+https://github.com/khs0927/ArchOntos@<sha>`); resolved in `uv.lock` |
+| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) (`archontos`) | `e69c69e8735c854a51584b0697302a47d97dfd5e` | root `pyproject.toml`, `regulation` extra (`archontos @ git+https://github.com/khs0927/ArchOntos@<sha>`); resolved in `uv.lock` |
 
 Contract = that exact ArchOntos commit: `archontos.rules.engine` (rule DSL evaluator used by
 `sion_api.regulation`), `archontos.db.migrate` (`use_schema`, `apply_migrations`,

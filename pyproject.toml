@@ -49,7 +49,7 @@ drive = [
 # one commit of khs0927/ArchOntos -- never vendored (tests/test_archontos_dependency.py).
 # Bump the SHA here and in docs/INTEGRATION_CONTRACTS.md together, then `uv lock`.
 regulation = [
-  "archontos @ git+https://github.com/khs0927/ArchOntos@b968c69895f317d76612c3a986b6aa9201849c5b ; python_version < '3.15'",
+  "archontos @ git+https://github.com/khs0927/ArchOntos@e69c69e8735c854a51584b0697302a47d97dfd5e ; python_version < '3.15'",
   "pydantic-settings>=2.7,<3",
   "sqlalchemy[asyncio]==2.1.3",
   "asyncpg==0.32.0",
