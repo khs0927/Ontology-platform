@@ -59,3 +59,4 @@ bin/sion-agent-bridge
 
 # derived SketchUp asset index (rebuild with python -m sion_ingestion.asset_index build)
 data/assets/sketchup/_index/*.sqlite*
+.venv-dep/

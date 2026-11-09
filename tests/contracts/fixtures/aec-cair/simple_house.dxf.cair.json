@@ -1,0 +1,576 @@
+{
+  "schema_version": "0.1.0",
+  "snapshot_id": "cair-20261107T144206Z-c68e1f7c",
+  "created_at": "2026-11-07T14:42:06Z",
+  "project_id": "simple-house-dxf",
+  "status": "SUCCESS",
+  "metadata": {
+    "parser": "ezdxf",
+    "parser_version": "1.4.5",
+    "parse": {
+      "source_file": "fixtures/simple_house.dxf",
+      "dxf_version": "AC1015",
+      "units": "millimeters",
+      "counts": {
+        "entity_count": 7,
+        "layer_count": 6,
+        "block_count": 2,
+        "text_count": 1,
+        "dimension_count": 0,
+        "insert_count": 0,
+        "unsupported_count": 0
+      },
+      "layers": [
+        "0",
+        "A-COLS",
+        "A-DOOR",
+        "A-WALL",
+        "A-WINDOW",
+        "Defpoints"
+      ],
+      "blocks": [
+        "*Model_Space",
+        "*Paper_Space"
+      ],
+      "extents": {
+        "min_x": 0.0,
+        "min_y": -1000.0,
+        "min_z": 0.0,
+        "max_x": 10000.0,
+        "max_y": 7000.0,
+        "max_z": 0.0
+      },
+      "unsupported_entity_types": [],
+      "warnings": [],
+      "sheet": {
+        "number": null,
+        "title": "simple",
+        "scale": null,
+        "revision": null,
+        "date": null,
+        "category": "other",
+        "drawing_category": "기타",
+        "drawing_category_en": "other",
+        "source": "file_name"
+      },
+      "block_definitions": []
+    }
+  },
+  "objects": [
+    {
+      "id": "aec://project/simple-house-dxf/wall/69fe2141-6962-5f4e-9e43-25e4ef3f891d",
+      "project_id": "simple-house-dxf",
+      "type": "Wall",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A01",
+        "layer": "A-WALL",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A01",
+      "bbox": {
+        "min_x": 0.0,
+        "min_y": 0.0,
+        "min_z": 0.0,
+        "max_x": 10000.0,
+        "max_y": 7000.0,
+        "max_z": 0.0
+      },
+      "placement": {},
+      "properties": {
+        "cad_entity_type": "LWPOLYLINE",
+        "layer": "A-WALL",
+        "vertex_count": 4,
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0
+      },
+      "classification": {
+        "label": "Wall",
+        "confidence": 0.91,
+        "method": "hybrid_rules",
+        "evidence": [
+          "layer name indicates wall: wall",
+          "entity_type=LWPOLYLINE",
+          "layer=A-WALL"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A01",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-dxf/wall/b678d4a1-a91b-56ed-acd3-2e2e23b8cfbe",
+      "project_id": "simple-house-dxf",
+      "type": "Wall",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A02",
+        "layer": "A-WALL",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A02",
+      "bbox": {
+        "min_x": 300.0,
+        "min_y": 300.0,
+        "min_z": 0.0,
+        "max_x": 9700.0,
+        "max_y": 6700.0,
+        "max_z": 0.0
+      },
+      "placement": {},
+      "properties": {
+        "cad_entity_type": "LWPOLYLINE",
+        "layer": "A-WALL",
+        "vertex_count": 4,
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0
+      },
+      "classification": {
+        "label": "Wall",
+        "confidence": 0.91,
+        "method": "hybrid_rules",
+        "evidence": [
+          "layer name indicates wall: wall",
+          "entity_type=LWPOLYLINE",
+          "layer=A-WALL"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A02",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-dxf/door/9927757b-3ff7-59e5-9f04-442c63310312",
+      "project_id": "simple-house-dxf",
+      "type": "Door",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A03",
+        "layer": "A-DOOR",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A03",
+      "bbox": {
+        "min_x": 4500.0,
+        "min_y": 0.0,
+        "min_z": 0.0,
+        "max_x": 5500.0,
+        "max_y": 0.0,
+        "max_z": 0.0
+      },
+      "placement": {},
+      "properties": {
+        "cad_entity_type": "LINE",
+        "layer": "A-DOOR",
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0
+      },
+      "classification": {
+        "label": "Door",
+        "confidence": 0.9,
+        "method": "hybrid_rules",
+        "evidence": [
+          "layer name indicates door: door",
+          "entity_type=LINE",
+          "layer=A-DOOR"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A03",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-dxf/door/2a48393c-0ef7-54fb-af1c-3090cac5427c",
+      "project_id": "simple-house-dxf",
+      "type": "Door",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A04",
+        "layer": "A-DOOR",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A04",
+      "bbox": {
+        "min_x": 3500.0,
+        "min_y": -1000.0,
+        "min_z": 0.0,
+        "max_x": 5500.0,
+        "max_y": 1000.0,
+        "max_z": 0.0
+      },
+      "placement": {},
+      "properties": {
+        "cad_entity_type": "ARC",
+        "layer": "A-DOOR",
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0
+      },
+      "classification": {
+        "label": "Door",
+        "confidence": 0.9,
+        "method": "hybrid_rules",
+        "evidence": [
+          "layer name indicates door: door",
+          "entity_type=ARC",
+          "layer=A-DOOR"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A04",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-dxf/window/62b9b9ac-8e89-5d14-b1c3-6ed991bde5d0",
+      "project_id": "simple-house-dxf",
+      "type": "Window",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A07",
+        "layer": "A-WINDOW",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A07",
+      "bbox": {
+        "min_x": 2000.0,
+        "min_y": 0.0,
+        "min_z": 0.0,
+        "max_x": 3500.0,
+        "max_y": 0.0,
+        "max_z": 0.0
+      },
+      "placement": {},
+      "properties": {
+        "cad_entity_type": "LINE",
+        "layer": "A-WINDOW",
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0
+      },
+      "classification": {
+        "label": "Window",
+        "confidence": 0.9,
+        "method": "hybrid_rules",
+        "evidence": [
+          "layer name indicates window: window",
+          "entity_type=LINE",
+          "layer=A-WINDOW"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A07",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-dxf/column/6cabd0b4-f897-51ae-8ee1-2acb4fc56eaf",
+      "project_id": "simple-house-dxf",
+      "type": "Column",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A05",
+        "layer": "A-COLS",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A05",
+      "bbox": {
+        "min_x": 1350.0,
+        "min_y": 1350.0,
+        "min_z": 0.0,
+        "max_x": 1650.0,
+        "max_y": 1650.0,
+        "max_z": 0.0
+      },
+      "placement": {},
+      "properties": {
+        "cad_entity_type": "CIRCLE",
+        "layer": "A-COLS",
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0
+      },
+      "classification": {
+        "label": "Column",
+        "confidence": 0.88,
+        "method": "hybrid_rules",
+        "evidence": [
+          "layer name indicates column: col",
+          "entity_type=CIRCLE",
+          "layer=A-COLS"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A05",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    },
+    {
+      "id": "aec://project/simple-house-dxf/space/30da9fa3-01b7-5472-b836-a626591659e6",
+      "project_id": "simple-house-dxf",
+      "type": "Space",
+      "source": {
+        "file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "format": "DXF",
+        "entity_id": "A06",
+        "layer": "0",
+        "artifact_id": "AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451"
+      },
+      "geometry_ref": "aec://artifact/AEC-ART-SIMPLE-HOUSE-DXF-CAD-DXF-52D0FADF2D9CA451/geometry/A06",
+      "bbox": {
+        "min_x": 500.0,
+        "min_y": 3500.0,
+        "min_z": 0.0,
+        "max_x": 500.0,
+        "max_y": 3500.0,
+        "max_z": 0.0
+      },
+      "placement": [
+        500.0,
+        3500.0,
+        0.0
+      ],
+      "properties": {
+        "cad_entity_type": "TEXT",
+        "layer": "0",
+        "text": "LIVING ROOM",
+        "height": 250.0,
+        "rotation": 0.0,
+        "color": 256,
+        "linetype": "BYLAYER",
+        "lineweight": -1,
+        "thickness": 0,
+        "annotation_role": "Annotation",
+        "roomName": "LIVING ROOM"
+      },
+      "classification": {
+        "label": "Space",
+        "confidence": 0.82,
+        "method": "text_semantics",
+        "evidence": [
+          "text denotes Space: LIVING ROOM",
+          "entity_type=text",
+          "layer=0"
+        ],
+        "state": "ACCEPT_WITH_WARNING"
+      },
+      "provenance": {
+        "source_file": "projects/simple-house-dxf/01_RAW/CAD/DXF/simple_house.dxf",
+        "source_object": "A06",
+        "source_format": "DXF",
+        "source_hash": "52d0fadf2d9ca451585ab71f7691c389c25262a78490964919f2eca302de2cc5",
+        "parser": "ezdxf",
+        "parser_version": "1.4.5",
+        "timestamp": "2026-11-07T14:42:01Z",
+        "agent": "aec-dxf-ingest",
+        "transformation": "normalized-to-cair",
+        "derived_from": []
+      },
+      "version": {
+        "version": 1,
+        "revision": "V001",
+        "valid_from": "2026-11-07T14:42:01Z"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/wall/69fe2141-6962-5f4e-9e43-25e4ef3f891d",
+      "confidence": 0.91,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/wall/b678d4a1-a91b-56ed-acd3-2e2e23b8cfbe",
+      "confidence": 0.91,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/door/9927757b-3ff7-59e5-9f04-442c63310312",
+      "confidence": 0.9,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/door/2a48393c-0ef7-54fb-af1c-3090cac5427c",
+      "confidence": 0.9,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/window/62b9b9ac-8e89-5d14-b1c3-6ed991bde5d0",
+      "confidence": 0.9,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/column/6cabd0b4-f897-51ae-8ee1-2acb4fc56eaf",
+      "confidence": 0.88,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/space/30da9fa3-01b7-5472-b836-a626591659e6",
+      "confidence": 0.82,
+      "provenance": {}
+    },
+    {
+      "subject": "aec://project/simple-house-dxf/door/9927757b-3ff7-59e5-9f04-442c63310312",
+      "predicate": "hostedBy",
+      "object": "aec://project/simple-house-dxf/wall/69fe2141-6962-5f4e-9e43-25e4ef3f891d",
+      "confidence": 0.9,
+      "provenance": {
+        "method": "opening_point_on_wall_segment",
+        "agent": "aec-spatial-relations",
+        "distance": 0.0,
+        "tolerance": 300.0
+      }
+    },
+    {
+      "subject": "aec://project/simple-house-dxf/door/2a48393c-0ef7-54fb-af1c-3090cac5427c",
+      "predicate": "hostedBy",
+      "object": "aec://project/simple-house-dxf/wall/69fe2141-6962-5f4e-9e43-25e4ef3f891d",
+      "confidence": 0.9,
+      "provenance": {
+        "method": "opening_point_on_wall_segment",
+        "agent": "aec-spatial-relations",
+        "distance": 0.0,
+        "tolerance": 300.0
+      }
+    },
+    {
+      "subject": "aec://project/simple-house-dxf/window/62b9b9ac-8e89-5d14-b1c3-6ed991bde5d0",
+      "predicate": "hostedBy",
+      "object": "aec://project/simple-house-dxf/wall/69fe2141-6962-5f4e-9e43-25e4ef3f891d",
+      "confidence": 0.9,
+      "provenance": {
+        "method": "opening_point_on_wall_segment",
+        "agent": "aec-spatial-relations",
+        "distance": 0.0,
+        "tolerance": 300.0
+      }
+    },
+    {
+      "subject": "aec://project/simple-house-dxf/space/30da9fa3-01b7-5472-b836-a626591659e6",
+      "predicate": "containsElement",
+      "object": "aec://project/simple-house-dxf/column/6cabd0b4-f897-51ae-8ee1-2acb4fc56eaf",
+      "confidence": 0.7,
+      "provenance": {
+        "method": "nearest_room_label_without_wall_crossing",
+        "agent": "aec-spatial-relations",
+        "distance": 2236.1
+      }
+    }
+  ]
+}

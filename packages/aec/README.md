@@ -77,11 +77,28 @@ runtime from remote files. No client is assumed by default.
 
 Portable tables always include JSONL. If `pyarrow` is installed, Parquet is emitted as a derived acceleration format and the table manifest records both formats. Project graphs also emit CSV/GraphML and optional Parquet companions. Runtime indexes remain rebuildable from canonical JSON/JSONL.
 
+## End-to-end smoke run
+
+`scripts/e2e/e2e_smoke.py` drives the whole stack as real processes against a throwaway PostgreSQL
+database (AGE + pgvector >= 0.7 + PostGIS): the prototype CLI, MCP stdio and Streamable HTTP, the
+operational `init-db`/ingest/worker/search/`kg-build`, a full ArchiOffice knowledge-pack load, Graph RAG
+with citations and refusals, and the REST API with bearer auth and import-root guards. Models are
+replaced by an offline deterministic stub (`scripts/e2e/ollama_stub.py`; not semantic), so the run needs
+no network. CI runs it after the database test suite and uploads `e2e-report.json`.
+
+```bash
+python scripts/e2e/e2e_smoke.py --dsn postgresql://aec:<password>@127.0.0.1:55432/aec_e2e
+```
+
+Supported Python: 3.12 and 3.13 (CI runs both). `init-db` refuses pgvector older than 0.7 with an
+explicit message, because migration `0003_text_vectors` uses `halfvec`; the bundled
+`docker/Dockerfile.db` image ships a current pgvector.
+
 ## Operational Infrastructure & Database Streaming Backup
 
 For deployments using the `docker-compose.yml` stack, the `aec-db` service runs PostgreSQL 16 with the Apache AGE graph database extension. To protect against data loss without consuming constrained host disk space, Zero-Disk streaming backup and restore scripts are provided:
 
-- `scripts/ops/backup_db.sh`: Streams `pg_dump -F c -Z 6` directly to Google Drive (`gdrive:AEC-INTELLIGENCE/08_BACKUPS/db`) via `rclone rcat` and enforces a 30-day retention policy.
+- `scripts/ops/backup_db.sh`: Streams `pg_dump -F c -Z 6` directly to Google Drive (`gdrive:AEC-INTELLIGENCE/backups`) via `rclone rcat` and enforces a 30-day retention policy.
 - `scripts/ops/restore_db.sh`: Restores directly from Google Drive into `aec-db` via `rclone cat | docker exec -i aec-db pg_restore ...` with safety confirmation and latest-backup discovery.
 - Detailed operational guide and disaster recovery runbook: [`docs/database-backup-restore.md`](docs/database-backup-restore.md).
 
