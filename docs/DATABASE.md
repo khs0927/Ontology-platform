@@ -1,13 +1,13 @@
 # Unified database layout
 
-Since the ArchOntos merge (packages/regulation) Sion runs on **one PostgreSQL
+Since the ArchOntos integration Sion runs on **one PostgreSQL
 database with two schemas**. PostgreSQL stays the canonical truth; vectors,
 graph (AGE / LightRAG) and search remain rebuildable projections.
 
 | Schema | Owner | Tables | Migrations | Tracking table |
 |---|---|---|---|---|
 | `public` | Sion core | `ontology_versions`, `entity_types`, `relation_types`, `entities`, `artifacts`, `documents`, `chunks`, `relations`, `evidence`, `embeddings`, `outbox_events` | `migrations/001_core`, `002_vector`, `004_seed_core_types`, `006_outbox`, `007_relation_type_validates`, `009_relation_types_coexistence` (+ optional `005_age_projection`) | `public.sion_schema_migrations` |
-| `regulation` | ArchOntos | `source_document`, `source_version`, `artifact`, `evidence_span`, `assertion*`, `rule`, `rule_version`, `rule_assertion`, `evaluation`, `decision`, `domain_event`, `outbox_message`, `projection_checkpoint`, `embedding_projection`, `hyperedge*`, `action*`, `audit_log`, ... (29) | `packages/regulation/db/migrations/001..013` | `regulation.schema_migrations` |
+| `regulation` | ArchOntos | `source_document`, `source_version`, `artifact`, `evidence_span`, `assertion*`, `rule`, `rule_version`, `rule_assertion`, `evaluation`, `decision`, `domain_event`, `outbox_message`, `projection_checkpoint`, `embedding_projection`, `hyperedge*`, `action*`, `audit_log`, ... (29) | `archontos._migrations/001..013` (shipped in the pinned `archontos` dependency) | `regulation.schema_migrations` |
 
 The `pgcrypto` and `vector` extensions are installed once in `public`, so
 both schemas resolve `gen_random_uuid()` and `vector(n)`.

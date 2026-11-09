@@ -5,7 +5,8 @@ One database, two schemas:
 * ``public``      Sion core (``migrations/*.sql``): entities, relations, evidence,
                   artifacts, embeddings, outbox_events. Tracked in
                   ``public.sion_schema_migrations``.
-* ``regulation``  ArchOntos (``packages/regulation/db/migrations``), applied by
+* ``regulation``  ArchOntos (SQL shipped inside the pinned ``archontos`` dependency as
+                  ``archontos._migrations``), applied by
                   ArchOntos' own runner (``archontos.db.migrate``) with
                   ``search_path = regulation, public``; tracked in
                   ``regulation.schema_migrations``.
@@ -37,7 +38,6 @@ from pathlib import Path
 from .config import PROJECT_ROOT
 
 CORE_DIR = PROJECT_ROOT / "migrations"
-REGULATION_DIR = PROJECT_ROOT / "packages" / "regulation" / "db" / "migrations"
 CORE_SEQUENCE = (
     "001_core",
     "002_vector",
@@ -139,6 +139,23 @@ def apply_core(dsn: str, *, with_age: bool = False) -> list[str]:
     return applied_now
 
 
+def regulation_migrations_dir() -> Path:
+    """ArchOntos migrations: ``ARCHONTOS_MIGRATIONS_DIR`` or the copy shipped in the installed package."""
+    configured = os.getenv("ARCHONTOS_MIGRATIONS_DIR")
+    if configured:
+        return Path(configured)
+    try:
+        from archontos.db.migrate import packaged_migrations_dir
+    except ImportError as exc:
+        raise MigrationError(
+            "ArchOntos migrations need the 'regulation' extra: pip install 'sion-ontology-platform[regulation]'"
+        ) from exc
+    found = packaged_migrations_dir()
+    if found is None:
+        raise MigrationError("the installed archontos ships no migrations; reinstall the pinned version")
+    return found
+
+
 async def _apply_regulation(dsn: str, schema: str) -> list[str]:
     import asyncpg
     from archontos.db.migrate import apply_migrations, use_schema
@@ -146,7 +163,7 @@ async def _apply_regulation(dsn: str, schema: str) -> list[str]:
     conn = await asyncpg.connect(plain_dsn(dsn), timeout=30)
     try:
         await use_schema(conn, schema)
-        return await apply_migrations(conn, REGULATION_DIR)
+        return await apply_migrations(conn, regulation_migrations_dir())
     finally:
         await conn.close()
 
@@ -177,7 +194,10 @@ def status(dsn: str, *, schema: str = "regulation", with_age: bool = False) -> d
             if reg_table and _SCHEMA.match(schema)
             else []
         )
-    reg_all = sorted(p.stem for p in REGULATION_DIR.glob("*.sql"))
+    try:
+        reg_all = sorted(p.stem for p in regulation_migrations_dir().glob("*.sql"))
+    except MigrationError:  # regulation extra not installed: report what the database holds
+        reg_all = list(reg_applied)
     return {
         "core": {
             "applied": [m.version for m in core if m.version in recorded],
