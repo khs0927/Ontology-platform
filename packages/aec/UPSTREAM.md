@@ -8,6 +8,8 @@ Edit it here. The upstream repository is being frozen (docs/CONSOLIDATION_PLAN.m
 - **In sync with Ontology `master` @ `8938175`** (`89381756cb9e9fcc90ce0ea2e719a9d53b94ad43`, #104), as of 2026-11-09.
   Each commit is listed in [`docs/AEC_CATCHUP_2026-11-09.md`](../../docs/AEC_CATCHUP_2026-11-09.md). The platform
   commits carry an `Upstream-Commit:` trailer.
+- Also carries Ontology `7c35364` (#105, backfill-storey) and the QGIS/runtime-discovery changes of the
+  draft Ontology #106 @ `fd7394e`. If #106 changes before it merges, replay the difference.
 
 ## Intentional differences from Ontology @ 8938175
 
