@@ -208,7 +208,7 @@ wheels = [
 [[package]]
 name = "archontos"
 version = "0.1.0"
-source = { git = "https://github.com/khs0927/ArchOntos?rev=e69c69e8735c854a51584b0697302a47d97dfd5e#e69c69e8735c854a51584b0697302a47d97dfd5e" }
+source = { git = "https://github.com/khs0927/ArchOntos?rev=534367c8e4f0389d0565e0539a1a5b72ef332c1d#534367c8e4f0389d0565e0539a1a5b72ef332c1d" }
 dependencies = [
     { name = "asyncpg" },
     { name = "fastapi" },
@@ -2991,7 +2991,7 @@ validation = [
 
 [package.metadata]
 requires-dist = [
-    { name = "archontos", marker = "python_full_version < '3.15' and extra == 'regulation'", git = "https://github.com/khs0927/ArchOntos?rev=e69c69e8735c854a51584b0697302a47d97dfd5e" },
+    { name = "archontos", marker = "python_full_version < '3.15' and extra == 'regulation'", git = "https://github.com/khs0927/ArchOntos?rev=534367c8e4f0389d0565e0539a1a5b72ef332c1d" },
     { name = "asyncpg", marker = "extra == 'rag'", specifier = "==0.32.0" },
     { name = "asyncpg", marker = "extra == 'regulation'", specifier = "==0.32.0" },
     { name = "build", marker = "extra == 'dev'", specifier = "==1.6.1" },
