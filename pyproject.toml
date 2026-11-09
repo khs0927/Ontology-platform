@@ -45,9 +45,11 @@ drive = [
   "google-api-python-client>=2.201,<3",
   "google-auth>=2.60,<3",
 ]
-# ArchOntos regulation services (packages/regulation). The rule evaluator itself only needs
-# the core deps; this extra adds what the services, migrator and storage adapters import.
+# ArchOntos (rule evaluator, regulation services, migrator) is a real dependency, pinned to
+# one commit of khs0927/ArchOntos -- never vendored (tests/test_archontos_dependency.py).
+# Bump the SHA here and in docs/INTEGRATION_CONTRACTS.md together, then `uv lock`.
 regulation = [
+  "archontos @ git+https://github.com/khs0927/ArchOntos@b968c69895f317d76612c3a986b6aa9201849c5b ; python_version < '3.15'",
   "pydantic-settings>=2.7,<3",
   "sqlalchemy[asyncio]==2.1.3",
   "asyncpg==0.32.0",
@@ -105,15 +107,13 @@ ignore = ["E501", "E701", "E702", "E402"]  # existing upstream style; tighten la
 testpaths = ["tests", "packages"]
 addopts = "-q --import-mode=importlib"
 # Subtree packages under packages/ ship test suites that import modules which are
-# not installed as distributions (extension dirs, the ArchOntos repo root for
-# `apps.*`). Put those roots on sys.path so `pytest` from the repo root collects them.
+# not installed as distributions (extension dirs). Put those roots on sys.path so `pytest` from the repo root collects them.
 pythonpath = [
   "tests",  # tests/ modules import sibling helpers (importlib mode drops rootdir insertion)
   "packages/aec/tests",  # AEC acceptance suites import the sibling _runtimes helper
   "packages/aec/extensions/drawing_context",
   "packages/aec/extensions/external_capabilities",
   "packages/aec/extensions/intelligence_fabric",
-  "packages/regulation",
 ]
 
 [tool.setuptools]
@@ -128,20 +128,6 @@ packages = [
   "sion_cair",
   "sion_drive_store",
   "sion_graphrag",
-  # ArchOntos (git subtree at packages/regulation, src layout)
-  "archontos",
-  "archontos.actions",
-  "archontos.assertions",
-  "archontos.db",
-  "archontos.domain",
-  "archontos.graph",
-  "archontos.ingestion",
-  "archontos.integration",
-  "archontos.normalization",
-  "archontos.projection",
-  "archontos.query",
-  "archontos.rules",
-  "archontos.storage",
   # GOD-CAD (git subtree at packages/cad/god-cad)
   "god_cad",
   "god_cad.adapters",
@@ -160,7 +146,6 @@ sion_bim = "packages/bim/sion_bim"
 sion_cair = "packages/cair/sion_cair"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
-archontos = "packages/regulation/src/archontos"
 god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
 
