@@ -54,9 +54,9 @@ Open, with details in `docs/regulation/IMPLEMENTATION-STATUS.md`:
 
 통합 2단계(드리프트 해소): Ontology `master`에서 가져오기 이후 바뀐 내용을 `packages/aec`로 이식했습니다. 자세한 목록은 [AEC_CATCHUP_2026-11-09.md](AEC_CATCHUP_2026-11-09.md), 남은 의도적 차이는 [`packages/aec/UPSTREAM.md`](../packages/aec/UPSTREAM.md)에 있습니다.
 
-- 가져오기 기준 `d39a56a`부터 **`8938175`(#104)까지 동기화**했습니다. 이식한 PR: #97, #98, #95, #99, #100(나머지 문서·테스트), #102(#101 포함), #103, #104. #94와 #96은 이미 이식되어 있었습니다.
+- 가져오기 기준 `d39a56a`부터 **`7c35364`(#105)까지 동기화**했습니다. 이식한 PR: #97, #98, #95, #99, #100(나머지 문서·테스트), #102(#101 포함), #103, #104, #105(`backfill-storey`, #114 병합 뒤 추가 이식). #94와 #96은 이미 이식되어 있었습니다.
 - 이식하지 않은 것: `.github/workflows`(모노레포에서는 `aec.yml`만 실행됨)와 Ontology 저장소 메타 문서 3개.
 - 충돌은 플랫폼 쪽을 우선해 해결했습니다. 예외: netguard는 더 새롭고 엄격한 업스트림 #99(DNS를 신뢰하지 않음)를 택했습니다. LAN 호스트는 `AEC_LOCAL_HOSTNAMES`로 허용합니다.
 - 추가 수정: `restore_db.sh` 기본 원격 경로를 `backup_db.sh`와 같게(`gdrive:AEC-INTELLIGENCE/backups`) 맞췄습니다.
 - `aec-cair-snapshot/1` 출력은 바뀌지 않았습니다(객체 id·필드가 픽스처와 같고 타임스탬프만 다름). 픽스처와 `upstream_commit`은 그대로입니다.
-- 검증(Python 3.13): 루트 `pytest` 1971 passed / 59 skipped, `packages/aec/tests` 908 passed / 53 skipped, 확장 테스트 13+135+116 passed, `ruff` 통과. PostgreSQL 테스트와 E2E 스모크는 이 컨테이너에서 실행하지 못했습니다(디스크 공간 부족).
+- 검증(Python 3.13, #105 이식 후): 루트 `pytest` 1975 passed / 60 skipped, `packages/aec/tests` 912 passed / 54 skipped, 확장 테스트 13+135+116 passed, `ruff` 통과. PostgreSQL 테스트와 E2E 스모크는 이 컨테이너에서 실행하지 못했습니다(디스크 공간 부족).

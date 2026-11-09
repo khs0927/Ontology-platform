@@ -5,13 +5,13 @@ Edit it here. The upstream repository is being frozen (docs/CONSOLIDATION_PLAN.m
 
 - Imported 2026-10-08 from Ontology `master` @ `d39a56a`. The import came from a filter-repo copy, so the hashes
   differ and `git subtree pull` does not work.
-- **In sync with Ontology `master` @ `8938175`** (`89381756cb9e9fcc90ce0ea2e719a9d53b94ad43`, #104), as of 2026-11-09.
+- **In sync with Ontology `master` @ `7c35364`** (`7c35364b75cb14a2e4c43b3b039fadea09d6ea00`, #105), as of 2026-11-09.
   Each commit is listed in [`docs/AEC_CATCHUP_2026-11-09.md`](../../docs/AEC_CATCHUP_2026-11-09.md). The platform
   commits carry an `Upstream-Commit:` trailer.
 
-## Intentional differences from Ontology @ 8938175
+## Intentional differences from Ontology @ 7c35364
 
-A tree diff against Ontology @ `8938175` shows only the items below. The diff leaves out `.github/`,
+A tree diff against Ontology @ `7c35364` shows only the items below. The diff leaves out `.github/`,
 `docs/CONSOLIDATION_PLAN.md`, `docs/CLOUD_COMPLETION_2026-11-05.md` and `docs/ROLE_IN_ECOSYSTEM.md`.
 
 | Area | Files | Why |

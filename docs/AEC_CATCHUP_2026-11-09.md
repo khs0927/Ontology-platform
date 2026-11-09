@@ -5,10 +5,11 @@
 
 ## 요약 (Korean)
 
-- `packages/aec`는 이제 **khs0927/Ontology `master` @ `8938175`**(`89381756cb9e9fcc90ce0ea2e719a9d53b94ad43`, #104)까지
-  반영되었습니다. Ontology `master`를 동결할 기준 커밋이 이것입니다.
-- 가져오기 기준(import base)은 Ontology `d39a56a`(#93)입니다. 그 뒤 `master`의 first-parent 커밋 10개를 하나씩 검토했습니다.
-  7개는 새로 이식했고, 2개(#94, #96)는 이미 이식되어 있었으며, #100은 대부분 이미 들어와 있어 나머지 문서와 테스트만 추가했습니다.
+- `packages/aec`는 이제 **khs0927/Ontology `master` @ `7c35364`**(`7c35364b75cb14a2e4c43b3b039fadea09d6ea00`, #105)까지
+  반영되었습니다. Ontology `master`를 동결할 기준 커밋이 이것입니다. (#114 병합 시점에는 `8938175`(#104)였고,
+  그 뒤 들어온 #105 `backfill-storey`를 같은 방법으로 추가 이식했습니다.)
+- 가져오기 기준(import base)은 Ontology `d39a56a`(#93)입니다. 그 뒤 `master`의 first-parent 커밋 11개를 하나씩 검토했습니다.
+  8개는 새로 이식했고, 2개(#94, #96)는 이미 이식되어 있었으며, #100은 대부분 이미 들어와 있어 나머지 문서와 테스트만 추가했습니다.
 - 양쪽이 같이 고친 곳은 플랫폼 쪽 최신 변경을 우선했습니다. 예외는 netguard(#99) 하나입니다. 업스트림 쪽이 더 새롭고(10-17)
   더 안전해서(DNS를 전혀 신뢰하지 않음) 업스트림을 택했고, 플랫폼 테스트를 거기에 맞췄습니다.
 - `aec-cair-snapshot/1` 계약 출력은 바뀌지 않았습니다. 고정 픽스처와 `upstream_commit`(`d81598f`)은 그대로 둡니다.
@@ -48,6 +49,7 @@ are why #100 was mostly a no-op here.
 | `0e2db4d` | #102 interrupted work, Python 3.13, E2E smoke harness, pgvector guard, pg client match; includes the #101 ArchiOffice prune-before-relink fix | **ported (conflict)** | `c04de86` | `backup.py` and `load_archioffice.py` merged by hand. CI workflow changes not ported |
 | `bf447df` | #103 consolidation plan + producer-side contract test | **ported** | `f851bad` | `tests/contracts/aec-cair-snapshot-1.schema.json` is byte-identical to `sion_core`'s copy. The plan document is not duplicated |
 | `8938175` | #104 storey from frames/layers/level text; operational CLI loads `.env` | **ported (conflict)** | `984a17d` | `parsers.py`: kept the platform's sheet-number collectors (#51) and added `level_texts` |
+| `7c35364` | #105 `backfill-storey`: fill empty storey of loaded objects from stored payloads, no re-parse | **ported** | `a3c00a7` | Clean. `operational/cli.py` (new subcommand), `operational/storey_backfill.py`, `tests/test_storey_backfill.py`. No workflow changes |
 
 Open Ontology PRs are not merged upstream, so they are not ported. #101 is covered by #102. #80–#91 are covered by #100.
 
@@ -87,7 +89,7 @@ Open Ontology PRs are not merged upstream, so they are not ported. #101 is cover
 `packages/aec` CLI output for `simple_house.dxf` / `simple_house.ifc` (project ids `simple-house-dxf` / `simple-house-ifc`)
 was compared field by field with the pinned fixtures. The object ids, types, properties, relationships and metadata are
 identical. Only timestamps (`created_at`, `provenance.timestamp`, `version.valid_from`), `snapshot_id` and the source
-path spelling differ. The #104 storey fill does not touch these fixtures, so the fixtures and
+path spelling differ. The #104 storey fill and the #105 backfill do not touch these fixtures, so the fixtures and
 `upstream_commit = d81598f` are **unchanged**.
 
 ## Verification (cloud, 2026-11-09, Python 3.13)
@@ -100,13 +102,14 @@ path spelling differ. The #104 storey fill does not touch these fixtures, so the
 | extensions: intelligence_fabric / drawing_context / external_capabilities | 13 / 135 / 116 passed |
 | `python -m compileall -q src extensions` | ok |
 | `pytest` (root: `tests` + `packages`, `[aec,dev]` extras) | 1971 passed, 59 skipped (incl. `tests/test_aec_cair_ingest_contract.py`, 15 passed) |
+| After the #105 port (`a3c00a7`): `ruff check` (root, packages/aec), `pytest packages/aec/tests`, root `pytest` | passed; 912 passed / 54 skipped; 1975 passed / 60 skipped (`test_storey_backfill.py`: 4 passed, 1 PostgreSQL test skipped) |
 
 Not run here: the PostgreSQL-backed suites and `scripts/e2e/e2e_smoke.py`. The AGE/pgvector image could not be built
 for lack of disk space in the container. CI job `aec-operational-postgres` runs the DB suites.
 
 ## Follow-ups
 
-1. Owner: freeze Ontology `master` at **`8938175`**: README banner, branch protection, CI only. Any later commit
+1. Owner: freeze Ontology `master` at **`7c35364`**: README banner, branch protection, CI only. Any later commit
    on Ontology `master` must be replayed the same way before the freeze.
 2. Wire `packages/aec/scripts/e2e/e2e_smoke.py` into `aec.yml` (`aec-operational-postgres`, after the DB tests) and add
    a 3.13 leg to the aec job.
