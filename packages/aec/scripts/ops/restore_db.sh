@@ -13,7 +13,7 @@ set -euo pipefail
 DOCKER_CONTAINER="${DOCKER_CONTAINER:-aec-db}"
 DB_USER="${DB_USER:-aec}"
 DB_NAME="${DB_NAME:-aec}"
-RCLONE_REMOTE="${RCLONE_REMOTE:-gdrive:AEC-INTELLIGENCE/08_BACKUPS/db}"
+RCLONE_REMOTE="${RCLONE_REMOTE:-gdrive:AEC-INTELLIGENCE/backups}"
 
 FORCE_RESTORE=false
 TARGET_FILE=""
@@ -62,7 +62,7 @@ usage() {
   DOCKER_CONTAINER  대상 Docker 컨테이너명 (기본값: aec-db)
   DB_USER           PostgreSQL 접속 계정 (기본값: aec)
   DB_NAME           대상 데이터베이스명 (기본값: aec)
-  RCLONE_REMOTE     rclone 원격지 디렉터리 경로 (기본값: gdrive:AEC-INTELLIGENCE/08_BACKUPS/db)
+  RCLONE_REMOTE     rclone 원격지 디렉터리 경로 (기본값: gdrive:AEC-INTELLIGENCE/backups)
 
 사용 예시:
   # 1. 최신 백업 파일 자동 탐색 및 대화형 복원
