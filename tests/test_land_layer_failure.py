@@ -3,6 +3,12 @@
 import pytest
 from sion_api import regulation
 
+# Only the end-to-end evaluation needs the ArchOntos rule engine (the optional
+# 'regulation' extra); every other test here asserts fail-closed behaviour without it.
+needs_regulation = pytest.mark.skipif(
+    not regulation.status()["available"], reason="needs the 'regulation' extra"
+)
+
 
 @pytest.fixture
 def parcel():
@@ -65,6 +71,7 @@ def test_error_free_polygon_and_point_have_distinct_absence_semantics(parcel):
     assert "in_development_restriction_zone" in point["unverified"]
 
 
+@needs_regulation
 def test_unknown_layer_cannot_produce_a_pass_for_unverified_absence(parcel):
     parcel["layer_errors"] = [{"layer": "LT_C_UNKNOWN123", "error_code": "TIMEOUT"}]
     facts = regulation.facts_from_land_parcel(parcel)
