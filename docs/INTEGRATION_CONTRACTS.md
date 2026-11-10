@@ -1,8 +1,9 @@
 # Integration contracts: bridged repositories
 
-`khs0927/Ontology-platform` is the main monorepo. Four repositories were **merged** with git subtree
-(history kept): ArchOntos → `packages/regulation`, Ontology → `packages/aec`, GOD-CAD →
-`packages/cad/god-cad`, plus the Sion core. Five repositories stay **separate** and are connected only
+`khs0927/Ontology-platform` is the main monorepo. Ontology → `packages/aec` and GOD-CAD →
+`packages/cad/god-cad` were **merged** with git subtree (history kept), plus the Sion core.
+**ArchOntos is a pinned dependency, not a copy** (see "ArchOntos dependency pin" below); the former
+`packages/regulation` subtree was removed. Five repositories stay **separate** and are connected only
 through the contracts below. They have their own runtimes (.NET 10 / AutoCAD 2027, Node),
 release cycles or licences, and merging them would add a CAD-host toolchain to this repo.
 
@@ -30,6 +31,24 @@ contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsons
 Contract tests: `tests/test_integration_contracts.py`. Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
+
+## ArchOntos dependency pin
+
+| Dependency | Pinned commit | Declared in |
+|---|---|---|
+| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) (`archontos`) | `534367c8e4f0389d0565e0539a1a5b72ef332c1d` | root `pyproject.toml`, `regulation` extra (`archontos @ git+https://github.com/khs0927/ArchOntos@<sha>`); resolved in `uv.lock` |
+
+Contract = that exact ArchOntos commit: `archontos.rules.engine` (rule DSL evaluator used by
+`sion_api.regulation`), `archontos.db.migrate` (`use_schema`, `apply_migrations`,
+`packaged_migrations_dir`) and the SQL migrations shipped as `archontos._migrations`, applied
+into the `regulation` schema by `sion_api.migrate`.
+
+Pin policy: pin a full SHA reachable from ArchOntos `main`. The current pin is the head of
+[khs0927/ArchOntos#22](https://github.com/khs0927/ArchOntos/pull/22) (upstreams the shared-schema
+option that the vendored copy carried, and packages the migrations); **bump it to the merge commit
+on `main` once that PR merges.** Never pin unmerged feature-stack branches. Bump pyproject, this
+table and `uv.lock` together; `tests/test_archontos_dependency.py` enforces agreement and that
+no `archontos/` package is re-vendored under `packages/`.
 
 ## Pinned upstream revisions
 

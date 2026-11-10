@@ -34,9 +34,12 @@
 - A canonical Drive snapshot may be promoted only from a clean Git working tree.
 
 ## Integration
-- This is the main monorepo. ArchOntos (`packages/regulation`), Ontology (`packages/aec`) and GOD-CAD
-  (`packages/cad/god-cad`) are git subtrees: edit them here, keep their own tests and CI green
-  (`.github/workflows/regulation.yml`, `aec.yml`), and do not rebase branches that contain subtree merges.
+- This is the main monorepo. Ontology (`packages/aec`) and GOD-CAD (`packages/cad/god-cad`) are git
+  subtrees: edit them here, keep their own tests and CI green (`aec.yml`), and do not rebase branches
+  that contain subtree merges.
+- ArchOntos is **not** vendored: it is the `archontos` dependency of the `regulation` extra, pinned to a
+  commit of khs0927/ArchOntos (`docs/INTEGRATION_CONTRACTS.md`, `packages/regulation/README.md`). Change
+  ArchOntos in its own repo, then bump the pin; never copy `archontos/` under `packages/`.
 - power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad and CAD-MCP are separate repos bridged by
   the contracts in `docs/INTEGRATION_CONTRACTS.md` / `sion_core.contracts`. Do not change those repos from
   here. When an upstream contract changes, update the schema, the pinned commit and the contract tests in
