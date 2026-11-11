@@ -185,4 +185,59 @@ Every deleted tip was contained in `origin/main` at deletion time, so the commit
 - No deletion was rejected by the remote; 0 skipped/failed items.
 - Every deleted tip was re-verified as an ancestor of the then-current `origin/main` immediately before its deletion, and every deletion was confirmed by re-listing remote heads (0 of 32 still present).
 
+## Second pass - 2026-11-12 04:05-04:15 KST
+
+Run from the lead clone after the cutover, against the remote refs only. No repository file was edited for the cleanup itself and no commit was pushed by it.
+
+**Backup first.** A bundle of every ref was created before any deletion and verified:
+
+```
+%USERPROFILE%\sion-bundles\ontology-platform-all-refs-20261112-040515.bundle   (8,534,428 bytes)
+$ git bundle verify ... -> "The bundle records a complete history."
+```
+
+The same file was copied to the Drive backup lake (`G:\내 드라이브\AEC-INTELLIGENCE\backups\`), so the state before the deletion is recoverable off the machine as well.
+
+**Selection rule.** A remote head was deleted only when all of the following held:
+
+- it is not `main`, not `gh-pages`, not `release/*`;
+- it is not the head of an open or draft PR (no PR was open on the repository at that moment);
+- its tip is either an ancestor of the then-current `origin/main` (`git merge-base --is-ancestor`) **or** it carries no patch-unique commit (`git cherry origin/main <branch>` reports only `-`, i.e. every commit is already reachable in `main` by patch id).
+
+| Group | Count |
+| --- | --- |
+| Remote heads at the start of the second pass | 54 |
+| Deleted: tip is an ancestor of `origin/main` | 8 |
+| Deleted: no patch-unique commit left | 11 |
+| Deleted: total | 19 |
+| Skipped or rejected | 0 |
+| Remote heads after the second pass | 35 |
+| Kept: `main` | 1 |
+| Kept: heads with patch-unique commits (real pending work) | 34 |
+
+**Deleted branches (19)**
+
+```
+ci/aec-drift-inventory-20261109      claude/cloud-work-completion-upgrade-beuecn
+claude/gallant-goodall-u0z28w        claude/youthful-johnson-tygvk1
+docs/main-pc-cutover-20261112        feat/aec-gdrive-cad-pack-20261109
+feat/embedhub-nvidia                 fix/switch-legacy-prefix
+codex/fix-private-auth-openapi-20260924   codex/fix-windows-file-uri-test-20260924
+docs/mcp-status-20261024              docs/mobile-readonly-snapshot-mcp
+docs/zium-lineweight-label-probe      fix/aec-task-registration-midnight
+fix/graphrag-audit-isolation          grokbot/fix-known-relation-types-20261028
+grokbot/ontology-refresh-20261028     issue-81/graphrag-eval-fixture
+test/sketchup-asset-schema
+```
+
+The eleven "no patch-unique commit" branches are branches whose work was merged by a squash or by a later rebase, so their tips are not ancestors of `main` while their content is already in `main` (`git cherry` reports `-` for every commit). They were therefore kept by the naive ancestor rule and deleted only after the patch-id check.
+
+**Kept on purpose (34 heads with patch-unique commits)**
+
+`bench/sion-nvidia-actual-ci-20261107`, `claude/aec-port-ontology-105-106`, `claude/project-thread-au08rs`, `codex/cair-error-boundary-20261003`, `codex/circleci-restore-cutover-20260924`, `codex/p0-remediation-20260924`, `codex/pg-verification-integrity-20260923`, `codex/restore-github-actions-ci-20260924`, `dependabot/uv/pypdf-6.21.2`, `docs/chatgpt-audit-20261002-1105-e92060`, `docs/ci-os-matrix`, `docs/sketchup-agent-playbook`, `docs/status-20261009-pr51-eval`, `feat/zium-guidelines-ontology`, `feat/aec-assets-mcp`, `feat/aec-cair-federation-20261001`, `feat/aec-catchup-108-109-20261111`, `feat/gap-fill-upgrades`, `feat/hindsight-advisory-memory-20261001`, `feat/hindsight-advisory-memory-20261002`, `feat/local-gap-fill-and-upgrades`, `feat/scoped-api-security-20261001`, `feat/sion-auth-firewall-20261001`, `feat/temporal-relations-20261001`, `feat/zium-nanumsquare`, `feat/zium-standards-manifest`, `fix/aec-backup-docker-cp-mirror`, `fix/land-layer-fail-closed`, `fix/review-document-candidates`, `grokbot/hueflow-mcp2-coexistence-20261027`, `grokbot/law-knowledge`, `grokbot/packages-tests`, `test/ci-os-coverage`.
+
+These carry work that is not in `main` yet, so they are left for their owners to finish, merge or drop. `fix/review-document-candidates` is the branch of PR #137, merged at the time of this pass.
+
+**Verification.** Every deletion was confirmed by re-listing the remote heads (`git ls-remote --heads origin`): 54 before, 35 after, and none of the 19 names is present any more. `origin/HEAD` still points at `main`.
+
 
