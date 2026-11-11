@@ -92,9 +92,26 @@ up at `/review` and stay `unverified` until a person approves them.
 
 ### Reviewing them quickly (`/review`)
 
-- Filter by relation type, source file, minimum evidence count / confidence, `추천` hint or text,
-  group by type / source / hint, then tick rows (or a group, or `필터 결과 전체 선택`).
-- Keyboard: `j`/`k` move, `x` select, `a` approve, `r` reject (per-item routes, optional note).
+Opening the page, picking a queue, or changing a filter never writes a decision. The `추천`
+badge stays display-only. A decision is recorded only when a person uses 승인/거절, the `a`/`r`
+keys, or 선택 일괄 승인/거절 on rows they checked.
+
+- Queue chips (counts follow the status filter): **맵 관계** (issue #3), **SketchUp 분류**
+  (`predicate=classified_as`, the 214 assignments), **워크플로** (queued candidates whose predicate
+  is a guideline or grouping link), **기타** (level, block, and other inferred candidates). The chip
+  also sets a reading group (type, 도착 노드, or 출발 노드) and does not select rows. The importer
+  still queues only inferred or imported candidates, so `source_kind=document` links stay out of
+  this page.
+- Each card shows `basis_ko` inline. Map edges, which have no `basis_ko`, show the source and
+  target descriptions and the first evidence excerpt. The rest of the excerpts stay under
+  **노드 설명 · 근거 원문**.
+- Filter by relation type, source file, evidence count, confidence minimum and maximum (bands:
+  0.8 이상, 0.6–0.7, 0.5 이하, 미기재), `추천`, or text. Group by type, source file, hint,
+  **출발 노드**, or **도착 노드**.
+- Tick rows, a group, or `필터 결과 전체 선택`, then `선택 일괄 승인/거절`. `한 건씩` (also the
+  phone default) shows one card with a bottom 승인/거절 bar. Keyboard: `j`/`k` move, `n`/`p`
+  next/previous pending, `x` select, `a` approve, `r` reject, `f` toggle one-card mode.
+  The progress bar is pending/approved/rejected plus how many decisions this page recorded.
 - `선택 일괄 승인/거절` calls `POST /api/v1/relations/candidates/bulk`
   `{"ids": [...], "decision": "approve"|"reject", "note": "<required>", "reviewer": "..."}`
   (`write:knowledge`). Only the listed ids are touched; each gets the same `properties.review`
