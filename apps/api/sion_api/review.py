@@ -74,7 +74,13 @@ log = logging.getLogger(__name__)
 
 STATUS_TO_STATE = {"pending": "unverified", "approved": "human_verified", "rejected": "rejected"}
 STATE_TO_STATUS = {v: k for k, v in STATUS_TO_STATE.items()}
-CANDIDATE_SOURCE_KINDS = ("inferred", "imported")
+# The guideline links of the SketchUp knowledge pack are stored with
+# source_kind="document" (they cite an authored guideline file plus a line
+# locator), and docs/SKETCHUP_KNOWLEDGE.md states that both the classifications
+# and the guideline links are review candidates. Listing only "inferred" and
+# "imported" hid the guideline links from /review, so the owner's queue was
+# silently incomplete.
+CANDIDATE_SOURCE_KINDS = ("inferred", "imported", "document")
 
 
 class ReviewError(Exception):
