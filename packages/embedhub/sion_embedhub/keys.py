@@ -22,9 +22,11 @@ class _Slot:
 
 
 class KeyPool:
+    """Round-robin key pool. An empty pool is valid: discovery must never fail, so listing local
+    models or benchmarking a local provider works without an NVIDIA key. The missing key only
+    surfaces as an error when an NVIDIA model is actually invoked (``Embedder``)."""
+
     def __init__(self, slots: list[_Slot], clock=time.monotonic):
-        if not slots:
-            raise RuntimeError("no API keys found in environment")
         self._slots = slots
         self._i = 0
         self._lock = threading.Lock()
@@ -52,6 +54,8 @@ class KeyPool:
 
     def acquire(self) -> _Slot:
         """Round-robin over keys that are not cooling down; if all cool, take the soonest."""
+        if not self._slots:
+            raise RuntimeError("no API keys found in environment")
         with self._lock:
             now = self._clock()
             for _ in range(len(self._slots)):
