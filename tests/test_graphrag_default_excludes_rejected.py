@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from sion_api import models
 from sion_api.main import create_app
 from sion_graphrag import GraphRagConfig, SionGraphRag
+from sion_graphrag.review_report import LIVE_INDEX_NOTICE
 from sqlalchemy import select
 
 STATES = {"a|RELATED_TO|hv": "human_verified", "a|RELATED_TO|un": "unverified", "a|RELATED_TO|rj": "rejected"}
@@ -72,6 +73,12 @@ def test_audit_preview_includes_rejected_without_starting_lightrag(tmp_path):
     counts = asyncio.run(engine.project(app.state.session_factory, include_rejected=True))
     assert counts == {"chunks": 7, "entities": 4, "relationships": 3}
     assert engine._rag is None
+
+
+def test_policy_notice_describes_rejected_preview_as_not_indexed():
+    assert "excludes rejected" in LIVE_INDEX_NOTICE
+    assert "preview counts" in LIVE_INDEX_NOTICE
+    assert "does not write" in LIVE_INDEX_NOTICE
 
 
 def test_project_endpoint_default_and_audit_flag(tmp_path):

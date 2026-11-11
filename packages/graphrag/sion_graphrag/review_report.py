@@ -37,8 +37,8 @@ from .projection import (
     resolve_verification_states,
 )
 
-# Intended default review policy: approved/machine-verified and pending relations;
-# /review-rejected relations only on request (audit/debug). The live engine does not apply it yet.
+# Default review policy: approved/machine-verified and pending relations.
+# /review-rejected relations are reported on request and are not written into the live index.
 DEFAULT_REPORT_REVIEW_STATES = ("verified", "unverified")
 AUDIT_REPORT_REVIEW_STATES = ("verified", "unverified", "rejected")
 REVIEW_BATCH_AGGREGATE = "review_batch"
@@ -46,7 +46,8 @@ REVIEW_BATCH_EVENT = "review.batch_decided"
 LIVE_INDEX_NOTICE = (
     "projected_under_policy and weight describe the review-state policy in review_states. The live "
     "GraphRAG index (POST /api/v1/graphrag/project) projects verified + unverified relations by "
-    "default and excludes rejected ones; ?include_rejected=true is an explicit audit projection."
+    "default and excludes rejected ones. ?include_rejected=true returns preview counts and does "
+    "not write them into the index."
 )
 FACT_VERIFICATION_NOTICE = (
     "A /review approval records a reviewer's judgement of a candidate; it does not verify the "
