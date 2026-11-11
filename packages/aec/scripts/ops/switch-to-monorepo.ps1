@@ -34,6 +34,10 @@
   powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-monorepo.ps1 -LegacyRoot C:\CODE\Ontology
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-monorepo.ps1 -LegacyRoot C:\CODE\Ontology -Apply
+.EXAMPLE
+  # parse this script and the ops scripts it calls, and prove native argv survives
+  # Windows PowerShell 5.1 and PowerShell 7 (no legacy checkout, no -Apply)
+  powershell -NoProfile -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-monorepo.ps1 -SelfTest
 #>
 [CmdletBinding()]
 param(
@@ -57,7 +61,8 @@ param(
     [switch]$SkipCompose,
     [switch]$SkipGraphRag,
     [switch]$NoResume,
-    [switch]$AllowNotMain
+    [switch]$AllowNotMain,
+    [switch]$SelfTest
 )
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -113,7 +118,7 @@ if (-not $ApiUrl) {
 if (-not $LogDir) { $LogDir = Join-Path $DataRoot 'bulk\logs' }
 if (-not $Config) { $Config = Join-Path $DataRoot 'bulk\sources.json' }
 $BackupDir = Join-Path $DataRoot "switch-backup\$stamp"
-New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
+# The log directory is created after -SelfTest. A self-test must not require D:\.
 $LogFile = Join-Path $LogDir "switch-to-monorepo-$stamp.log"
 $script:Warnings = New-Object System.Collections.Generic.List[string]
 
@@ -131,27 +136,124 @@ function Invoke-Change([string]$What, [scriptblock]$Action) {
     & $Action
 }
 
-function Invoke-Native([string]$Exe, [string[]]$Arguments, [string]$WorkDir = '') {
-    $old = Get-Location
-    if ($WorkDir) { Set-Location -LiteralPath $WorkDir }
+# Windows PowerShell 5.1 hands native arguments to CreateProcess with a broken quoter:
+# a double quote inside an argument is not escaped, so python -c 'print("venv ok")'
+# arrives as print(venv and dies with SyntaxError: '(' was never closed. PowerShell 7
+# on Windows does not share that bug, but the call operator is still the wrong place
+# to build a command line. Escape for CommandLineToArgvW and set ProcessStartInfo.Arguments
+# (the raw command-line tail). .NET does not escape that string again.
+function ConvertTo-WindowsCommandLine([string[]]$ArgumentList) {
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($argument in @($ArgumentList)) {
+        if ($null -eq $argument) { $argument = '' }
+        if ($sb.Length -gt 0) { [void]$sb.Append(' ') }
+        $needsQuote = ($argument.Length -eq 0)
+        if (-not $needsQuote) {
+            foreach ($ch in $argument.ToCharArray()) {
+                if ([char]::IsWhiteSpace($ch) -or $ch -eq '"') { $needsQuote = $true; break }
+            }
+        }
+        if (-not $needsQuote) { [void]$sb.Append($argument); continue }
+        [void]$sb.Append('"')
+        $chars = $argument.ToCharArray()
+        $idx = 0
+        while ($idx -lt $chars.Length) {
+            $c = $chars[$idx]
+            $idx++
+            if ($c -eq '\') {
+                $num = 1
+                while ($idx -lt $chars.Length -and $chars[$idx] -eq '\') { $idx++; $num++ }
+                if ($idx -ge $chars.Length) {
+                    for ($n = 0; $n -lt ($num * 2); $n++) { [void]$sb.Append('\') }
+                } elseif ($chars[$idx] -eq '"') {
+                    for ($n = 0; $n -lt ($num * 2 + 1); $n++) { [void]$sb.Append('\') }
+                    [void]$sb.Append('"')
+                    $idx++
+                } else {
+                    for ($n = 0; $n -lt $num; $n++) { [void]$sb.Append('\') }
+                }
+            } elseif ($c -eq '"') {
+                [void]$sb.Append('\')
+                [void]$sb.Append('"')
+            } else {
+                [void]$sb.Append($c)
+            }
+        }
+        [void]$sb.Append('"')
+    }
+    return $sb.ToString()
+}
+
+function Resolve-NativeExe([string]$Exe) {
+    if (-not $Exe) { throw 'native executable name is empty' }
+    if ([System.IO.Path]::IsPathRooted($Exe) -or (Test-Path -LiteralPath $Exe)) {
+        return (Resolve-Path -LiteralPath $Exe).Path
+    }
+    $cmd = Get-Command -Name $Exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($cmd -and $cmd.Source) { return $cmd.Source }
+    return $Exe
+}
+
+function Write-NativeLine([string]$Line) {
+    Write-Host "    $Line"
+    if (-not $script:LogFile) { return }
+    $parent = Split-Path -Parent $script:LogFile
+    if ($parent -and (Test-Path -LiteralPath $parent)) {
+        Add-Content -LiteralPath $script:LogFile -Value "    $Line" -Encoding UTF8
+    }
+}
+
+function Start-NativeProcess([string]$Exe, [string[]]$Arguments, [string]$WorkDir = '') {
+    if (-not $Arguments) { $Arguments = @() }
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = (Resolve-NativeExe $Exe)
+    $psi.Arguments = (ConvertTo-WindowsCommandLine $Arguments)
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.CreateNoWindow = $true
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    $psi.StandardOutputEncoding = $utf8
+    $psi.StandardErrorEncoding = $utf8
+    if ($WorkDir) { $psi.WorkingDirectory = (Resolve-Path -LiteralPath $WorkDir).Path }
+    $proc = New-Object System.Diagnostics.Process
+    $proc.StartInfo = $psi
     try {
-        $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-        & $Exe @Arguments 2>&1 | ForEach-Object { Add-Content -LiteralPath $LogFile -Value "    $_" -Encoding UTF8; Write-Host "    $_" }
-        $code = $LASTEXITCODE
-        $ErrorActionPreference = $prev
-        if ($code -ne 0) { throw "$Exe $($Arguments -join ' ') failed ($code)" }
-    } finally { Set-Location $old }
+        if (-not $proc.Start()) { throw "failed to start $Exe" }
+        # Drain both pipes together. Reading one to the end first deadlocks when the other fills.
+        $outTask = $proc.StandardOutput.ReadToEndAsync()
+        $errTask = $proc.StandardError.ReadToEndAsync()
+        $proc.WaitForExit() | Out-Null
+        $stdout = $outTask.GetAwaiter().GetResult()
+        $stderr = $errTask.GetAwaiter().GetResult()
+        if (-not $proc.HasExited) { $proc.WaitForExit() | Out-Null }
+        return [pscustomobject]@{ ExitCode = $proc.ExitCode; Stdout = $stdout; Stderr = $stderr }
+    } finally {
+        $proc.Dispose()
+    }
+}
+
+function Invoke-Native([string]$Exe, [string[]]$Arguments, [string]$WorkDir = '') {
+    $result = Start-NativeProcess -Exe $Exe -Arguments $Arguments -WorkDir $WorkDir
+    foreach ($chunk in @($result.Stdout, $result.Stderr)) {
+        if (-not $chunk) { continue }
+        foreach ($line in ($chunk -split "`r`n|`n")) {
+            if ($line -eq '') { continue }
+            Write-NativeLine $line
+        }
+    }
+    $global:LASTEXITCODE = $result.ExitCode
+    if ($result.ExitCode -ne 0) { throw "$Exe $($Arguments -join ' ') failed ($($result.ExitCode))" }
 }
 
 function Invoke-OpsScript([string]$Script, [string[]]$Arguments) {
     Invoke-Native $ps (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $Script) + $Arguments)
 }
 
-# Windows PowerShell 5.1 strips double quotes out of a native -c argument, so a code
-# string containing them arrives mangled and dies with a SyntaxError. Only single
-# quotes survive native argument passing.
+# The code string keeps the double quotes that PowerShell 5.1's call operator used to
+# strip. Invoke-Native escapes them, so python receives print("venv ok") intact.
 function Test-VenvImport([string]$Python, [int]$Attempts = 3, [int]$DelaySeconds = 5) {
-    $code = 'import aec_intelligence, sion_cad.reader; print(''venv ok'')'
+    $code = 'import aec_intelligence, sion_cad.reader; print("venv ok")'
     for ($i = 1; $i -le $Attempts; $i++) {
         try { Invoke-Native $Python @('-c', $code); return }
         catch {
@@ -171,6 +273,82 @@ function Export-TaskXml($Task) {
     Export-ScheduledTask -TaskPath $Task.TaskPath -TaskName $Task.TaskName | Set-Content -LiteralPath $file -Encoding Unicode
     Write-Log "backed up $($Task.TaskPath)$($Task.TaskName) -> $file"
 }
+
+function Invoke-SwitchSelfTest {
+    $onWindows = $true
+    if (Test-Path variable:IsWindows) { $onWindows = $IsWindows }
+    if (-not $onWindows) { throw '-SelfTest checks Windows command-line argv; run it with powershell.exe or pwsh on Windows' }
+    Write-Host "switch-to-monorepo -SelfTest on PowerShell $($PSVersionTable.PSVersion) ($($PSVersionTable.PSEdition))"
+    $toParse = @(
+        $PSCommandPath,
+        (Join-Path $PSScriptRoot '_common.ps1'),
+        (Join-Path $PSScriptRoot 'stop-workers.ps1'),
+        (Join-Path $PSScriptRoot 'backup.ps1'),
+        (Join-Path $PSScriptRoot 'register-bulk-tasks.ps1'),
+        (Join-Path $PSScriptRoot 'register-host-tasks.ps1')
+    )
+    foreach ($path in $toParse) {
+        if (-not (Test-Path -LiteralPath $path)) { throw "self-test parse target missing: $path" }
+        $tokens = $null
+        $parseErrors = $null
+        [void][System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$parseErrors)
+        if ($parseErrors -and @($parseErrors).Count -gt 0) {
+            throw "parse error in ${path}: $($parseErrors[0].ToString())"
+        }
+        Write-Host "parsed $path"
+    }
+    $python = Resolve-NativeExe 'python'
+    if ($python -eq 'python') {
+        $found = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $found -or -not $found.Source) { throw 'self-test needs python on PATH' }
+        $python = $found.Source
+    }
+    foreach ($snippet in @('print("venv ok")', "print('venv ok')")) {
+        $ran = Start-NativeProcess -Exe $python -Arguments @('-c', $snippet)
+        $got = ($ran.Stdout -replace "`r", '').Trim()
+        if ($ran.ExitCode -ne 0 -or $got -ne 'venv ok') {
+            throw "python -c [$snippet] exit=$($ran.ExitCode) stdout=[$got] stderr=[$($ran.Stderr)]"
+        }
+        Write-Host "python -c round-trip ok: $snippet"
+    }
+    $cases = @(
+        'import aec_intelligence, sion_cad.reader; print("venv ok")',
+        'import aec_intelligence, sion_cad.reader; print(''venv ok'')',
+        'trailing\',
+        'a "quote" inside',
+        'plain',
+        ''
+    )
+    # BEGIN/END markers keep an empty argument (a blank base64 line) from being dropped.
+    $probe = 'import sys,base64; sys.stdout.write("BEGIN\n"); [sys.stdout.write(base64.b64encode(a.encode("utf-8")).decode("ascii")+"\n") for a in sys.argv[1:]]; sys.stdout.write("END\n")'
+    $echo = Start-NativeProcess -Exe $python -Arguments (@('-c', $probe) + $cases)
+    if ($echo.ExitCode -ne 0) { throw "argv probe failed ($($echo.ExitCode)): $($echo.Stderr)" }
+    $raw = ($echo.Stdout -replace "`r", '').TrimEnd("`n")
+    $parts = [regex]::Split($raw, "`n")
+    $begin = [array]::IndexOf($parts, 'BEGIN')
+    $end = [array]::IndexOf($parts, 'END')
+    if ($begin -lt 0 -or $end -le $begin) { throw "argv probe markers missing: [$raw] stderr=[$($echo.Stderr)]" }
+    $encoded = @($parts[($begin + 1)..($end - 1)])
+    if ($encoded.Count -ne $cases.Count) { throw "argv count $($encoded.Count) != $($cases.Count); raw=[$raw]" }
+    for ($i = 0; $i -lt $cases.Count; $i++) {
+        $text = ''
+        if ($encoded[$i]) { $text = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String([string]$encoded[$i])) }
+        if ($text -ne [string]$cases[$i]) { throw "argv[$i] got [$text] expected [$($cases[$i])]" }
+    }
+    Write-Host "argv round-trip ok ($($cases.Count) arguments, including the historical venv check)"
+}
+
+if ($SelfTest) {
+    try { Invoke-SwitchSelfTest }
+    catch {
+        Write-Host "SELF-TEST FAILED: $($_.Exception.Message)"
+        exit 1
+    }
+    Write-Host 'SELF-TEST OK'
+    exit 0
+}
+
+New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
 Write-Log "switch-to-monorepo ($(if ($DryRun) { 'DRY-RUN, add -Apply to execute' } else { 'APPLY' }))"
 Write-Log "monorepo=$MonorepoRoot legacy=$LegacyRoot data=$DataRoot log=$LogFile"
@@ -202,22 +380,21 @@ $ErrorActionPreference = $prevEap
 # venv's base interpreter is reused only when it is new enough, then the py launcher, then PATH.
 $MinPython = [version]'3.12'
 function Get-PythonVersion([string]$Exe) {
-    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
-        # No double quotes in the -c code: Windows PowerShell 5.1 strips them from native arguments.
-        $out = (& $Exe -c 'import sys; print(*sys.version_info[:2], sep=chr(46))' 2>$null | Select-Object -Last 1)
-        if ($LASTEXITCODE -eq 0 -and "$out" -match '^\d+\.\d+$') { return [version]"$out" }
-    } catch { } finally { $ErrorActionPreference = $prev }
+        $result = Start-NativeProcess -Exe $Exe -Arguments @('-c', 'import sys; print(*sys.version_info[:2], sep=chr(46))')
+        $out = @($result.Stdout -split "`r`n|`n" | Where-Object { $_ -match '^\d+\.\d+$' } | Select-Object -Last 1)
+        if ($result.ExitCode -eq 0 -and $out) { return [version]([string]$out) }
+    } catch { }
     return $null
 }
 function Resolve-PyLauncher([string]$Tag) {
-    $launcher = Get-Command py -ErrorAction SilentlyContinue
-    if (-not $launcher) { return '' }
-    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $launcher = Get-Command py -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $launcher -or -not $launcher.Source) { return '' }
     try {
-        $exe = (& $launcher.Source "-$Tag" -c 'import sys; print(sys.executable)' 2>$null | Select-Object -Last 1)
-        if ($LASTEXITCODE -eq 0 -and $exe -and (Test-Path -LiteralPath "$exe".Trim())) { return "$exe".Trim() }
-    } catch { } finally { $ErrorActionPreference = $prev }
+        $result = Start-NativeProcess -Exe $launcher.Source -Arguments @("-$Tag", '-c', 'import sys; print(sys.executable)')
+        $exe = @($result.Stdout -split "`r`n|`n" | Where-Object { $_.Trim() } | Select-Object -Last 1)
+        if ($result.ExitCode -eq 0 -and $exe -and (Test-Path -LiteralPath ([string]$exe).Trim())) { return ([string]$exe).Trim() }
+    } catch { }
     return ''
 }
 if (-not $SkipVenv) {

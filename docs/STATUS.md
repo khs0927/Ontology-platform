@@ -1,12 +1,71 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-10-08 22:00 KST (Asia/Seoul)
+Updated: 2026-11-12 00:14 KST (Asia/Seoul). Re-checked against `origin/main` `bd3e932`.
 
-## Current state (re-checked 2026-10-08 22:00 KST)
+## Current state (re-checked 2026-11-12 KST)
+
+Base: `main` at `bd3e932` (merge of [#123](https://github.com/khs0927/Ontology-platform/pull/123), 2026-11-12 00:12 KST). The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **247 commits** behind. History length: 563 commits. Release tag is still **[v0.2.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0)** (2026-10-07); [#129](https://github.com/khs0927/Ontology-platform/pull/129) prepares v0.3.0 metadata but does not create a tag.
+
+Merge wave on 2026-11-11/12 (KST): [#106](https://github.com/khs0927/Ontology-platform/pull/106) 22:49, #107 22:50, #108 23:00, #112 and #118 23:08, [#128](https://github.com/khs0927/Ontology-platform/pull/128) 23:54, [#115](https://github.com/khs0927/Ontology-platform/pull/115), [#113](https://github.com/khs0927/Ontology-platform/pull/113), [#101](https://github.com/khs0927/Ontology-platform/pull/101) 23:55, then [#120](https://github.com/khs0927/Ontology-platform/pull/120), [#122](https://github.com/khs0927/Ontology-platform/pull/122) and [#123](https://github.com/khs0927/Ontology-platform/pull/123) 00:12.
+
+### Shape of the tree since 2026-10-08
+
+- **ArchOntos is a pinned dependency.** [#119](https://github.com/khs0927/Ontology-platform/pull/119) (`ae18abd`, 2026-11-10 KST) removed the vendored copy under `packages/regulation`. The pin is `534367c` (ArchOntos #22), recorded in the root `pyproject.toml`, `uv.lock`, and `docs/INTEGRATION_CONTRACTS.md`. Regulation CI checks that pin, the no-re-vendor guard, the Sion rule-evaluator bridge, and packaged migrations. ArchOntos lint, unit tests, image, and Helm run in khs0927/ArchOntos.
+- **`packages/aec` was caught up** with the archived Ontology tree ([#110](https://github.com/khs0927/Ontology-platform/pull/110), [#114](https://github.com/khs0927/Ontology-platform/pull/114), [#116](https://github.com/khs0927/Ontology-platform/pull/116), [#117](https://github.com/khs0927/Ontology-platform/pull/117)), including the Google Drive CAD GraphRAG pack (`e9bd7eb`, Ontology #97).
+- **Main PC cutover is unfinished.** On 2026-10-09 `-Apply` created the venv, kept the existing DB volume, and backed up `\AEC\` task XML, then stopped with a Windows PowerShell 5.1 `SyntaxError` before those tasks were re-registered. On 2026-11-11 23:58 KST the fixed script's **dry-run matched the live container** (compose project `ontology`, volume `ontology_aec-pgdata`); `-Apply` still waits for a clean `main` operational checkout. Do not pass `-SkipVenv`. Details and the unchanged safety rules are in [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md).
+- **All-In-Cad** PR [#17](https://github.com/khs0927/All-In-Cad/pull/17) (`agent/autocad-host-2027`) merged 2026-10-29 KST. [#18](https://github.com/khs0927/All-In-Cad/pull/18)–[#22](https://github.com/khs0927/All-In-Cad/pull/22) are merged. No open All-In-Cad pull requests.
+- **zium-onboarding** PR #2 (template test fixes, opened 2026-10-08) merged 2026-11-05 KST; #3–#5 merged after it. No open pull requests remain there.
+
+The 2026-10-08 test-count table and the "15 checks" list below are that day's record.
+
+### CI gate on `main` (workflow names as of 2026-11-11)
+
+Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked install; Coverage report (informational, no gate — [#131](https://github.com/khs0927/Ontology-platform/pull/131)). Verify: SQLite and API tests; PostgreSQL migration verification (now `psql` through the Postgres service container, no `apt` — [#128](https://github.com/khs0927/Ontology-platform/pull/128)). AEC / CAD: aec_intelligence lint + tests + extensions; switch-to-monorepo parse + argv (Windows PowerShell 5.1 and PowerShell 7); operational stack (PostgreSQL + AGE + pgvector + PostGIS); api/worker image; GOD-CAD (ubuntu-latest, py3.12); GOD-CAD (windows-latest, py3.12). Regulation: ArchOntos pin, guard, bridge, migrations (PostgreSQL). Public security: privacy; dependencies. CircleCI: `ci/circleci: pytest`. The Windows agent-bridge exe build runs when package paths change. Path-filtered workflows (drawing-context headless, hindsight advisory) run only when their files change.
+
+All merges above landed with this set green. #128 removed the `apt`/DNS flake that had reddened every PR's Verify job. ArchOntos Helm render and ArchOntos lint/types run in the ArchOntos repository.
+
+### Open pull requests (eight besides this one)
+
+Eight besides #121 against `bd3e932` at this snapshot. The live list is always https://github.com/khs0927/Ontology-platform/pulls: #120, #122 and #123 merged at 00:12 KST while this snapshot was being written, and other agents keep opening and merging. #128 (merged) removed the apt/DNS flake, so a failing Verify job before 23:54 only needs a re-run.
+
+| PR | State | CI / notes at 2026-11-12 00:14 KST |
+|---|---|---|
+| [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | NVIDIA Auto Ontology; had conflicts after the merge wave; the owner wrote "merge not planned" |
+| [#124](https://github.com/khs0927/Ontology-platform/pull/124) | ready | SketchUp ingest; was `CONFLICTING` after #115 merged, re-check after its latest update |
+| [#125](https://github.com/khs0927/Ontology-platform/pull/125) | ready | `/review` backlog in one sitting; merge before #126 |
+| [#126](https://github.com/khs0927/Ontology-platform/pull/126) | ready | `/review` ranking; its `refreshCounts()` pytest contract failure needs the #125-based rebase |
+| [#129](https://github.com/khs0927/Ontology-platform/pull/129) | ready | v0.3.0 release metadata (squash-merge; no tag in the PR) |
+| [#130](https://github.com/khs0927/Ontology-platform/pull/130) | ready | apt retry hardening for the remaining `aec.yml` installs |
+| [#131](https://github.com/khs0927/Ontology-platform/pull/131) | ready | informational pytest coverage; no threshold gate |
+| [#132](https://github.com/khs0927/Ontology-platform/pull/132) | ready | follow-up review fixes for #106/#115 (embedhub, SketchUp) |
+
+### Open issues
+
+- [#3](https://github.com/khs0927/Ontology-platform/issues/3) — structured 31-node / 43-relation map import. The edges are loaded as unverified candidates. Approving or rejecting them at `/review` is still the owner's decision. `data/review/sion-map-relation-decisions.json` (#53) records a 36-approve / 7-hold proposal; it does not apply those decisions.
+- [#33](https://github.com/khs0927/Ontology-platform/issues/33) — SketchUp / Drive follow-up checklist, including whether dump paths stay in the pinned SketchUp files.
+- [#71](https://github.com/khs0927/Ontology-platform/issues/71) — mobile and PC-independent operation: Kordoc link and a safe review/write end-to-end path.
+- [#79](https://github.com/khs0927/Ontology-platform/issues/79) — repeatable pipeline for adding another SketchUp model.
+- ~~[#80](https://github.com/khs0927/Ontology-platform/issues/80)~~ — feed `/review` approvals into guideline weights. Steps landed in #96–#99; the issue was closed at 2026-11-11 23:13 KST when #126 opened. Auto-approve stays off.
+
+### Remaining owner actions
+
+0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
+0b. ~~HS-CAD PR decisions~~ — dropped 2026-11-03: HS-CAD is retired and power-cad-mcp is the only CAD host bridge (HS-CAD contracts removed). The key rotation in item 0 still applies.
+0c. ~~zium-onboarding PR #2~~ — merged 2026-11-05 KST (#3–#5 followed; no open PRs). ~~All-In-Cad~~ — #17–#22 merged, nothing open.
+1. `/review` (owner): on 2026-11-11 the live `D:\SionData\sion.db` held **221 pending** candidates — SketchUp definition→class assignments 214 (`source_kind=inferred`) plus 7 held map edges. The other 36 of the 43 map edges are already human-approved, so the older "43 unverified" wording is stale. A further **844 guideline-link candidates** exist in the DB but the review API's `source_kind` filter hides them (docs/code mismatch; decide the policy). Issues #3, #33, #79; #80 closed 2026-11-11. Nothing in this tree auto-approves them.
+2. **Main PC is online now.** The 2026-11-11 23:58 KST dry-run matched `aec-db` (compose project `ontology`, volume `ontology_aec-pgdata`). Next: back up and bring `C:\CODE\Ontology-platform` to a clean `main` (section 1 of the checklist), then run section 2 `-Apply` to re-register `\AEC\`. The 2026-10-09 run stopped before that re-registration, so the checkbox stays open. Do not pass `-SkipVenv`.
+3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
+4. After the runtime switch: GraphRAG refresh (retries the 6 FAILED communities).
+5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
+6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
+7. Bring PC checkouts made before 12:23 KST on 2026-10-08 onto the rewritten history (backup, then `fetch` + `reset --hard origin/main`) or archive them; do not push from them meanwhile.
+8. The 19 remote branches left on 2026-10-08 because they still had commits outside `main` are still present (names in the historical "Branch cleanup" section). Decide whether to keep or delete them. Merged PR branches are auto-deleted; 60 heads remained on the remote at this check.
+
+## Current state (re-checked 2026-10-08 22:00 KST) — historical snapshot
 
 Base: `main` at `e2bffe3` (#48), 316 commits. Open PRs: none besides this one. Open issues: #3, #33.
 
-### Tests (current numbers; older sections below keep the numbers of their time)
+### Tests (measured 2026-10-08)
 
 | Suite | Install | Result |
 |---|---|---|
@@ -16,7 +75,7 @@ Base: `main` at `e2bffe3` (#48), 316 commits. Open PRs: none besides this one. O
 | `packages/regulation` | local, no PostgreSQL | 213 passed, 39 skipped (PostgreSQL tests run in CI) |
 | `packages/cad/god-cad` | | 27 passed |
 
-### CI on `main` — 15 checks, all green
+### CI on `main` — 15 checks, all green (2026-10-08; the job list has since changed, see the 2026-11-11 section)
 GitHub Actions (14): pytest; pytest (windows-latest, all extras); SQLite and API tests; PostgreSQL migration
 verification; uv.lock check + locked install (all extras); dependencies; privacy; aec_intelligence lint + tests +
 extensions; aec_intelligence operational stack (PostgreSQL + AGE + pgvector + PostGIS); aec_intelligence api/worker
@@ -98,17 +157,8 @@ Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2
 - [`docs/guidelines/AGENT-WORKFLOW.ko.md`](guidelines/AGENT-WORKFLOW.ko.md) — agent rules distilled from this week (monorepo vs bridged repos, subtree, porting archived PRs, parallel sprint protocol, public-repo privacy, security defaults, PC ops).
 
 ### Remaining owner actions
-0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
-0b. ~~HS-CAD PR decisions~~ — dropped 2026-11-03: HS-CAD is retired and power-cad-mcp is the only CAD host bridge (HS-CAD contracts removed). The key rotation in item 0 still applies.
-0c. All-In-Cad: decide whether to open/merge a PR for branch `agent/autocad-host-2027` (`edba1f9`, CI green). zium-onboarding: fix the 11 remaining template test failures.
-1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issues #3, #33).
-2. When the **main PC** is online: run `docs/ops/MAIN-PC-TODO.ko.md` — switch the live AEC runtime from the archived Ontology checkout to `packages/aec` with `switch-to-monorepo.ps1` (dry-run, then `-Apply`).
-3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
-4. After the runtime switch: GraphRAG refresh (retries the 6 FAILED communities).
-5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
-6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
-7. Bring PC checkouts made before 12:23 KST onto the new history (backup, then `fetch` + `reset --hard origin/main`) or archive them; do not push from them meanwhile.
-8. Decide whether to keep or clean up the 19 stale remote branches that still have commits not in `main`.
+
+The live list is **Current state (re-checked 2026-11-11 KST)** at the top of this file. The 2026-10-08 evening list (All-In-Cad still had no pull request; zium-onboarding still had 11 failing template tests; the main-PC switch had not been attempted) is superseded there.
 
 ## Completed
 
