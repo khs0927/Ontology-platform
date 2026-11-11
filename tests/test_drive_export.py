@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -59,6 +61,19 @@ def test_layout_from_env(tmp_path):
     explicit = StorageLayout.from_env({"SION_STORAGE_ROOT": str(tmp_path / "x"), "SION_DRIVE_ROOT": str(tmp_path)})
     assert explicit.root == tmp_path / "x"
     assert DriveExporter.from_env(None, {"SION_DRIVE_ROOT": str(tmp_path), "SION_DRIVE_EXPORT_ON_WRITE": "0"}) is None
+
+
+def test_the_test_session_never_exports_to_the_real_storage_root():
+    # conftest.py drops the ambient Drive-linked storage root: a committed write inside a
+    # test used to export the *test* database over the owner's "latest" artifacts
+    # (2026-11-11 23:30 and 2026-11-12 04:04 KST). If a storage root is set at all during
+    # a test run, it may only live under the system temp directory.
+    temp_root = Path(tempfile.gettempdir()).resolve()
+    for key in ("SION_STORAGE_ROOT", "SION_DRIVE_ROOT", "GOOGLE_DRIVE_ROOT"):
+        value = os.environ.get(key)
+        if not value:
+            continue
+        assert Path(value).resolve().is_relative_to(temp_root), f"{key} points outside the temp dir: {value}"
 
 
 def test_export_snapshot_is_consistent_and_reimportable(tmp_path):
