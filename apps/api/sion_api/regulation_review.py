@@ -196,7 +196,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         except (PermissionError, KeyError) as exc:
             raise HTTPException(404, "review not found") from exc
 
-    @app.post(root + "/plan", dependencies=[Depends(read)])
+    @app.post(root + "/plan", dependencies=[Depends(write)])
     def plan(payload: dict[str, Any], session=Depends(get_session)):
         request = parse_request(payload)
         require_project(session, request.proposal.project_id)
@@ -262,7 +262,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
             revision_b=to_revision,
         )
 
-    @app.post(root + "/{run_id}/explain", dependencies=[Depends(read)])
+    @app.post(root + "/{run_id}/explain", dependencies=[Depends(write)])
     def explain(run_id: str, payload: Explain):
         return guarded(flow().explain, run_id, payload.question, project_id=str(payload.project_id))
 

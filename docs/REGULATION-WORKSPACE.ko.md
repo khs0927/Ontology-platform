@@ -47,7 +47,7 @@
 
 ## 중첩규제 검토 실행
 
-`/regulation` 화면과 `/api/v1/regulation/reviews/*`는 필지·제안행위·기준일을 고정해 검토 범위와 미확인 항목을 만든다. 조회에는 read:knowledge, 실행·재개·취소·저장에는 write:knowledge가 필요하다. 쓰기 요청은 `dry_run`으로 미리 볼 수 있고 이 경로에는 Jev 단계가 없다. 다른 프로젝트의 실행은 없는 실행과 똑같이 404로 응답한다.
+`/regulation` 화면과 `/api/v1/regulation/reviews/*`는 필지·제안행위·기준일을 고정해 검토 범위와 미확인 항목을 만든다. 조회에는 read:knowledge, 제안·설명·실행·재개·취소·저장에는 write:knowledge가 필요하다. 쓰기 요청은 `dry_run`으로 미리 볼 수 있고 이 경로에는 Jev 단계가 없다. 다른 프로젝트의 실행은 없는 실행과 똑같이 404로 응답한다.
 
 | 제안 도구 | REST |
 |---|---|
