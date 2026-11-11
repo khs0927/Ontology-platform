@@ -93,7 +93,6 @@ up at `/review` and stay `unverified` until a person approves them. A classifica
 candidate keeps its `confidence` and evidence locator. That confidence is not added to the GraphRAG
 relationship weight until the candidate's `verification_state` is `human_verified`. Other relations
 still add confidence the way issue #80 describes.
-
 ### Reviewing them quickly (`/review`)
 
 Opening the page, picking a queue, or changing a filter never writes a decision. The `추천`
@@ -103,9 +102,11 @@ keys, or 선택 일괄 승인/거절 on rows they checked.
 - Queue chips (counts follow the status filter): **맵 관계** (issue #3), **SketchUp 분류**
   (`predicate=classified_as`, the 214 assignments), **워크플로** (queued candidates whose predicate
   is a guideline or grouping link), **기타** (level, block, and other inferred candidates). The chip
-  also sets a reading group (type, 도착 노드, or 출발 노드) and does not select rows. The importer
-  still queues only inferred or imported candidates, so `source_kind=document` links stay out of
-  this page.
+  also sets a reading group (type, 도착 노드, or 출발 노드) and does not select rows. The review API
+  lists `source_kind` in (inferred, imported, document), so the guideline links the SketchUp asset
+  extractor stored as document candidates (`predicate=derived_from_model`, evidence = guideline file
+  plus line locator) do reach this page; the graph-export importer still creates only inferred or
+  imported candidates.
 - Each card shows `basis_ko` inline. Map edges, which have no `basis_ko`, show the source and
   target descriptions and the first evidence excerpt. The rest of the excerpts stay under
   **노드 설명 · 근거 원문**.

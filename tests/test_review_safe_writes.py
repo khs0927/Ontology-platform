@@ -285,6 +285,36 @@ def test_candidates_expose_source_locator_and_checksum(client):
     assert d["evidence"] and all("source_sha256" in e for e in d["evidence"])
 
 
+def test_document_sourced_candidates_are_listed_and_decidable(client):
+    # The SketchUp guideline links are stored with source_kind="document". Listing only
+    # inferred/imported hid them from /review even though docs/SKETCHUP_KNOWLEDGE.md says
+    # they are review candidates, so the owner's queue was silently incomplete.
+    import_candidates(client)
+    a = client.post("/api/v1/entities", json={"stable_key": "doc:a", "entity_type_id": "Document", "name": "A"}, headers=AUTH).json()
+    b = client.post("/api/v1/entities", json={"stable_key": "doc:b", "entity_type_id": "Document", "name": "B"}, headers=AUTH).json()
+    with client.app.state.session_factory() as s:
+        row = models.Relation(
+            stable_key="doc:a:DERIVED_FROM:doc:b",
+            source_entity_id=uuid.UUID(a["id"]),
+            target_entity_id=uuid.UUID(b["id"]),
+            relation_type_id="DERIVED_FROM",
+            confidence=0.9,
+            verification_state="unverified",
+            source_kind="document",
+            properties={"candidate": True, "extractor": "sion-sketchup-assets/v1"},
+        )
+        s.add(row)
+        s.commit()
+        doc_id = str(row.id)
+
+    listed = [x["id"] for x in client.get(f"{CAND}?limit=1000", headers=AUTH).json()["candidates"]]
+    assert doc_id in listed, "document-sourced candidates must reach /review"
+
+    ok = client.post(f"{CAND}/{doc_id}/approve", json={"reviewer": "alice", "expected_version": 0}, headers=AUTH)
+    assert ok.status_code == 200, ok.text
+    assert ok.json()["status"] == "approved"
+
+
 def test_review_page_is_phone_usable_and_sends_safe_write_fields(client):
     page = client.get("/review").text
     assert 'name="viewport"' in page and "@media (max-width" in page
