@@ -1,10 +1,10 @@
 # Sion Ontology Platform — 현재 상태 (한국어 요약)
 
-갱신: 2026-11-11 23:00 KST (Asia/Seoul). `origin/main` `ff583a2`를 기준으로 다시 확인했다.
+갱신: 2026-11-12 02:39 KST (Asia/Seoul). `origin/main` `7db62c5`(태그 `v0.3.0`)를 기준으로 다시 확인했다.
 
 ## 아키텍처 (요약)
 
-1. **메인 모노레포** `khs0927/Ontology-platform`. 릴리스 태그는 아직 v0.2.0(2026-10-07)이다. GitHub가 코드 이력의 기준이다.
+1. **메인 모노레포** `khs0927/Ontology-platform`. 릴리스 태그는 [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0)(2026-11-12)이다. GitHub가 코드 이력의 기준이다.
 2. **패키지**: `packages/aec`(Ontology/`aec_intelligence`), `packages/cad/god-cad`(GOD-CAD)는 서브트리로 들어와 있다. ArchOntos는 [#119](https://github.com/khs0927/Ontology-platform/pull/119)(2026-11-10)부터 `regulation` extra의 고정 의존성이다. 핀은 `534367c`(ArchOntos #22). 수정은 ArchOntos 저장소에서 하고, 여기에는 핀만 올린다.
 3. **브릿지 전용(별도 저장소)**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad, CAD-MCP (HS-CAD는 2026-11-03 사용 중단). 버전된 JSON 계약 + 계약 테스트로만 연결. Sion은 CAD를 직접 수정하지 않는다.
 4. **런타임 DB**: 로컬 PostgreSQL(또는 SQLite 스모크). `public` + `regulation` 스키마. 라이브 DB는 디스크에 두고, 커밋된 쓰기마다 `SION_STORAGE_ROOT`(Drive 데스크톱 폴더)로 스냅샷·그래프를 export한다.
@@ -15,7 +15,7 @@
 
 ## 현재 상태 (2026-11-11 KST 재확인)
 
-기준: `main` `ff583a2`(#107 병합, 2026-11-11 22:50 KST). 그 직전 22:49에 #106(`sion_embedhub`)이 병합됐다. 2026-10-08에 적었던 `e2bffe3`(#48)보다 커밋 192개가 앞에 있다. 전체 이력은 508커밋이다.
+기준: `main` `7db62c5`(#132 병합, 2026-11-12 02:09 KST)이자 [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0) 태그 지점이다. 2026-10-08의 `e2bffe3`(#48)보다 커밋 257개가 앞에 있고, 전체 이력은 573커밋이다. 2026-11-11 밤부터 11-12 새벽 사이에 #106~#108, #112, #118, #115, #113, #101, #120, #122, #123, #125, #129, #130, #133, #121, #126, #131, #124, #132, #128이 모두 병합됐고, 각 병합은 체크 16~17개가 전부 완료·실패 0인 상태에서 이뤄졌다. 충돌이 있던 #124·#126은 main을 병합해 충돌을 합친 뒤 최종 초록을 확인했다. 열려 있는 PR은 #109(NVIDIA 페더레이션 드래프트)뿐이다. 이런 정리 작업의 표준 절차는 [`docs/ops/COMPLETION-PLAYBOOK.ko.md`](ops/COMPLETION-PLAYBOOK.ko.md)에 정리돼 있다.
 
 **10-08 이후 뼈대**
 - ArchOntos 기준은 루트 `pyproject.toml`·`uv.lock`·`docs/INTEGRATION_CONTRACTS.md`의 핀(`534367c`)이다. #119에서 `packages/regulation` 아래 복사본은 제거됐다.
