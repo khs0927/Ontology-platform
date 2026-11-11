@@ -9,9 +9,10 @@ copy was removed so there is one source of truth.
   `archontos @ git+https://github.com/khs0927/ArchOntos@<sha>` — the pin lives in the root
   `pyproject.toml` (`regulation` extra) and in
   [docs/INTEGRATION_CONTRACTS.md](../../docs/INTEGRATION_CONTRACTS.md).
-- **Used by:** `sion_api.regulation` (rule evaluator `archontos.rules.engine`) and
-  `sion_api.migrate` (ArchOntos migrations in the `regulation` schema, taken from the SQL
-  shipped inside the package, `archontos._migrations`; override with
+- **Used by:** `sion_api.regulation` (rule evaluator `archontos.rules.engine`),
+  `sion_regulation.review` (overlapping-regulation workflow in this folder, which calls
+  that engine), and `sion_api.migrate` (ArchOntos migrations in the `regulation` schema,
+  taken from the SQL shipped inside the package, `archontos._migrations`; override with
   `ARCHONTOS_MIGRATIONS_DIR`).
 - **ArchOntos' own** tests, services (`apps.*`), Dockerfile and Helm chart run in the
   ArchOntos repository's CI, not here.

@@ -60,3 +60,11 @@ Open, with details in `docs/regulation/IMPLEMENTATION-STATUS.md`:
 - 추가 수정: `restore_db.sh` 기본 원격 경로를 `backup_db.sh`와 같게(`gdrive:AEC-INTELLIGENCE/backups`) 맞췄습니다.
 - `aec-cair-snapshot/1` 출력은 바뀌지 않았습니다(객체 id·필드가 픽스처와 같고 타임스탬프만 다름). 픽스처와 `upstream_commit`은 그대로입니다.
 - 검증(Python 3.13, #105 이식 후): 루트 `pytest` 1975 passed / 60 skipped, `packages/aec/tests` 912 passed / 54 skipped, 확장 테스트 13+135+116 passed, `ruff` 통과. PostgreSQL 테스트와 E2E 스모크는 이 컨테이너에서 실행하지 못했습니다(디스크 공간 부족).
+
+## Update (2026-11-11)
+
+PR #101 was merged forward after #119 removed the vendored ArchOntos tree. The review
+workflow now lives in `sion_regulation.review` and calls the pinned `archontos.rules`
+compiler and engine. The Windows counts in the PR #101 section above describe the tree
+from before that move. `packages/regulation/CHANGELOG.md` stayed deleted with the vendored
+copy; the review note is in `docs/regulation/IMPLEMENTATION-STATUS.md`.
