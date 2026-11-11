@@ -61,15 +61,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7.0.1
 
-      - name: Install PostgreSQL client
+      - name: Provide psql from the PostgreSQL service container
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes postgresql-client
+          # Do not install the client from apt: runner mirror DNS is intermittently
+          # broken (Temporary failure resolving archive.ubuntu.com). The postgres
+          # service container already ships a client matching the server version.
+          sudo tee /usr/local/bin/psql >/dev/null <<EOF
+          #!/usr/bin/env bash
+          exec docker exec -i "$PG_CONTAINER" psql "\$@"
+          EOF
+          sudo chmod +x /usr/local/bin/psql
 
       - name: Wait for PostgreSQL
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
         run: |
           for attempt in $(seq 1 60); do
-            if pg_isready -h 127.0.0.1 -p 5432 -U ontology -d ontology; then
+            if docker exec "$PG_CONTAINER" pg_isready -U ontology -d ontology >/dev/null 2>&1; then
               exit 0
             fi
             sleep 1
@@ -86,7 +96,7 @@ jobs:
               migrations/004_seed_core_types.sql \
               migrations/006_outbox.sql \
               migrations/007_relation_type_validates.sql; do
-              psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 -f "$migration"
+              psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 < "$migration"
             done
           done
 
