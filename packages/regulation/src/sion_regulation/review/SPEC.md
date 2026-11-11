@@ -1,0 +1,35 @@
+# sion_regulation.review — module contracts (implementation spec)
+
+This workflow was first written as `archontos.review` inside the vendored ArchOntos
+tree. After that copy left the repo (#119), the modules live here and call the pinned
+`archontos.rules` compiler and engine. They are not a second copy of ArchOntos and they
+do not own the regulation ledger.
+
+Source of truth for behaviour: `docs/regulation/regulation-framework-plan-2026-10-11.md` (sections cited
+as §N) and `docs/regulation/regulation-validation-roadmap-2026-10-11.md` (scenarios S01–S32, work
+packages W01–W14). Shared types live in `model.py`; do not redefine them. All modules are pure Python,
+deterministic, offline (no network, no DB), typed (mypy clean), ruff clean (line length 100), and
+testable without PostgreSQL. Persistence/network adapters are protocols with in-memory/fixture
+implementations; real providers plug in later behind the same protocol.
+
+General rules (from DEVELOPMENT-GUIDELINES.md): no negative conclusion from absence; candidate ≠
+applicable; unreviewed ⇒ REVIEW; no `eval`; no ranking of laws by numeric priority; preserve
+conflicting evidence; private project evidence never crosses projects; LLM is optional everywhere.
+
+| Module | Work pkg | Public API (minimum) | Scenarios |
+|---|---|---|---|
+| `legal.py` | W06 | `LegalCatalog` (add_version/add_provision, `version_at(work_id, day) -> LegalVersion \| None` with unresolved on ambiguity, `lineage(work_id)`, `get(ref)`), `parse_article_label("제12조의2제3항제1호가목") -> dict`, `verify_returned_provision(requested: ProvisionRef, returned: Provision) -> str \| None` (mismatch reason), `expand_references(catalog, roots, max_depth) -> ReferenceExpansion` (visited keys, unresolved refs, depth_capped flag) | S11, S14, S15, S16 |
+| `facts.py` | W05 | `FactStore` (bitemporal add/supersede, `current(path, subject, as_of_valid, as_of_recorded)`), conflict ⇒ DISPUTED preserving both, `to_rule_facts(store, subject, day) -> (dict, list[fact_id], list[missing])` that omits UNKNOWN/DISPUTED/partial-scope values so the rule engine yields REVIEW; `facts_from_land_record(record, retrieved_at)` wrapping `korean-land-parcel-analysis/2` semantics (point precision / layer errors ⇒ UNKNOWN, never False); legal-status facts (`legal.is_farmland`, `legal.is_mountain_land`) separate from `land.jimok` | S02, S03, S12, S13, S17, S21, S22 |
+| `sources.py` | W03/W04 | `Provider` protocol (`name`, `contract`, `capabilities`, `fetch(request) -> CollectionResult`), `ProviderRegistry` (capability, historical support, concurrency/quota profile), `classify_http(status, retry_after)` → ErrorKind, `RetryPolicy` (bounded, no retry on AUTH/SCHEMA), `FixtureProvider` reading JSON fixtures, `resolve_site(address_results) -> Site` (never auto-pick among multiple; partial overlaps kept per part) | S01, S02, S19, S20, S31 |
+| `candidates.py` | W07 | `ChecklistProfile` (versioned, mandatory items per action/use/law family; JSON-loadable; ships one profile `kr-landuse-building` covering nlupa/building act/farmland/mountain/ordinance/district plan + other-law overlays), `DesignationLink` table (designation code × jurisdiction × action → provisions), `generate_candidates(scope, site, proposal, facts, links, catalog, user_laws, hints) -> CandidatePlan` (candidates with sources+reasons in §8.2 priority order, coverage items, unresolved items/tasks for unconfirmed designations, missing plan documents, scope expansion for multi-parcel/shared access). User-named laws add, never filter; external hints are candidates only. | S04–S10, S18 |
+| `applicability.py` | W07/W09 | `assess(candidate, facts, catalog, day) -> ApplicabilityFinding` (missing required fact ⇒ unresolved; unknown exception fact ⇒ unresolved, never false; not_applicable only with evidence+facts), `detect_conflicts(candidates, findings) -> list[Conflict]` (only same subject+topic+period; different topics ⇒ parallel, no conflict; no automatic winner; kind `unresolved` unless reviewed basis says exception/delegation) | S13, S17, S18 |
+| `rase.py` | W09 | `RaseRule` template (basis provision+hash, topic, applicability, requirement, selection, exceptions, fact bindings w/ units, interpretation, review roles/status, tests), `SUPPORT_TABLE`, `compile_rase(rule) -> dict \| Unsupported` producing the existing `archontos.rules.engine` JSON DSL, `evaluate_candidate(rule, facts, ...) -> RuleEvaluationRecord` (unreviewed or unsupported ⇒ REVIEW; uses `archontos.rules.engine.evaluate_rule`) | S13, S21, D07 |
+| `aggregate.py` | §14 | `summarize(coverage, findings, evaluations, conflicts, unresolved) -> ReviewSummary`, mapping to legacy `building-regulation-report/1` statuses; any blocking unresolved ⇒ never `permitted` | S13, S20 |
+| `runs.py` | W08 | `RunDAG` (nodes with deps, input digest, provider/contract, status, artifacts, failure, next retry, missing), `RunStore` protocol + `InMemoryRunStore`, `RunEngine` executing nodes with provider concurrency limits, checkpoint per node, reuse of completed nodes on retry/resume, cancellation (late responses never overwrite a cancelled run), idempotency key = project+revision+payload digest (same key different payload ⇒ conflict), run revisions on resume | S19, S20, S26, S27, S29 |
+| `citations.py` | W11 | `verify_citations(citations, evidence_index, provisions) -> list[Citation]` (unknown evidence id / provision mismatch / excerpt not found ⇒ verified False with reason; drop unverified claims from briefing) | S23 |
+| `impact.py` | W13 | `ImpactGraph` linking provision version → rule versions → evaluations → works; `classify_change(old, new)` (hash-only vs text vs effectivity change); `impacted_works(change) -> list[ReviewTask]`-like records; old reports stay on their snapshot | S28 |
+| `workflow.py` | integration | `plan_review(...)`, `start_review(...)`, `get_review`, `resume_review`, `get_basis`, `explain` (deterministic structured explanation, optional LLM hook), `compare(run_a, run_b)`, `briefing(run)` — composes the modules above; output follows the common output fields of §13 | all |
+| `retrieval.py` | W11 | `RetrievalScope`, `retrieve(question, scope, catalog, evidence, required, search=None)`: filter by project/date/jurisdiction first, exact label match, reference paths, optional search hook; required provisions are never cut; a failed hook degrades to the deterministic result | S23, S25, S30 |
+| `bundle.py` | W03/W10 | `ReviewBundle`, `load_bundle(path)`: validated JSON of catalog, links, profile, rules and conditions that an operator ships to a workflow | D03, D08 |
+
+Current status per work package and the D01–D10 readiness table: `docs/regulation/IMPLEMENTATION-STATUS.md`.
