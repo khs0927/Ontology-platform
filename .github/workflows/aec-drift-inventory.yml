@@ -1,0 +1,46 @@
+name: AEC upstream drift inventory - no writes
+
+on:
+  push:
+    branches: [ci/aec-drift-inventory-20261109]
+    paths:
+      - scripts/aec_drift_report.py
+      - tests/test_aec_drift_report.py
+      - .github/workflows/aec-drift-inventory.yml
+  pull_request:
+    paths:
+      - scripts/aec_drift_report.py
+      - tests/test_aec_drift_report.py
+      - .github/workflows/aec-drift-inventory.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    if: github.repository == 'khs0927/Ontology-platform'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Sion monorepo without credential persistence
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Checkout public legacy Ontology into an isolated folder
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: khs0927/Ontology
+          ref: master
+          path: upstream
+          persist-credentials: false
+      - name: Run offline stdlib tests
+        run: python -m unittest discover -s tests -p test_aec_drift_report.py -v
+      - name: Compare paths and hashes without altering source trees
+        run: python scripts/aec_drift_report.py --upstream upstream --bundled packages/aec --output aec-drift-report.json
+      - name: Publish only drift metadata for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: aec-drift-inventory
+          path: aec-drift-report.json
+          retention-days: 7
