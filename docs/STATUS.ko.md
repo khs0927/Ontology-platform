@@ -1,23 +1,55 @@
 # Sion Ontology Platform — 현재 상태 (한국어 요약)
 
-갱신: 2026-10-08 22:00 KST (Asia/Seoul)
+갱신: 2026-11-11 23:00 KST (Asia/Seoul). `origin/main` `ff583a2`를 기준으로 다시 확인했다.
 
 ## 아키텍처 (요약)
 
-1. **메인 모노레포** `khs0927/Ontology-platform` (v0.2.0). GitHub가 코드 이력의 기준이다.
-2. **병합된 패키지**: `packages/regulation`(ArchOntos), `packages/aec`(Ontology/`aec_intelligence`), `packages/cad/god-cad`(GOD-CAD). 원본 저장소는 보관(읽기 전용).
+1. **메인 모노레포** `khs0927/Ontology-platform`. 릴리스 태그는 아직 v0.2.0(2026-10-07)이다. GitHub가 코드 이력의 기준이다.
+2. **패키지**: `packages/aec`(Ontology/`aec_intelligence`), `packages/cad/god-cad`(GOD-CAD)는 서브트리로 들어와 있다. ArchOntos는 [#119](https://github.com/khs0927/Ontology-platform/pull/119)(2026-11-10)부터 `regulation` extra의 고정 의존성이다. 핀은 `534367c`(ArchOntos #22). 수정은 ArchOntos 저장소에서 하고, 여기에는 핀만 올린다.
 3. **브릿지 전용(별도 저장소)**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad, CAD-MCP (HS-CAD는 2026-11-03 사용 중단). 버전된 JSON 계약 + 계약 테스트로만 연결. Sion은 CAD를 직접 수정하지 않는다.
 4. **런타임 DB**: 로컬 PostgreSQL(또는 SQLite 스모크). `public` + `regulation` 스키마. 라이브 DB는 디스크에 두고, 커밋된 쓰기마다 `SION_STORAGE_ROOT`(Drive 데스크톱 폴더)로 스냅샷·그래프를 export한다.
 5. **수집**: 문서(PDF/DOCX/md…), DXF(`sion_cad.reader`), IFC, 에이전트 세션 브릿지(Antigravity/Codex/Claude + DeepSeek/Hermes/ZCode 로컬 로그 리더).
-6. **관계·리뷰**: 31노드/43관계는 `unverified` 후보로 적재. `/review`에서 사람이 승인·반려. SketchUp 0914 지식팩(노드 1,195 / 관계 4,509)도 후보·검증 혼합.
-7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색, AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
-8. **CI**: Tests(Ubuntu+Windows), Verify, AEC/CAD, Regulation, Public security. agent-bridge Windows exe는 Releases.
+6. **관계·리뷰**: 31노드/43관계는 `unverified` 후보로 적재. `/review`에서 사람이 승인·반려. SketchUp 0914 지식팩(노드 1,195 / 관계 4,509)도 후보·검증 혼합. 자동 승인은 없다.
+7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색(`sion_embedhub`는 #106, 2026-11-11 병합), AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
+8. **CI**: Tests(Ubuntu+Windows, uv.lock), Verify, AEC/CAD, Regulation(ArchOntos 핀·가드·브리지·마이그레이션), Public security, CircleCI pytest. agent-bridge Windows exe는 패키지 경로가 바뀔 때 빌드하고, 배포 파일은 Releases에 둔다.
 
-## 현재 상태 (2026-10-08 22:00 KST 재확인)
+## 현재 상태 (2026-11-11 KST 재확인)
 
-기준: `main` `e2bffe3`(#48), 커밋 316개. 열린 PR은 이 PR뿐, 열린 이슈는 #3·#33.
+기준: `main` `ff583a2`(#107 병합, 2026-11-11 22:50 KST). 그 직전 22:49에 #106(`sion_embedhub`)이 병합됐다. 2026-10-08에 적었던 `e2bffe3`(#48)보다 커밋 192개가 앞에 있다. 전체 이력은 508커밋이다.
 
-**테스트** (지금 숫자. 아래 예전 절의 숫자는 그 시점 기록)
+**10-08 이후 뼈대**
+- ArchOntos 기준은 루트 `pyproject.toml`·`uv.lock`·`docs/INTEGRATION_CONTRACTS.md`의 핀(`534367c`)이다. #119에서 `packages/regulation` 아래 복사본은 제거됐다.
+- `packages/aec`는 보관된 Ontology와 맞춰 두었다(#110, #114, #116, #117). Google Drive CAD GraphRAG 팩도 main에 있다(`e9bd7eb`).
+- 메인 PC 전환은 끝나지 않았다. 2026-10-09 `-Apply`는 venv 설치, DB 볼륨 유지, `\AEC\` 작업 XML 백업까지 하고, 예약 작업 재등록 전에 Windows PowerShell 5.1 따옴표 `SyntaxError`로 멈췄다. 다음 행동은 깨끗한 `main`에서 드라이런 다음 `-Apply`이다. `-SkipVenv`는 쓰지 않는다. 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md).
+- All-In-Cad #17(`agent/autocad-host-2027`)은 2026-10-29에 병합됐고 #18–#22도 병합됐다. 열린 PR은 없다.
+- zium-onboarding PR #2(템플릿 테스트 수정, 2026-10-08에 열림, 당시 CI 초록)는 오너가 검토하고 병합한다. 이 환경에서는 그 저장소가 보이지 않아 병합 여부는 다시 확인하지 못했다.
+
+아래 "2026-10-08 저녁" 절의 테스트 숫자와 "체크 15개"는 그날의 기록이다.
+
+**지금 main에 걸리는 CI**
+Tests(pytest, Windows pytest, uv.lock), Verify(SQLite·API, PostgreSQL 마이그레이션), AEC/CAD(lint·테스트, 운영 스택, api 이미지, GOD-CAD Ubuntu·Windows), Regulation(ArchOntos 핀·가드·브리지·마이그레이션), Public security(privacy, dependencies), CircleCI pytest. #106·#107은 이 묶음이 초록인 상태에서 병합됐다. ArchOntos Helm 렌더와 lint·타입 검사는 ArchOntos 저장소 CI에서 돈다.
+
+**열린 PR**
+- #108 준비됨(드래프트 아님), main과 충돌 없음, 33커밋 뒤처짐, 2026-11-07 헤드 CI 초록. SketchUp preflight 실패 시 이번 실행이 만든 파일을 되돌린다.
+- #118 드래프트, 충돌 없음, #106·#107만큼(7커밋) 뒤처짐, CI 초록. 토지 레이어 오류·스키마 검증 불가면 fail-closed.
+- #115 드래프트, 충돌 없음, 31커밋 뒤처짐, CI 초록. SketchUp 모델 불변·로케이터 검사(#79)와 kordoc-evidence/1 계약 테스트(#71).
+- #112 드래프트, 충돌 없음, 31커밋 뒤처짐, CI 초록. Ontology와 `packages/aec`의 읽기 전용 드리프트 목록.
+- #109 드래프트, 병합은 되나 `official-inference` 실패(나머지 초록), 33커밋 뒤처짐. NVIDIA Auto Ontology 읽기 전용 연동.
+- #113 드래프트, 충돌(`gdrive_cad/README.md`, `graphrag/ask.py`, `parsers.py`). 같은 팩은 이미 main에 있다.
+- #101 드래프트, 충돌(`pyproject.toml`, `uv.lock`, 삭제된 `packages/regulation/CHANGELOG.md`, `docs/CLOUD_COMPLETION_2026-11-05.md`), 77커밋 뒤처짐. 벤더 트리에 넣던 건축·토지 검토 워크플로.
+
+**열린 이슈**
+- #3 31노드/43관계 구조화 반입. 후보는 올라와 있고 `/review` 판정은 오너만 한다. #53의 `data/review/sion-map-relation-decisions.json`은 36건 승인·7건 보류 제안일 뿐, 적용되지 않는다.
+- #33 SketchUp/Drive 후속 체크리스트.
+- #71 모바일·PC 독립 운영, Kordoc 연동, 검토/쓰기 E2E.
+- #79 다른 SketchUp 모델 추가 수집 파이프라인.
+- #80 `/review` 승인 결과를 지침 가중치에 반영. #96–#99로 단계가 들어왔으나 이슈는 열려 있다. 자동 승인은 없다.
+
+## 현재 상태 (2026-10-08 22:00 KST 재확인) — 당시 기록
+
+기준: `main` `e2bffe3`(#48), 커밋 316개. 그날 기준으로 열린 PR은 상태 문서 PR뿐이었고, 열린 이슈는 #3·#33이었다.
+
+**테스트** (2026-10-08 측정값)
 
 | 범위 | 설치 | 결과 |
 |---|---|---|
@@ -95,12 +127,12 @@
 
 0. **최우선(어느 PC든):** HS-CAD `opencode.json`에 커밋됐던 Google AI Studio API 키 교체(2026-05-21부터 공개 히스토리, main은 #158로 환경변수 사용) → HS-CAD 비밀 스캔 알림 #1을 "Revoked"로 닫기. 선택: power-cad-mcp·hs-steel-cad·All-In-Cad에 Dependabot + 비밀 스캔 켜기. 자세한 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 맨 위.
 0b. ~~HS-CAD PR 판단~~ — 2026-11-03 제외: HS-CAD 사용 중단, CAD 호스트 연동은 power-cad-mcp만 사용(HS-CAD 계약 제거). 0번 API 키 폐기는 그대로 필요. (이전 내용: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.)
-0c. All-In-Cad 브랜치 `agent/autocad-host-2027`(`edba1f9`, CI 통과)을 PR로 올려 병합할지 결정. zium-onboarding 템플릿 테스트 실패 11개 수정.
-1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33).
-2. 메인 PC 온라인 시 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 실행 — 보관된 Ontology 체크아웃 → `packages/aec` 전환(`switch-to-monorepo.ps1` 드라이런 후 `-Apply`).
+0c. zium-onboarding PR #2(템플릿 테스트 수정, 2026-10-08에 열림, 당시 CI 초록)는 오너가 검토·병합한다. 병합 여부는 이 환경에서 저장소가 보이지 않아 다시 확인하지 못했다. All-In-Cad는 #17(2026-10-29)과 #18–#22가 병합됐고 열린 PR이 없다.
+1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33, #79, #80). 이 판정은 오너만 한다. 자동 승인은 없다. #53 제안 파일은 적용 기록이 아니다.
+2. 메인 PC가 켜지면 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 2단계를 순서대로 실행한다. `switch-to-monorepo.ps1`를 먼저 드라이런하고, DB 볼륨이 같으면 `-Apply`한다. 2026-10-09 실행은 `\AEC\` 재등록 전에 멈췄으므로 그 항목은 체크하지 않는다. `-SkipVenv`는 쓰지 않는다.
 3. `AutoSync_Code_To_GDrive` 예약작업 비활성화 확인 (라이브 DB 복사 금지).
 4. 전환 후 GraphRAG 재색인(FAILED 커뮤니티 6건 재시도).
 5. 운영 방화벽 스크립트 관리자 실행(18080/22217), DB 덤프를 DB와 다른 디스크로 복사.
 6. SketchUp 덤프 경로(`skp_path`) 보존 여부 결정.
 7. 12:23 이전에 만든 PC의 예전 체크아웃을 새 히스토리로 맞추거나 보관(백업 후 `fetch` + `reset --hard origin/main`). 그 전에는 거기서 푸시 금지.
-8. 고유 커밋이 남은 오래된 원격 브랜치 19개를 남길지 정리할지 결정.
+8. 2026-10-08에 고유 커밋이 있어 남겨 둔 원격 브랜치 19개는 2026-11-11에도 그 이름으로 남아 있다. 남길지 지울지 결정한다. 그 밖에 원격 브랜치는 더 있다(이날 헤드 83개).
