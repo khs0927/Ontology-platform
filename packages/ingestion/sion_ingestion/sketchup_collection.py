@@ -622,11 +622,14 @@ def _is_built(namespace: str, entry: dict[str, str], root: Path) -> bool:
 class _Journal:
     """Records every file scaffold writes so a failed run can be undone completely."""
 
-    def __init__(self) -> None:
+    def __init__(self, root: Path) -> None:
+        self.root = root
         self.files: list[tuple[Path, bytes | None]] = []
         self.dirs: list[Path] = []
 
     def write(self, path: Path, data: bytes) -> None:
+        if not path.is_relative_to(self.root) or path.resolve() != path:
+            raise CollectionError("scaffold output must be a direct path inside the repository")
         missing: list[Path] = []
         d = path.parent
         while not d.exists():
@@ -663,11 +666,12 @@ def scaffold(
 ) -> dict[str, Any]:
     """Register a namespace, write its manifest, build + check the export and emit a test stub.
 
-    All inputs are validated and the export is built in memory before anything is written; if a
-    later step fails, every file written by this call (registry included) is restored.
+    If the build or final preflight fails, every file written by this call
+    (including the registry) is restored.
     """
     if not NAMESPACE_RE.match(namespace):
         raise CollectionError(f"namespace {namespace!r} must match {NAMESPACE_RE.pattern}")
+    root = root.resolve()
     guidelines = _repo_relative(guidelines, "--guidelines") if guidelines is not None else None
     grouping_doc = _repo_relative(grouping_doc, "--grouping-doc") if grouping_doc is not None else None
     classes = _repo_relative(classes, "--classes") if classes is not None else None
@@ -728,7 +732,7 @@ def scaffold(
     if existing not in (None, entry) and not force and _is_built(namespace, existing, root):
         raise CollectionError(f"namespace {namespace!r} is already registered differently; pass --force")
 
-    journal = _Journal()
+    journal = _Journal(root)
     try:
         # 3) captures and the classification overlay skeleton (pinned to the dump, nothing approved)
         for name, (src, data) in copies.items():
@@ -773,12 +777,16 @@ def scaffold(
             stub = TEST_STUB.format(ns=namespace, sha=dump_sha, ident=ident)
             journal.write(test_path, stub.encode("utf-8"))
             actions.append(f"wrote {_rel(test_path, root)}")
+
+        findings = preflight_namespace(namespace, root)
     except BaseException:
         journal.rollback()
         raise
 
-    findings = preflight_namespace(namespace, root)
-    return {"namespace": namespace, "actions": actions, "preflight": findings, "ok": not findings}
+    if findings:
+        journal.rollback()
+        return {"namespace": namespace, "actions": [], "preflight": findings, "ok": False}
+    return {"namespace": namespace, "actions": actions, "preflight": [], "ok": True}
 
 
 # --------------------------------------------------------------------------- CLI
