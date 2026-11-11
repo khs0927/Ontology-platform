@@ -19,8 +19,6 @@ BASE = "http://localhost:3000"
 TIMEOUT = 1500
 GOLD = 2
 ALLOWLIST_VIEW = "sion_nv_pilot.verified_project_objects"
-GITHUB_WORKSPACE = Path(os.environ["GITHUB_WORKSPACE"])
-ENV_FILE = GITHUB_WORKSPACE / "nvidia" / ".env"
 
 
 def log(message: str) -> None:
@@ -31,9 +29,16 @@ def log(message: str) -> None:
             out.write(message.replace("|", r"\|") + "\n")
 
 
+def env_file() -> Path:
+    workspace = os.environ.get("GITHUB_WORKSPACE")
+    if not workspace:
+        raise RuntimeError("GITHUB_WORKSPACE is not set")
+    return Path(workspace) / "nvidia" / ".env"
+
+
 def cfg() -> dict[str, str]:
     return dict(
-        line.partition("=")[::2] for line in ENV_FILE.read_text().splitlines()
+        line.partition("=")[::2] for line in env_file().read_text().splitlines()
         if line and not line.startswith("#") and "=" in line
     )
 
@@ -218,19 +223,37 @@ def verify_terms(client: httpx.Client, auth: dict[str, str]) -> None:
     log(f"PASS official NVIDIA ontology materialized {len(terms)} Term(s) [unverified]")
 
 
-def scalar_counts(value: object) -> list[int]:
-    """Validate a numerical answer without relying on fixed LLM column alias."""
-    if isinstance(value, bool):
-        return []
-    if isinstance(value, int):
-        return [value]
-    if isinstance(value, float) and value.is_integer():
-        return [int(value)]
-    if isinstance(value, dict):
-        return [number for v in value.values() for number in scalar_counts(v)]
-    if isinstance(value, list):
-        return [number for v in value for number in scalar_counts(v)]
-    return []
+def executed_aggregate(value: object) -> int:
+    """Return the one integer NVIDIA executed, after decoding its row envelope.
+
+    ``sql_execution`` JSON-encodes the dataframe and stores that string in a
+    one-item list (``['[{"count": 2}]']``). Walking the list without
+    ``json.loads`` sees only text, so a correct count of 2 was reported as a
+    mismatch. A decoded integer other than the golden still fails the caller.
+    Row dumps are not aggregates.
+    """
+    raw = value
+    for _ in range(4):
+        if isinstance(raw, str):
+            try:
+                raw = json.loads(raw)
+            except json.JSONDecodeError as error:
+                raise ValueError("SQL result envelope is not JSON") from error
+        elif isinstance(raw, list) and len(raw) == 1:
+            raw = raw[0]
+        else:
+            break
+    if isinstance(raw, dict) and len(raw) == 1:
+        number = next(iter(raw.values()))
+        if isinstance(number, bool):
+            raise ValueError("SQL result is not a single integer aggregate")
+        if isinstance(number, int):
+            return number
+        if isinstance(number, float) and number.is_integer():
+            return int(number)
+        if isinstance(number, str) and number.isdigit():
+            return int(number)
+    raise ValueError("SQL result is not a single integer aggregate")
 
 
 def ask_official_agent(client: httpx.Client, auth: dict[str, str]) -> None:
@@ -283,8 +306,15 @@ def ask_official_agent(client: httpx.Client, auth: dict[str, str]) -> None:
     if any(x in query.casefold() for x in ("delete ", "update ", "insert ", "drop ", "public.entities", "public.relations", "public.evidence")):
         raise AssertionError("unexpected non-read-only or base table SQL")
     rows = answer.get("sql_response_from_db")
-    if GOLD not in scalar_counts(rows):
-        raise AssertionError("official NVIDIA agent SQL result disagrees with synthetic golden count 2")
+    try:
+        observed = executed_aggregate(rows)
+    except ValueError as error:
+        raise AssertionError(str(error)) from error
+    if observed != GOLD:
+        raise AssertionError(
+            "official NVIDIA agent SQL result disagrees with synthetic golden count "
+            f"{GOLD} (observed aggregate {observed})"
+        )
     log("PASS real NVIDIA retrieval + official NL2SQL agent + guarded PostgreSQL execution: count=2")
     log(f"PASS official NVIDIA SSE events={count_events}, result and [DONE] observed; model/key/SQL text redacted")
 
