@@ -141,3 +141,19 @@ jobs:
       - run: python -m pytest -q
       - run: python scripts/export_schemas.py --check
       - run: python scripts/demo.py --out artifacts/ci-demo
+
+  switch-to-monorepo-powershell:
+    name: switch-to-monorepo parse + argv (Windows PowerShell 5.1 and PowerShell 7)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Parse and argv round-trip (Windows PowerShell 5.1)
+        shell: powershell
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File packages/aec/scripts/ops/switch-to-monorepo.ps1 -SelfTest
+      - name: Parse and argv round-trip (PowerShell 7)
+        shell: pwsh
+        run: pwsh -NoProfile -ExecutionPolicy Bypass -File packages/aec/scripts/ops/switch-to-monorepo.ps1 -SelfTest
