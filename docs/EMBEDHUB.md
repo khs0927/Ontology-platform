@@ -10,7 +10,7 @@ same embedding space (model + dimension)**. Equal dimension does not make two mo
 | `providers` | `Embedder.embed(items, role="passage"|"query", dim=None)`; retries, key rotation, batch halving, L2 normalisation, injectable transport. Batch halving applies only to 5xx/413/transport failures; 4xx auth/validation errors surface immediately. |
 | `fusion` | `rrf()` rank fusion across spaces; `agreement()` -> `confirmed` / `partial` / `conflict` / `single_source` |
 | `store` | `ddl(spec, dim)` -> one pgvector table per space (`halfvec` above 2000 dims); the HNSW index is emitted only up to the pgvector limit (4000 dims for `halfvec`), above that the column stays and exact search is used |
-| `bench` / `cli` | recall@k and MRR per model plus RRF fusion; `python -m sion_embedhub.cli models|probe|bench` |
+| `bench` / `cli` | recall@k and MRR per model plus RRF fusion; `python -m sion_embedhub.cli models|probe|bench|bench-drawings` |
 
 ## Models probed live (NVIDIA API, 2026-11-06)
 
@@ -59,6 +59,22 @@ rendered with matplotlib), 28 hand-labelled queries (`packages/embedhub/bench/dr
 few English). Rebuild with `python packages/embedhub/bench/build_drawings_dataset.py OUT_DIR`, then
 `python -m sion_embedhub.cli bench OUT_DIR/drawings.jsonl --models nv-1b:1024 nv-8b:1024 nv-vl:1024 nv-vl@image:1024 bge-m3`
 (`@image` indexes the rendered sheet instead of its text).
+
+One command does both steps:
+
+```bash
+python -m sion_embedhub.cli bench-drawings OUT_DIR
+```
+
+Default models are `nv-1b:1024` (text-only baseline), `nv-vl:1024` (same model, text side) and
+`nv-vl@image:1024` (rendered sheet). Pass `--models` to add `nv-8b:1024` and `bge-m3` as in the table below.
+Without `NVIDIA_API_KEY` the command still renders, prints `skipped`, and does not call NVIDIA or write a
+results file. `--offline` scores that same render with a fake embedder (CI); those numbers are not NVIDIA
+results and are not recorded here. `--results FILE` writes the report only after a live model run.
+
+한 명령으로 재현한다: `python -m sion_embedhub.cli bench-drawings OUT_DIR`.
+`NVIDIA_API_KEY`가 없으면 시트만 렌더하고 라이브 호출은 건너뛴다. CI는 `--offline`로 같은 렌더와 채점 경로를
+가짜 임베더에 태우며, 그 점수는 NVIDIA 결과가 아니다.
 
 | space | recall@1 | MRR |
 | --- | --- | --- |

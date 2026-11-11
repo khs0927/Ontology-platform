@@ -10,7 +10,7 @@
 
 Local-first ontology / knowledge graph / GraphRAG platform with automated multi-agent session ingestion, evidence tracking, and cross-device Google Drive persistence.
 
-Current milestone: monorepo consolidation (v0.2.0) — regulation, AEC and GOD-CAD merged; bridged repos on versioned contracts.
+Current milestone: monorepo consolidation (v0.3.0) — regulation, AEC and GOD-CAD merged; bridged repos on versioned contracts. See [CHANGELOG.md](CHANGELOG.md).
 
 - **Code history**: Git/GitHub (`khs0927/Ontology-platform`)
 - **Active editing**: Local disk on each computer

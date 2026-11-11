@@ -5,7 +5,9 @@
 존재하지 않으며 이 문서도 만들지 않는다. 아래 배포 흐름은 템플릿이다.
 
 관련 문서: `docs/STORAGE.md`, `docs/ops/DRIVE-LAYOUT.ko.md`, `apps/api/README.md`,
-`docs/INTEGRATION_CONTRACTS.md`.
+`docs/INTEGRATION_CONTRACTS.md`. PC의 `aec-db`/`aec-api`를 그 PC가 꺼져 있어도 휴대폰에서
+읽기만 하게 두는 설계와 배포 파일은 `docs/ops/PC-INDEPENDENT-RUNTIME.md`에 있다. 이 런북의
+배포 템플릿은 바꾸지 않는다.
 
 ---
 

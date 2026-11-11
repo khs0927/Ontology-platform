@@ -1,0 +1,52 @@
+# Read-only mobile API. This file is not loaded by `docker compose up` in packages/aec.
+# Do not add this service to packages/aec/docker-compose.yml, and do not point the URL
+# below at the live PC database. Design: docs/ops/PC-INDEPENDENT-RUNTIME.md.
+#
+# Setup (the .env next to this file is gitignored; env.example is the template):
+#   cp env.example .env
+#   docker compose -f packages/aec/deploy/mobile-readonly/compose.yml up -d --build
+
+name: aec-mobile-readonly
+
+services:
+  api:
+    image: aec-intelligence-app:latest
+    build:
+      context: ../../../..
+      dockerfile: packages/aec/docker/Dockerfile.app
+    container_name: aec-api-readonly
+    command: ["python", "-m", "aec_intelligence.operational.readonly"]
+    ports:
+      - "127.0.0.1:${AEC_READONLY_HOST_PORT:-58010}:8000"
+    environment:
+      AEC_API_READ_ONLY: "1"
+      AEC_API_TOKEN: ${AEC_READONLY_API_TOKEN:?AEC_READONLY_API_TOKEN_is_required}
+      AEC_DATABASE_URL: ${AEC_READONLY_DATABASE_URL:?AEC_READONLY_DATABASE_URL_is_required}
+      AEC_DATA_ROOT: /tmp/aec-readonly
+      AEC_IMPORT_ROOTS: /tmp/aec-readonly
+      AEC_EMBEDDING_URL: ""
+      AEC_LLM_URL: ""
+      AEC_LLM_ALLOW_REMOTE: "0"
+      AEC_INTERACTIVE_YIELD_SECONDS: "0"
+      PYTHONDONTWRITEBYTECODE: "1"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    pids_limit: 256
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

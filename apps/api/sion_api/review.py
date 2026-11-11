@@ -49,6 +49,9 @@ Safe review writes (#71 steps E/F):
   folds the log from the initial pending state and must reproduce the stored state and version.
 * **Low-trust edges** - inferred candidates backed only by co-occurrence (or explicitly marked
   ``trust: low`` / ``low_trust: true``) cannot be approved without ``confirm_low_trust``.
+* **Sitting fields** - ``serialize`` also returns read-only ``basis_ko``, ``predicate``, ``role``,
+  ``queue`` (``map``, ``sketchup_class``, ``workflow``, ``other``) and a short entity description.
+  Listing, filtering and these fields never change ``verification_state``.
 """
 
 from __future__ import annotations
@@ -124,6 +127,72 @@ class LowTrustConfirmationRequired(ReviewError):
 
 
 LOW_TRUST_RULES = frozenset({"co-occurrence", "cooccurrence"})
+# Issue #33 workflow links (guideline, grouping steps, class/tool/evidence citations).
+WORKFLOW_PREDICATES = frozenset(
+    {
+        "step_of_workflow",
+        "after_step",
+        "derived_from_model",
+        "applies_to_class",
+        "executed_with_tool",
+        "cites_model_evidence",
+        "follows_step",
+        "precedes",
+        "applies_rule",
+        "rule_of_workflow",
+        "document_of_workflow",
+        "sub_workflow_of_modeling",
+        "expands_guideline",
+        "derived_from_grouping_probe",
+    }
+)
+QUEUE_MAP = "map"
+QUEUE_SKETCHUP_CLASS = "sketchup_class"
+QUEUE_WORKFLOW = "workflow"
+QUEUE_OTHER = "other"
+_BLURB_LIMIT = 280
+
+
+def review_queue(
+    properties: dict[str, Any] | None,
+    *,
+    source_file: str | None = None,
+    source_key: str | None = None,
+    target_key: str | None = None,
+) -> str:
+    """Which human sitting a candidate belongs to. Display only; never a decision."""
+    props = properties or {}
+    predicate = props.get("predicate")
+    if predicate == "classified_as":
+        return QUEUE_SKETCHUP_CLASS
+    if predicate in WORKFLOW_PREDICATES:
+        return QUEUE_WORKFLOW
+    names = [source_file or ""]
+    provenance = props.get("provenance")
+    if isinstance(provenance, dict):
+        names.append(str(provenance.get("source_file") or ""))
+    if any(name.endswith("sion-map-production.json") for name in names):
+        return QUEUE_MAP
+    if str(source_key or "").startswith("map:") or str(target_key or "").startswith("map:"):
+        return QUEUE_MAP
+    return QUEUE_OTHER
+
+
+def _blurb(text: str | None) -> str | None:
+    if not isinstance(text, str):
+        return None
+    compact = " ".join(text.split())
+    if not compact:
+        return None
+    if len(compact) <= _BLURB_LIMIT:
+        return compact
+    return compact[: _BLURB_LIMIT - 1] + "…"
+
+
+def _text_or_none(value: Any) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
 
 
 def is_low_trust(row: models.Relation) -> bool:
@@ -152,7 +221,14 @@ def _candidate_rows(session: Session, states: list[str]) -> list[models.Relation
 def _entity_brief(row: models.Entity | None) -> dict[str, Any] | None:
     if row is None:
         return None
-    return {"id": str(row.id), "stable_key": row.stable_key, "name": row.name, "entity_type_id": row.entity_type_id, "category": row.category}
+    return {
+        "id": str(row.id),
+        "stable_key": row.stable_key,
+        "name": row.name,
+        "entity_type_id": row.entity_type_id,
+        "category": row.category,
+        "description": _blurb(row.description),
+    }
 
 
 def _source_checksum(properties: dict[str, Any]) -> str | None:
@@ -188,32 +264,62 @@ def _source_file(properties: dict[str, Any], evidence: list[models.Evidence]) ->
     return None
 
 
-def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 10) -> dict[str, Any]:
-    evidence = list(
-        session.scalars(
-            select(models.Evidence)
-            .where(models.Evidence.relation_id == row.id)
-            .order_by(models.Evidence.created_at, models.Evidence.id)
-            .limit(evidence_limit)
+def serialize(
+    session: Session,
+    row: models.Relation,
+    *,
+    evidence_limit: int = 10,
+    evidence: list[models.Evidence] | None = None,
+    evidence_count: int | None = None,
+    entities: dict[uuid.UUID, models.Entity] | None = None,
+) -> dict[str, Any]:
+    if evidence is None:
+        evidence = list(
+            session.scalars(
+                select(models.Evidence)
+                .where(models.Evidence.relation_id == row.id)
+                .order_by(models.Evidence.created_at, models.Evidence.id)
+                .limit(evidence_limit)
+            )
         )
-    )
-    evidence_count = session.scalar(select(func.count()).select_from(models.Evidence).where(models.Evidence.relation_id == row.id))
+    if evidence_count is None:
+        evidence_count = session.scalar(
+            select(func.count()).select_from(models.Evidence).where(models.Evidence.relation_id == row.id)
+        )
     properties = dict(row.properties or {})
+
+    def brief(entity_id: uuid.UUID) -> dict[str, Any] | None:
+        if entities is None:
+            return _entity_brief(session.get(models.Entity, entity_id))
+        return _entity_brief(entities.get(entity_id))
+
+    source = brief(row.source_entity_id)
+    target = brief(row.target_entity_id)
+    source_file = _source_file(properties, evidence)
     return {
         "id": str(row.id),
         "stable_key": row.stable_key,
         "status": STATE_TO_STATUS.get(row.verification_state, row.verification_state),
         "verification_state": row.verification_state,
         "relation_type_id": row.relation_type_id,
+        "predicate": _text_or_none(properties.get("predicate")),
+        "basis_ko": _text_or_none(properties.get("basis_ko")),
+        "role": _text_or_none(properties.get("role")),
+        "queue": review_queue(
+            properties,
+            source_file=source_file,
+            source_key=None if source is None else source.get("stable_key"),
+            target_key=None if target is None else target.get("stable_key"),
+        ),
         "confidence": row.confidence,
         "source_kind": row.source_kind,
-        "source": _entity_brief(session.get(models.Entity, row.source_entity_id)),
-        "target": _entity_brief(session.get(models.Entity, row.target_entity_id)),
+        "source": source,
+        "target": target,
         "extractor": properties.get("extractor"),
         "rules": properties.get("rules") or ([properties["rule"]] if properties.get("rule") else []),
         "support": properties.get("support", evidence_count),
         "provenance": properties.get("provenance"),
-        "source_file": _source_file(properties, evidence),
+        "source_file": source_file,
         "source_locator": _source_locator(properties),
         "source_sha256": _source_checksum(properties),
         "review": properties.get("review"),
@@ -239,17 +345,55 @@ def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 1
     }
 
 
+def _serialize_page(session: Session, rows: list[models.Relation], *, evidence_limit: int = 10) -> list[dict[str, Any]]:
+    """Serialize a page with one evidence query and one entity query (the sitting loads hundreds)."""
+    if not rows:
+        return []
+    relation_ids = [row.id for row in rows]
+    grouped: dict[uuid.UUID, list[models.Evidence]] = {}
+    totals: dict[uuid.UUID, int] = {}
+    evidence_rows = session.scalars(
+        select(models.Evidence)
+        .where(models.Evidence.relation_id.in_(relation_ids))
+        .order_by(models.Evidence.created_at, models.Evidence.id)
+    )
+    for evidence in evidence_rows:
+        if evidence.relation_id is None:
+            continue
+        totals[evidence.relation_id] = totals.get(evidence.relation_id, 0) + 1
+        bucket = grouped.setdefault(evidence.relation_id, [])
+        if len(bucket) < evidence_limit:
+            bucket.append(evidence)
+    entity_ids = {entity_id for row in rows for entity_id in (row.source_entity_id, row.target_entity_id)}
+    entities = {
+        entity.id: entity
+        for entity in session.scalars(select(models.Entity).where(models.Entity.id.in_(entity_ids)))
+    }
+    return [
+        serialize(
+            session,
+            row,
+            evidence_limit=evidence_limit,
+            evidence=grouped.get(row.id, []),
+            evidence_count=totals.get(row.id, 0),
+            entities=entities,
+        )
+        for row in rows
+    ]
+
+
 def list_candidates(session: Session, *, status: str = "pending", limit: int = 100, offset: int = 0) -> dict[str, Any]:
-    if status == "all":
-        states = list(STATUS_TO_STATE.values())
-    elif status in STATUS_TO_STATE:
-        states = [STATUS_TO_STATE[status]]
-    else:
+    if status != "all" and status not in STATUS_TO_STATE:
         raise ReviewError(f"status must be one of pending, approved, rejected, all (got {status!r})")
-    rows = _candidate_rows(session, states)
+    all_rows = _candidate_rows(session, list(STATUS_TO_STATE.values()))
     counts = {name: 0 for name in STATUS_TO_STATE}
-    for row in _candidate_rows(session, list(STATUS_TO_STATE.values())):
+    for row in all_rows:
         counts[STATE_TO_STATUS[row.verification_state]] += 1
+    if status == "all":
+        rows = all_rows
+    else:
+        want = STATUS_TO_STATE[status]
+        rows = [row for row in all_rows if row.verification_state == want]
     page = rows[offset : offset + limit]
     return {
         "status": status,
@@ -257,7 +401,7 @@ def list_candidates(session: Session, *, status: str = "pending", limit: int = 1
         "counts": counts,
         "limit": limit,
         "offset": offset,
-        "candidates": [serialize(session, row) for row in page],
+        "candidates": _serialize_page(session, page),
     }
 
 
