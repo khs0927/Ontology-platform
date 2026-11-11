@@ -10,7 +10,7 @@ module GrokGroupingProbe
   def self.inst?(e); e.is_a?(Sketchup::Group) || e.is_a?(Sketchup::ComponentInstance); end
 
   def self.run(out)
-    m = Sketchup.active_model
+    m = Sketchup.active_model; mod0 = m.modified?
     t0 = Time.now
     nodes = []
     walk = lambda do |ents, parent_path, depth|
@@ -64,7 +64,7 @@ module GrokGroupingProbe
     res = {
       '_meta' => { 'tool' => 'grokbot read-only grouping probe v1', 'dumped_at' => Time.now.strftime('%Y-%m-%d %H:%M:%S %z'),
                    'model' => m.title, 'length_unit' => 'mm', 'elapsed_s' => (Time.now - t0).round(2) },
-      'model_modified' => m.modified?, 'active_path' => (m.active_path || []).map { |e| e.persistent_id },
+      'model_modified' => m.modified?, 'modified_before' => mod0, 'modified_after' => m.modified?, 'active_path' => (m.active_path || []).map { |e| e.persistent_id },
       'nodes' => nodes, 'definitions' => defs
     }
     File.open(out, 'w:UTF-8') { |f| f.write(JSON.pretty_generate(res)) }

@@ -44,3 +44,23 @@
 ## 판단 범위
 
 `canonical:false`와 `unverified`는 저장 후에도 유지한다. 작업을 완료 처리해도 법적 적합성이 확인되는 것은 아니다. 플랫폼은 게이트웨이의 서버 소유 audit run만 가져오며 임의 보고서 업로드를 받지 않는다. 스키마 검사는 형식 검증이며 원문 진위나 법규 적용성을 증명하지 않는다. 검토된 규칙이 없는 경우, 조례·지구단위계획·공간 범위·시점 근거가 부족한 경우에는 판정이 보류된다.
+
+## 중첩규제 검토 실행
+
+`/regulation` 화면과 `/api/v1/regulation/reviews/*`는 필지·제안행위·기준일을 고정해 검토 범위와 미확인 항목을 만든다. 조회에는 read:knowledge, 제안·설명·실행·재개·취소·저장에는 write:knowledge가 필요하다. 쓰기 요청은 `dry_run`으로 미리 볼 수 있고 이 경로에는 Jev 단계가 없다. 다른 프로젝트의 실행은 없는 실행과 똑같이 404로 응답한다.
+
+| 제안 도구 | REST |
+|---|---|
+| regulation.plan_review | `POST /api/v1/regulation/reviews/plan` |
+| regulation.start_review | `POST /api/v1/regulation/reviews` |
+| regulation.get_review | `GET /api/v1/regulation/reviews/{run_id}?project_id=` |
+| regulation.resume_review | `POST /api/v1/regulation/reviews/{run_id}/resume` |
+| regulation.get_basis | `GET /api/v1/regulation/reviews/basis/{evidence_id}?project_id=` |
+| regulation.explain | `POST /api/v1/regulation/reviews/{run_id}/explain` |
+| regulation.compare | `GET /api/v1/regulation/reviews/{run_id}/compare?project_id=&to=` |
+| regulation.save_work | `POST /api/v1/regulation/reviews/{run_id}/works` |
+| regulation.get_briefing | `GET /api/v1/regulation/reviews/works/{work_id}/briefing?project_id=` |
+
+저장은 서버가 가진 실행 결과만 받는다. 응답의 `verified:true`는 저장한 행을 다시 읽어 digest를 대조했다는 뜻이다. 재개는 새 revision을 만들고 이전 결과를 바꾸지 않는다.
+
+`aec-mcp-router` 어댑터는 아직 없다. 위 표는 어댑터가 호출할 경로이고, 라우터 쪽 구현과 시험은 그 저장소에서 해야 한다. 자세한 상태는 [구현 현황](regulation/IMPLEMENTATION-STATUS.md)에 있다.

@@ -62,6 +62,8 @@ CONTENT_INDEX_SCHEMA = "sion-sketchup-content-index/v1"
 CONTENT_INDEX_REL = "data/sources/sketchup/content-index.json"
 SOURCES_REL = "data/sources/sketchup"
 SUPPLEMENT_SCHEMA_PREFIX = "sion-sketchup-classification-supplement/"
+#: Evidence locator every supplement candidate carries (scripts/sketchup/propose_supplement.py).
+LOCATOR_KEY = "hierarchy_locator"
 DEFAULT_LIMITS = {"max_input_bytes": 4 * 1024 * 1024, "max_output_bytes": 16 * 1024 * 1024}
 NAMESPACE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 TEXT_SUFFIXES = {".json", ".md", ".txt", ".csv"}
@@ -505,12 +507,18 @@ def _check_classification(
     return out
 
 
-def _candidate_findings(ns: str, loc: str, a: dict[str, Any]) -> list[dict[str, Any]]:
-    """Classifications are inferred review candidates: never verified, approved or certain."""
+def _candidate_findings(ns: str, loc: str, a: dict[str, Any], *, locator: bool = False) -> list[dict[str, Any]]:
+    """Classifications are inferred review candidates: never verified, approved or certain.
+
+    ``locator``: the candidate must also cite its evidence (``hierarchy_locator``). Only the supplement
+    schema carries one; the v1 classification overlay predates it.
+    """
     out = []
     conf = a.get("confidence")
     if not isinstance(conf, (int, float)) or isinstance(conf, bool) or not 0 < conf < 1:
         out.append(_finding(ns, "candidate", loc, "confidence must be a number strictly between 0 and 1"))
+    if locator and not (isinstance(a.get(LOCATOR_KEY), str) and a[LOCATOR_KEY].strip()):
+        out.append(_finding(ns, "candidate", loc, f"{LOCATOR_KEY} (evidence locator) is required"))
     if a.get("verification_state", "unverified") != "unverified":
         out.append(_finding(ns, "candidate", loc, "verification_state must stay 'unverified' (approve on /review)"))
     if a.get("source_kind", "inferred") != "inferred":
@@ -684,6 +692,39 @@ def _readonly_script_findings(root: Path) -> list[dict[str, Any]]:
     return out
 
 
+def _modified_state(data: Any) -> tuple[Any, Any]:
+    """(modified_before, modified_after) of a capture, top level or under ``model``; None when absent."""
+    if not isinstance(data, dict):
+        return None, None
+    for d in (data, data.get("model")):
+        if isinstance(d, dict) and ("modified_before" in d or "modified_after" in d):
+            return d.get("modified_before"), d.get("modified_after")
+    return None, None
+
+
+def preflight_warnings(namespace: str, root: Path = ROOT) -> list[dict[str, Any]]:
+    """Non-blocking findings (``severity: warning``): captures taken from an already-dirty model.
+
+    Captures without ``modified_before`` fall back to the single legacy ``modified``/``model_modified`` value.
+    """
+    out: list[dict[str, Any]] = []
+    for f in sorted(namespace_dir(namespace, root).glob("*.json")):
+        if f.name == MANIFEST_NAME:
+            continue
+        try:
+            data = json.loads(f.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError):
+            continue  # preflight reports it
+        before = _modified_state(data)[0]
+        if before is None and isinstance(data, dict):
+            model = data.get("model") if isinstance(data.get("model"), dict) else {}
+            before = data.get("model_modified", model.get("modified"))
+        if before is True:
+            msg = "captured from a model with unsaved changes (modified_before is true)"
+            out.append({**_finding(namespace, "model-dirty", _rel(f, root), msg), "severity": "warning"})
+    return out
+
+
 def preflight_namespace(namespace: str, root: Path = ROOT, *, build: bool = False) -> list[dict[str, Any]]:
     ns = namespace
     out: list[dict[str, Any]] = []
@@ -794,11 +835,12 @@ def preflight_namespace(namespace: str, root: Path = ROOT, *, build: bool = Fals
         hierarchy_doc = parsed.get("hierarchy", (None, None))[1]
         for i, a in enumerate(data.get("assignments") or []):
             loc = f"{rel} $.assignments[{i}]"
-            out.extend(_candidate_findings(ns, loc, {"verification_state": None, "source_kind": None, **a}))
-            pointer = a.get("hierarchy_locator")
-            if not isinstance(pointer, str) or not pointer.startswith("$."):
+            a = {"verification_state": None, "source_kind": None, **a}
+            out.extend(_candidate_findings(ns, loc, a, locator=True))
+            pointer = a.get(LOCATOR_KEY)
+            if isinstance(pointer, str) and pointer.strip() and not pointer.startswith("$."):
                 out.append(_finding(ns, "candidate", loc, "hierarchy_locator must stay on the supplement candidate"))
-            elif isinstance(hierarchy_doc, dict):
+            elif isinstance(pointer, str) and pointer.startswith("$.") and isinstance(hierarchy_doc, dict):
                 node = resolve_locator(hierarchy_doc, pointer)
                 if not isinstance(node, dict) or node.get("pid") != a.get("pid"):
                     out.append(
@@ -808,6 +850,9 @@ def preflight_namespace(namespace: str, root: Path = ROOT, *, build: bool = Fals
         out.extend(_check_order(ns, dump, parsed))
         out.extend(_check_model_unchanged(ns, dump, parsed, manifest))
         out.extend(_check_content_address(ns, root, manifest))
+    for rel, data in parsed.values():
+        if _modified_state(data)[0] is False and _modified_state(data)[1] is True:
+            out.append(_finding(ns, "model-modified", rel, "the read-only capture changed the model"))
 
     # ---- optional: regenerate and compare (same as `sketchup_assets build --check`)
     if build and entry is not None and not out:
@@ -1415,7 +1460,14 @@ def main(argv: list[str] | None = None) -> int:
         root = args.root.resolve() if args.root else ROOT
         if args.command == "preflight":
             findings = preflight(args.namespace, root, build=args.build)
-            print(json.dumps({"ok": not findings, "findings": findings}, ensure_ascii=False, indent=1))
+            try:
+                # A schema error is already a finding. Loading again must not replace that JSON with a traceback.
+                namespaces = [args.namespace] if args.namespace else sorted(load_registry(root))
+            except SketchUpAssetError:
+                namespaces = []
+            warnings = [w for ns in namespaces for w in preflight_warnings(ns, root)]
+            report = {"ok": not findings, "findings": findings, "warnings": warnings}
+            print(json.dumps(report, ensure_ascii=False, indent=1))
             return 0 if not findings else 1
         if args.command == "manifest":
             text = manifest_text(args.namespace, root)
