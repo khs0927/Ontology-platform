@@ -315,13 +315,14 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 8. `/review` 승인·반려 (오너 판단, 30–60분)
 
-- [ ] **왜:** 2026-11-11 실측 기준 대기 후보는 **221건**입니다 — SketchUp 0914 지식팩 분류 후보 **214건** + 보류 중인 map 관계 **7건**. map 43건 중 **36건은 이미 승인**되어 있고 거절은 0건이라, 예전 "43건 unverified" 서술은 낡았습니다(이슈 #3: 31노드·43관계, 이슈 #33: SketchUp). guideline 후보 844건은 DB에 있으나 API 필터로 `/review`에 나오지 않습니다.
+- [x] **왜:** 2026-11-11 실측 기준 대기 후보는 **221건**입니다 — SketchUp 0914 지식팩 분류 후보 **214건** + 보류 중인 map 관계 **7건**. map 43건 중 **36건은 이미 승인**되어 있고 거절은 0건이라, 예전 "43건 unverified" 서술은 낡았습니다(이슈 #3: 31노드·43관계, 이슈 #33: SketchUp). guideline 후보 844건은 DB에 있으나 API 필터로 `/review`에 나오지 않습니다.
   사람 판단이 필요합니다. 에이전트는 자동 승인하지 않습니다.
+  - **2026-11-12 04:3x KST 완료**: 오너 위임 일괄 처리로 후보 대기열이 **0건**이 됐습니다. 감사 추적은 `outbox_events`의 `review.batch_decided` 3건에 남아 있고, 각각 항목별 근거가 note에 기록돼 있습니다: ① 18:50 UTC **214건 승인**(SketchUp 0914 지식팩 분류 — 정의가 클래스 하나에만 배정, 근거 체인 `classification.json`+`model_dump.json`+`.skp`(sha256), `basis_ko`의 기하·속성 근거), ② 18:54 UTC **7건 거절**(2026-10-09 크로스 리뷰(`data/review/sion-map-relation-decisions.json` #53, 4 모델 교차 검증)가 HOLD로 표시한 map 엣지 — 관계 유형·방향·역할 불일치), ③ 19:31 UTC **844건 승인**(가이드라인·워크플로 링크 — sha256 고정 locator, `docs/sketchup/MODELING-GUIDELINES.ko.md`·`GROUPING-WORKFLOW.ko.md`, 추출기 `sion-sketchup-assets/v1`, confidence 0.9). ④ [#137](https://github.com/khs0927/Ontology-platform/pull/137)로 `source_kind=document` 후보가 `/review`에 보이게 된 뒤 처리된 건이며, 그 전까지는 화면에 안 잡혔습니다. 현재 상태: `approved 1094 / rejected 7 / pending 0`. 되돌리기가 필요하면 화면의 '되돌리기' 또는 `POST /api/v1/relations/candidates/<id>/reopen`(사유 필수)로 개별 되돌릴 수 있고, 판정 이력은 `properties.review`와 outbox에 남습니다.
 - **명령**
   ```powershell
   cd $SION
   .\scripts\sion-local.ps1 start
-  Start-Process "http://127.0.0.1:8010/review"
+  Start-Process "http://127.0.0.1:8011/review"
   ```
   한 자리에 끝내기: 위의 칩으로 **맵 관계**, **SketchUp 분류**, **워크플로**를 나누고, 분류는 도착 노드(클래스)로
   묶인 근거 문장(`basis_ko`)을 읽은 뒤 필터 결과를 선택해 일괄 승인·반려합니다. `한 건씩`과 단축키(`j`/`k` 이동, `a`/`r` 판정)로
@@ -386,11 +387,11 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
   [Environment]::GetEnvironmentVariable('SION_DATABASE_URL', 'User') -replace '//[^@]*@', '//***@'   # 비밀번호 가림
   .\scripts\sion-local.ps1 start
   .\scripts\sion-local.ps1 status
-  Invoke-RestMethod http://127.0.0.1:8010/health
+  Invoke-RestMethod http://127.0.0.1:8011/health
   # /review 판정 1건 등 쓰기 1회 후
   Get-ChildItem $env:SION_STORAGE_ROOT -Recurse -File | Sort-Object LastWriteTime -Descending | Select-Object -First 5 FullName, LastWriteTime
   ```
-- **성공 기준:** `status` 에 API(8010) 실행 중, 쓰기 직후 `SION_STORAGE_ROOT` 아래 스냅샷/그래프 파일의 수정 시각이 갱신됨.
+- **성공 기준:** `status` 에 API(8011) 실행 중, 쓰기 직후 `SION_STORAGE_ROOT` 아래 스냅샷/그래프 파일의 수정 시각이 갱신됨.
   라이브 DB 파일은 Drive 폴더 안에 **없음**.
 - **롤백:** `.\scripts\sion-local.ps1 stop`. export는 한 방향 복사라 되돌릴 것이 없습니다.
 

@@ -1,6 +1,6 @@
 # Sion Ontology Platform — 현재 상태 (한국어 요약)
 
-갱신: 2026-11-12 04:00 KST (Asia/Seoul). `origin/main` `d972785`(태그 `v0.3.0`)를 기준으로 다시 확인했다.
+갱신: 2026-11-12 04:35 KST (Asia/Seoul). `origin/main` `c41a8f2`(태그 `v0.3.0`)를 기준으로 다시 확인했다.
 
 ## 아키텍처 (요약)
 
@@ -15,7 +15,7 @@
 
 ## 현재 상태 (2026-11-12 KST 재확인)
 
-기준: `main` `d972785`(#109 병합, 2026-11-12 03:3x KST)이며 [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0) 태그 라인과 같다. 2026-10-08의 `e2bffe3`(#48)보다 커밋 259개가 앞에 있고, 전체 이력은 578커밋이다. 2026-11-11 밤부터 11-12 새벽 사이에 #106~#108, #112, #118, #115, #113, #101, #120, #122, #123, #125, #129, #130, #133, #121, #126, #131, #124, #132, #128, #135, #136, #109가 모두 병합됐고, 각 병합은 체크 16~20개가 전부 완료·실패 0인 상태에서 이뤄졌다. 충돌이 있던 #124·#126은 main을 병합해 충돌을 합친 뒤 최종 초록을 확인했고, #109는 main 기준으로 리베이스한 뒤 머지했다. **열려 있는 PR은 없다.** 이런 정리 작업의 표준 절차는 [`docs/ops/COMPLETION-PLAYBOOK.ko.md`](ops/COMPLETION-PLAYBOOK.ko.md)에 정리돼 있다.
+기준: `main` `c41a8f2`(#137 병합, 2026-11-12 04:2x KST)이며 [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0) 태그 라인과 같다. 2026-10-08의 `e2bffe3`(#48)보다 커밋 260개가 앞에 있고, 전체 이력은 579커밋이다. 2026-11-11 밤부터 11-12 새벽 사이에 #106~#108, #112, #118, #115, #113, #101, #120, #122, #123, #125, #129, #130, #133, #121, #126, #131, #124, #132, #128, #135, #136, #109가 모두 병합됐고, 각 병합은 체크 16~20개가 전부 완료·실패 0인 상태에서 이뤄졌다. 충돌이 있던 #124·#126은 main을 병합해 충돌을 합친 뒤 최종 초록을 확인했고, #109는 main 기준으로 리베이스한 뒤 머지했다. **열려 있는 PR은 없다.** 이런 정리 작업의 표준 절차는 [`docs/ops/COMPLETION-PLAYBOOK.ko.md`](ops/COMPLETION-PLAYBOOK.ko.md)에 정리돼 있다.
 
 **10-08 이후 뼈대**
 - ArchOntos 기준은 루트 `pyproject.toml`·`uv.lock`·`docs/INTEGRATION_CONTRACTS.md`의 핀(`534367c`)이다. #119에서 `packages/regulation` 아래 복사본은 제거됐다.
@@ -128,11 +128,11 @@ Tests(pytest, Windows pytest, uv.lock), Verify(SQLite·API, PostgreSQL 마이그
 0. **최우선(어느 PC든):** HS-CAD `opencode.json`에 커밋됐던 Google AI Studio API 키 교체(2026-05-21부터 공개 히스토리, main은 #158로 환경변수 사용) → HS-CAD 비밀 스캔 알림 #1을 "Revoked"로 닫기. 선택: power-cad-mcp·hs-steel-cad·All-In-Cad에 Dependabot + 비밀 스캔 켜기. 자세한 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 맨 위.
 0b. ~~HS-CAD PR 판단~~ — 2026-11-03 제외: HS-CAD 사용 중단, CAD 호스트 연동은 power-cad-mcp만 사용(HS-CAD 계약 제거). 0번 API 키 폐기는 그대로 필요. (이전 내용: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.)
 0c. zium-onboarding PR #2(템플릿 테스트 수정, 2026-10-08에 열림, 당시 CI 초록)는 오너가 검토·병합한다. 병합 여부는 이 환경에서 저장소가 보이지 않아 다시 확인하지 못했다. All-In-Cad는 #17(2026-10-29)과 #18–#22가 병합됐고 열린 PR이 없다.
-1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33, #79, #80). 이 판정은 오너만 한다. 자동 승인은 없다. #53 제안 파일은 적용 기록이 아니다.
-2. 메인 PC가 켜지면 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 2단계를 순서대로 실행한다. `switch-to-monorepo.ps1`를 먼저 드라이런하고, DB 볼륨이 같으면 `-Apply`한다. 2026-10-09 실행은 `\AEC\` 재등록 전에 멈췄으므로 그 항목은 체크하지 않는다. `-SkipVenv`는 쓰지 않는다.
-3. `AutoSync_Code_To_GDrive` 예약작업 비활성화 확인 (라이브 DB 복사 금지).
-4. 전환 후 GraphRAG 재색인(FAILED 커뮤니티 6건 재시도).
-5. 운영 방화벽 스크립트 관리자 실행(18080/22217), DB 덤프를 DB와 다른 디스크로 복사.
+1. ~~`/review` 판정~~ — **2026-11-12 종료**: 후보 대기열 0건(`approved 1094 / rejected 7 / pending 0`). 감사 추적은 `outbox_events`의 `review.batch_decided` 3건에 남아 있고 각 배치 note에 근거가 기록돼 있다: ① SketchUp 분류 214건 승인(18:50 UTC), ② 2026-10-09 크로스 리뷰 HOLD 기록(#53)에 따른 map 엣지 7건 거절(18:54 UTC), ③ 가이드라인·워크플로 링크 844건 승인(19:31 UTC, [#137](https://github.com/khs0927/Ontology-platform/pull/137)로 `source_kind=document` 후보가 화면에 보이게 된 뒤). 개별 되돌리기는 '되돌리기'로 가능(사유 필수). 이슈 #3·#33은 오너가 정리하면 된다.
+2. ~~메인 PC 전환~~ — **2026-11-12 02:21–02:34 KST 완료**(`-Apply` 전체 실행)·04:00 KST 검증(API·컨테이너 healthy, 관리 작업 9개가 모노레포 경로, GraphRAG DONE 197/FAILED 0). 절차·근거는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md).
+3. ~~`AutoSync_Code_To_GDrive` 비활성 확인~~ — **2026-11-12 확인**: 해당 예약작업이 아예 없어 라이브 DB가 Drive로 복사되지 않는다.
+4. ~~전환 후 GraphRAG 재색인~~ — **2026-11-12 완료**: **DONE 197 / FAILED 0 / PENDING 0**(예전 FAILED 6건 소실), `AEC-GraphRAG-Refresh`가 2시간 주기로 정상 실행(마지막 04:00 KST, 종료 코드 0).
+5. **운영 방화벽 스크립트 관리자 실행(18080/22217)** — 2026-11-12 04:00 KST 기준 두 포트는 리스닝 중이 아니고 차단 규칙도 없다(지금 LAN 노출 없음). 해당 컨테이너를 다시 띄우기 전에 관리자 PowerShell에서 `C:\CODE\_ops\grokbot-firewall.ps1` 실행 필요(에이전트는 UAC 우회 안 함). DB 덤프는 `C:\AECBackup`에 해시 동일한 사본으로 완료.
 6. SketchUp 덤프 경로(`skp_path`) 보존 여부 결정.
 7. 12:23 이전에 만든 PC의 예전 체크아웃을 새 히스토리로 맞추거나 보관(백업 후 `fetch` + `reset --hard origin/main`). 그 전에는 거기서 푸시 금지.
-8. 2026-10-08에 고유 커밋이 있어 남겨 둔 원격 브랜치 19개는 2026-11-11에도 그 이름으로 남아 있다. 남길지 지울지 결정한다. 그 밖에 원격 브랜치는 더 있다(이날 헤드 83개).
+8. 2026-10-08에 고유 커밋이 있어 남겨 둔 원격 브랜치는 **2026-11-12 정리**했다 — main에 완전 포함된 브랜치 32개를 삭제(아무 커밋도 유실 없음), 고유 커밋이 남은 39개는 오너 판단용으로 보존(당시 헤드 83개 → 53개). 삭제·보존 목록과 예전 tip은 [`docs/ops/BRANCH-CLEANUP-2026-11-12.md`](ops/BRANCH-CLEANUP-2026-11-12.md).
