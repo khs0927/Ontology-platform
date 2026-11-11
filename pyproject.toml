@@ -128,6 +128,7 @@ packages = [
   "sion_cair",
   "sion_drive_store",
   "sion_graphrag",
+  "sion_embedhub",
   # GOD-CAD (git subtree at packages/cad/god-cad)
   "god_cad",
   "god_cad.adapters",
@@ -146,6 +147,7 @@ sion_bim = "packages/bim/sion_bim"
 sion_cair = "packages/cair/sion_cair"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
+sion_embedhub = "packages/embedhub/sion_embedhub"
 god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
 
