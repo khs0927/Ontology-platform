@@ -61,9 +61,15 @@ Filled from the first CI run of the `Coverage report` job. Re-run the job
 (`workflow_dispatch` or a new push) and append a row when the number needs
 refreshing.
 
-| Run | Date (UTC) | Commit | Total coverage | Notes |
-|---|---|---|---|---|
-| First CI run | _pending_ | _pending_ | _pending_ | populated from the first `Coverage report` job |
+| Run | Date (UTC) | Commit | Total (all measured files) | Project code only | Notes |
+|---|---|---|---|---|---|
+| First CI run (PR #131, run `43043695798`) | 2026-11-11 | `c582abd` | **81%** (8,799 missed / 47,431 statements) | 78.35% (apps/packages/ontology, tests excluded) | 1,944 passed, 54 skipped, 14 subtests in 197 s; `coverage-report` artifact contains `coverage.xml` (1.8 MB) + `htmlcov/` |
+
+The "total" column is the `TOTAL` row printed by the CI job. The "project code
+only" column was derived from the same run's `coverage.xml` by keeping files
+under `apps/`, `packages/` and `ontology/` and dropping `tests/` paths; it is
+the more meaningful baseline for future trend tracking. Area split of that
+project-only number: `apps` 88.18%, `packages` 77.16%, `ontology` 80.99%.
 
 ## Caveats
 
