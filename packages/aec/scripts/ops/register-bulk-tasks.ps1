@@ -7,6 +7,8 @@
                            While the stop file exists (stop-workers.ps1 -Drain) every start exits at once.
     \AEC\AEC-Bulk-Census   at logon (resumes an interrupted census; finished sources are skipped)
     \AEC\AEC-Bulk-Census-Refresh  daily at 03:00 with -Refresh to pick up new or changed drawings
+    \AEC\AEC-Bulk-Observe  every 5 min: observe-bulk.ps1 -Once appends one read-only host/DB sample to
+                           <bulk>\logs\stability.jsonl (2 min limit; never starts/stops anything)
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File scripts\ops\register-bulk-tasks.ps1 -Start
   powershell -ExecutionPolicy Bypass -File scripts\ops\register-bulk-tasks.ps1 -Unregister
@@ -18,7 +20,7 @@ param(
     [switch]$Unregister
 )
 $ErrorActionPreference = 'Stop'
-$names = @('AEC-Bulk-Workers', 'AEC-Bulk-Census', 'AEC-Bulk-Census-Refresh')
+$names = @('AEC-Bulk-Workers', 'AEC-Bulk-Census', 'AEC-Bulk-Census-Refresh', 'AEC-Bulk-Observe')
 if ($Unregister) {
     foreach ($n in $names) {
         Stop-ScheduledTask -TaskPath '\AEC\' -TaskName $n -ErrorAction SilentlyContinue
@@ -40,6 +42,8 @@ $common = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$scrip
 $watchdog = New-ScheduledTaskTrigger -Daily -At '00:00'
 $watchdog.Repetition = (New-ScheduledTaskTrigger -Once -At '00:00' -RepetitionInterval (New-TimeSpan -Minutes 10) `
     -RepetitionDuration (New-TimeSpan -Days 1)).Repetition
+# The watchdog must leave an existing worker loop alive across midnight.
+$watchdog.Repetition.StopAtDurationEnd = $false
 
 # (PowerShell names are case-insensitive: an action variable called $workers would be the [int]$Workers parameter)
 $workersAction = New-ScheduledTaskAction -Execute $ps -Argument "$common -Role workers -Workers $Workers"
@@ -52,6 +56,20 @@ Register-ScheduledTask -TaskPath '\AEC\' -TaskName 'AEC-Bulk-Census' -Action $ce
     -Settings $settings -Trigger (New-ScheduledTaskTrigger -AtLogOn -User $user) -Force | Out-Null
 Register-ScheduledTask -TaskPath '\AEC\' -TaskName 'AEC-Bulk-Census-Refresh' -Action $censusDaily -Principal $principal `
     -Settings $settings -Trigger (New-ScheduledTaskTrigger -Daily -At 3am) -Force | Out-Null
+
+# Read-only stability sampler (A/C/F and 24 h review). The log sits next to the bulk config:
+# D:\AECData\bulk\sources.json -> D:\AECData\bulk\logs\stability.jsonl.
+$observeLog = Join-Path (Join-Path (Split-Path -Parent $Config) 'logs') 'stability.jsonl'
+$observeAction = New-ScheduledTaskAction -Execute $ps `
+    -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$(Join-Path $PSScriptRoot 'observe-bulk.ps1')`" -Once -LogPath `"$observeLog`""
+$observeSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable `
+    -ExecutionTimeLimit (New-TimeSpan -Minutes 2) -MultipleInstances IgnoreNew
+$observeEvery = New-ScheduledTaskTrigger -Daily -At '00:00'
+$observeEvery.Repetition = (New-ScheduledTaskTrigger -Once -At '00:00' -RepetitionInterval (New-TimeSpan -Minutes 5) `
+    -RepetitionDuration (New-TimeSpan -Days 1)).Repetition
+$observeEvery.Repetition.StopAtDurationEnd = $false
+Register-ScheduledTask -TaskPath '\AEC\' -TaskName 'AEC-Bulk-Observe' -Action $observeAction -Principal $principal `
+    -Settings $observeSettings -Trigger $observeEvery -Force | Out-Null
 
 if ($Start) {
     Start-ScheduledTask -TaskPath '\AEC\' -TaskName 'AEC-Bulk-Census'

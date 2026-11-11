@@ -4,6 +4,8 @@ All laws, parcels and values here are synthetic processing fixtures. They exerci
 contract; they are not legal answers for any real parcel.
 """
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import threading
@@ -13,10 +15,14 @@ from typing import Any
 
 import pytest
 
-from archontos.review import ReviewRequest, ReviewWorkflow
-from archontos.review.aggregate import legacy_decision, summarize
-from archontos.review.applicability import ReviewedRelation, assess, detect_conflicts
-from archontos.review.candidates import (
+# The minimal ".[test]" install has no greenlet. Importing the workflow pulls
+# archontos.rules, which then raises ImportError rather than ModuleNotFoundError.
+pytest.importorskip("sion_regulation.review.workflow", exc_type=ImportError)
+
+from sion_regulation.review import ReviewRequest, ReviewWorkflow
+from sion_regulation.review.aggregate import legacy_decision, summarize
+from sion_regulation.review.applicability import ReviewedRelation, assess, detect_conflicts
+from sion_regulation.review.candidates import (
     ChecklistItem,
     ChecklistProfile,
     DesignationLink,
@@ -24,16 +30,16 @@ from archontos.review.candidates import (
     default_profile,
     generate_candidates,
 )
-from archontos.review.citations import drop_unverified, verify_citations
-from archontos.review.facts import FactStore, facts_from_land_record, to_rule_facts
-from archontos.review.impact import ImpactGraph, classify_change
-from archontos.review.legal import (
+from sion_regulation.review.citations import drop_unverified, verify_citations
+from sion_regulation.review.facts import FactStore, facts_from_land_record, to_rule_facts
+from sion_regulation.review.impact import ImpactGraph, classify_change
+from sion_regulation.review.legal import (
     LegalCatalog,
     expand_references,
     parse_article_label,
     verify_returned_provision,
 )
-from archontos.review.model import (
+from sion_regulation.review.model import (
     Applicability,
     ApplicabilityFinding,
     CandidateProvision,
@@ -61,7 +67,7 @@ from archontos.review.model import (
     SourceRef,
     UnresolvedItem,
 )
-from archontos.review.rase import (
+from sion_regulation.review.rase import (
     SUPPORT_TABLE,
     Clause,
     RaseRule,
@@ -73,8 +79,8 @@ from archontos.review.rase import (
     evaluate_candidate,
     run_rule_tests,
 )
-from archontos.review.retrieval import RetrievalScope, retrieve
-from archontos.review.runs import (
+from sion_regulation.review.retrieval import RetrievalScope, retrieve
+from sion_regulation.review.runs import (
     IdempotencyConflict,
     InMemoryRunStore,
     ReviewOutbox,
@@ -83,7 +89,7 @@ from archontos.review.runs import (
     RunNode,
     missing_ledger,
 )
-from archontos.review.sources import (
+from sion_regulation.review.sources import (
     FixtureProvider,
     ProviderProfile,
     ProviderRegistry,
@@ -92,7 +98,7 @@ from archontos.review.sources import (
     fetch_with_retry,
     resolve_site,
 )
-from archontos.review.workflow import client_fact_problems
+from sion_regulation.review.workflow import client_fact_problems
 
 DAY = date(2026, 11, 1)
 NOW = datetime(2026, 11, 1, 9, tzinfo=UTC)
@@ -966,7 +972,7 @@ def test_s30_review_works_without_any_model() -> None:
     assert degraded.provisions and degraded.degraded == "search unavailable: TimeoutError"
 
 
-PACKAGE = Path(__file__).resolve().parents[1] / "src" / "archontos" / "review"
+PACKAGE = Path(__file__).resolve().parents[1] / "src" / "sion_regulation" / "review"
 
 
 def test_s31_regulation_path_has_no_jev_dependency() -> None:

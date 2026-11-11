@@ -76,17 +76,20 @@ Docker Desktop/WSL 재시작은 사용자 컨테이너 전체(workmachine 등)�
 | AEC-Bulk-Workers | `bulk-run.ps1 -Role workers` (적재 워커 루프, 개수는 `sources.json`의 `workers`) | 로그온 + 10분마다 감시 | `register-bulk-tasks.ps1` |
 | AEC-Bulk-Census | census 재개(끝난 소스는 건너뜀) | 로그온 | 〃 |
 | AEC-Bulk-Census-Refresh | 새/변경 도면 탐색 | 매일 03:00 | 〃 |
+| AEC-Bulk-Observe | `observe-bulk.ps1 -Once`: 호스트 RAM·`aec-db` 상태·작업 큐 수를 `D:\AECData\bulk\logs\stability.jsonl`에 한 줄 추가(읽기 전용, 아무것도 시작·중지하지 않음, 2분 제한) | 5분마다 | 〃 |
 | AEC-Ollama | `ollama-serve.ps1` → `C:\AECLocal\Ollama\ollama.exe serve` (이미 응답 중이면 즉시 종료 = 감시, 시작 시 로그 200 MB 넘으면 회전) | 로그온 + 5분마다 감시 | `register-host-tasks.ps1` |
 | AEC-Reembed | `reembed.ps1` (대기 중 벡터 채우기, 청크 단위 커밋) | 로그온 + 30분마다 | 〃 |
 | AEC-WSL-Reclaim | `wsl-reclaim.ps1` (Windows 가용 RAM < 750 MB일 때만, 최대 2시간에 1번, VM dirty 페이지 ≤ 64 MB일 때만 깨끗한 페이지 캐시 비움; `sync` 안 함) | 30분마다 | 〃 |
 | AEC-GraphRAG-Refresh | `graphrag.ps1 refresh`: 바뀐 프로젝트만 kg-build → kg-summarize(FAILED 커뮤니티 재시도) → kg-stats. 대화형 질의에 양보, 뮤텍스로 중복 방지, 3시간 제한, 로그 `D:\AECData\bulk\logs\graphrag-yyyyMMdd.log`(14일 지나면 삭제) | 로그온 10분 후 + 2시간마다 | `register-host-tasks.ps1 -Only GraphRag` |
+| AEC-Docker-Startup | `start-docker.ps1`: Docker Desktop/backend 프로세스가 없을 때만 시작 요청(재시작·감시 안 함, 2분 제한, §10 참고) | 로그온 | `register-host-tasks.ps1` (`-Only DockerStartup`) |
 | `\AEC-DB-Backup` | `backup.ps1 -Keep 7 -Target D:\AECData\backups` | 매일 04:30 | `register-backup-task.ps1` |
 
+- 반복 트리거(매일 00:00 + N분 반복, 기간 1일)는 `StopAtDurationEnd=false`로 등록합니다. 그렇지 않으면 하루 경계에서 돌던 워커 루프·서버가 강제 종료될 수 있습니다.
 - 위 등록 스크립트로 만든 작업은 `MultipleInstances=IgnoreNew`를 사용합니다. 워커·Ollama·GraphRAG 등에는 내부 뮤텍스도 있습니다. 레거시 작업까지 같은 설정이라고 가정하지 않습니다.
 - 활성 감시 트리거는 프로세스 종료 후 다음 주기에 다시 시작합니다(5–30분). 긴 작업은 **절대 임시 셸에서 띄우지 말고** 작업 스케줄러로 실행합니다.
 - 상태: `Get-ScheduledTask -TaskPath \AEC\ | Get-ScheduledTaskInfo | ft TaskName,LastRunTime,LastTaskResult`
 - 백업은 루트 `\`에 등록되어 위 조회에 나오지 않습니다: `Get-ScheduledTask -TaskPath '\' -TaskName AEC-DB-Backup | Get-ScheduledTaskInfo | ft TaskName,LastRunTime,LastTaskResult`.
-- 감사 시 `\AEC\`에는 표의 7개 외에 레거시 `AEC-Ops-DbTune`, `AEC-Ops-DeployApi`, `AEC-Ops-DeployFinal`(Ready, 트리거 없음), `AEC-Ops-FinalAB`, `AEC-Ops-FinalCheck`, `AEC-Ops-FinalWrap`(Disabled)이 있었습니다. `D:\AECData\dev\*.ps1`을 실행하는 수동 작업이며 자동 복구 작업으로 취급하지 않습니다.
+- 감사 시 `\AEC\`에는 표의 작업 외에 레거시 `AEC-Ops-DbTune`, `AEC-Ops-DeployApi`, `AEC-Ops-DeployFinal`(Ready, 트리거 없음), `AEC-Ops-FinalAB`, `AEC-Ops-FinalCheck`, `AEC-Ops-FinalWrap`(Disabled)이 있었습니다. `D:\AECData\dev\*.ps1`을 실행하는 수동 작업이며 자동 복구 작업으로 취급하지 않습니다.
 - 로그오프하면 멈춥니다(로그오프 후 실행에는 '일괄 작업으로 로그온' 권한=관리자 필요, Docker Desktop도 세션 필요).
 
 ## 4. Ollama (C:\AECLocal, GPU)

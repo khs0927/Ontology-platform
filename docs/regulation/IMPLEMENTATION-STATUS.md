@@ -1,6 +1,10 @@
 # 중첩규제 검토 구현 현황
 
-기준일: 2026-11-05 · 범위: PR #101 (`archontos.review`, `/api/v1/regulation/reviews/*`)
+기준일: 2026-11-05 · 범위: PR #101 (`sion_regulation.review`, `/api/v1/regulation/reviews/*`)
+
+2026-11-11: #119가 vendored ArchOntos를 핀 의존성으로 바꿨다. 검토 워크플로 모듈은
+`packages/regulation/src/sion_regulation/review`에 두고, 규칙 컴파일과 평가는 핀된
+`archontos.rules`를 호출한다. ArchOntos 원장을 이 저장소에 다시 복사하지 않는다.
 
 이 문서는 코드에 들어간 것과 아직 사람이 확정해야 하는 것을 구분한다. 시험 자료는 모두 합성 자료이고, 실제 필지의 법적 결론이 아니다. 법적 허용 기능은 출시하지 않는다.
 
@@ -48,6 +52,6 @@ S31은 규제 경로 코드에 JEV 참조가 없음을 확인한다. S32는 이 
 
 ## 운영 설정
 
-`SION_REGULATION_REVIEW_BUNDLE`은 조문·연결표·프로필·규칙을 담은 JSON 경로다(`archontos.review.bundle`). 없으면 카탈로그가 비고, 모든 체크리스트 항목이 미해결로 남는다. 기본 프로필은 조문 ID 없이 구조만 담고 있고 `reviewed:false`다.
+`SION_REGULATION_REVIEW_BUNDLE`은 조문·연결표·프로필·규칙을 담은 JSON 경로다(`sion_regulation.review.bundle`). 없으면 카탈로그가 비고, 모든 체크리스트 항목이 미해결로 남는다. 기본 프로필은 조문 ID 없이 구조만 담고 있고 `reviewed:false`다.
 
 실행 기록과 저장 작업은 기존 엔티티 표에 들어가므로 마이그레이션이 없다. 외부 공급자 executor는 아직 연결하지 않았다. 요청에 `requested_sources`를 넣어도 executor가 없으면 해당 노드는 `unsupported`로 끝나고 누락 장부에 남는다.

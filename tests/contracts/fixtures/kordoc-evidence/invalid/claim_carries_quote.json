@@ -1,0 +1,47 @@
+{
+  "schema": "kordoc-evidence/1",
+  "producer": "khs0927/inspection-supervision-mcp",
+  "evidence_id": "kev-synthetic-0001",
+  "project_id": "P-SYNTHETIC-1",
+  "source": {
+    "sha256": "6bc198484b97f685f963f563ce31d76a5fe28e6cc23784cc6d6c54e2f0117825",
+    "document_id": "doc-synthetic-inspection-report",
+    "document_version": "r2",
+    "file_name": "synthetic-inspection-report.hwpx",
+    "media_type": "application/hwp+zip"
+  },
+  "parser": {
+    "name": "kordoc",
+    "version": "0.0.0-synthetic"
+  },
+  "locator": {
+    "page": 3,
+    "table": 1,
+    "cell": {
+      "row": 2,
+      "col": 4
+    }
+  },
+  "source_text": {
+    "quote": "철근 피복두께 40 mm 이상 확보 (합성 예시)",
+    "quote_sha256": "3273892e212124fc1c6b0c52d2d54dde72a9d58c9ffc1138a2d53176a8a8a536"
+  },
+  "classification": {
+    "state": "unverified"
+  },
+  "proposed_claims": [
+    {
+      "claim_id": "c1",
+      "statement": "합성 예시 부재의 최소 피복두께는 40 mm이다",
+      "subject": "synthetic:member",
+      "predicate": "min_cover_mm",
+      "object": "40",
+      "claim_state": "candidate",
+      "canonical": false,
+      "quote": "철근 피복두께 40 mm 이상 확보 (합성 예시)"
+    }
+  ],
+  "extracted_at": "2026-11-05T09:00:00+09:00",
+  "canonical": false,
+  "evidence_only": true
+}

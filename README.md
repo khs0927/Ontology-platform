@@ -60,10 +60,12 @@ This platform automatically discovers and ingests interaction sessions from mult
 
 ## Integration Policy
 
-This repository is the **main monorepo**. ArchOntos (`packages/regulation`), Ontology / `aec_intelligence`
-(`packages/aec`) and GOD-CAD (`packages/cad/god-cad`) were merged with full history via `git subtree`
-(see [`packages/README.md`](packages/README.md)). Six repositories stay separate and are **bridged by
-versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad and CAD-MCP.
+This repository is the **main monorepo**. Ontology / `aec_intelligence` (`packages/aec`) and GOD-CAD
+(`packages/cad/god-cad`) were merged with full history via `git subtree`
+(see [`packages/README.md`](packages/README.md)). ArchOntos is consumed as a **pinned git dependency**
+(`archontos`, `regulation` extra; pin in [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md)). Five repositories stay separate and are **bridged by
+versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad and CAD-MCP.
+HS-CAD is retired; power-cad-mcp is the only active CAD host bridge.
 See [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md). JSON Schemas ship in
 `sion_core.contracts` and are covered by `tests/test_integration_contracts.py`. Assets live directly under
 the Google Drive storage root (`SION_STORAGE_ROOT`, see [`docs/STORAGE.md`](docs/STORAGE.md)). The live
@@ -105,11 +107,40 @@ $env:SION_API_TOKENS_JSON = '{"replace-with-long-token":["read:aec","read:knowle
 
 Supported scopes:
 - `read:aec` — AEC/CAIR federation status and queries.
-- `read:knowledge` — ontology schema, inventories, entities, relations, evidence, graph, artifacts, and vector search.
-- `write:knowledge` — entity/relation/evidence/artifact/embedding writes.
+- `read:knowledge` — every read-only knowledge route: ontology schema, inventories, entities, relations, review candidates, evidence, graph, artifacts, vector search and GraphRAG queries.
+- `write:knowledge` — every write: entity/relation/evidence/artifact/embedding writes, relation review decisions, imports and ingestion.
 - `*` — all scopes.
+- `project:<uuid>` — optional project ACL entry. A token that lists one or more `project:` entries is limited to those projects on `GET /api/v1/regulation/summary` only; malformed entries grant nothing. Tokens without `project:` entries, `*` tokens and trusted local requests are unrestricted.
+
+> **Project scopes are not an isolation boundary yet.** Only the summary route enforces them. A project-scoped
+> token that also holds `read:knowledge` can still read every project's full reports through
+> `GET /api/v1/regulation/works` and the other `read:knowledge` routes. Do not issue such a token to a party that
+> must be confined to its projects; enforcing the ACL on the remaining per-project read routes is follow-up work.
+
+Scopes are disjoint: `write:knowledge` does not imply `read:knowledge`. A token can also be limited to
+specific projects with `{"scopes": [...], "projects": ["<project-uuid>"]}`. See
+[API authorization](docs/API_AUTH.md) for the project ACL and the route-coverage test.
 
 `local-or-bearer` is also available when loopback access should remain token-free while remote callers use bearer tokens. Tokens are compared in constant time and are never written to API responses.
+
+### Mobile project summary (read-only)
+
+`GET /api/v1/regulation/summary` returns a small per-project overview of saved regulation reviews for mobile
+clients. Unlike `GET /api/v1/regulation/works`, it never returns stored report payloads, notes or tasks: each item
+carries `project_id`, `project_name`, `work_count`, `status_counts` (`open`/`in_review`/`done`) and `latest_work`
+(`id`, `title`, `status`, `decision_status`, `as_of`, `updated_at`). Responses are `read_only: true, canonical: false`.
+
+- Auth: requires `read:knowledge`. With a project-scoped token, requesting a disallowed `project_id` returns 403
+  before any database read; without a filter only the token's projects are listed.
+- Filter: repeatable `project_id=<uuid>` (at most 50).
+- Pagination: keyset cursor. `limit` defaults to 20 (max 50); pass the returned `next_cursor` as `cursor` until it is `null`.
+- Size bound: the body stays under `SION_SUMMARY_MAX_BYTES` (default 65536, minimum 4096). When the bound cuts a
+  page short, `truncated` is `true` and `next_cursor` resumes after the last returned project. Names are clipped to 200 characters;
+  an item that alone would not fit is replaced by `{"project_id": ..., "item_truncated": true}`.
+- Rate limit: in-process sliding window per client (digest of the matched configured token, else peer address for
+  trusted local requests), configured with
+  `SION_SUMMARY_RATE_LIMIT=<requests>/<seconds>` (default `60/60`, `0` disables). Excess requests get 429 with
+  `Retry-After`. The limiter is per process and is not shared between workers.
 
 
 
@@ -152,7 +183,7 @@ See [`packages/README.md`](packages/README.md) for the package map.
 | `bim` (alias `ifc`) | ifcopenshell >=0.9 | built-in STEP text parser |
 | `rag` (alias `graphrag`) | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
 | `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works (changed Drive files are first copied to `.history/<UTC stamp>/`) |
-| `regulation` | pydantic-settings, sqlalchemy[asyncio], asyncpg, … (ArchOntos services) | `/api/v1/regulation/evaluate` returns 503 |
+| `regulation` | `archontos` (pinned git dependency) + pydantic-settings, sqlalchemy[asyncio], asyncpg, … | `/api/v1/regulation/evaluate` returns 503 |
 | `documents` | pypdf >=6.19, python-docx >=1.2 | DOCX via the built-in OOXML reader; PDFs reported as `skipped` |
 | `validation` | rdflib >=7.6, pyshacl >=0.40.1 | `GET /api/v1/validation/shacl` returns 503 |
 | `all` | all of the above | |

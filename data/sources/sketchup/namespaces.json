@@ -1,0 +1,16 @@
+{
+ "schema": "sion-sketchup-namespaces/v1",
+ "description": "SketchUp collection namespaces -> repo-relative build inputs/outputs for sion_ingestion.sketchup_assets. Edit with `python -m sion_ingestion.sketchup_collection scaffold`.",
+ "namespaces": {
+  "0914-meeting": {
+   "classes": "data/sources/sketchup/object-classes.json",
+   "classification": "data/sources/sketchup/0914-meeting/classification.json",
+   "dump": "data/sources/sketchup/0914-meeting/model_dump.json",
+   "grouping_doc": "docs/sketchup/GROUPING-WORKFLOW.ko.md",
+   "grouping_probe": "data/sources/sketchup/0914-meeting/grouping_probe.json",
+   "guidelines": "docs/sketchup/MODELING-GUIDELINES.ko.md",
+   "output": "data/bootstrap/sketchup-0914-meeting.json",
+   "probe": "data/sources/sketchup/0914-meeting/geometry_probe.json"
+  }
+ }
+}

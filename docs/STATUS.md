@@ -99,7 +99,7 @@ Final state re-checked 20:30 KST. Window: merged on/after 14:35 KST (`merged:>=2
 
 ### Remaining owner actions
 0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
-0b. HS-CAD PR decisions: close the two analysis chains (#23/#25/#27/#29/#32/#34/#35 and #24/#26/#28/#30/#31/#33/#37) once main is confirmed to cover them; port only needed modules of #1/#4/#5/#7 in fresh PRs; rewrite #12 against current `main.py`; live runs need a Windows + ZWCAD PC.
+0b. ~~HS-CAD PR decisions~~ — dropped 2026-11-03: HS-CAD is retired and power-cad-mcp is the only CAD host bridge (HS-CAD contracts removed). The key rotation in item 0 still applies.
 0c. All-In-Cad: decide whether to open/merge a PR for branch `agent/autocad-host-2027` (`edba1f9`, CI green). zium-onboarding: fix the 11 remaining template test failures.
 1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issues #3, #33).
 2. When the **main PC** is online: run `docs/ops/MAIN-PC-TODO.ko.md` — switch the live AEC runtime from the archived Ontology checkout to `packages/aec` with `switch-to-monorepo.ps1` (dry-run, then `-Apply`).
@@ -295,8 +295,8 @@ Still blocked (needs the owner's data/credentials):
 
 Release: <https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0>.
 
-Bridged (not merged): power-cad-mcp, hs-steel-cad, korean-land-mcp, HS-CAD, All-In-Cad, CAD-MCP.
-They have separate runtimes (.NET/AutoCAD, ZWCAD COM, Node), and none of them was modified.
+Bridged (not merged): power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad, CAD-MCP (HS-CAD retired 2026-11-03).
+They have separate runtimes (.NET/AutoCAD, Node), and none of them was modified.
 
 Still needs the owner's decision:
 1. Purge the two historical `bin/sion-agent-bridge.exe` blobs (~74 MB of the 73.7 MiB pack) from

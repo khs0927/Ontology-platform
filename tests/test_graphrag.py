@@ -71,6 +71,7 @@ def test_config_requires_embedding_model(monkeypatch):
     assert GraphRagConfig.from_env() is None
     monkeypatch.setenv("SION_GRAPHRAG_EMBED_MODEL", "bge-m3")
     monkeypatch.setenv("SION_GRAPHRAG_EMBED_DIM", "1024")
+    monkeypatch.delenv("SION_GRAPHRAG_STORAGE", raising=False)  # a workstation may set "local"
     config = GraphRagConfig.from_env()
     assert config.storage == "postgres" and config.embedding_dim == 1024 and not config.answers_enabled
 

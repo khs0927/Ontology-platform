@@ -1,9 +1,10 @@
 # Integration contracts: bridged repositories
 
-`khs0927/Ontology-platform` is the main monorepo. Four repositories were **merged** with git subtree
-(history kept): ArchOntos → `packages/regulation`, Ontology → `packages/aec`, GOD-CAD →
-`packages/cad/god-cad`, plus the Sion core. Six repositories stay **separate** and are connected only
-through the contracts below. They have their own runtimes (.NET 10 / AutoCAD 2027, ZWCAD COM, Node),
+`khs0927/Ontology-platform` is the main monorepo. Ontology → `packages/aec` and GOD-CAD →
+`packages/cad/god-cad` were **merged** with git subtree (history kept), plus the Sion core.
+**ArchOntos is a pinned dependency, not a copy** (see "ArchOntos dependency pin" below); the former
+`packages/regulation` subtree was removed. Five repositories stay **separate** and are connected only
+through the contracts below. They have their own runtimes (.NET 10 / AutoCAD 2027, Node),
 release cycles or licences, and merging them would add a CAD-host toolchain to this repo.
 
 | Repository | Language / host | Relationship | Contract(s) |
@@ -11,24 +12,43 @@ release cycles or licences, and merging them would add a CAD-host toolchain to t
 | [power-cad-mcp](https://github.com/khs0927/power-cad-mcp) | C# .NET, AutoCAD 2027 plug-in + MCP server | **calls** the AEC REST API and the Sion API, read-only; produces execution receipts | `aec-operational-rest` (OpenAPI), `sion-aec-query-response`, `power-cad-execution-receipt/1` |
 | [hs-steel-cad](https://github.com/khs0927/hs-steel-cad) | C# .NET, MCP | hands steel draw plans, section catalogs and its asset registry to power-cad; section catalogs are also read by Sion's AEC knowledge graph | `hs-steel-draw-plan/1`, `hs-steel-section-catalog/1`, `hs-steel-asset-registry/1` |
 | [korean-land-mcp](https://github.com/khs0927/korean-land-mcp) | TypeScript, MCP (V-World) | parcel/zoning records feed regulation facts | `korean-land-parcel-analysis/2` |
-| [HS-CAD](https://github.com/khs0927/HS-CAD) | Python, ZWCAD COM / PyRx | ModelSpace scans are evidence; its command JSON is checked, never executed by Sion | `hs-cad-scan-objects`, `hs-cad-command` |
 | [All-In-Cad](https://github.com/khs0927/All-In-Cad) | Python + C# native hosts | cross-lane DXF verification | `all-in-cad-dxf-evidence` |
 | [CAD-MCP](https://github.com/khs0927/CAD-MCP) | evaluation framework (ZWCAD MCP providers) | routing guidance and a DXF fixture; no runtime contract | (fixture only) |
 | [building-regulation-gateway](https://github.com/khs0927/building-regulation-gateway) | Python, FastAPI (MCP client) | evidence-only compliance reports are advisory evidence; Sion project workspace adapter | `building-regulation-report/1` |
+| [inspection-supervision-mcp](https://github.com/khs0927/inspection-supervision-mcp) | MCP (Kordoc document parsing) | located document excerpts are evidence for one project; **draft / not pinned** (§10) | `kordoc-evidence/1` |
 
 Machine-readable schemas (JSON Schema draft 2020-12) ship in the wheel under
 `sion_core/contracts/schemas/` (`packages/core/sion_core/contracts/`). Python access:
 
 ```python
 from sion_core import contracts
-contracts.names()                      # the 10 contract names
+contracts.names()                      # 10 contract names (including 1 unpinned draft)
+contracts.is_pinned("kordoc-evidence/1")   # False: draft, no upstream commit pinned (DRAFT_CONTRACTS)
 contracts.load("power-cad-execution-receipt/1")
 contracts.errors("hs-steel-draw-plan/1", payload)   # [] when valid (needs jsonschema: [test]/[dev] extra)
 ```
 
-Contract tests: `tests/test_integration_contracts.py` (82 tests). Upstream files used as fixtures are
+Contract tests: `tests/test_integration_contracts.py`. Upstream files used as fixtures are
 copied verbatim into `tests/contracts/fixtures/` with their source commit
 ([PROVENANCE.md](../tests/contracts/fixtures/PROVENANCE.md)).
+
+## ArchOntos dependency pin
+
+| Dependency | Pinned commit | Declared in |
+|---|---|---|
+| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) (`archontos`) | `534367c8e4f0389d0565e0539a1a5b72ef332c1d` | root `pyproject.toml`, `regulation` extra (`archontos @ git+https://github.com/khs0927/ArchOntos@<sha>`); resolved in `uv.lock` |
+
+Contract = that exact ArchOntos commit: `archontos.rules.engine` (rule DSL evaluator used by
+`sion_api.regulation`), `archontos.db.migrate` (`use_schema`, `apply_migrations`,
+`packaged_migrations_dir`) and the SQL migrations shipped as `archontos._migrations`, applied
+into the `regulation` schema by `sion_api.migrate`.
+
+Pin policy: pin a full SHA reachable from ArchOntos `main`. The current pin is the head of
+[khs0927/ArchOntos#22](https://github.com/khs0927/ArchOntos/pull/22) (upstreams the shared-schema
+option that the vendored copy carried, and packages the migrations); **bump it to the merge commit
+on `main` once that PR merges.** Never pin unmerged feature-stack branches. Bump pyproject, this
+table and `uv.lock` together; `tests/test_archontos_dependency.py` enforces agreement and that
+no `archontos/` package is re-vendored under `packages/`.
 
 ## Pinned upstream revisions
 
@@ -39,12 +59,16 @@ The contracts were derived from these commits (read-only clones; no upstream rep
 | power-cad-mcp | `461df6c` (PR #49) | 2026-10-09 12:11 |
 | hs-steel-cad | `cefd395` (PR #8) | 2026-10-09 12:11 |
 | korean-land-mcp | `9bca5ea` (PR #2, deps only) | 2026-10-08 20:20 |
-| HS-CAD | `8bf34e1` (PR #158) | 2026-10-08 20:20 |
 | All-In-Cad | `329f9ad` | 2026-10-03 20:39 |
 | CAD-MCP | `50ae134` | 2026-10-03 20:15 |
+| Ontology (`aec-cair-snapshot/1`, §11) | `d81598f` (PR #100) | 2026-10-17 |
 
 When an upstream changes one of the files named below, update the schema and the pin in this table
 and the test module docstring in the same PR.
+
+Not pinned: `kordoc-evidence/1` (khs0927/inspection-supervision-mcp). Its producer side is an open draft
+(PR #3) that could not be checked from here, so the table has no row for it. Code marks it with
+`contracts.DRAFT_CONTRACTS` / `contracts.is_pinned()`, and the schema with `x-sion-contract.pinned=false`.
 
 ### Upstream changes reviewed at the 2026-10-09 pin
 
@@ -261,17 +285,12 @@ two headless lanes can be cross-checked:
 All-In-Cad's native protocol (`aic.native/1`, length-prefixed JSON over a current-user named pipe,
 signed approval tokens, write leases) is host-side. Sion does not speak it.
 
-## 7. HS-CAD (`hs-cad-scan-objects`, `hs-cad-command`)
+## 7. HS-CAD (retired)
 
-- **Scan export** (`python -m src.main scan … --out objects.json`, `export_objects_json`): a list of
-  ModelSpace objects `{handle, entity_type, layer, object_name?, color?, start?, end?, insert?, points?,
-  closed?, area?, name?, effective_name?, …}`. Sion may store a scan as evidence about one DWG revision.
-  Validated against HS-CAD's own `examples/sample_objects/layer_semantic_sample.json`.
-- **Command envelope** (`run-command`): `{command, params, safety}` where `command` is in HS-CAD's
-  `ALLOWED_COMMANDS` (26 names) with the same required non-empty params as `command_validator.py`.
-  Execution needs `--execute` on HS-CAD's CLI plus backup/preview safety. Sion never sends these. The
-  schema lets Sion-side reviewers check an AI proposal before a person runs it. Upstream example
-  `capture_screen.json` is **not** accepted (not in `ALLOWED_COMMANDS`).
+HS-CAD is no longer an active bridge. `power-cad-mcp` is the only active CAD host bridge.
+Its contracts (`hs-cad-scan-objects`, `hs-cad-command`), schemas, fixtures and tests
+were retired in the integration following PR #100. Historical HS-CAD rows in the
+upstream review section remain as provenance, not active integrations.
 
 ## 8. CAD-MCP
 
@@ -289,6 +308,63 @@ Producer: `khs0927/building-regulation-gateway` @ `21e146574c2ba173ed436c685b376
 Sion provides an authenticated HTTP bridge and a project workspace at `/regulation`. Saved reports are advisory (`canonical:false`), with source evidence and project relationships recorded through existing transactions/outbox. No CAD mutation is performed. Contract schema and tests cover the v0.2 statuses and require review metadata for determinate decisions. See [REGULATION-WORKSPACE.ko.md](REGULATION-WORKSPACE.ko.md) for endpoints, configuration and MCP router adapter.
 
 Gateway runtime remains isolated (its own SQLite or PostgreSQL snapshot store and MCP dependencies). The platform owns project work, notes and tasks in its existing entity/evidence tables. Check service ports per PC; tokens come from process environment.
+
+## 10. inspection-supervision-mcp (Kordoc) → Sion evidence (`kordoc-evidence/1`) — draft / not pinned
+
+Status: **draft / not pinned.** Issue #71 step I. The producer is `khs0927/inspection-supervision-mcp`
+(Kordoc document parsing; read-only mobile connection in its draft PR #3). No upstream commit is pinned
+and no upstream file is vendored. The schema `kordoc-evidence-1.schema.json` describes what Sion accepts.
+It does not mirror producer code. Once the producer ships the shape, pin the commit in the table above,
+add captured fixtures with provenance and remove the entry from `contracts.DRAFT_CONTRACTS`, all in one PR.
+
+One payload is one located excerpt of one source document revision:
+
+| Member | Rule |
+|---|---|
+| `schema`, `producer` | `kordoc-evidence/1`, `khs0927/inspection-supervision-mcp` |
+| `project_id` | required, non-blank, ≤ 200 chars. Readers enforce project ACL on it; evidence without a project is rejected |
+| `source` | `sha256` (lowercase hex of the file bytes), `document_id`, `document_version` required; `file_name`, `media_type`, `source_uri` optional. `source_uri` is a reference, never a grant to change the original |
+| `parser` | `name`, `version` required (e.g. `kordoc` and its version) |
+| `locator` | `page` (1-based) required; `table` and `cell {row, col}` (1-based) optional; a `cell` needs a `table` |
+| `source_text` | verbatim `quote` and `quote_sha256` (SHA-256 of the UTF-8 quote, checked by `contracts.errors`) |
+| `classification.state` | `unverified` (no review metadata allowed), `human_verified` or `rejected` (both need `reviewer_kind="human"`, `reviewed_by`, `reviewed_at`; `rejected` also needs `reason` and no `proposed_claims`) |
+| `proposed_claims[]` | producer interpretations: `claim_id` (unique), `statement`, optional `subject/predicate/object`, `claim_state="candidate"`, `canonical=false`. No quote inside a claim |
+| `canonical`, `evidence_only` | always `false`, `true`. Unknown top-level members (e.g. `canonical_claims`) are rejected |
+
+**Quoted text vs. canonical claims.** `source_text` is what the document says at the locator.
+`proposed_claims` are someone's reading of it. Both stay evidence. Sion canonical claims are created only
+through Sion's own review flow, never from this payload. `human_verified` means a person checked the
+excerpt against the source revision. It does not approve a claim. Machine-assigned verification is
+rejected (`reviewer_kind` must be `human`), and Sion never auto-approves candidates from this payload.
+
+Tests: `tests/contracts/fixtures/kordoc-evidence/` holds synthetic valid (3) and invalid (23) payloads,
+each invalid file breaking one rule (see PROVENANCE.md).
+
+## 11. khs0927/Ontology ingestion → Sion graph + evidence (`aec-cair-snapshot/1`)
+
+Consolidation phase 1 ([CONSOLIDATION_PLAN.md](CONSOLIDATION_PLAN.md)). Producer: Ontology's own CLI
+(`aec ingest-dxf`, `aec ingest-file` for IFC) writing `projects/<id>/03_CAIR/project-cair.json`
+(`CAIRSnapshot.to_dict()`, `schema_version` 0.x). Consumer: `sion_cair.ingest`
+(`run_ontology_ingest`, `cair_snapshot_to_map_export`, `ingest_cair_snapshot`, `ingest_with_ontology`).
+
+| Ontology runtime | How to select it |
+|---|---|
+| bundled subtree `packages/aec` (default) | `ontology_root=None` or `"bundled"` |
+| external checkout (local path, e.g. `C:\CODE\Ontology`) | `ontology_root="C:\CODE\Ontology"` (its `src` goes on `PYTHONPATH` of the subprocess) |
+| pinned install in a separate venv | `python="C:\venvs\aec\Scripts\python.exe"` after `pip install "aec-intelligence[cad,bim] @ git+https://github.com/khs0927/Ontology@d81598f"` |
+
+Ontology always runs in a **subprocess** against a temporary repository root, so two copies of the
+`aec_intelligence` import package never share an interpreter. Mapping: one `Artifact` node per source
+file (key = source SHA-256, `external_uri=urn:sha256:…`), one `Concept` node per CAIR object
+(key `cair:<CAIR id>`), `EXTRACTED_FROM` object → artifact with the classification confidence and one
+evidence row (`extractor=aec-cair/<parser>`, locator = `geometry_ref`). Object↔object relations map to
+`PART_OF` (`hostedBy`, `containedIn`; IFC `contains` reversed), `CONNECTS_TO`, `REFERENCES`,
+`DERIVED_FROM`, else `RELATED_TO` with `properties.cair_predicate`. `containsElement` is not imported.
+Everything is `unverified`; import is idempotent. A snapshot with `status=FAILED` or a missing
+`schema_version`/`objects`/`source` is refused (`AecCairError`).
+
+Install: `pip install -e '.[aec]'` (= `cad` + `bim`). Fixtures: `tests/contracts/fixtures/aec-cair/`
+(captured from Ontology @ `d81598f`, see PROVENANCE.md). Tests: `tests/test_aec_cair_ingest_contract.py`.
 
 ## In-repo contracts (for reference)
 

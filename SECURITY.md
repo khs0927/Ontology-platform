@@ -5,6 +5,8 @@ Include affected versions and steps to reproduce. Keep credentials and personal 
 
 Keep this local-first platform on loopback unless bearer authentication is configured.
 Set `SION_API_AUTH_MODE=bearer` and scoped `SION_API_TOKENS_JSON` for remote Sion deployments.
+Grant `read:knowledge` and `write:knowledge` separately, and limit mobile or per-user tokens to their
+projects; see [API authorization](docs/API_AUTH.md).
 Set `AEC_API_TOKEN` for remote operational AEC deployments. Token-free access is restricted to
 loopback peers with trusted Host and Origin headers. Use TLS at the deployment proxy.
 Allow remote browser origins explicitly with `SION_CORS_ORIGINS` or `AEC_CORS_ORIGINS`.

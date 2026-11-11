@@ -1,10 +1,10 @@
-"""REST surface of the overlapping-regulation review workflow (archontos.review).
+"""REST surface of the overlapping-regulation review workflow (sion_regulation.review).
 
-ArchOntos owns the legal model and the evaluation logic; this module only stores run records and
-saved works in the canonical project workspace. A run record is a Document entity, so the existing
-outbox and Drive export carry it. Writes keep the platform's own scopes and ``dry_run``; there is no
-Jev step on this path. Results stay advisory: ``canonical`` is false and nothing here becomes an
-ontology fact.
+Rule compilation and evaluation go through the pinned ArchOntos engine (``archontos.rules``).
+This module only stores run records and saved works in the canonical project workspace. A run
+record is a Document entity, so the existing outbox and Drive export carry it. Writes keep the
+platform's own scopes and ``dry_run``; there is no Jev step on this path. Results stay advisory:
+``canonical`` is false and nothing here becomes an ontology fact.
 """
 
 from __future__ import annotations
@@ -95,7 +95,7 @@ class SqlRunStore:
         return list(session.scalars(query))
 
     def load(self, run_id: str, revision: int | None = None):
-        not_found = require("archontos.review.runs", extra="regulation").RunNotFound
+        not_found = require("sion_regulation.review.runs", extra="regulation").RunNotFound
         with self._factory() as session:
             rows = {row.properties["run_revision"]: row for row in self._rows(session, run_id)}
             if not rows:
@@ -126,9 +126,9 @@ class SqlRunStore:
 def build_workflow(factory: sessionmaker[Session]):
     """Workflow on the platform store, with the operator's bundle when one is configured."""
 
-    review = require("archontos.review.workflow", extra="regulation")
-    runs = require("archontos.review.runs", extra="regulation")
-    bundles = require("archontos.review.bundle", extra="regulation")
+    review = require("sion_regulation.review.workflow", extra="regulation")
+    runs = require("sion_regulation.review.runs", extra="regulation")
+    bundles = require("sion_regulation.review.bundle", extra="regulation")
     path = os.getenv("SION_REGULATION_REVIEW_BUNDLE")
     bundle = bundles.load_bundle(Path(path)) if path else bundles.ReviewBundle()
     return review.ReviewWorkflow(
@@ -151,7 +151,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
 
     def module(name: str):
         try:
-            return require(f"archontos.review.{name}", extra="regulation")
+            return require(f"sion_regulation.review.{name}", extra="regulation")
         except MissingExtra as exc:
             raise HTTPException(503, str(exc)) from exc
 

@@ -6,25 +6,25 @@ import pytest
 
 # The minimal ".[test]" install has no greenlet, so importing the rules package raises
 # ImportError rather than ModuleNotFoundError; skip on both, as the other regulation tests do.
-pytest.importorskip("archontos.review.workflow", exc_type=ImportError)
+pytest.importorskip("sion_regulation.review.workflow", exc_type=ImportError)
 
-from archontos.review.bundle import ReviewBundle  # noqa: E402
-from archontos.review.candidates import ChecklistItem, ChecklistProfile, ProvisionTarget  # noqa: E402
-from archontos.review.model import Interval, LegalVersion, Provision, ProvisionRef  # noqa: E402
-from archontos.review.workflow import ReviewWorkflow  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 from sion_api import models, regulation_review  # noqa: E402
 from sion_api.main import create_app  # noqa: E402
 from sion_api.regulation_review import RUN_CATEGORY, SqlRunStore  # noqa: E402
 from sion_core import MissingExtra  # noqa: E402
 from sion_graphrag.scoped import ProjectionScope, build_scoped_kg  # noqa: E402
+from sion_regulation.review.bundle import ReviewBundle  # noqa: E402
+from sion_regulation.review.candidates import ChecklistItem, ChecklistProfile, ProvisionTarget  # noqa: E402
+from sion_regulation.review.model import Interval, LegalVersion, Provision, ProvisionRef  # noqa: E402
+from sion_regulation.review.workflow import ReviewWorkflow  # noqa: E402
 from sqlalchemy import select  # noqa: E402
 
 ROOT = "/api/v1/regulation/reviews"
 
 
 def flow(factory):
-    from archontos.review.runs import RunRecord
+    from sion_regulation.review.runs import RunRecord
 
     bundle = ReviewBundle(
         versions=[

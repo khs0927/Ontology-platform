@@ -31,6 +31,16 @@
 
 저장과 수정은 쓰기 도구다. Jev 게이트를 통과해 기본 `dry_run:true`로 미리보기한 뒤 같은 인자로 `dry_run:false`를 호출한다. 미리보기는 프로젝트·근거·outbox에 쓰지 않는다. 동일 프로젝트와 run 재저장은 중복 생성하지 않는다. 기존 `regulation` 네임스페이스는 직접 게이트웨이의 7개 핵심 도구 및 health/audit를 제공한다.
 
+## 모바일용 프로젝트 요약 (읽기 전용)
+
+`GET /api/v1/regulation/summary`는 저장된 검토를 프로젝트별로 요약한다. 보고서 본문, 메모, 후속 과제는 내려주지 않고 `project_id`, `project_name`, `work_count`, `status_counts`, 최신 검토의 `id`·`title`·`status`·`decision_status`·`as_of`·`updated_at`만 반환한다. 응답은 `read_only:true`, `canonical:false`이며 쓰기는 하지 않는다.
+
+- 권한: `read:knowledge`가 필요하다. 토큰 스코프에 `project:<uuid>`가 있으면 그 프로젝트로만 제한되며, 허용되지 않은 `project_id`를 요청하면 DB를 읽기 전에 403을 반환한다. 단, 이 프로젝트 제한은 요약 경로에만 적용되며 아직 격리 경계가 아니다. 같은 토큰에 `read:knowledge`가 있으면 `GET /api/v1/regulation/works` 등 다른 읽기 경로로 모든 프로젝트의 보고서를 읽을 수 있으므로, 프로젝트로 한정해야 하는 상대에게 이런 토큰을 발급하지 않는다. 나머지 경로 적용은 후속 과제다.
+- 필터: `project_id=<uuid>`를 최대 50개까지 반복 지정한다.
+- 페이지: `limit` 기본 20, 최대 50. 응답의 `next_cursor`를 `cursor`로 넘기고 `null`이 될 때까지 반복한다.
+- 크기 제한: 응답 본문은 `SION_SUMMARY_MAX_BYTES`(기본 65536, 최소 4096) 이하로 유지한다. 제한 때문에 잘린 페이지는 `truncated:true`와 이어받을 `next_cursor`를 준다. 항목 하나만으로 제한을 넘으면 `{"project_id": ..., "item_truncated": true}`로 대체한다.
+- 호출 제한: 클라이언트(인증된 설정 토큰의 해시, 신뢰된 로컬 요청은 접속 주소)별 프로세스 내 슬라이딩 윈도로 제한한다. `SION_SUMMARY_RATE_LIMIT=<요청수>/<초>`(기본 `60/60`, `0`이면 끔)로 설정하며 초과 시 429와 `Retry-After`를 반환한다. 워커 간에는 공유되지 않는다.
+
 ## 판단 범위
 
 `canonical:false`와 `unverified`는 저장 후에도 유지한다. 작업을 완료 처리해도 법적 적합성이 확인되는 것은 아니다. 플랫폼은 게이트웨이의 서버 소유 audit run만 가져오며 임의 보고서 업로드를 받지 않는다. 스키마 검사는 형식 검증이며 원문 진위나 법규 적용성을 증명하지 않는다. 검토된 규칙이 없는 경우, 조례·지구단위계획·공간 범위·시점 근거가 부족한 경우에는 판정이 보류된다.
