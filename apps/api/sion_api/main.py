@@ -382,7 +382,7 @@ def create_app(
 
         Read-only and paginated (``relations`` and ``batches`` are paged independently by
         ``limit``/``offset``). ``projected_under_policy`` describes the policy, not the live
-        GraphRAG index, which does not apply the review-state filter yet. An approval is a review
+        GraphRAG index's freshness. An approval is a review
         judgement, not a factual verification of the source.
         """
         from sion_graphrag.review_report import (
@@ -660,15 +660,16 @@ def create_app(
     @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
     async def graphrag_project(
         include_rejected: bool = Query(
-            default=False, description="Audit/debug only: also project /review-rejected relations"
+            default=False, description="Preview the audit projection, including /review-rejected relations, without indexing"
         ),
     ):
         engine = require_graphrag()
         try:
-            written = await engine.project(factory, include_rejected=include_rejected)
+            counts = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"canonical": False, "written": written, "include_rejected": include_rejected}
+        result_key = "preview" if include_rejected else "written"
+        return {"canonical": False, result_key: counts, "include_rejected": include_rejected}
 
     @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
     async def graphrag_query(payload: schemas.GraphRagQuery):
