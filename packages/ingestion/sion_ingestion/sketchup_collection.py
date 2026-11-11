@@ -1,4 +1,4 @@
-"""SketchUp model collection pipeline: manifest, preflight and namespace scaffolding.
+"""SketchUp model collection pipeline: one ingest command, manifest and preflight.
 
 Every collected SketchUp model lives in one *namespace*:
 
@@ -8,20 +8,27 @@ Every collected SketchUp model lives in one *namespace*:
 * ``data/sources/sketchup/<namespace>/manifest.json`` (``sion-sketchup-collection-manifest/v1``,
   JSON schema ``schemas/sion-sketchup-collection-manifest-1.schema.json``) records the model,
   SketchUp version, capture hashes, inputs and outputs,
+* ``data/sources/sketchup/content-index.json`` (``sion-sketchup-content-index/v1``) maps the
+  committed dump SHA-256 (the content address) to exactly one namespace,
 * ``data/sources/sketchup/namespaces.json`` (``sion-sketchup-namespaces/v1``) registers the build
   inputs for :mod:`sion_ingestion.sketchup_assets`.
 
 Commands::
 
+    python -m sion_ingestion.sketchup_collection ingest --namespace NS --from-dir DIR [...]
     python -m sion_ingestion.sketchup_collection preflight [--namespace NS] [--build]
     python -m sion_ingestion.sketchup_collection manifest --namespace NS [--write | --check]
     python -m sion_ingestion.sketchup_collection scaffold --namespace NS [--from-dir DIR] [...]
 
-The preflight never modifies anything. ``scaffold`` only writes the namespace's own files (copied
-captures, an empty classification skeleton, the registry entry, the manifest, the generated export
-and a regeneration test stub). It validates every input and builds the export in memory before it
-registers anything, and it restores every file it wrote when a step fails. Classifications stay
-``unverified`` candidates and are never approved.
+``ingest`` is the command that adds a model. It strips a UTF-8 BOM, redacts personal absolute
+paths, content-addresses the committed dump, and writes classification candidates only when a
+definition attribute (``sion_class``, ``object_class`` or ``su_class``) is exactly a known class
+id. Those candidates stay ``unverified`` for ``/review``, with the dump locator and SHA-256.
+Re-running it on the same bytes changes nothing. The same dump cannot be registered twice.
+
+The preflight never modifies anything. ``scaffold`` is the writer ``ingest`` calls: captures, the
+classification overlay, the registry entry, the manifest, the content index, the generated export
+and a regeneration test stub. If a later step fails, every file written by that call is restored.
 """
 
 from __future__ import annotations
@@ -31,6 +38,7 @@ import hashlib
 import json
 import re
 import sys
+import tempfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
@@ -50,6 +58,8 @@ from sion_ingestion.sketchup_assets import (
 MANIFEST_SCHEMA = "sion-sketchup-collection-manifest/v1"
 MANIFEST_SCHEMA_FILE = "schemas/sion-sketchup-collection-manifest-1.schema.json"
 MANIFEST_NAME = "manifest.json"
+CONTENT_INDEX_SCHEMA = "sion-sketchup-content-index/v1"
+CONTENT_INDEX_REL = "data/sources/sketchup/content-index.json"
 SOURCES_REL = "data/sources/sketchup"
 SUPPLEMENT_SCHEMA_PREFIX = "sion-sketchup-classification-supplement/"
 #: Evidence locator every supplement candidate carries (scripts/sketchup/propose_supplement.py).
@@ -78,10 +88,38 @@ SHARED_DEFAULTS = {
     "guidelines": "docs/sketchup/MODELING-GUIDELINES.ko.md",
 }
 REVIEW_KEYS = {"approved", "approved_by", "review", "reviewed_by", "reviewer", "decision"}
+#: Attribute keys whose string value is copied as a class id. Anything else is not a classification.
+EXPLICIT_CLASS_KEYS = frozenset({"sion_class", "object_class", "su_class"})
+#: Declared constant for "the attribute names a vocabulary id". It is not a measured probability.
+EXPLICIT_CLASS_CONFIDENCE = 0.55
+EXPLICIT_METHOD = (
+    "명시적 속성(sion_class, object_class, su_class)의 값이 객체 클래스 id와 정확히 같을 때만 "
+    "미검증 후보를 만든다. 이름·크기·재질로 클래스를 추정하지 않는다. "
+    f"confidence는 파이프라인 상수 {EXPLICIT_CLASS_CONFIDENCE}이다. "
+    "verification_state=unverified, source_kind=inferred. 근거 locator와 SHA-256을 보존하며 "
+    "/review 승인 전에는 GraphRAG 가중치에 반영하지 않는다."
+)
+READONLY_SCRIPTS = (
+    "scripts/sketchup/dump_model.rb",
+    "scripts/sketchup/geom_probe.rb",
+    "scripts/sketchup/grouping_probe.rb",
+)
+#: A dotted call that would change the open model. Comments that merely say "save" do not match.
+MUTATION_RE = re.compile(rb"\.(?:save|erase!|add_face|add_group|add_instance|pushpull|start_operation)\b|purge_unused")
+_ATTR_KEY_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+_LOCATOR_RE = re.compile(r"\.([A-Za-z_][A-Za-z0-9_]*)|\[(\d+)\]")
 
 # Personal absolute paths. Generic profile names (as in scripts/check_public_privacy.py) are allowed.
 WIN_PROFILE_RE = re.compile(rb"[A-Za-z]:[\\/]+(?:Users|Documents and Settings)[\\/]+([^\\/\s\"'`\r\n]+)", re.IGNORECASE)
 NIX_PROFILE_RE = re.compile(rb"(?<![\w.~:-])/(?:home|Users)/([^/\s\"'`\\\r\n]+)")
+_WIN_PATH_RE = re.compile(
+    rb"[A-Za-z]:(?:\\\\|/|\\)(?:Users|Documents and Settings)(?:\\\\|/|\\)"
+    rb"([^\\/\s\"'`\r\n]+)"
+    rb"((?:(?:\\\\|/|\\)[^\\/\s\"'`\r\n]+)*)",
+    re.IGNORECASE,
+)
+_NIX_PATH_RE = re.compile(rb"(?<![\w.~:-])/(?:home|Users)/([^/\s\"'`\\\r\n]+)((?:/[^/\s\"'`\\\r\n]+)*)")
+_PATH_SPLIT_RE = re.compile(rb"(?:\\\\|/|\\)")
 GENERIC_PROFILE_NAMES = {b"user", b"username", b"public", b"example", b"shared", b"default", b"me"}
 
 
@@ -122,6 +160,69 @@ def personal_paths(data: bytes) -> int:
     for pattern in (WIN_PROFILE_RE, NIX_PROFILE_RE):
         hits += sum(1 for m in pattern.finditer(data) if not _is_generic_profile(m.group(1)))
     return hits
+
+
+def _path_basename(rest: bytes) -> bytes:
+    parts = [part for part in _PATH_SPLIT_RE.split(rest or b"") if part]
+    return parts[-1] if parts else b""
+
+
+def redact_personal_paths(data: bytes) -> tuple[bytes, int]:
+    """Replace personal absolute paths with ``<redacted>/<filename>``. Generic profiles stay.
+
+    The replacement keeps the final path segment so ``model.path`` still yields the ``.skp``
+    file name. Generic profile names (``USER``, ``user``, …) are left as written.
+    """
+    count = 0
+
+    def repl(match: re.Match[bytes]) -> bytes:
+        nonlocal count
+        if _is_generic_profile(match.group(1)):
+            return match.group(0)
+        count += 1
+        tail = _path_basename(match.group(2) or b"")
+        return b"<redacted>/" + tail if tail else b"<redacted>"
+
+    redacted = _WIN_PATH_RE.sub(repl, data)
+    redacted = _NIX_PATH_RE.sub(repl, redacted)
+    return redacted, count
+
+
+def prepare_capture_bytes(data: bytes) -> tuple[bytes, int]:
+    """Strip one leading UTF-8 BOM, then redact personal paths. The result is what we commit."""
+    if data.startswith(b"\xef\xbb\xbf"):
+        data = data[3:]
+    return redact_personal_paths(data)
+
+
+def capture_set_sha256(items: list[tuple[str, str, str]]) -> str:
+    """Content address of a capture set: role, repo-relative path and SHA-256, sorted."""
+    digest = hashlib.sha256()
+    for role, path, sha in sorted(items):
+        digest.update(role.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(sha.encode("ascii"))
+    return digest.hexdigest()
+
+
+def resolve_locator(document: Any, locator: str) -> Any:
+    """Resolve a ``$.a[0].b`` locator. Return ``None`` when a step is missing."""
+    if not isinstance(locator, str) or not locator.startswith("$"):
+        return None
+    current = document
+    for key, index in _LOCATOR_RE.findall(locator):
+        if key:
+            if not isinstance(current, dict) or key not in current:
+                return None
+            current = current[key]
+        else:
+            i = int(index)
+            if not isinstance(current, list) or i >= len(current) or i < 0:
+                return None
+            current = current[i]
+    return current
 
 
 def namespace_dir(namespace: str, root: Path = ROOT) -> Path:
@@ -230,6 +331,7 @@ def build_manifest(namespace: str, root: Path = ROOT) -> dict[str, Any]:
     dump_item = by_role.get("dump")
     if dump_item is None or "sha256" not in dump_item:
         raise CollectionError(f"{namespace}: the model dump must be a capture inside {_rel(ns_dir, root)}")
+    capture_items = [(i["role"], i["path"], i["sha256"]) for i in inputs if i["kind"] == "capture" and "sha256" in i]
     dump = json.loads((root / dump_item["path"]).read_text(encoding="utf-8-sig"))
     model = dump.get("model", {})
     meta = dump.get("_meta", {})
@@ -259,6 +361,8 @@ def build_manifest(namespace: str, root: Path = ROOT) -> dict[str, Any]:
             "modified": model.get("modified"),
         },
         "dump_sha256": dump_item["sha256"],
+        "content_address": dump_item["sha256"],
+        "capture_set_sha256": capture_set_sha256(capture_items),
         "probe_sha256": {i["role"]: i["sha256"] for i in inputs if i["role"].endswith("_probe") and "sha256" in i},
         "limits": limits,
         "inputs": inputs,
@@ -268,6 +372,55 @@ def build_manifest(namespace: str, root: Path = ROOT) -> dict[str, Any]:
 
 def manifest_text(namespace: str, root: Path = ROOT) -> str:
     return _json_text(build_manifest(namespace, root))
+
+
+def build_content_index(root: Path = ROOT) -> dict[str, Any]:
+    """One entry per committed dump SHA-256. Two namespaces cannot share a model snapshot."""
+    by_dump: dict[str, dict[str, str]] = {}
+    for namespace in sorted(load_registry(root)):
+        manifest = build_manifest(namespace, root)
+        sha = manifest["content_address"]
+        if sha in by_dump:
+            raise CollectionError(
+                f"dump {sha} is already ingested as namespace {by_dump[sha]['namespace']!r}; "
+                f"{namespace!r} would be a second copy"
+            )
+        by_dump[sha] = {
+            "namespace": namespace,
+            "capture_set_sha256": manifest["capture_set_sha256"],
+            "skp_file": manifest["model"]["skp_file"],
+        }
+    return {
+        "schema": CONTENT_INDEX_SCHEMA,
+        "description": "Content address (SHA-256 of the committed model_dump.json, after BOM strip and "
+        "personal-path redaction) -> the one namespace that ingested it. "
+        "Edit with `python -m sion_ingestion.sketchup_collection ingest`.",
+        "by_dump_sha256": by_dump,
+    }
+
+
+def content_index_text(root: Path = ROOT) -> str:
+    return _json_text(build_content_index(root))
+
+
+def content_index_owner(root: Path, dump_sha: str) -> str | None:
+    """Namespace that already committed this dump SHA-256, or ``None`` when the index has no such entry."""
+    path = root / CONTENT_INDEX_REL
+    if not path.exists():
+        return None
+    try:
+        index = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise CollectionError(f"{CONTENT_INDEX_REL} is not valid JSON: {exc}") from exc
+    if index.get("schema") != CONTENT_INDEX_SCHEMA or not isinstance(index.get("by_dump_sha256"), dict):
+        raise CollectionError(f"{CONTENT_INDEX_REL} is not a {CONTENT_INDEX_SCHEMA} document")
+    entry = index["by_dump_sha256"].get(dump_sha)
+    if entry is None:
+        return None
+    owner = entry.get("namespace")
+    if not isinstance(owner, str):
+        raise CollectionError(f"{CONTENT_INDEX_REL} entry for {dump_sha} has no namespace")
+    return owner
 
 
 # --------------------------------------------------------------------------- preflight
@@ -340,6 +493,17 @@ def _check_classification(
         if classes is not None and a["class"] not in classes:
             out.append(_finding(ns, "classification", loc, f"unknown class {a['class']!r}"))
         out.extend(_candidate_findings(ns, loc, a))
+        evidence_sha = a.get("evidence_sha256")
+        if evidence_sha is not None and evidence_sha != dump_sha:
+            out.append(_finding(ns, "classification", loc, "evidence_sha256 does not match the model dump"))
+        locator = a.get("evidence_locator")
+        if locator is not None:
+            if not isinstance(locator, str) or not locator.startswith("$."):
+                out.append(_finding(ns, "classification", loc, "evidence_locator must be a $. locator"))
+            elif isinstance(dump, dict) and resolve_locator(dump, locator) != a.get("class"):
+                out.append(
+                    _finding(ns, "classification", loc, "evidence_locator does not resolve to the class id")
+                )
     return out
 
 
@@ -408,6 +572,123 @@ def _check_order(ns: str, dump: dict, by_role: dict[str, tuple[str, Any]]) -> li
         unknown = sorted(set(probe) - dump_defs) if isinstance(probe, dict) else []
         if unknown:
             out.append(_finding(ns, "hierarchy-order", rel, f"{len(unknown)} probed definition(s) not in the dump"))
+    return out
+
+
+def _check_explicit_coverage(
+    ns: str, dump: dict[str, Any], classification: dict[str, Any], class_ids: set[str], dump_sha: str
+) -> list[dict[str, Any]]:
+    """Every explicit class attribute must still be an unverified candidate with its locator."""
+    try:
+        proposed = propose_explicit_classifications(dump, class_ids, dump_sha)
+    except CollectionError as exc:
+        return [_finding(ns, "classification", "model_dump.json", str(exc))]
+    by_definition = {a.get("definition"): a for a in classification.get("assignments") or []}
+    out: list[dict[str, Any]] = []
+    for item in proposed:
+        got = by_definition.get(item["definition"])
+        loc = f"$.definitions {item['definition']}"
+        if not isinstance(got, dict) or got.get("class") != item["class"]:
+            out.append(
+                _finding(ns, "classification", loc, "explicit class attribute has no matching unverified candidate")
+            )
+            continue
+        if got.get("evidence_locator") != item["evidence_locator"] or got.get("evidence_sha256") != dump_sha:
+            out.append(
+                _finding(ns, "classification", loc, "candidate dropped the attribute locator or dump SHA-256")
+            )
+    return out
+
+
+def _check_model_unchanged(
+    ns: str, dump: dict[str, Any], parsed: dict[str, tuple[str, Any]], manifest: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """The read-only captures must agree on ``model.modified?`` and must not have flipped it."""
+    out: list[dict[str, Any]] = []
+    modified = (dump.get("model") or {}).get("modified")
+    recorded = (manifest.get("model") or {}).get("modified")
+    if recorded != modified:
+        out.append(
+            _finding(ns, "model-unchanged", "manifest.json", f"manifest model.modified is {recorded!r}; the dump says {modified!r}")
+        )
+    if "grouping_probe" in parsed:
+        rel, probe = parsed["grouping_probe"]
+        if "model_modified" in probe and probe.get("model_modified") != modified:
+            out.append(
+                _finding(ns, "model-unchanged", rel, "grouping probe model_modified disagrees with the model dump")
+            )
+        if probe.get("active_path"):
+            out.append(
+                _finding(ns, "model-unchanged", rel, "grouping probe ran inside an active edit path, not the model root")
+            )
+    if "hierarchy" in parsed:
+        rel, hierarchy = parsed["hierarchy"]
+        before, after = hierarchy.get("modified_before"), hierarchy.get("modified_after")
+        if before is not None and after is not None and before != after:
+            out.append(
+                _finding(ns, "model-unchanged", rel, "export_objects changed model.modified while it was running")
+            )
+        if before is not None and modified is not None and before != modified:
+            out.append(
+                _finding(ns, "model-unchanged", rel, "hierarchy modified_before disagrees with the model dump")
+            )
+    return out
+
+
+def _check_content_address(ns: str, root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    """The dump SHA-256 is the content address, and the content index names this namespace only."""
+    out: list[dict[str, Any]] = []
+    dump_sha = manifest.get("dump_sha256")
+    if manifest.get("content_address") != dump_sha:
+        out.append(_finding(ns, "content-address", "manifest.json", "content_address must be the committed dump SHA-256"))
+    live: list[tuple[str, str, str]] = []
+    for item in manifest["inputs"]:
+        if item.get("kind") != "capture":
+            continue
+        path = root / item["path"]
+        if not path.is_file():
+            continue
+        live.append((item["role"], item["path"], _sha256_bytes(path.read_bytes())))
+    if live and capture_set_sha256(live) != manifest.get("capture_set_sha256"):
+        out.append(_finding(ns, "content-address", "manifest.json", "capture_set_sha256 does not match the capture bytes"))
+    index_path = root / CONTENT_INDEX_REL
+    if not index_path.is_file():
+        return [*out, _finding(ns, "content-address", CONTENT_INDEX_REL, "content index is missing")]
+    try:
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        return [*out, _finding(ns, "content-address", CONTENT_INDEX_REL, f"invalid JSON: {exc}")]
+    if index.get("schema") != CONTENT_INDEX_SCHEMA or not isinstance(index.get("by_dump_sha256"), dict):
+        return [*out, _finding(ns, "content-address", CONTENT_INDEX_REL, f"schema must be {CONTENT_INDEX_SCHEMA}")]
+    by_dump = index["by_dump_sha256"]
+    entry = by_dump.get(dump_sha)
+    if not isinstance(entry, dict) or entry.get("namespace") != ns:
+        owner = entry.get("namespace") if isinstance(entry, dict) else None
+        message = (
+            f"dump is already ingested as namespace {owner!r}"
+            if owner
+            else "dump SHA-256 is not the content-index entry for this namespace"
+        )
+        out.append(_finding(ns, "content-address", CONTENT_INDEX_REL, message))
+    elif entry.get("capture_set_sha256") != manifest.get("capture_set_sha256"):
+        out.append(_finding(ns, "content-address", CONTENT_INDEX_REL, "content index capture set is stale"))
+    owners = [sha for sha, item in by_dump.items() if isinstance(item, dict) and item.get("namespace") == ns]
+    if owners != [dump_sha]:
+        out.append(_finding(ns, "content-address", CONTENT_INDEX_REL, "namespace must have exactly one content address"))
+    return out
+
+
+def _readonly_script_findings(root: Path) -> list[dict[str, Any]]:
+    """The capture scripts that ingest tells the operator to run must not mutate the model."""
+    out: list[dict[str, Any]] = []
+    for rel in READONLY_SCRIPTS:
+        path = root / rel
+        if not path.is_file():
+            continue
+        if MUTATION_RE.search(path.read_bytes()):
+            out.append(
+                _finding(None, "model-unchanged", rel, "read-only capture script contains a model mutation")
+            )
     return out
 
 
@@ -543,18 +824,32 @@ def preflight_namespace(namespace: str, root: Path = ROOT, *, build: bool = Fals
     if "classification" in parsed:
         rel, data = parsed["classification"]
         out.extend(_check_classification(ns, rel, data, manifest["dump_sha256"], dump, classes))
+        if isinstance(dump, dict):
+            out.extend(_check_explicit_coverage(ns, dump, data, classes or set(), manifest["dump_sha256"]))
     else:
         out.append(_finding(ns, "classification", mrel, "inputs need a classification.json overlay"))
     if "classification_supplement" in parsed:
         rel, data = parsed["classification_supplement"]
         if not str(data.get("schema", "")).startswith(SUPPLEMENT_SCHEMA_PREFIX):
             out.append(_finding(ns, "classification", rel, f"schema must start with {SUPPLEMENT_SCHEMA_PREFIX}"))
+        hierarchy_doc = parsed.get("hierarchy", (None, None))[1]
         for i, a in enumerate(data.get("assignments") or []):
             loc = f"{rel} $.assignments[{i}]"
             a = {"verification_state": None, "source_kind": None, **a}
             out.extend(_candidate_findings(ns, loc, a, locator=True))
+            pointer = a.get(LOCATOR_KEY)
+            if isinstance(pointer, str) and pointer.strip() and not pointer.startswith("$."):
+                out.append(_finding(ns, "candidate", loc, "hierarchy_locator must stay on the supplement candidate"))
+            elif isinstance(pointer, str) and pointer.startswith("$.") and isinstance(hierarchy_doc, dict):
+                node = resolve_locator(hierarchy_doc, pointer)
+                if not isinstance(node, dict) or node.get("pid") != a.get("pid"):
+                    out.append(
+                        _finding(ns, "candidate", loc, "hierarchy_locator does not resolve to this assignment's pid")
+                    )
     if isinstance(dump, dict):
         out.extend(_check_order(ns, dump, parsed))
+        out.extend(_check_model_unchanged(ns, dump, parsed, manifest))
+        out.extend(_check_content_address(ns, root, manifest))
     for rel, data in parsed.values():
         if _modified_state(data)[0] is False and _modified_state(data)[1] is True:
             out.append(_finding(ns, "model-modified", rel, "the read-only capture changed the model"))
@@ -596,6 +891,7 @@ def preflight(namespace: str | None = None, root: Path = ROOT, *, build: bool = 
                 out.append(_finding(ns_name, "registry", rel, "model dump folder is not a registered namespace"))
             elif f.suffix.lower() in TEXT_SUFFIXES:
                 _check_text_file(ns_name, f, rel, DEFAULT_LIMITS["max_input_bytes"], out)
+    out.extend(_readonly_script_findings(root))
     return out
 
 
@@ -603,7 +899,7 @@ def preflight(namespace: str | None = None, root: Path = ROOT, *, build: bool = 
 
 TEST_STUB = '''"""Regeneration test for the SketchUp namespace {ns!r}.
 
-Emitted by `python -m sion_ingestion.sketchup_collection scaffold --namespace {ns}`; extend it with
+Emitted by `python -m sion_ingestion.sketchup_collection ingest --namespace {ns}`; extend it with
 spot facts (definition counts, a known placement, the SketchUp version) once the model is reviewed.
 """
 
@@ -706,6 +1002,7 @@ def scaffold(
     guidelines: str | None = None,
     grouping_doc: str | None = None,
     classes: str | None = None,
+    classification_document: dict[str, Any] | None = None,
     force: bool = False,
     write_test: bool = True,
 ) -> dict[str, Any]:
@@ -751,6 +1048,22 @@ def scaffold(
     if dump_bytes.startswith(b"\xef\xbb\xbf"):
         raise CollectionError(f"{_rel(dump_path, root)} has a UTF-8 BOM; strip it before committing")
     dump_sha = _sha256_bytes(dump_bytes)
+    owner = content_index_owner(root, dump_sha)
+    if owner not in (None, namespace):
+        raise CollectionError(
+            f"this model dump is already ingested as namespace {owner!r} (content address {dump_sha}). "
+            "Re-run ingest on that namespace; the same snapshot is not copied twice."
+        )
+    cls_path = ns_dir / "classification.json"
+    cls_bytes: bytes | None = None
+    if classification_document is not None:
+        if classification_document.get("schema") != CLASSIFICATION_SCHEMA:
+            raise CollectionError(f"classification schema must be {CLASSIFICATION_SCHEMA}")
+        if classification_document.get("model_dump_sha256") != dump_sha:
+            raise CollectionError("classification model_dump_sha256 is not this dump's content address")
+        cls_bytes = _json_text(classification_document).encode("utf-8")
+        if cls_path.exists() and cls_path.read_bytes() != cls_bytes and not force:
+            raise CollectionError(f"{_rel(cls_path, root)} differs from the ingested classification; pass --force")
 
     # 2) proposed registry entry; shared inputs must already exist
     rel_dir = f"{SOURCES_REL}/{namespace}"
@@ -783,8 +1096,11 @@ def scaffold(
         for name, (src, data) in copies.items():
             journal.write(ns_dir / name, data)
             actions.append(f"copied {src.name} -> {_rel(ns_dir / name, root)}")
-        cls_path = ns_dir / "classification.json"
-        if not cls_path.exists():
+        if cls_bytes is not None:
+            if not cls_path.exists() or cls_path.read_bytes() != cls_bytes:
+                journal.write(cls_path, cls_bytes)
+                actions.append(f"wrote {_rel(cls_path, root)} (unverified candidates, pinned to the dump)")
+        elif not cls_path.exists():
             journal.write(cls_path, _json_text(classification_skeleton(dump_sha)).encode("utf-8"))
             actions.append(f"wrote {_rel(cls_path, root)} (empty, pinned to the dump)")
 
@@ -815,7 +1131,12 @@ def scaffold(
         journal.write(mpath, manifest_text(namespace, root).encode("utf-8"))
         actions.append(f"wrote {_rel(mpath, root)}")
 
-        # 7) regeneration test stub
+        # 7) content index (dump SHA-256 -> this namespace) and the regeneration test stub
+        index_bytes = content_index_text(root).encode("utf-8")
+        index_path = root / CONTENT_INDEX_REL
+        if not index_path.exists() or index_path.read_bytes() != index_bytes:
+            journal.write(index_path, index_bytes)
+            actions.append(f"wrote {CONTENT_INDEX_REL}")
         ident = re.sub(r"[^0-9a-z]+", "_", namespace).strip("_")
         test_path = root / "tests" / f"test_sketchup_ns_{ident}.py"
         if write_test and not test_path.exists():
@@ -834,7 +1155,281 @@ def scaffold(
     return {"namespace": namespace, "actions": actions, "preflight": [], "ok": True}
 
 
+# --------------------------------------------------------------------------- ingest
+
+
+def _explicit_labels(attributes: Any, prefix: str) -> list[tuple[str, str]]:
+    """``(locator, value)`` for explicit class attributes. Nested dictionaries are walked.
+
+    A value under any other key is ignored. This does not guess a class from a name, tag,
+    material or size.
+    """
+    found: list[tuple[str, str]] = []
+    if not isinstance(attributes, dict):
+        return found
+    for key, value in attributes.items():
+        if not isinstance(key, str) or _ATTR_KEY_RE.fullmatch(key) is None:
+            if key in EXPLICIT_CLASS_KEYS and isinstance(value, str):
+                raise CollectionError(
+                    f"{prefix}: attribute name {key!r} cannot be used as a locator. No class was guessed."
+                )
+            continue
+        locator = f"{prefix}.{key}"
+        if key in EXPLICIT_CLASS_KEYS and isinstance(value, str):
+            found.append((locator, value))
+        elif isinstance(value, dict):
+            found.extend(_explicit_labels(value, locator))
+    return found
+
+
+def propose_explicit_classifications(
+    dump: dict[str, Any], class_ids: set[str], dump_sha: str
+) -> list[dict[str, Any]]:
+    """Unverified candidates copied from explicit class attributes. Unknown ids are an error.
+
+    Nothing is invented when a definition has no such attribute. Conflicting attributes on one
+    definition are an error: the pipeline does not pick one.
+    """
+    assignments: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, definition in enumerate(dump.get("definitions") or []):
+        name = definition.get("name")
+        if not isinstance(name, str) or not name:
+            raise CollectionError(f"$.definitions[{index}] has no name")
+        if name in seen:
+            raise CollectionError(f"definition {name!r} appears more than once. No class was guessed.")
+        seen.add(name)
+        labels = _explicit_labels(definition.get("attributes") or {}, f"$.definitions[{index}].attributes")
+        if not labels:
+            continue
+        classes = {value for _, value in labels}
+        if len(classes) != 1:
+            quoted = ", ".join(f"{loc}={value!r}" for loc, value in labels)
+            raise CollectionError(
+                f"definition {name!r} has conflicting class attributes ({quoted}). No class was chosen."
+            )
+        value = labels[0][1]
+        if value not in class_ids:
+            raise CollectionError(
+                f"{labels[0][0]} is {value!r}, which is not an object-class id. No class was guessed."
+            )
+        locator = labels[0][0]
+        assignments.append(
+            {
+                "definition": name,
+                "class": value,
+                "confidence": EXPLICIT_CLASS_CONFIDENCE,
+                "verification_state": "unverified",
+                "source_kind": "inferred",
+                "basis_ko": (
+                    f"덤프 속성 {locator} 의 값이 클래스 id '{value}'와 같다. "
+                    f"파이프라인 상수 confidence={EXPLICIT_CLASS_CONFIDENCE}. 자동 승인 없음(/review)."
+                ),
+                "evidence_locator": locator,
+                "evidence_sha256": dump_sha,
+            }
+        )
+    return assignments
+
+
+def build_classification_document(
+    dump: dict[str, Any],
+    class_ids: set[str],
+    dump_sha: str,
+    existing: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Pin ``existing`` (or a new document) to ``dump_sha`` and fill gaps from explicit attributes.
+
+    An authored assignment is kept. An explicit attribute that names a different class is an error.
+    """
+    proposed = propose_explicit_classifications(dump, class_ids, dump_sha)
+    if existing is None:
+        document = classification_skeleton(dump_sha)
+        document["method"] = EXPLICIT_METHOD
+        document["assignments"] = proposed
+        return document
+    document = json.loads(json.dumps(existing))
+    document["schema"] = CLASSIFICATION_SCHEMA
+    document["model_dump"] = document.get("model_dump") or "model_dump.json"
+    document["model_dump_sha256"] = dump_sha
+    assignments = list(document.get("assignments") or [])
+    by_definition: dict[str, dict[str, Any]] = {}
+    for assignment in assignments:
+        name = assignment.get("definition")
+        if name in by_definition:
+            raise CollectionError(f"classification lists definition {name!r} twice")
+        if isinstance(name, str):
+            by_definition[name] = assignment
+    for item in proposed:
+        previous = by_definition.get(item["definition"])
+        if previous is None:
+            assignments.append(item)
+        elif previous.get("class") != item["class"]:
+            raise CollectionError(
+                f"{item['definition']!r}: attribute class {item['class']!r} disagrees with authored class "
+                f"{previous.get('class')!r}. No class was chosen."
+            )
+        else:
+            if previous.get("evidence_locator") not in (None, item["evidence_locator"]):
+                raise CollectionError(
+                    f"{item['definition']!r}: evidence_locator does not point at the class attribute"
+                )
+            if not previous.get("evidence_locator"):
+                previous["evidence_locator"] = item["evidence_locator"]
+            if previous.get("evidence_sha256") not in (None, dump_sha):
+                raise CollectionError(f"{item['definition']!r}: evidence_sha256 is not this dump")
+            if not previous.get("evidence_sha256"):
+                previous["evidence_sha256"] = dump_sha
+    document["assignments"] = assignments
+    return document
+
+
+def _load_class_ids(root: Path, classes: str | None) -> set[str]:
+    rel = _repo_relative(classes, "--classes") if classes is not None else SHARED_DEFAULTS["classes"]
+    path = root / rel
+    if not path.is_file():
+        raise CollectionError(f"classes input {rel} does not exist")
+    vocab = json.loads(path.read_text(encoding="utf-8"))
+    if vocab.get("schema") != CLASSES_SCHEMA:
+        raise CollectionError(f"{rel}: expected schema {CLASSES_SCHEMA}")
+    return {c["id"] for c in vocab.get("classes") or [] if isinstance(c, dict) and c.get("id")}
+
+
+def _stage_captures(from_dir: Path) -> tuple[Path, int, dict[str, Any] | None, tempfile.TemporaryDirectory[str]]:
+    """Copy redacted JSON captures into a temporary export folder. ``.skp`` and renders are skipped."""
+    if not from_dir.is_dir():
+        raise CollectionError(f"--from-dir {from_dir} is not a directory")
+    temp = tempfile.TemporaryDirectory(prefix="su-ingest-")
+    staged = Path(temp.name)
+    redacted = 0
+    authored: dict[str, Any] | None = None
+    for src in sorted(from_dir.iterdir()):
+        if not src.is_file():
+            continue
+        if src.suffix.lower() in BINARY_MODEL_SUFFIXES:
+            continue
+        name = CAPTURE_RENAMES.get(src.name, src.name)
+        if name == "classification.json":
+            data, count = prepare_capture_bytes(src.read_bytes())
+            redacted += count
+            if personal_paths(data):
+                temp.cleanup()
+                raise CollectionError(f"{src.name} still contains a personal absolute path after redaction")
+            try:
+                authored = json.loads(data.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError) as exc:
+                temp.cleanup()
+                raise CollectionError(f"{src.name} is not UTF-8 JSON after redaction: {exc}") from exc
+            continue
+        if name not in KNOWN_FILES or KNOWN_FILES[name][1] != "capture":
+            continue
+        data, count = prepare_capture_bytes(src.read_bytes())
+        redacted += count
+        if personal_paths(data):
+            temp.cleanup()
+            raise CollectionError(f"{src.name} still contains a personal absolute path after redaction")
+        try:
+            json.loads(data.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as exc:
+            temp.cleanup()
+            raise CollectionError(f"{src.name} is not UTF-8 JSON after redaction: {exc}") from exc
+        (staged / src.name).write_bytes(data)
+    if not (staged / "model_dump.json").is_file():
+        temp.cleanup()
+        raise CollectionError(f"{from_dir} has no model_dump.json (refusing to invent a model)")
+    return staged, redacted, authored, temp
+
+
+def _parsed_capture(path: Path) -> dict[str, Any] | None:
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def ingest(
+    namespace: str,
+    root: Path = ROOT,
+    *,
+    from_dir: Path,
+    guidelines: str | None = None,
+    grouping_doc: str | None = None,
+    classes: str | None = None,
+    force: bool = False,
+    write_test: bool = True,
+) -> dict[str, Any]:
+    """Add one SketchUp model. Idempotent for the same redacted bytes; content-addressed by dump SHA-256.
+
+    Personal paths are removed before anything is committed. Classification candidates are copied
+    from explicit class attributes only and stay unverified. ``.skp`` binaries are not copied.
+    """
+    root = Path(root).resolve()
+    staged, redacted, authored, temp = _stage_captures(Path(from_dir))
+    try:
+        dump = json.loads((staged / "model_dump.json").read_text(encoding="utf-8"))
+        if not isinstance(dump, dict):
+            raise CollectionError("model_dump.json must be a JSON object")
+        parsed: dict[str, tuple[str, Any]] = {"dump": ("model_dump.json", dump)}
+        grouping = _parsed_capture(staged / "grouping_probe.json")
+        if grouping is not None:
+            parsed["grouping_probe"] = ("grouping_probe.json", grouping)
+        hierarchy = _parsed_capture(staged / "hierarchy.json")
+        if hierarchy is not None:
+            parsed["hierarchy"] = ("hierarchy.json", hierarchy)
+        geometry_name = "geom_probe.json" if (staged / "geom_probe.json").is_file() else "geometry_probe.json"
+        geometry = _parsed_capture(staged / geometry_name)
+        if geometry is not None:
+            parsed["geometry_probe"] = (geometry_name, geometry)
+        findings = _check_order(namespace, dump, parsed) if isinstance(dump.get("hierarchy"), list) else [
+            _finding(namespace, "hierarchy-order", "model_dump.json", "model dump has no hierarchy list")
+        ]
+        manifest_view = {"model": {"modified": (dump.get("model") or {}).get("modified")}}
+        findings.extend(_check_model_unchanged(namespace, dump, parsed, manifest_view))
+        if findings:
+            messages = "; ".join(f["message"] for f in findings)
+            raise CollectionError(f"read-only capture check failed: {messages}")
+        dump_sha = _sha256_bytes((staged / "model_dump.json").read_bytes())
+        class_ids = _load_class_ids(root, classes)
+        existing_path = namespace_dir(namespace, root) / "classification.json"
+        if existing_path.is_file():
+            existing = json.loads(existing_path.read_text(encoding="utf-8"))
+        else:
+            existing = authored if isinstance(authored, dict) else None
+        document = build_classification_document(dump, class_ids, dump_sha, existing)
+        result = scaffold(
+            namespace,
+            root,
+            from_dir=staged,
+            guidelines=guidelines,
+            grouping_doc=grouping_doc,
+            classes=classes,
+            classification_document=document,
+            force=force,
+            write_test=write_test,
+        )
+        result["personal_paths_redacted"] = redacted
+        result["content_address"] = dump_sha
+        result["classifications"] = len(document["assignments"])
+        return result
+    finally:
+        temp.cleanup()
+
+
 # --------------------------------------------------------------------------- CLI
+
+
+def _add_model_flags(parser: argparse.ArgumentParser, *, from_dir_required: bool) -> None:
+    parser.add_argument("--namespace", required=True)
+    parser.add_argument(
+        "--from-dir",
+        required=from_dir_required,
+        help="SketchUp export folder with model_dump.json / geom_probe.json / ... (.skp is ignored)",
+    )
+    parser.add_argument("--guidelines", help=f"repo-relative guideline markdown (default {SHARED_DEFAULTS['guidelines']})")
+    parser.add_argument("--grouping-doc", help="repo-relative grouping workflow markdown written for this model")
+    parser.add_argument("--classes", help=f"repo-relative class vocabulary (default {SHARED_DEFAULTS['classes']})")
+    parser.add_argument("--force", action="store_true", help="replace differing captures / an already built registry entry")
+    parser.add_argument("--no-test", action="store_true", help="do not emit tests/test_sketchup_ns_<ns>.py")
+    parser.add_argument("--root", type=Path, help="repository root (default: this checkout)")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -843,57 +1438,64 @@ def main(argv: list[str] | None = None) -> int:
     )
     sub = parser.add_subparsers(dest="command", required=True)
     p = sub.add_parser("preflight", help="validate manifests, captures, overlays and outputs (read-only)")
+    p.add_argument("--root", type=Path, help="repository root (default: this checkout)")
     p.add_argument("--namespace")
     p.add_argument("--build", action="store_true", help="also regenerate the export and compare (build --check)")
     p = sub.add_parser("manifest", help="print, write or check a namespace manifest")
+    p.add_argument("--root", type=Path, help="repository root (default: this checkout)")
     p.add_argument("--namespace", required=True)
     mode = p.add_mutually_exclusive_group()
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    p = sub.add_parser(
+        "ingest",
+        help="add one model: redact, content-address, classify explicit labels, build and check",
+    )
+    _add_model_flags(p, from_dir_required=True)
     p = sub.add_parser("scaffold", help="register a namespace, build + check it, write manifest and test stub")
-    p.add_argument("--namespace", required=True)
-    p.add_argument("--from-dir", help="SketchUp export folder with model_dump.json / geom_probe.json / ...")
-    p.add_argument("--guidelines", help=f"repo-relative guideline markdown (default {SHARED_DEFAULTS['guidelines']})")
-    p.add_argument("--grouping-doc", help="repo-relative grouping workflow markdown written for this model")
-    p.add_argument("--classes", help=f"repo-relative class vocabulary (default {SHARED_DEFAULTS['classes']})")
-    p.add_argument("--force", action="store_true", help="replace differing captures / an already built registry entry")
-    p.add_argument("--no-test", action="store_true", help="do not emit tests/test_sketchup_ns_<ns>.py")
+    _add_model_flags(p, from_dir_required=False)
     args = parser.parse_args(argv)
 
     try:
+        root = args.root.resolve() if args.root else ROOT
         if args.command == "preflight":
-            findings = preflight(args.namespace, build=args.build)
+            findings = preflight(args.namespace, root, build=args.build)
             try:
                 # A schema error is already a finding. Loading again must not replace that JSON with a traceback.
-                namespaces = [args.namespace] if args.namespace else sorted(load_registry(ROOT))
+                namespaces = [args.namespace] if args.namespace else sorted(load_registry(root))
             except SketchUpAssetError:
                 namespaces = []
-            warnings = [w for ns in namespaces for w in preflight_warnings(ns)]
+            warnings = [w for ns in namespaces for w in preflight_warnings(ns, root)]
             report = {"ok": not findings, "findings": findings, "warnings": warnings}
             print(json.dumps(report, ensure_ascii=False, indent=1))
             return 0 if not findings else 1
         if args.command == "manifest":
-            text = manifest_text(args.namespace)
-            path = manifest_path(args.namespace)
+            text = manifest_text(args.namespace, root)
+            path = manifest_path(args.namespace, root)
             if args.check:
                 same = path.exists() and path.read_bytes() == text.encode("utf-8")
                 print(json.dumps({"namespace": args.namespace, "up_to_date": same}))
                 return 0 if same else 1
             if args.write:
                 path.write_bytes(text.encode("utf-8"))  # LF on every OS
-                print(json.dumps({"written": _rel(path, ROOT)}, ensure_ascii=False))
+                print(json.dumps({"written": _rel(path, root)}, ensure_ascii=False))
             else:
                 sys.stdout.write(text)
             return 0
-        result = scaffold(
-            args.namespace,
-            from_dir=Path(args.from_dir) if args.from_dir else None,
-            guidelines=args.guidelines,
-            grouping_doc=args.grouping_doc,
-            classes=args.classes,
-            force=args.force,
-            write_test=not args.no_test,
-        )
+        model_kwargs = {
+            "from_dir": Path(args.from_dir) if args.from_dir else None,
+            "guidelines": args.guidelines,
+            "grouping_doc": args.grouping_doc,
+            "classes": args.classes,
+            "force": args.force,
+            "write_test": not args.no_test,
+        }
+        if args.command == "ingest":
+            if model_kwargs["from_dir"] is None:
+                raise CollectionError("--from-dir is required")
+            result = ingest(args.namespace, root, **model_kwargs)
+        else:
+            result = scaffold(args.namespace, root, **model_kwargs)
         print(json.dumps(result, ensure_ascii=False, indent=1))
         return 0 if result["ok"] else 1
     except CollectionError as exc:

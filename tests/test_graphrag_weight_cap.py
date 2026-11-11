@@ -43,6 +43,25 @@ def test_approval_boost_values():
     assert relation_weight(0.9, "unverified") == pytest.approx(1.9)  # existing behaviour unchanged
 
 
+def test_unapproved_sketchup_classification_does_not_add_confidence_to_weight():
+    """Issue #79: class candidates keep confidence, but it waits for /review before it ranks."""
+    classified = {
+        "candidate": True,
+        "predicate": "classified_as",
+        "su_evidence": {"locator": "$.definitions[0].attributes.sion.object_class", "source_sha256": "ab"},
+    }
+    supplement = {"candidate": True, "predicate": "classified_as_supplement"}
+    other = {"candidate": True, "predicate": "applies_to_class"}
+    assert relation_weight(0.55, "unverified", classified) == BASE_RELATION_WEIGHT
+    assert relation_weight(0.45, "unverified", supplement) == BASE_RELATION_WEIGHT
+    assert relation_weight(0.55, "rejected", classified) == BASE_RELATION_WEIGHT
+    approved = relation_weight(0.55, "human_verified", classified)
+    assert approved == pytest.approx(BASE_RELATION_WEIGHT + 0.55 + APPROVAL_WEIGHT_BOOST)
+    assert approved <= MAX_RELATION_WEIGHT
+    # Guideline and other unverified edges still add confidence (issue #80).
+    assert relation_weight(0.9, "unverified", other) == pytest.approx(1.9)
+
+
 def _weight(c: TestClient, rid: str) -> tuple[float, float | None]:
     with c.app.state.session_factory() as session:
         row = session.get(models.Relation, uuid.UUID(rid))

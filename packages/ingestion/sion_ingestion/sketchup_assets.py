@@ -817,16 +817,23 @@ def build_export(
         if cid not in class_ids:
             raise SketchUpAssetError(f"classification uses unknown class {cid!r}")
         classified[name] = cid
+        if item.get("evidence_sha256") not in (None, dump_sha):
+            raise SketchUpAssetError(f"classification assignment {name!r} evidence_sha256 does not match the dump")
+        model_ev = ev(item["evidence_locator"]) if item.get("evidence_locator") else ev(f"$.definitions[{def_index[name]}]")
+        # The evidence row /review shows is the attribute locator when the pipeline recorded one.
+        # The assignment locator stays on the edge so the overlay row can still be found.
+        evidence = model_ev if item.get("evidence_locator") else overlay_ev(i)
         g.edge(
             k_def(name),
             "IMPLEMENTS",
             k_class(cid),
             predicate="classified_as",
-            evidence=overlay_ev(i),
+            evidence=evidence,
             inferred=True,
             confidence=float(item["confidence"]),
             basis_ko=item["basis_ko"],
-            model_evidence=ev(f"$.definitions[{def_index[name]}]"),
+            model_evidence=model_ev,
+            classification_locator=overlay_ev(i)["locator"] if item.get("evidence_locator") else None,
         )
 
     def link_chunk(key: str, c: dict[str, Any], gev: dict[str, Any], label: str) -> None:
