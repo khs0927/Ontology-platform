@@ -79,6 +79,8 @@ test = [
   "httpx2==2.13.1",
   "jsonschema==4.26.0",
   "pytest==9.1.1",
+  # Drawing benchmark render (packages/embedhub/bench/build_drawings_dataset.py). CI only.
+  "matplotlib>=3.9,<4",
 ]
 dev = [
   "sion-ontology-platform[test]",
