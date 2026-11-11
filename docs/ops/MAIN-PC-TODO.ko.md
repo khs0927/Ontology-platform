@@ -1,6 +1,6 @@
 # 메인 PC 복귀 시 할 일 (체크리스트)
 
-작성: 2026-10-08 저녁, 1단계 갱신 22:00, 전환 다음 행동 갱신 2026-11-11 (Asia/Seoul) · 대상: 메인 PC(운영 DB·API·대량 수집이 도는 PC)
+작성: 2026-10-08 저녁, 1단계 갱신 22:00, 전환 다음 행동 갱신 2026-11-11, PC 실측·드라이런 갱신 2026-11-12 (Asia/Seoul) · 대상: 메인 PC(운영 DB·API·대량 수집이 도는 PC)
 실행 주체: 오너 또는 오너가 이 대화/세션에서 PC 제어를 허락한 에이전트.
 
 > **규칙**
@@ -26,6 +26,16 @@
 - [x] 새 venv 생성 + 패키지 설치 완료 (editable 설치 포함)
 - [ ] **예약 작업 재등록은 아직 안 됐습니다.** `\AEC\` 작업들이 예전 체크아웃 경로를 그대로 가리킵니다. 다음 행동은 **2-1 드라이런으로 볼륨을 확인한 뒤 2-2 `-Apply`**입니다. 이 항목은 그 실행이 끝나기 전에는 체크하지 않습니다.
 - [ ] **워커는 계속 중단.** 대기 중인 작업이 남아 있으나 여유 메모리가 워커 재개 기준(2 GB)에 못 미쳐, STOP 표시와 작업 비활성화를 유지했습니다.
+
+## 진행 기록 — 2026-11-11 밤 ~ 2026-11-12 새벽 (Asia/Seoul)
+
+메인 PC가 켜진 상태에서 실측한 결과입니다. **2-1 드라이런까지 통과했고 2-2는 아직입니다.**
+
+- [x] Docker Desktop 기동 후 `aec-db` 확인: compose project `ontology`, DB 볼륨 `ontology_aec-pgdata`, 2026-11-09 23:31 KST에 정상 종료(exited 0). 볼륨은 그대로입니다.
+- [x] PR #121의 수정 스크립트로 **2-1 드라이런** 실행(별도 worktree, `-LegacyRoot C:\CODE\Ontology -AllowNotMain`). 결과: `compose project=ontology db volume=ontology_aec-pgdata` — `docker inspect aec-db`와 일치. `[DRY-RUN] would ...` 계획만 출력하고 변경 없음.
+- [ ] **2-2 `-Apply`는 아직.** 운영 체크아웃 `C:\CODE\Ontology-platform`이 `feat/regulation-gateway-bridge@46228e8`(origin/main보다 175커밋 뒤) + 로컬 수정 4건이라 preflight(깨끗한 `main`)를 통과하지 못합니다. PR #121 병합 후 1절 절차(백업 번들→stash→`reset --hard origin/main`)로 정리한 뒤 실행합니다.
+- [ ] `\AEC\` 작업은 여전히 15개 모두 예전/임시 경로를 가리킵니다(레거시 참조 11개, `D:\AECData\dev` 참조 4개, monorepo 경로 0개). 재등록은 2-2가 끝나야 합니다.
+- [ ] `/review` 실측(2026-11-11, `D:\SionData\sion.db` 읽기 전용): 대기 **221건** = SketchUp 214 + map 7. map 43건 중 36건은 이미 승인, 거절 0. guideline 후보 844건은 DB에 있으나 API가 `source_kind in (inferred, imported)`만 보여 화면에 나오지 않습니다.
 
 ### 전환이 중단된 원인
 
@@ -291,7 +301,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 8. `/review` 승인·반려 (오너 판단, 30–60분)
 
-- [ ] **왜:** SketchUp 0914 지식팩의 분류 후보 **214건** + 워크플로 링크, 맵 관계 **43건**이 `unverified` 상태입니다(이슈 #3: 31노드·43관계, 이슈 #33: SketchUp).
+- [ ] **왜:** 2026-11-11 실측 기준 대기 후보는 **221건**입니다 — SketchUp 0914 지식팩 분류 후보 **214건** + 보류 중인 map 관계 **7건**. map 43건 중 **36건은 이미 승인**되어 있고 거절은 0건이라, 예전 "43건 unverified" 서술은 낡았습니다(이슈 #3: 31노드·43관계, 이슈 #33: SketchUp). guideline 후보 844건은 DB에 있으나 API 필터로 `/review`에 나오지 않습니다.
   사람 판단이 필요합니다. 에이전트는 자동 승인하지 않습니다.
 - **명령**
   ```powershell
