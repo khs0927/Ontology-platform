@@ -70,7 +70,7 @@ module GrokDump
   end
 
   def self.run(outpath)
-    m = Sketchup.active_model
+    m = Sketchup.active_model; mod0 = m.modified?
     t0 = Time.now
     d = {}
     d['_meta'] = { 'tool' => 'grokbot read-only dump v1', 'sketchup_version' => Sketchup.version,
@@ -82,7 +82,7 @@ module GrokDump
       %w[City Country Latitude Longitude NorthAngle TZOffset DisplayShadows ShadowTime].each { |k| si[k] = val(m.shadow_info[k]) }
     rescue; end
     d['model'] = { 'title' => s(m.title), 'path' => s(m.path), 'description' => s(m.description, 2000),
-                   'modified' => m.modified?, 'georeferenced' => (m.georeferenced? rescue nil),
+                   'modified' => m.modified?, 'modified_before' => mod0, 'georeferenced' => (m.georeferenced? rescue nil),
                    'units_options' => uo, 'shadow_info' => si, 'bounds' => bb(m.bounds),
                    'top_level_count' => m.entities.size, 'top_level_types' => count_ents(m.entities),
                    'definitions_count' => m.definitions.size, 'layers_count' => m.layers.size,
@@ -242,6 +242,7 @@ module GrokDump
     m.entities.grep(Sketchup::SectionPlane).each { |e| sp << { 'in_def' => '(model)', 'name' => (s(e.name) rescue nil), 'active' => e.active?, 'plane' => e.get_plane.map { |x| x.round(4) } } }
     d['section_planes'] = sp
     d['_meta']['elapsed_s'] = (Time.now - t0).round(2)
+    d['model']['modified_after'] = m.modified?
     File.open(outpath, 'w:UTF-8') { |f| f.write(JSON.pretty_generate(d)) }
     "ok nodes=#{nodes.size} truncated=#{truncated} defs=#{defs_out.size} bytes=#{File.size(outpath)} t=#{d['_meta']['elapsed_s']}"
   end

@@ -9,15 +9,17 @@ import sys
 from pathlib import Path
 
 import pytest
-from sion_ingestion.sketchup_assets import DEFAULTS, REGISTRY_REL, load_registry
+from sion_ingestion.sketchup_assets import DEFAULTS, REGISTRY_REL, SketchUpAssetError, load_registry
 from sion_ingestion.sketchup_collection import (
     MANIFEST_SCHEMA_FILE,
     CollectionError,
     build_namespace,
+    main,
     manifest_path,
     manifest_text,
     personal_paths,
     preflight,
+    preflight_warnings,
     scaffold,
     write_registry,
 )
@@ -75,7 +77,9 @@ def test_cli_preflight_with_build_check():
         text=True,
     )
     assert completed.returncode == 0, completed.stdout + completed.stderr
-    assert json.loads(completed.stdout) == {"ok": True, "findings": []}
+    report = json.loads(completed.stdout)
+    assert report["ok"] is True and report["findings"] == []
+    assert {w["check"] for w in report["warnings"]} == {"model-dirty"}  # pinned captures: dirty, not changed
 
 
 def test_personal_path_detection_allows_generic_profiles():
@@ -369,3 +373,59 @@ def test_scaffold_validates_before_writing(fresh_root):
         scaffold("typo-name", root, from_dir=export, guidelines="docs/sketchup/missing.md")
     assert _tree(root) == before
     assert not (root / "data/sources/sketchup/typo-name").exists()
+
+
+def test_capture_that_changed_the_model_fails(tree):
+    ns_dir = tree / NS_DIR
+    _edit_json(ns_dir / "hierarchy.json", lambda d: d.update(modified_before=False, modified_after=True))
+    _edit_json(ns_dir / "model_dump.json", lambda d: d["model"].update(modified_before=False, modified_after=True))
+    _edit_json(ns_dir / "grouping_probe.json", lambda d: d.update(modified_before=False, modified_after=False))
+    checks = _checks(tree)
+    assert ("model-modified", "hierarchy.json") in checks and ("model-modified", "model_dump.json") in checks
+    assert ("model-modified", "grouping_probe.json") not in checks
+    _edit_json(ns_dir / "hierarchy.json", lambda d: d.update(modified_before=True, modified_after=True))
+    assert ("model-modified", "hierarchy.json") not in _checks(tree)  # already dirty: a warning, not a failure
+
+
+def test_dirty_model_capture_is_a_warning(tree):
+    ns_dir = tree / NS_DIR
+    warned = {Path(w["path"]).name for w in preflight_warnings(NS, tree)}
+    assert {"model_dump.json", "grouping_probe.json", "hierarchy.json"} <= warned  # legacy keys count too
+    assert all(w["severity"] == "warning" for w in preflight_warnings(NS, tree))
+    for name in ("model_dump.json", "grouping_probe.json", "hierarchy.json"):
+
+        def clean(d, name=name):
+            target = d["model"] if name == "model_dump.json" else d
+            target.update(modified_before=False, modified_after=False)
+
+        _edit_json(ns_dir / name, clean)
+    assert preflight_warnings(NS, tree) == []
+    assert not {c for c, _ in _checks(tree)} & {"model-dirty", "model-modified"}
+
+
+def test_supplement_candidates_need_an_evidence_locator(tree):
+    def strip(d):
+        d["assignments"][0].pop("hierarchy_locator")
+        d["assignments"][1]["hierarchy_locator"] = " "
+
+    _edit_json(tree / NS_DIR / "classification.supplement.json", strip)
+    locs = {f["path"].split(" ", 1)[1] for f in preflight(NS, tree) if "hierarchy_locator" in f["message"]}
+    assert locs == {"$.assignments[0]", "$.assignments[1]"}
+
+
+def test_v1_classification_overlay_does_not_require_a_locator(tree):
+    _edit_json(tree / NS_DIR / "classification.json", lambda d: d["assignments"][0].pop("hierarchy_locator", None))
+    assert not [f for f in preflight(NS, tree) if "hierarchy_locator" in f["message"]]
+
+
+def test_preflight_cli_prints_findings_when_the_registry_cannot_load(monkeypatch, capsys):
+    import sion_ingestion.sketchup_collection as collection
+
+    def broken(root=collection.ROOT):
+        raise SketchUpAssetError("registry schema rejected")
+
+    monkeypatch.setattr(collection, "load_registry", broken)
+    assert main(["preflight"]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert report["ok"] is False and report["warnings"] == []
+    assert any(f["check"] == "registry" for f in report["findings"])
