@@ -228,7 +228,5 @@ def test_summarize_stops_after_two_endpoint_failures():
 
 
 def _public_dns(monkeypatch):
-    """Resolve names to a public address so the test is independent of the host's DNS (fake-IP proxies etc.)."""
-    from aec_intelligence.operational import netguard
-
-    monkeypatch.setattr(netguard, "_getaddrinfo", lambda host: [(2, 1, 6, "", ("93.184.216.34", 0))])
+    """Keep the egress tests hermetic: no operator allow-list (netguard never resolves DNS since Ontology #99)."""
+    monkeypatch.delenv("AEC_LOCAL_HOSTNAMES", raising=False)

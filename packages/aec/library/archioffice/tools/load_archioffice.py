@@ -85,6 +85,56 @@ def embed(text: str) -> list[float]:
     return vec
 
 
+LINK_SQL = (
+    "UPDATE aec.kg_nodes n SET object_ids = ARRAY[o.id], document_ids = ARRAY[o.document_id] "
+    "FROM aec.objects o WHERE o.id = n.id AND n.project_key = 'ARCHIOFFICE'"
+)
+
+
+CLEAR_LINKS_SQL = (
+    "UPDATE aec.kg_nodes SET object_ids = '{}', document_ids = '{}' "
+    "WHERE project_key = 'ARCHIOFFICE'"
+)
+
+
+def relink_nodes(cur) -> None:
+    """Clear every ARCHIOFFICE node link, then rebuild from objects that still exist."""
+    cur.execute(CLEAR_LINKS_SQL)
+    cur.execute(LINK_SQL)
+
+
+def validate_vectors(vectors: list[dict]) -> None:
+    """Refuse an empty/invalid corpus so stale-object pruning can never wipe the project."""
+    if not vectors:
+        raise ValueError("vector corpus is empty; refusing to load or prune ARCHIOFFICE objects")
+    ids = []
+    for v in vectors:
+        oid = v.get("node_id")
+        if not isinstance(oid, str) or not oid.strip():
+            raise ValueError(f"invalid vector row without node_id: {v.get('label')!r}")
+        if not v.get("kind") or not v.get("content_hash") or not isinstance(v.get("text"), str):
+            raise ValueError(f"invalid vector row {oid!r}: kind/content_hash/text required")
+        ids.append(oid)
+    if len(set(ids)) != len(ids):
+        raise ValueError("duplicate node_id in vector corpus")
+
+
+def prune_stale_objects(cur, vectors: list[dict]) -> None:
+    """Delete ARCHIOFFICE objects (and their embedding mappings) absent from the corpus.
+
+    Scoped strictly to project_id = ARCHIOFFICE. Shared aec.text_vectors rows are kept.
+    """
+    validate_vectors(vectors)
+    keep = sorted({v["node_id"] for v in vectors})
+    cur.execute(
+        "DELETE FROM aec.embeddings WHERE object_id IN ("
+        "SELECT id FROM aec.objects WHERE project_id = %s AND NOT (id = ANY(%s)))",
+        (PROJECT_KEY, keep))
+    cur.execute(
+        "DELETE FROM aec.objects WHERE project_id = %s AND NOT (id = ANY(%s))",
+        (PROJECT_KEY, keep))
+
+
 def apply(dsn: str, sql_only: bool) -> int:
     try:
         import psycopg  # type: ignore
@@ -92,8 +142,10 @@ def apply(dsn: str, sql_only: bool) -> int:
         print("BLOCKED: psycopg is not installed in this interpreter; cannot reach the database.",
               file=sys.stderr)
         return 3
+    json.loads((PACK / "manifest.json").read_text(encoding="utf-8"))  # fail early on a corrupt manifest
     nodes = load_jsonl(PACK / "graph" / "kg_nodes.jsonl")
-    vectors = load_jsonl(PACK / "vectors" / "vector_corpus.jsonl")
+    # --sql-only never touches objects/vectors/pruning, so it neither reads nor validates the corpus.
+    vectors = [] if sql_only else load_jsonl(PACK / "vectors" / "vector_corpus.jsonl")
     sql_file = PACK / "sql" / "archioffice_kg_load.sql"
 
     with psycopg.connect(dsn) as conn:
@@ -102,9 +154,13 @@ def apply(dsn: str, sql_only: bool) -> int:
             cur.execute("SELECT 1 FROM aec.kg_nodes LIMIT 1")
             cur.execute("SELECT 1 FROM aec.text_vectors LIMIT 1")
             print(f"connected; applying {sql_file.name}")
+            if not sql_only:
+                validate_vectors(vectors)  # before any write
             cur.execute(sql_file.read_text(encoding="utf-8"))
             print(f"kg load committed: nodes={len(nodes)}")
             if sql_only:
+                # link to pack objects that already exist (idempotent with the SQL's own link)
+                relink_nodes(cur)
                 conn.commit()
                 return 0
 
@@ -137,7 +193,8 @@ def apply(dsn: str, sql_only: bool) -> int:
                 if v["content_hash"] in seen_hash:
                     cur.execute(
                         "INSERT INTO aec.embeddings(object_id,model,revision,content_hash) "
-                        "VALUES (%s,%s,0,%s) ON CONFLICT (object_id,model) DO NOTHING",
+                        "VALUES (%s,%s,0,%s) ON CONFLICT (object_id,model) DO UPDATE SET "
+                        "revision=EXCLUDED.revision, content_hash=EXCLUDED.content_hash",
                         (oid, MODEL, v["content_hash"]))
                     continue
                 vec = embed(v["text"])
@@ -147,9 +204,14 @@ def apply(dsn: str, sql_only: bool) -> int:
                     (MODEL, v["content_hash"], "[" + ",".join(f"{x:.6f}" for x in vec) + "]"))
                 cur.execute(
                     "INSERT INTO aec.embeddings(object_id,model,revision,content_hash) "
-                    "VALUES (%s,%s,0,%s) ON CONFLICT (object_id,model) DO NOTHING",
+                    "VALUES (%s,%s,0,%s) ON CONFLICT (object_id,model) DO UPDATE SET "
+                        "revision=EXCLUDED.revision, content_hash=EXCLUDED.content_hash",
                     (oid, MODEL, v["content_hash"]))
                 seen_hash.add(v["content_hash"])
+            # prune first so no node keeps a link to a deleted object, then rebuild all links
+            # (the SQL script ran before objects existed on a clean DB)
+            prune_stale_objects(cur, vectors)
+            relink_nodes(cur)
         conn.commit()
     print(f"APPLIED objects={len(vectors)} distinct_text_vectors={len(seen_hash)}")
     print("NOTE: this script does not run kg-summarize; run "

@@ -9,7 +9,8 @@
 
 | 구분 | 저장소/경로 | 규칙 |
 |---|---|---|
-| **모노레포** | `khs0927/Ontology-platform` — `packages/regulation`(ArchOntos), `packages/aec`(Ontology), `packages/cad/god-cad`(GOD-CAD) | 코드 수정은 여기서. 원본 저장소(ArchOntos, Ontology, GOD-CAD, CAD-MCP)는 **보관(읽기 전용)** |
+| **모노레포** | `khs0927/Ontology-platform` — `packages/aec`(Ontology), `packages/cad/god-cad`(GOD-CAD) | 코드 수정은 여기서. 원본 저장소(Ontology, GOD-CAD, CAD-MCP)는 **보관(읽기 전용)** |
+| **의존성** | ArchOntos(`archontos`) — `regulation` extra가 khs0927/ArchOntos 고정 커밋을 설치 | ArchOntos 코드는 **ArchOntos 저장소에서** 수정 → 고정 SHA 갱신. `packages/` 아래 복사 금지 (`packages/regulation/README.md`) |
 | **브릿지** | power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad (HS-CAD는 미사용·폐기) | 각자 저장소에서 각자 PR. 모노레포에서 이들 코드를 고치지 않음 |
 | **연결 방식** | `docs/INTEGRATION_CONTRACTS.md`, `sion_core.contracts` | 버전된 JSON 스키마 + 고정 커밋 + 계약 테스트. 상류 계약이 바뀌면 **스키마·고정 커밋·계약 테스트를 한 PR에서** 갱신 |
 
@@ -18,8 +19,8 @@
 
 ## 2. subtree 규칙
 
-- git subtree는 **세 디렉터리뿐**입니다: `packages/regulation`(ArchOntos), `packages/aec`(Ontology),
-  `packages/cad/god-cad`(GOD-CAD) — 루트 [`AGENTS.md`](../../AGENTS.md)의 Integration 절과 같습니다.
+- git subtree는 **두 디렉터리뿐**입니다: `packages/aec`(Ontology),
+  `packages/cad/god-cad`(GOD-CAD) (ArchOntos는 subtree가 아니라 고정 커밋 의존성) — 루트 [`AGENTS.md`](../../AGENTS.md)의 Integration 절과 같습니다.
   `packages/core`, `packages/ingestion`, `packages/graphrag` 등 나머지 `packages/*` 는 **일반 패키지**이고 subtree가 아닙니다.
 - **subtree 병합(`git subtree pull/merge` 커밋)이 들어간 브랜치는 rebase 하지 않습니다**(히스토리가 깨짐).
   그런 브랜치에서 최신 main을 받을 때는 `git merge origin/main`. 일반 패키지만 고친 브랜치에는 이 제한이 없습니다.

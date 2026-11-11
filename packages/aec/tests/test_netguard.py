@@ -1,4 +1,8 @@
-"""Egress guard must not depend on the resolver of the machine running the tests."""
+"""Egress guard must not depend on the resolver of the machine running the tests.
+
+Since Ontology #99 (ported in the 2026-11-09 catch-up) netguard never consults DNS: only literal local IPs,
+the built-in compose/host names and the operator allow-list ``AEC_LOCAL_HOSTNAMES`` count as local.
+"""
 
 from __future__ import annotations
 
@@ -9,13 +13,18 @@ import pytest
 from aec_intelligence.operational import netguard
 
 
-def _resolve_to(monkeypatch, *ips):
-    monkeypatch.setattr(netguard, "_getaddrinfo",
-                        lambda host: [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (ip, 0)) for ip in ips])
+@pytest.fixture(autouse=True)
+def _no_dns(monkeypatch):
+    def boom(*a, **k):
+        raise AssertionError("netguard must not resolve DNS")
+
+    monkeypatch.setattr(socket, "getaddrinfo", boom)
+    monkeypatch.delenv("AEC_LOCAL_HOSTNAMES", raising=False)
 
 
 @pytest.mark.parametrize("url", ["http://127.0.0.1:11434", "http://10.0.0.5:8080", "http://[::1]:11434",
-                                 "http://localhost:11434", "http://host.docker.internal:11434"])
+                                 "http://localhost:11434", "http://host.docker.internal:11434",
+                                 "http://embeddings:80", "http://ollama:11434"])
 def test_local_literals_and_names(url):
     assert netguard.is_local_endpoint(url)
 
@@ -26,17 +35,14 @@ def test_fake_ip_public_and_bad_scheme_are_not_local(url):
     assert not netguard.is_local_endpoint(url)
 
 
-def test_fake_ip_dns_answer_is_not_local(monkeypatch):
-    # Clash/sing-box style fake-IP DNS maps every public name into 198.18.0.0/15.
-    _resolve_to(monkeypatch, "198.18.0.1")
+def test_hostnames_are_remote_whatever_dns_would_answer():
+    # Fake-IP DNS (Clash/sing-box) or a LAN resolver could answer 198.18.x / 192.168.x; it is never asked.
     assert not netguard.is_local_endpoint("https://api.example.com")
+    assert not netguard.is_local_endpoint("http://llm.lan:11434")
 
 
-def test_mixed_dns_answer_is_not_local(monkeypatch):
-    _resolve_to(monkeypatch, "192.168.1.10", "93.184.216.34")
-    assert not netguard.is_local_endpoint("http://llm.lan")
-
-
-def test_private_dns_answer_is_local(monkeypatch):
-    _resolve_to(monkeypatch, "192.168.1.10")
+def test_operator_allow_list_opts_a_lan_host_in(monkeypatch):
+    monkeypatch.setenv("AEC_LOCAL_HOSTNAMES", "llm.lan, GPU-BOX.lan.")
     assert netguard.is_local_endpoint("http://llm.lan:11434")
+    assert netguard.is_local_endpoint("http://gpu-box.lan/")
+    assert not netguard.is_local_endpoint("http://other.lan/")
