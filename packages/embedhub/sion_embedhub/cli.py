@@ -13,8 +13,25 @@ from .providers import Embedder, EmbedError
 from .registry import default_registry
 
 
-def _embedder(spec, pool):
-    return Embedder(spec, pool if spec.provider == "nvidia" else None)
+def _lazy_key_pool():
+    """Build the NVIDIA key pool on first use.
+
+    Discovery alone must never fail: listing the registry or benchmarking a local model (bge-m3)
+    needs no NVIDIA key, so the pool is only created when an NVIDIA model is actually invoked.
+    """
+    pool = None
+
+    def get():
+        nonlocal pool
+        if pool is None:
+            pool = KeyPool.from_env("NVIDIA_API_KEY")
+        return pool
+
+    return get
+
+
+def _embedder(spec, get_pool):
+    return Embedder(spec, get_pool() if spec.provider == "nvidia" else None)
 
 
 def _model_key(token: str) -> str:
@@ -22,10 +39,13 @@ def _model_key(token: str) -> str:
 
 
 def _optional_pool() -> KeyPool | None:
-    try:
-        return KeyPool.from_env("NVIDIA_API_KEY")
-    except RuntimeError:
-        return None
+    """The pool when at least one NVIDIA key is configured, else None.
+
+    ``KeyPool.from_env`` deliberately returns an empty pool instead of raising, so "no key" is
+    ``len(pool) == 0`` here; the benchmark uses None to mean "not a live run".
+    """
+    pool = KeyPool.from_env("NVIDIA_API_KEY")
+    return pool if len(pool) else None
 
 
 def _cmd_bench_drawings(a, reg) -> int:
@@ -67,7 +87,8 @@ def _cmd_bench_drawings(a, reg) -> int:
     dims, embedders = {}, {}
     for token in tokens:
         spec = reg.get(_model_key(token))
-        embedders[token] = _embedder(spec, pool)
+        # ``pool`` is a concrete pool here (a live run), so bypass the lazy factory used by `bench`.
+        embedders[token] = Embedder(spec, pool if spec.provider == "nvidia" else None)
         _key, sep, dim = token.partition(":")
         if sep:
             dims[token] = int(dim)
@@ -104,23 +125,26 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
 
     reg = default_registry()
+
     if a.cmd == "bench-drawings":
         return _cmd_bench_drawings(a, reg)
 
-    pool = KeyPool.from_env("NVIDIA_API_KEY") if any(s.provider == "nvidia" for s in reg.specs.values()) else None
-
     if a.cmd == "models":
-        print(json.dumps({"nvidia_keys": (pool.names if pool else []),
+        # env discovery only - an empty list is a valid answer and must not error
+        keys = KeyPool.from_env("NVIDIA_API_KEY").names
+        print(json.dumps({"nvidia_keys": keys,
                           "models": {k: {"model": s.model, "dims": s.dims, "modalities": s.modalities} for k, s in reg.specs.items()}},
                          ensure_ascii=False, indent=2))
         return 0
+
+    get_pool = _lazy_key_pool()
 
     if a.cmd == "probe":
         rc = 0
         for key in (a.models or list(reg.specs)):
             spec = reg.get(key)
             try:
-                e = _embedder(spec, pool)
+                e = _embedder(spec, get_pool)
                 dim = len(e.embed(["외벽 단열재 두께 A-101"], "query")[0])
                 res = {"ok": True, "dim": dim}
             except Exception as ex:  # report, keep probing the rest
@@ -132,7 +156,7 @@ def main(argv=None) -> int:
     for token in a.models:
         key, _, d = token.partition(":")
         spec = reg.get(key.split("@", 1)[0])  # "nv-vl@image" = same model, index the image side
-        embedders[token] = _embedder(spec, pool)
+        embedders[token] = _embedder(spec, get_pool)
         if d:
             dims[token] = int(d)
     docs, queries = load_dataset(a.dataset)

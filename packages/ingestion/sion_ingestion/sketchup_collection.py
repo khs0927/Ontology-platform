@@ -569,7 +569,8 @@ def _check_order(ns: str, dump: dict, by_role: dict[str, tuple[str, Any]]) -> li
                 out.append(_finding(ns, "hierarchy-order", orel, f"{len(stray)} object(s) not in the hierarchy"))
     if "geometry_probe" in by_role:
         rel, probe = by_role["geometry_probe"]
-        unknown = sorted(set(probe) - dump_defs) if isinstance(probe, dict) else []
+        # geom_probe.json is a name -> geometry map plus a "_meta" block (modified_before/after)
+        unknown = sorted(k for k in probe if not str(k).startswith("_") and k not in dump_defs) if isinstance(probe, dict) else []
         if unknown:
             out.append(_finding(ns, "hierarchy-order", rel, f"{len(unknown)} probed definition(s) not in the dump"))
     return out
@@ -693,10 +694,14 @@ def _readonly_script_findings(root: Path) -> list[dict[str, Any]]:
 
 
 def _modified_state(data: Any) -> tuple[Any, Any]:
-    """(modified_before, modified_after) of a capture, top level or under ``model``; None when absent."""
+    """(modified_before, modified_after) of a capture, top level, under ``model`` or under ``_meta``.
+
+    The probes put the pair at the top level (``grouping_probe.json``, ``hierarchy.json``), under
+    ``model`` (``model_dump.json``) or in the ``_meta`` block (``geometry_probe.json``); None when absent.
+    """
     if not isinstance(data, dict):
         return None, None
-    for d in (data, data.get("model")):
+    for d in (data, data.get("model"), data.get("_meta")):
         if isinstance(d, dict) and ("modified_before" in d or "modified_after" in d):
             return d.get("modified_before"), d.get("modified_after")
     return None, None

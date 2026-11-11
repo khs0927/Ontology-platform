@@ -5,11 +5,16 @@ through an MCP server's Ruby tool (`claude:hueflow-sketchup` `execute_ruby`, or
 `sketchup-mcp2` `eval_ruby`). **They never modify the model**: no geometry, tag, material,
 page or style is created, moved or deleted, and nothing calls `model.save`, `undo` or purge.
 
+**Verification limit**: this repository has no live SketchUp, so the Ruby scripts are not executed in
+CI. Their output contract is pinned by `tests/test_sketchup_collection.py` (capture fields, `_meta`,
+and the `modified_before`/`modified_after` pair), and the committed captures are validated by
+`sketchup_collection preflight`. Re-run the scripts in SketchUp after changing them.
+
 | Script | Output | Notes |
 |---|---|---|
-| `dump_model.rb` | `model_dump.json` | Model info, units, shadow/geo info, styles, scenes + cameras, tags (usage per entity type), materials (texture, usage), all definitions (entity counts, face area, child definitions, tags/materials used, behaviour, attributes), the instance hierarchy (persistent id, path, tag, material, transform, world bounds; max 8000 nodes / depth 8), texts, dimensions, loose top-level entities, section planes. Lengths are mm (internal inch × 25.4). |
-| `geom_probe.rb` | `geom_probe.json` (committed as `geometry_probe.json`) | For the definitions in `NAMES`: horizontal face levels and areas, sloped-face angle histogram, vertical face count, curves/arc radii. |
-| `grouping_probe.rb` | `grouping_probe.json` | Every instance (depth ≤ 12) in dump order: pid path, tag, material, locked, hidden, glued_to, local identity/origin/axes, mirrored. Every definition: raw Face/Edge counts by tag, child instances by tag, bbox min/max, insertion point, behaviour (`cuts_opening`, `is2d`, `snapto`, …). Plus `model.modified?` and the active edit path. |
+| `dump_model.rb` | `model_dump.json` | Model info, units, shadow/geo info, styles, scenes + cameras, tags (usage per entity type), materials (texture, usage), all definitions (entity counts, face area, child definitions, tags/materials used, behaviour, attributes), the instance hierarchy (persistent id, path, tag, material, transform, world bounds; max 8000 nodes / depth 8), texts, dimensions, loose top-level entities, section planes. Lengths are mm (internal inch × 25.4). Records `modified_before`/`modified_after` under `model`. |
+| `geom_probe.rb` | `geom_probe.json` (committed as `geometry_probe.json`) | For the definitions in `NAMES`: horizontal face levels and areas, sloped-face angle histogram, vertical face count, curves/arc radii. Records `modified_before`/`modified_after` in its `_meta` block (not a definition: consumers must ignore keys starting with `_`). |
+| `grouping_probe.rb` | `grouping_probe.json` | Every instance (depth ≤ 12) in dump order: pid path, tag, material, locked, hidden, glued_to, local identity/origin/axes, mirrored. Every definition: raw Face/Edge counts by tag, child instances by tag, bbox min/max, insertion point, behaviour (`cuts_opening`, `is2d`, `snapto`, …). Plus `modified_before`/`modified_after` (legacy `model_modified` = the state at capture start) and the active edit path. |
 | `render_views.rb` | `view_*.png` | Writes 1600×1000 PNGs of the current view, each scene camera, an SW iso and a top view. It changes only the **camera** while rendering and restores the saved camera in `ensure`. PNGs are not committed. |
 
 Output directory: `$SION_SU_EXPORT_DIR`, else `%USERPROFILE%\grokbot-mcp-bridge\export` (must exist).
@@ -94,6 +99,7 @@ change; `ingest --force` replaces bytes that already differ.
 ```bash
 # SketchUp(읽기 전용): SION_SU_OUT 폴더에 hierarchy.json, objects.json, objects/<분류>/*.skp 생성
 #   eval(File.read('scripts/sketchup/export_objects.rb'))
+#   hierarchy.json은 modified_before/modified_after를 기록하며, 객체 내보내기 뒤에 쓴다(사후 상태 관측).
 python -m sion_ingestion.sketchup_ontology \
   [--hierarchy data/sources/sketchup/0914-meeting/hierarchy.json] \
   [--objects data/sources/sketchup/0914-meeting/objects.json]      # -> data/bootstrap/sketchup-0914-meeting.ontology.json
