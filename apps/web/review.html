@@ -155,7 +155,7 @@
       </div>
       <div class="note kbd-help">단축키: <kbd data-key="j">j</kbd>/<kbd data-key="k">k</kbd> 이동 · <kbd data-key="n">n</kbd>/<kbd data-key="p">p</kbd> 다음·이전 대기 · <kbd data-key="x">x</kbd> 선택 · <kbd data-key="a">a</kbd> 승인 · <kbd data-key="r">r</kbd> 거절 · <kbd data-key="f">f</kbd> 한 건씩</div>
       <div class="note">'추천'은 근거 수·신뢰도·추출 규칙으로 계산한 참고 표시일 뿐이며 자동 적용되지 않습니다. 승인·거절은 사람이 고른 항목에만 기록됩니다.</div>
-      <div class="note" id="factNotice">승인은 후보에 대한 검토 판단이며 사실 검증을 대신하지 않습니다. 근거와 신뢰도는 바뀌지 않고, 반대 결정은 '되돌리기'(사유 필수)로 대기 상태로 돌린 뒤에만 다시 내릴 수 있습니다. 이전 결정은 이력에 남습니다.</div>
+      <div class="note" id="factNotice">승인은 후보에 대한 검토 판단이며 사실 검증을 대신하지 않습니다. 근거와 신뢰도는 바뀌지 않고, 반대 결정은 '되돌리기'(사유 필수)로 대기 상태로 돌린 뒤에만 다시 내릴 수 있습니다. 이전 결정은 이력에 남습니다. 같은 추출 규칙이나 지침 연결에 대한 승인·반려는 이후 후보의 순위 점수만 제한된 배수로 바꾸며, 추출된 신뢰도를 덮어쓰지 않고 어떤 후보도 자동 승인하지 않습니다. 되돌리기는 그 배수를 취소합니다.</div>
     </details>
     <div class="note" id="sitting">필터·묶기·추천은 보기만 바꿉니다. 승인·거절은 버튼, 단축키, 선택한 항목의 일괄 버튼으로만 기록됩니다. 각 항목은 화면에 보이는 review_rev로 비교 후 기록하고, 충돌은 아래 목록에 남습니다.</div>
     <div id="conflicts" hidden></div>
@@ -269,11 +269,10 @@
         return;
       }
       if (dryRun) { await response.json(); flash(`${action === "approve" ? "승인" : "거절"} 가능 (미리보기, 기록 안 됨)`); return; }
-      replaceItem(await response.json());
+      await response.json();
       selected.delete(id);
       noteSession(1);
-      render();
-      await refreshCounts();
+      await load();
     }
     async function reopen(id) {
       const note = (prompt("판정을 되돌리는 이유(필수):") || "").trim();
@@ -293,10 +292,9 @@
         return;
       }
       if ($("dryRun").checked) { await response.json(); flash("되돌리기 가능 (미리보기, 기록 안 됨)"); return; }
-      replaceItem({ ...(await response.json()), review: null });
+      await response.json();
       flash("대기 상태로 되돌렸습니다.");
-      render();
-      await refreshCounts();
+      await load();
     }
     function showConflicts(body) {
       const box = $("conflicts");
@@ -353,11 +351,11 @@
       if (!body.dry_run) noteSession(c.applied || 0);
       showConflicts(body);
       flash(summary, (c.conflict || 0) + (c.not_found || 0) + (c.not_candidate || 0) + (c.invalid_id || 0) > 0);
-      render();
-      await refreshCounts();
+      await load();
     }
 
     // ---- display-only hint from evidence strength ----
+    // Uses extracted confidence only. extraction_weight ranks the queue and must not change this badge into a decision.
     function recommend(c) {
       const ev = c.evidence_count || 0;
       const conf = c.confidence;
@@ -370,6 +368,13 @@
       return { kind: "check", label: "직접 확인", why: conf == null ? `신뢰도 미기재 · 근거 ${ev}건` : `신뢰도 ${conf} · 근거 ${ev}건` };
     }
     const sourceOf = (c) => c.source_file || "(출처 미기재)";
+    function weightNote(c) {
+      const w = c.extraction_weight;
+      if (!w || !w.key || ((w.approvals || 0) === 0 && (w.rejections || 0) === 0)) return "";
+      const kind = w.kind === "guideline" ? "지침" : "추출";
+      const drifted = w.snapshot_matches_live === false ? " · 추출 당시와 다름" : "";
+      return ` · ${kind} 가중 ×${w.multiplier} 순위 ${w.score ?? "-"} (${w.approvals}승인/${w.rejections}반려${drifted}, 자동검증 아님)`;
+    }
     const nodeName = (node) => node?.name || "(노드 없음)";
     const groupKey = (c, g) => g === "type" ? c.relation_type_id : g === "source" ? sourceOf(c) : g === "hint" ? recommend(c).label : g === "sourceNode" ? nodeName(c.source) : g === "targetNode" ? nodeName(c.target) : "";
     function bound(input) {
@@ -471,7 +476,7 @@
             c.predicate ? el("span", { class: "meta" }, ` ${c.predicate}`) : "",
             el("span", { class: `hint hint-${hint.kind}`, title: `${hint.why} (참고용, 자동 적용되지 않음)` }, `추천: ${hint.label}`),
             c.low_trust ? el("span", { class: "lowtrust", title: "승인하려면 근거를 직접 확인했다는 확인이 필요합니다" }, "낮은 신뢰 추론") : ""),
-          el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "미기재"} · 근거 ${c.evidence_count}건${c.role ? " · " + c.role : ""} · ${c.extractor || ""} · ${(c.rules || []).join(", ")} · 출처 ${sourceOf(c)}${(c.source_locator || c.provenance?.locator) ? " " + (c.source_locator || c.provenance.locator) : ""} · review_rev ${c.version ?? 0}`),
+          el("div", { class: "meta" }, `신뢰도 ${c.confidence ?? "미기재"} · 근거 ${c.evidence_count}건${c.role ? " · " + c.role : ""} · ${c.extractor || ""} · ${(c.rules || []).join(", ")} · 출처 ${sourceOf(c)}${(c.source_locator || c.provenance?.locator) ? " " + (c.source_locator || c.provenance.locator) : ""} · review_rev ${c.version ?? 0}${weightNote(c)}`),
           c.source_sha256 ? el("div", { class: "sha", title: c.source_sha256 }, `원본 sha256 ${c.source_sha256.slice(0, 16)}…`) : "",
           preview, more, actions));
       node._note = note;

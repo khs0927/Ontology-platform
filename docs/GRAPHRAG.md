@@ -112,6 +112,15 @@ relation's confidence and evidence stay as extracted, and the projection only ad
 bounded, idempotent ranking boost. Take numbers and claims from the cited evidence, not
 from the fact that a candidate was approved.
 
+The same decision casts one vote on the candidate's extraction rule
+(`properties.rules`, key `rule:<name>`) or guideline predicate
+(`properties.predicate`, key `guideline:<name>`). The weight ledger is a fold of
+`relation.updated` outbox events: the latest `review_rev` for each relation wins,
+so approving the same candidate again does not add another vote, and `reopen`
+removes it. The ranking multiplier is `1 + 0.05 * (approvals - rejections)`,
+clamped to `[0.75, 1.25]`. It is returned as `extraction_weight` and is not written
+back into `confidence`. New candidates stay `unverified`.
+
 - Opposite decisions never overwrite each other: approving a rejected candidate (or the
   reverse) is `409` per item and `conflict` in bulk.
 - Re-review goes through `POST /api/v1/relations/candidates/{id}/reopen` with a required

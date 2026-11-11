@@ -185,10 +185,24 @@ def test_review_page_refreshes_totals_and_offers_undo(client):
     page = client.get("/review").text
     decide = page[page.index("async function decide"): page.index("async function reopen")]
     bulk = page[page.index("async function bulk"): page.index("// ---- display-only")]
-    # PR #44 review: the header totals are re-read after per-item and bulk decisions (and after a 409)
-    assert decide.count("await refreshCounts()") == 2
-    assert "await refreshCounts()" in bulk
+    load = page[page.index("async function load()"):]
+    # PR #126 review: an applied decision reloads the whole queue because the review weight can
+    # reorder the remaining candidates, and load() re-reads the header totals together with it.
+    assert "await load()" in decide and "await load()" in bulk
+    assert "showCounts(body.counts)" in load
+    assert decide.count("await refreshCounts()") == 1  # the 409 path still re-reads them
     assert "/reopen" in page and "되돌리기" in page
+    # Totals/undo contract behind that reload: a decision moves one candidate pending -> approved,
+    # and reopening puts it back, so the totals shown after the reload return to their old values.
+    rid = import_candidates(client)[0]
+    before = client.get("/api/v1/relations/candidates", headers=AUTH).json()["counts"]
+    assert client.post(f"/api/v1/relations/candidates/{rid}/approve", headers=AUTH).status_code == 200
+    decided = client.get("/api/v1/relations/candidates", headers=AUTH).json()["counts"]
+    assert decided["approved"] == before["approved"] + 1
+    assert decided["pending"] == before["pending"] - 1
+    reopen = client.post(f"/api/v1/relations/candidates/{rid}/reopen", json={"note": "undo"}, headers=AUTH)
+    assert reopen.status_code == 200
+    assert client.get("/api/v1/relations/candidates", headers=AUTH).json()["counts"] == before
 
 
 def test_aba_cycle_cannot_let_a_stale_decision_through(client):

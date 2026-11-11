@@ -29,7 +29,10 @@ reject (or reject after approve) is a 409 / ``conflict`` until the candidate is 
 
 An approval records a person's review judgement of a candidate. It is not a factual
 verification of the source: the relation's confidence and evidence are left as extracted, and
-GraphRAG only adds a bounded ranking boost for ``human_verified``.
+GraphRAG only adds a bounded ranking boost for ``human_verified``. The same decision casts one
+vote on that candidate's extraction rule or guideline predicate (see
+``sion_ingestion.review_weights``). Later candidates that share the key are ranked with a
+bounded multiplier. Reopening removes the vote. No candidate is auto-verified.
 
 Every bulk call that applies at least one decision also writes a ``review.batch_decided`` outbox
 event (aggregate ``review_batch``, id = ``batch_id``) with the per-id results, in the same
@@ -61,6 +64,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
+from sion_ingestion.review_weights import describe_score, load_extraction_ledger, rank_tuple, weight_policy
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
@@ -272,6 +276,7 @@ def serialize(
     evidence: list[models.Evidence] | None = None,
     evidence_count: int | None = None,
     entities: dict[uuid.UUID, models.Entity] | None = None,
+    ledger: Any | None = None,
 ) -> dict[str, Any]:
     if evidence is None:
         evidence = list(
@@ -287,6 +292,8 @@ def serialize(
             select(func.count()).select_from(models.Evidence).where(models.Evidence.relation_id == row.id)
         )
     properties = dict(row.properties or {})
+    recorded = properties.get("extraction_weight")
+    weight_ledger = ledger if ledger is not None else load_extraction_ledger(session)
 
     def brief(entity_id: uuid.UUID) -> dict[str, Any] | None:
         if entities is None:
@@ -312,6 +319,12 @@ def serialize(
             target_key=None if target is None else target.get("stable_key"),
         ),
         "confidence": row.confidence,
+        "extraction_weight": describe_score(
+            row.confidence,
+            properties,
+            weight_ledger,
+            recorded=recorded if isinstance(recorded, dict) else None,
+        ),
         "source_kind": row.source_kind,
         "source": source,
         "target": target,
@@ -345,7 +358,13 @@ def serialize(
     }
 
 
-def _serialize_page(session: Session, rows: list[models.Relation], *, evidence_limit: int = 10) -> list[dict[str, Any]]:
+def _serialize_page(
+    session: Session,
+    rows: list[models.Relation],
+    *,
+    evidence_limit: int = 10,
+    ledger: Any | None = None,
+) -> list[dict[str, Any]]:
     """Serialize a page with one evidence query and one entity query (the sitting loads hundreds)."""
     if not rows:
         return []
@@ -377,6 +396,7 @@ def _serialize_page(session: Session, rows: list[models.Relation], *, evidence_l
             evidence=grouped.get(row.id, []),
             evidence_count=totals.get(row.id, 0),
             entities=entities,
+            ledger=ledger,
         )
         for row in rows
     ]
@@ -385,6 +405,7 @@ def _serialize_page(session: Session, rows: list[models.Relation], *, evidence_l
 def list_candidates(session: Session, *, status: str = "pending", limit: int = 100, offset: int = 0) -> dict[str, Any]:
     if status != "all" and status not in STATUS_TO_STATE:
         raise ReviewError(f"status must be one of pending, approved, rejected, all (got {status!r})")
+    ledger = load_extraction_ledger(session)
     all_rows = _candidate_rows(session, list(STATUS_TO_STATE.values()))
     counts = {name: 0 for name in STATUS_TO_STATE}
     for row in all_rows:
@@ -394,6 +415,8 @@ def list_candidates(session: Session, *, status: str = "pending", limit: int = 1
     else:
         want = STATUS_TO_STATE[status]
         rows = [row for row in all_rows if row.verification_state == want]
+    # Rank by the live review multiplier. A neutral ledger keeps confidence order.
+    rows.sort(key=lambda row: rank_tuple(row.confidence, row.properties, ledger, row.created_at, row.id))
     page = rows[offset : offset + limit]
     return {
         "status": status,
@@ -401,7 +424,8 @@ def list_candidates(session: Session, *, status: str = "pending", limit: int = 1
         "counts": counts,
         "limit": limit,
         "offset": offset,
-        "candidates": _serialize_page(session, page),
+        "extraction_weight_policy": weight_policy(),
+        "candidates": _serialize_page(session, page, ledger=ledger),
     }
 
 

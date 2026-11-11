@@ -138,6 +138,12 @@ keys, or 선택 일괄 승인/거절 on rows they checked.
   facts). The opposite decision is refused (`409` / `conflict`) until the candidate is reopened with
   `POST /api/v1/relations/candidates/{id}/reopen` and a required note; the previous decision
   (reviewer, note, `batch_id`) stays in `properties.review_history` and nothing is deleted.
+- That decision also votes once on the candidate's extraction rule or guideline predicate
+  (`applies_to_class`, `classified_as`, and the other `properties.predicate` values). Later
+  candidates that share the predicate are ranked with multiplier
+  `clamp(1 + 0.05 * (approvals - rejections), 0.75, 1.25)`. The vote is the latest
+  `relation.updated` event, so reopen removes it. The multiplier never verifies a candidate
+  and never overwrites `confidence`. The queue returns it as `extraction_weight`.
 - `GET /api/v1/review/report` (paged with `limit`/`offset`, optional `batch_id`) lists which reviewed
   relations the review-state policy keeps (rejected ones are excluded by default) and each bulk
   `batch_id` with its per-id results. The live GraphRAG index applies the same default policy
