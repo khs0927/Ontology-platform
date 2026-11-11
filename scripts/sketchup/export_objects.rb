@@ -24,7 +24,6 @@ module GrokEx
           'class_guess'=>c,'block_node'=>blk,'inside_block'=>inblock}
         walk.call(df.entities,wt,depth+1,e.persistent_id,np,inblock||blk) if depth<12 }}
     walk.call(m.entities,Geom::Transformation.new,0,nil,[],false)
-    File.write(OUT+'/hierarchy.json',JSON.pretty_generate({'model'=>s(m.path),'modified_before'=>mod0,'nodes'=>nodes}),encoding:'UTF-8')
     # exports: depth<=2 non-inside-block nodes, plus every block node; one file per definition
     done={}; man=[]; fails=[]
     nodes.each{|n| next if n['inside_block']; next unless n['depth']<=2 || n['block_node']
@@ -37,6 +36,8 @@ module GrokEx
       end
       man << {'id'=>"su:#{n['pid']}",'pid'=>n['pid'],'path'=>n['path'],'depth'=>n['depth'],'type'=>n['type'],'definition'=>n['definition'],'class_guess'=>n['class_guess'],'block_node'=>n['block_node'],'file'=>f,'bbox'=>n['world_bbox'],'tag'=>n['tag'],'material'=>n['material']} }
     File.write(OUT+'/objects.json',JSON.pretty_generate({'objects'=>man,'failures'=>fails}),encoding:'UTF-8')
+    # Written after the object export/thumbnails so modified_after is the post-capture observation.
+    File.write(OUT+'/hierarchy.json',JSON.pretty_generate({'model'=>s(m.path),'modified_before'=>mod0,'modified_after'=>m.modified?,'nodes'=>nodes}),encoding:'UTF-8')
     "ok nodes=#{nodes.size} exported_files=#{done.size} manifest=#{man.size} fails=#{fails.size} modified_before=#{mod0} after=#{m.modified?} t=#{(Time.now-t0).round}"
   end
 end

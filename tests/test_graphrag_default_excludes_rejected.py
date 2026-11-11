@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from sion_api import models
 from sion_api.main import create_app
 from sion_graphrag import GraphRagConfig, SionGraphRag
+from sion_graphrag.review_report import LIVE_INDEX_NOTICE
 from sqlalchemy import select
 
 STATES = {"a|RELATED_TO|hv": "human_verified", "a|RELATED_TO|un": "unverified", "a|RELATED_TO|rj": "rejected"}
@@ -67,10 +68,17 @@ def test_default_projection_excludes_rejected(tmp_path):
     assert "sion:relation:a|RELATED_TO|rj" not in chunks
 
 
-def test_audit_projection_includes_rejected(tmp_path):
+def test_audit_preview_includes_rejected_without_starting_lightrag(tmp_path):
     app, engine = _app(), _engine(tmp_path)
-    asyncio.run(engine.project(app.state.session_factory, include_rejected=True))
-    assert _targets(engine) == {"hv", "un", "rj"}
+    counts = asyncio.run(engine.project(app.state.session_factory, include_rejected=True))
+    assert counts == {"chunks": 7, "entities": 4, "relationships": 3}
+    assert engine._rag is None
+
+
+def test_policy_notice_describes_rejected_preview_as_not_indexed():
+    assert "excludes rejected" in LIVE_INDEX_NOTICE
+    assert "preview counts" in LIVE_INDEX_NOTICE
+    assert "does not write" in LIVE_INDEX_NOTICE
 
 
 def test_project_endpoint_default_and_audit_flag(tmp_path):
@@ -79,5 +87,8 @@ def test_project_endpoint_default_and_audit_flag(tmp_path):
     with TestClient(app, base_url="http://localhost", client=("127.0.0.1", 50000)) as c:
         body = c.post("/api/v1/graphrag/project").json()
         assert body["include_rejected"] is False
+        assert "written" in body
         body = c.post("/api/v1/graphrag/project", params={"include_rejected": "true"}).json()
         assert body["include_rejected"] is True
+        assert "preview" in body
+        assert "written" not in body

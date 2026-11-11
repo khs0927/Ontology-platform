@@ -36,7 +36,7 @@ copied verbatim into `tests/contracts/fixtures/` with their source commit
 
 | Dependency | Pinned commit | Declared in |
 |---|---|---|
-| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) (`archontos`) | `534367c8e4f0389d0565e0539a1a5b72ef332c1d` | root `pyproject.toml`, `regulation` extra (`archontos @ git+https://github.com/khs0927/ArchOntos@<sha>`); resolved in `uv.lock` |
+| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) (`archontos`) | `7b4785f04bc3a19e6e9e7bc01667b6930eebedc3` | root `pyproject.toml`, `regulation` extra (`archontos @ git+https://github.com/khs0927/ArchOntos@<sha>`); resolved in `uv.lock` |
 
 Contract = that exact ArchOntos commit: `archontos.rules.engine` (rule DSL evaluator used by
 `sion_api.regulation`), `archontos.db.migrate` (`use_schema`, `apply_migrations`,
@@ -338,7 +338,10 @@ excerpt against the source revision. It does not approve a claim. Machine-assign
 rejected (`reviewer_kind` must be `human`), and Sion never auto-approves candidates from this payload.
 
 Tests: `tests/contracts/fixtures/kordoc-evidence/` holds synthetic valid (3) and invalid (23) payloads,
-each invalid file breaking one rule (see PROVENANCE.md).
+each invalid file breaking one rule (see PROVENANCE.md). Parametrized tests also drop every top-level
+and nested required field (`source`, `parser`, `locator`, `source_text`, `classification`), cover locator
+variants (page, page+table, page+table+cell; cell without table, zero indexes and unknown keys fail) and
+reject payloads that mark source text or claims as canonical.
 
 ## 11. khs0927/Ontology ingestion → Sion graph + evidence (`aec-cair-snapshot/1`)
 

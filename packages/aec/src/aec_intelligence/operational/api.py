@@ -19,6 +19,7 @@ from . import catalog
 from .auth import BearerTokenMiddleware, LocalOnlyMiddleware, api_token_from_env
 from .config import Settings
 from .db import Database
+from .readonly import ReadOnlyMiddleware, assert_read_only_config, read_only_enabled
 from .embeddings import EmbeddingService, endpoint_health
 from .ingest_jobs import ingest_job
 from .parsers import SUPPORTED
@@ -99,10 +100,19 @@ INTERACTIVE_PATHS = ("/v1/search", "/v1/ask", "/v1/kg", "/v1/elements", "/v1/dra
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     current_settings = settings or Settings.from_env()
+    read_only = read_only_enabled()
+    # Fail before opening a connection. Unset AEC_API_READ_ONLY skips this, so the PC
+    # process still starts with its existing token and DSN rules.
+    if read_only:
+        assert_read_only_config(current_settings.dsn)
     db = Database(current_settings.dsn)
     # Visible in pg_stat_activity: background writers see a running API query (priority.py).
     db.application_name = API_APPLICATION_NAME
     activity = ActivityStamp(current_settings.dsn)
+    if read_only:
+        # The stamp inserts into aec.interactive_activity. A read-only copy must not write it,
+        # even when the PC's yield window is still the default.
+        activity.enabled = False
 
     app = FastAPI(
         title="AEC Intelligence Operational API",
@@ -122,6 +132,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         finally:
             if interactive:
                 activity.touch(force=True)
+
+    app.state.read_only = read_only
+    # Inside the token middleware (added next, so it runs first). Unauthenticated requests
+    # still get 401. Authenticated writes get 405 and never open the database.
+    if read_only:
+        app.add_middleware(ReadOnlyMiddleware)
 
     # Added before CORS so CORS stays the outermost layer and can still answer preflights and
     # decorate 401 responses for allowed origins.
@@ -145,7 +161,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def healthz() -> dict[str, Any]:
         # Liveness stays 200: failing here would restart a container whose only problem is a degraded
         # semantic stage. The embedding state rides along so a probe can see that degradation.
-        return {"status": "ok", "embeddings": endpoint_health(current_settings)}
+        body: dict[str, Any] = {"status": "ok", "embeddings": endpoint_health(current_settings)}
+        # Extra fields only on the opt-in deployment. The PC health check stays the two keys above.
+        if app.state.read_only:
+            body["read_only"] = True
+            body["canonical"] = False
+        return body
 
     @app.get("/v1/stats")
     def get_stats() -> dict[str, Any]:
@@ -282,6 +303,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         llm = None
         warnings = []
+        # Drawing text stays on the writer PC. A read-only copy answers from stored rows only.
+        if app.state.read_only and req.generate:
+            req.generate = False
+            warnings.append("read-only deployment does not call a model")
         if req.generate:
             try:
                 llm = LocalLLM()

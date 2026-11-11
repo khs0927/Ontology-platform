@@ -5,11 +5,16 @@ through an MCP server's Ruby tool (`claude:hueflow-sketchup` `execute_ruby`, or
 `sketchup-mcp2` `eval_ruby`). **They never modify the model**: no geometry, tag, material,
 page or style is created, moved or deleted, and nothing calls `model.save`, `undo` or purge.
 
+**Verification limit**: this repository has no live SketchUp, so the Ruby scripts are not executed in
+CI. Their output contract is pinned by `tests/test_sketchup_collection.py` (capture fields, `_meta`,
+and the `modified_before`/`modified_after` pair), and the committed captures are validated by
+`sketchup_collection preflight`. Re-run the scripts in SketchUp after changing them.
+
 | Script | Output | Notes |
 |---|---|---|
-| `dump_model.rb` | `model_dump.json` | Model info, units, shadow/geo info, styles, scenes + cameras, tags (usage per entity type), materials (texture, usage), all definitions (entity counts, face area, child definitions, tags/materials used, behaviour, attributes), the instance hierarchy (persistent id, path, tag, material, transform, world bounds; max 8000 nodes / depth 8), texts, dimensions, loose top-level entities, section planes. Lengths are mm (internal inch × 25.4). |
-| `geom_probe.rb` | `geom_probe.json` (committed as `geometry_probe.json`) | For the definitions in `NAMES`: horizontal face levels and areas, sloped-face angle histogram, vertical face count, curves/arc radii. |
-| `grouping_probe.rb` | `grouping_probe.json` | Every instance (depth ≤ 12) in dump order: pid path, tag, material, locked, hidden, glued_to, local identity/origin/axes, mirrored. Every definition: raw Face/Edge counts by tag, child instances by tag, bbox min/max, insertion point, behaviour (`cuts_opening`, `is2d`, `snapto`, …). Plus `model.modified?` and the active edit path. |
+| `dump_model.rb` | `model_dump.json` | Model info, units, shadow/geo info, styles, scenes + cameras, tags (usage per entity type), materials (texture, usage), all definitions (entity counts, face area, child definitions, tags/materials used, behaviour, attributes), the instance hierarchy (persistent id, path, tag, material, transform, world bounds; max 8000 nodes / depth 8), texts, dimensions, loose top-level entities, section planes. Lengths are mm (internal inch × 25.4). Records `modified_before`/`modified_after` under `model`. |
+| `geom_probe.rb` | `geom_probe.json` (committed as `geometry_probe.json`) | For the definitions in `NAMES`: horizontal face levels and areas, sloped-face angle histogram, vertical face count, curves/arc radii. Records `modified_before`/`modified_after` in its `_meta` block (not a definition: consumers must ignore keys starting with `_`). |
+| `grouping_probe.rb` | `grouping_probe.json` | Every instance (depth ≤ 12) in dump order: pid path, tag, material, locked, hidden, glued_to, local identity/origin/axes, mirrored. Every definition: raw Face/Edge counts by tag, child instances by tag, bbox min/max, insertion point, behaviour (`cuts_opening`, `is2d`, `snapto`, …). Plus `modified_before`/`modified_after` (legacy `model_modified` = the state at capture start) and the active edit path. |
 | `render_views.rb` | `view_*.png` | Writes 1600×1000 PNGs of the current view, each scene camera, an SW iso and a top view. It changes only the **camera** while rendering and restores the saved camera in `ensure`. PNGs are not committed. |
 
 Output directory: `$SION_SU_EXPORT_DIR`, else `%USERPROFILE%\grokbot-mcp-bridge\export` (must exist).
@@ -32,50 +37,69 @@ uv run python -m sion_ingestion.sketchup_assets build --check  # CI-style freshn
 
 See `docs/SKETCHUP_KNOWLEDGE.md` for the graph layout and the ingest path.
 
-## Collecting another model (namespace pipeline)
+## Collecting another model / 다른 모델 수집 (one command, #79)
 
 Each model is one namespace: captures in `data/sources/sketchup/<ns>/`, build inputs registered in
-`data/sources/sketchup/namespaces.json` (data, not code), and a collection manifest
-`data/sources/sketchup/<ns>/manifest.json` (`sion-sketchup-collection-manifest/v1`, schema
-`schemas/sion-sketchup-collection-manifest-1.schema.json`: namespace, model file name, SketchUp
-version, dump/probe SHA-256, inputs with role/kind/producer, outputs with the command that writes them).
+`data/sources/sketchup/namespaces.json` (data, not code), a content address in
+`data/sources/sketchup/content-index.json` (one committed dump SHA-256, one namespace), and a
+collection manifest `data/sources/sketchup/<ns>/manifest.json`
+(`sion-sketchup-collection-manifest/v1`, schema
+`schemas/sion-sketchup-collection-manifest-1.schema.json`).
+
+Run `dump_model.rb` (and, when needed, `geom_probe.rb`, `grouping_probe.rb`, `export_objects.rb`)
+read-only inside SketchUp. Then one command copies the JSON, redacts personal paths, pins the
+hashes, writes unverified classification candidates, builds the graph export and checks it:
 
 ```bash
-# 1) run dump_model.rb (+ geom_probe.rb, grouping_probe.rb, export_objects.rb) read-only in SketchUp,
-#    then copy the JSON from the export folder, register, build, build --check, write manifest + test stub
-uv run python -m sion_ingestion.sketchup_collection scaffold --namespace <ns> --from-dir "$SION_SU_EXPORT_DIR" \
+# 새 모델 한 번 / add one model. Same bytes again: no change. .skp is not copied.
+uv run python -m sion_ingestion.sketchup_collection ingest \
+  --namespace <ns> --from-dir "$SION_SU_EXPORT_DIR" \
   [--guidelines docs/sketchup/<model guide>.md] [--grouping-doc docs/sketchup/<grouping doc>.md]
-# 2) classify definitions in data/sources/sketchup/<ns>/classification.json (candidates only), then
-uv run python -m sion_ingestion.sketchup_assets build --namespace <ns>
-uv run python -m sion_ingestion.sketchup_collection manifest --namespace <ns> --write   # after a re-capture
-# 3) before committing (CI runs the same checks through tests/test_sketchup_collection.py)
+# CI runs the same checks through tests/test_sketchup_collection.py
 uv run python -m sion_ingestion.sketchup_collection preflight [--namespace <ns>] --build
 ```
 
-- `scaffold` copies only the known JSON captures (`geom_probe.json` → `geometry_probe.json`); `.skp`
-  and rendered PNGs stay on the PC. It writes an empty `classification.json` pinned to the dump
-  SHA-256, the registry entry, `data/bootstrap/sketchup-<ns>.json` (built twice and compared) and
-  `tests/test_sketchup_ns_<ns>.py`. Re-running it is idempotent; differing captures or a different
-  registry entry need `--force`.
+분류는 정의 속성 `sion_class` / `object_class` / `su_class` 값이 클래스 id와 정확히 같을 때만
+`unverified` 후보로 남습니다. 근거 locator와 dump SHA-256을 보존하고, `/review`에서 승인되기
+전에는 그 confidence를 GraphRAG 가중치에 더하지 않습니다. 이름·크기·재질로 클래스를 만들지
+않습니다. A candidate is written only from those explicit attributes. It stays `unverified`,
+keeps `evidence_locator` and `evidence_sha256`, and its confidence does not change the GraphRAG
+weight until a person approves it on `/review`.
+
+`scaffold` is the writer `ingest` calls (registry, manifest, content index, `build`, `build --check`,
+test stub). Use `ingest` to add a model. `manifest --write` refreshes a manifest after a capture
+change; `ingest --force` replaces bytes that already differ.
+
+- `ingest` copies only the known JSON captures (`geom_probe.json` → `geometry_probe.json`). It writes
+  `classification.json` pinned to the committed dump SHA-256, the registry entry, the content index,
+  `data/bootstrap/sketchup-<ns>.json` (built twice and compared) and `tests/test_sketchup_ns_<ns>.py`.
+  Re-running it is idempotent. Differing captures, a different registry entry, or a hand-edited
+  classification need `--force`. `scaffold` alone still writes an empty overlay when no
+  classification document is passed.
 - The default guideline document cites 0914 definitions (`def:col`, …), and unknown references fail
   the build, so a new model needs its own `--guidelines` (and `--grouping-doc`) document.
-- `preflight` is read-only and fails on: manifest schema errors, capture SHA-256/size drift, files in
-  the namespace folder that the manifest does not list, `.skp`/`.skb` binaries anywhere under
+- `preflight` is read-only and fails on: manifest schema errors, content-address or capture-set
+  drift, a dump SHA-256 claimed by another namespace, capture SHA-256/size drift, files in the
+  namespace folder that the manifest does not list, `.skp`/`.skb` binaries anywhere under
   `data/sources/sketchup/`, UTF-8 BOM or invalid UTF-8, personal absolute paths (Windows profile
   folders, `/home/<name>`, `/Users/<name>`; generic names such as `USER` are allowed), inputs over
   `limits.max_input_bytes` (4 MiB) or outputs over `limits.max_output_bytes` (16 MiB), a
   classification overlay that is not `sion-sketchup-classification/v1`, lacks or mismatches
-  `model_dump_sha256`, names unknown definitions/classes, or is no longer an unverified candidate
-  (`verification_state` other than `unverified`, confidence ≥ 1, review/approval fields), and probes
-  whose hierarchy order differs from the dump (`grouping_probe.json` pid paths, `hierarchy.json`
-  pid/depth/definition sequence, `geometry_probe.json` and `objects.json` references). `--build` also
-  regenerates the export and compares it byte-for-byte.
+  `model_dump_sha256`, names unknown definitions/classes, drops an explicit class attribute's
+  locator, or is no longer an unverified candidate (`verification_state` other than `unverified`,
+  confidence ≥ 1, review/approval fields), probes whose hierarchy order differs from the dump
+  (`grouping_probe.json` pid paths, `hierarchy.json` pid/depth/definition sequence,
+  `geometry_probe.json` and `objects.json` references), and `model.modified?` values that disagree
+  across the dump, grouping probe and hierarchy export (including a before/after change). `--build`
+  also regenerates the export and compares it byte-for-byte. The three read-only Ruby scripts are
+  scanned for mutating calls when they are present in the tree.
 
 ## 객체별 온톨로지(블록 규칙·자산·레벨)
 
 ```bash
 # SketchUp(읽기 전용): SION_SU_OUT 폴더에 hierarchy.json, objects.json, objects/<분류>/*.skp 생성
 #   eval(File.read('scripts/sketchup/export_objects.rb'))
+#   hierarchy.json은 modified_before/modified_after를 기록하며, 객체 내보내기 뒤에 쓴다(사후 상태 관측).
 python -m sion_ingestion.sketchup_ontology \
   [--hierarchy data/sources/sketchup/0914-meeting/hierarchy.json] \
   [--objects data/sources/sketchup/0914-meeting/objects.json]      # -> data/bootstrap/sketchup-0914-meeting.ontology.json

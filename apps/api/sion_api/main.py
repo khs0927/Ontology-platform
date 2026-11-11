@@ -31,6 +31,7 @@ from . import (
     outbox,
     project_summary,
     regulation,
+    regulation_review,
     regulation_workspace,
     repository,
     review,
@@ -105,6 +106,7 @@ def create_app(
     write_knowledge = require_scope(auth_policy, "write:knowledge")
     read_aec = require_scope(auth_policy, "read:aec")
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
+    regulation_review.register(app, factory, get_session, read_knowledge, write_knowledge)
     law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
     nvidia_auto_ontology.register(app, read_knowledge, transport=nvidia_transport)
@@ -337,7 +339,11 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
-        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted."""
+        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted.
+
+        The decision also casts one reversible vote on the candidate's extraction rule or guideline
+        predicate. That vote can change only the ranking score of later candidates.
+        """
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
@@ -383,7 +389,7 @@ def create_app(
 
         Read-only and paginated (``relations`` and ``batches`` are paged independently by
         ``limit``/``offset``). ``projected_under_policy`` describes the policy, not the live
-        GraphRAG index, which does not apply the review-state filter yet. An approval is a review
+        GraphRAG index's freshness. An approval is a review
         judgement, not a factual verification of the source.
         """
         from sion_graphrag.review_report import (
@@ -661,15 +667,16 @@ def create_app(
     @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
     async def graphrag_project(
         include_rejected: bool = Query(
-            default=False, description="Audit/debug only: also project /review-rejected relations"
+            default=False, description="Preview the audit projection, including /review-rejected relations, without indexing"
         ),
     ):
         engine = require_graphrag()
         try:
-            written = await engine.project(factory, include_rejected=include_rejected)
+            counts = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"canonical": False, "written": written, "include_rejected": include_rejected}
+        result_key = "preview" if include_rejected else "written"
+        return {"canonical": False, result_key: counts, "include_rejected": include_rejected}
 
     @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
     async def graphrag_query(payload: schemas.GraphRagQuery):
@@ -773,7 +780,11 @@ def create_app(
     # --- relation construction ---------------------------------------------------
     @app.post("/api/v1/extract/relations", dependencies=[Depends(write_knowledge)])
     def extract_relations_route(payload: schemas.RelationExtractionRequest, session: Session = Depends(get_session)):
-        """Propose unverified candidate relations (with evidence spans) from documents/DXF/IFC."""
+        """Propose unverified candidate relations (with evidence spans) from documents/DXF/IFC.
+
+        A prior /review vote may attach an extraction_weight ranking multiplier. It does not
+        verify the new rows or change their extracted confidence.
+        """
         from sion_ingestion.relation_extraction import extract_relation_candidates
 
         paths = [resolve_ingest_path(item) for item in payload.paths]

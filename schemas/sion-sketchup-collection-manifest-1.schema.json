@@ -5,7 +5,7 @@
  "description": "One SketchUp model collection (namespace): the read-only captures with their SHA-256, the authored overlays, the shared inputs and the generated outputs. Checked by `python -m sion_ingestion.sketchup_collection preflight`.",
  "type": "object",
  "additionalProperties": false,
- "required": ["schema", "namespace", "model", "dump_sha256", "probe_sha256", "limits", "inputs", "outputs"],
+  "required": ["schema", "namespace", "model", "dump_sha256", "content_address", "capture_set_sha256", "probe_sha256", "limits", "inputs", "outputs"],
  "$defs": {
   "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
   "relpath": {
@@ -31,6 +31,14 @@
    }
   },
   "dump_sha256": {"$ref": "#/$defs/sha256"},
+  "content_address": {
+    "$ref": "#/$defs/sha256",
+    "description": "SHA-256 of the committed model_dump.json. Equal to dump_sha256. Personal paths are redacted before this hash is taken."
+  },
+  "capture_set_sha256": {
+    "$ref": "#/$defs/sha256",
+    "description": "SHA-256 over each capture's role, repo-relative path and SHA-256, sorted."
+  },
   "probe_sha256": {
    "type": "object",
    "description": "Role -> SHA-256 for every probe capture (geometry_probe, grouping_probe, ...).",

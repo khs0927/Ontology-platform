@@ -23,7 +23,19 @@ Transport = Callable[[str, dict, dict, float], tuple[int, object]]
 
 
 class EmbedError(RuntimeError):
-    pass
+    """Embedding failure. ``status`` carries the HTTP status when a provider response caused it."""
+
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status
+
+
+def _splittable(exc: EmbedError) -> bool:
+    """Only batch-size rejections and transient transport/5xx failures are worth retrying with fewer items.
+
+    A 4xx auth/validation error means the request itself is wrong, so halving the batch cannot help.
+    """
+    return exc.status is not None and (exc.status == 413 or 500 <= exc.status <= 599)
 
 
 def urllib_transport(url: str, headers: dict, body: dict, timeout: float) -> tuple[int, object]:
@@ -69,17 +81,23 @@ class Embedder:
         dim = dim or self.spec.native_dim
         if dim not in self.spec.dims:
             raise ValueError(f"{self.spec.key}: dim {dim} not in {self.spec.dims}")
+        if items and self.pool is not None and len(self.pool) == 0:
+            raise EmbedError(f"{self.spec.key}: no NVIDIA_API_KEY* found in environment")
         out: list[list[float]] = []
         for i in range(0, len(items), self.spec.max_batch):
             out.extend(self._call_split(list(items[i:i + self.spec.max_batch]), role, dim))
         return out
 
     def _call_split(self, batch: list[str], role: str, dim: int) -> list[list[float]]:
-        """Halve the batch when the service keeps rejecting it (observed: nemotron-3.5 returns 500 for batches > 2)."""
+        """Halve the batch when the service rejects its size or is transiently unavailable.
+
+        Observed: nemotron-3.5 returns 500 for batches > 2. Only 5xx, 413 and transport failures are
+        split; 4xx auth/validation errors are surfaced immediately instead of being retried per half.
+        """
         try:
             return self._call(batch, role, dim)
-        except EmbedError:
-            if len(batch) == 1:
+        except EmbedError as exc:
+            if len(batch) == 1 or not _splittable(exc):
                 raise
             mid = len(batch) // 2
             return self._call_split(batch[:mid], role, dim) + self._call_split(batch[mid:], role, dim)
@@ -87,6 +105,7 @@ class Embedder:
     # --- internals -------------------------------------------------------
     def _call(self, batch: list[str], role: str, dim: int) -> list[list[float]]:
         last = ""
+        status: int | None = None
         for attempt in range(self.retries):
             slot = self.pool.acquire() if self.pool else None
             headers = {"Authorization": f"Bearer {slot.value}"} if slot else {}
@@ -103,7 +122,7 @@ class Embedder:
             if not retryable:
                 break
             self._sleep(min(2 ** attempt * 0.5, 8.0))
-        raise EmbedError(f"{self.spec.key}: embedding failed after retries: {last}")
+        raise EmbedError(f"{self.spec.key}: embedding failed after retries: {last}", status=status)
 
     def _body(self, batch: list[str], role: str, dim: int) -> dict:
         s = self.spec

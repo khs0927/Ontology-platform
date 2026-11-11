@@ -6,11 +6,11 @@ same embedding space (model + dimension)**. Equal dimension does not make two mo
 | Module | Role |
 | --- | --- |
 | `registry` | `ModelSpec` per model: provider, native/allowed dims, modalities, asymmetric flag, batch limit; `space_id()` |
-| `keys` | `KeyPool.from_env("NVIDIA_API_KEY")` discovers `NVIDIA_API_KEY`, `_1`, `_2` ... (deduplicated, round-robin, per-key cooldown). Values never logged. Add a key by exporting the next `NVIDIA_API_KEY_N`. |
-| `providers` | `Embedder.embed(items, role="passage"|"query", dim=None)`; retries, key rotation, batch halving, L2 normalisation, injectable transport |
+| `keys` | `KeyPool.from_env("NVIDIA_API_KEY")` discovers `NVIDIA_API_KEY`, `_1`, `_2` ... (deduplicated, round-robin, per-key cooldown). Values never logged. Add a key by exporting the next `NVIDIA_API_KEY_N`. An empty pool is valid: `models` listing and local (bge-m3) benchmarks run without a key; the missing key only fails when an NVIDIA model is invoked. |
+| `providers` | `Embedder.embed(items, role="passage"|"query", dim=None)`; retries, key rotation, batch halving, L2 normalisation, injectable transport. Batch halving applies only to 5xx/413/transport failures; 4xx auth/validation errors surface immediately. |
 | `fusion` | `rrf()` rank fusion across spaces; `agreement()` -> `confirmed` / `partial` / `conflict` / `single_source` |
-| `store` | `ddl(spec, dim)` -> one pgvector table per space (`halfvec` above 2000 dims) |
-| `bench` / `cli` | recall@k and MRR per model plus RRF fusion; `python -m sion_embedhub.cli models|probe|bench` |
+| `store` | `ddl(spec, dim)` -> one pgvector table per space (`halfvec` above 2000 dims); the HNSW index is emitted only up to the pgvector limit (4000 dims for `halfvec`), above that the column stays and exact search is used |
+| `bench` / `cli` | recall@k and MRR per model plus RRF fusion; `python -m sion_embedhub.cli models|probe|bench|bench-drawings` |
 
 ## Models probed live (NVIDIA API, 2026-11-06)
 
@@ -24,6 +24,15 @@ same embedding space (model + dimension)**. Equal dimension does not make two mo
 
 Returned **404 on this account** (not usable): `llama-3.2-nv-embedqa-1b-v1`, `nv-embedqa-mistral-7b-v2`,
 `embed-qa-4`, `snowflake/arctic-embed-l`, `nvclip`, `llama-3.2-nemoretriever-1b-vlm-embed-v1`.
+
+## Storage limits (pgvector)
+
+`store.ddl()` writes one table per space: `vector(d)` up to 2000 dims, `halfvec(d)` above that. The
+HNSW index is only emitted where pgvector can build one - 2000 dims for `vector`, **4000 dims for
+`halfvec`**. `nv-8b`'s native 4096d space therefore gets a `halfvec(4096)` column **without** an ANN
+index (the DDL carries a comment); search still works as an exact sequential scan, only slower.
+For ANN search at 4096d-capable quality, use a matryoshka dimension instead (e.g. `nv-8b` @ 2048d or
+1024d), which stays inside the halfvec HNSW limit.
 
 ## Using it
 
@@ -50,6 +59,22 @@ rendered with matplotlib), 28 hand-labelled queries (`packages/embedhub/bench/dr
 few English). Rebuild with `python packages/embedhub/bench/build_drawings_dataset.py OUT_DIR`, then
 `python -m sion_embedhub.cli bench OUT_DIR/drawings.jsonl --models nv-1b:1024 nv-8b:1024 nv-vl:1024 nv-vl@image:1024 bge-m3`
 (`@image` indexes the rendered sheet instead of its text).
+
+One command does both steps:
+
+```bash
+python -m sion_embedhub.cli bench-drawings OUT_DIR
+```
+
+Default models are `nv-1b:1024` (text-only baseline), `nv-vl:1024` (same model, text side) and
+`nv-vl@image:1024` (rendered sheet). Pass `--models` to add `nv-8b:1024` and `bge-m3` as in the table below.
+Without `NVIDIA_API_KEY` the command still renders, prints `skipped`, and does not call NVIDIA or write a
+results file. `--offline` scores that same render with a fake embedder (CI); those numbers are not NVIDIA
+results and are not recorded here. `--results FILE` writes the report only after a live model run.
+
+한 명령으로 재현한다: `python -m sion_embedhub.cli bench-drawings OUT_DIR`.
+`NVIDIA_API_KEY`가 없으면 시트만 렌더하고 라이브 호출은 건너뛴다. CI는 `--offline`로 같은 렌더와 채점 경로를
+가짜 임베더에 태우며, 그 점수는 NVIDIA 결과가 아니다.
 
 | space | recall@1 | MRR |
 | --- | --- | --- |

@@ -20,8 +20,8 @@ plus a fixed `+0.25` for `/review`-approved (`human_verified`) relations, capped
 
 Review states (Issue #80): `POST /api/v1/graphrag/project` projects approved and
 pending relations only. `/review`-rejected relations stay in the database for audit
-and are projected only with `?include_rejected=true` (use a separate audit
-workspace for that). An approval records a person's judgement of a candidate; it is
+and are counted with `?include_rejected=true` without writing to LightRAG.
+An approval records a person's judgement of a candidate; it is
 not a factual verification of the source, and the confidence and evidence of the
 relation are never overwritten by it.
 
@@ -96,7 +96,7 @@ Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 ## API
 
 - `GET /api/v1/graphrag/status` (`read:knowledge`)
-- `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph (rejected relations excluded; `?include_rejected=true` for audit)
+- `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph and returns `written` counts. With `?include_rejected=true`, it returns `preview` counts and skips indexing and model calls.
 - `POST /api/v1/graphrag/query` (`read:knowledge`) `{"question", "mode": "mix|local|global|hybrid|naive", "top_k"}`
 - `GET /api/v1/graphrag/assets` (`read:knowledge`) SketchUp BIM asset Graph RAG (see below)
 
@@ -111,6 +111,15 @@ A `/review` approval records a person's judgement of a candidate relation
 relation's confidence and evidence stay as extracted, and the projection only adds a
 bounded, idempotent ranking boost. Take numbers and claims from the cited evidence, not
 from the fact that a candidate was approved.
+
+The same decision casts one vote on the candidate's extraction rule
+(`properties.rules`, key `rule:<name>`) or guideline predicate
+(`properties.predicate`, key `guideline:<name>`). The weight ledger is a fold of
+`relation.updated` outbox events: the latest `review_rev` for each relation wins,
+so approving the same candidate again does not add another vote, and `reopen`
+removes it. The ranking multiplier is `1 + 0.05 * (approvals - rejections)`,
+clamped to `[0.75, 1.25]`. It is returned as `extraction_weight` and is not written
+back into `confidence`. New candidates stay `unverified`.
 
 - Opposite decisions never overwrite each other: approving a rejected candidate (or the
   reverse) is `409` per item and `conflict` in bulk.
@@ -127,8 +136,9 @@ from the fact that a candidate was approved.
   independently (`relations_total`, `batches_total`), and `batch_id` restricts both to one batch.
   Rejected relations are reported as not kept by the policy unless `?include_rejected=true` (audit).
 - The live index applies the same default policy: `POST /api/v1/graphrag/project` projects
-  verified + unverified relations and leaves rejected ones out (`?include_rejected=true` is the audit
-  projection). The report sets `live_index_applies_policy: true` when its policy is that default.
+  verified + unverified relations and leaves rejected ones out. The report sets
+  `live_index_applies_policy: true` when its policy is that default; this field does not
+  verify an existing index. Rebuild in a fresh workspace if rejected relations were previously indexed.
 
 ## SketchUp BIM asset index (`sion-bim-asset-index/1`)
 

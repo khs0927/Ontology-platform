@@ -40,9 +40,34 @@ APPROVAL_WEIGHT_BOOST = 0.25
 MAX_RELATION_WEIGHT = 2.0
 
 
-def relation_weight(confidence: float | None, verification_state: str | None) -> float:
-    """LightRAG relationship weight for a canonical relation, capped at ``MAX_RELATION_WEIGHT``."""
-    conf = 0.0 if confidence is None else min(max(float(confidence), 0.0), 1.0)
+# SketchUp class proposals keep confidence and locators for /review, but that confidence
+# must not change GraphRAG rank until a person approves the candidate (issue #79).
+CLASSIFICATION_CANDIDATE_PREDICATES = frozenset({"classified_as", "classified_as_supplement"})
+
+
+def confidence_counts_toward_weight(
+    verification_state: str | None, properties: dict[str, Any] | None = None
+) -> bool:
+    """False for an unapproved SketchUp classification or supplement candidate."""
+    props = properties or {}
+    if props.get("candidate") is True and props.get("predicate") in CLASSIFICATION_CANDIDATE_PREDICATES:
+        return verification_state == "human_verified"
+    return True
+
+
+def relation_weight(
+    confidence: float | None,
+    verification_state: str | None,
+    properties: dict[str, Any] | None = None,
+) -> float:
+    """LightRAG relationship weight for a canonical relation, capped at ``MAX_RELATION_WEIGHT``.
+
+    ``properties`` is optional. Classification and supplement candidates (issue #79) contribute
+    only the base weight until ``/review`` sets ``human_verified``. Their confidence stays on
+    the relation either way.
+    """
+    applies = confidence_counts_toward_weight(verification_state, properties)
+    conf = 0.0 if confidence is None or not applies else min(max(float(confidence), 0.0), 1.0)
     boost = APPROVAL_WEIGHT_BOOST if verification_state == "human_verified" else 0.0
     return min(BASE_RELATION_WEIGHT + conf + boost, MAX_RELATION_WEIGHT)
 
@@ -181,7 +206,7 @@ def build_custom_kg(
             "tgt_id": target.stable_key,
             "description": content,
             "keywords": relation.relation_type_id,
-            "weight": relation_weight(relation.confidence, relation.verification_state),
+            "weight": relation_weight(relation.confidence, relation.verification_state, relation.properties),
             "source_id": alias,
             "file_path": f"sion://relation/{relation.stable_key}",
         })

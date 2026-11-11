@@ -75,14 +75,35 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install test runtime
+        # GitHub-hosted runners intermittently fail to resolve archive.ubuntu.com /
+        # security.ubuntu.com; that DNS flakiness broke verify.yml, and this job installs
+        # from the same mirrors. Retry the package step with short backoff and let apt
+        # retry each URI instead of failing the job on one DNS hiccup. The live
+        # backup/restore test (tests/test_operational_census.py) needs pg_dump/pg_restore
+        # on the host and skips without them, so the aec-db container client is not a
+        # substitute for the host client.
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq curl ca-certificates gnupg
+          retry() {
+            local attempt
+            for attempt in 1 2 3 4; do
+              "$@" && return 0
+              if [ "${attempt}" -lt 4 ]; then
+                echo "attempt ${attempt} failed; retrying in $((attempt * 5))s: $*" >&2
+                sleep $((attempt * 5))
+              fi
+            done
+            return 1
+          }
+          APT_OPTS=(-o Acquire::Retries=3 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15)
+          retry sudo apt-get update -qq "${APT_OPTS[@]}"
+          retry sudo apt-get install -y -qq "${APT_OPTS[@]}" curl ca-certificates gnupg
           sudo install -d /usr/share/postgresql-common/pgdg
-          sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          retry sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail \
+            --retry 5 --retry-all-errors --retry-delay 2 --connect-timeout 15 \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
           sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-16
+          retry sudo apt-get update -qq "${APT_OPTS[@]}"
+          retry sudo apt-get install -y -qq "${APT_OPTS[@]}" postgresql-client-16
           echo "/usr/lib/postgresql/16/bin" >> "$GITHUB_PATH"
           export PATH="/usr/lib/postgresql/16/bin:$PATH"
           hash -r
@@ -141,3 +162,19 @@ jobs:
       - run: python -m pytest -q
       - run: python scripts/export_schemas.py --check
       - run: python scripts/demo.py --out artifacts/ci-demo
+
+  switch-to-monorepo-powershell:
+    name: switch-to-monorepo parse + argv (Windows PowerShell 5.1 and PowerShell 7)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Parse and argv round-trip (Windows PowerShell 5.1)
+        shell: powershell
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File packages/aec/scripts/ops/switch-to-monorepo.ps1 -SelfTest
+      - name: Parse and argv round-trip (PowerShell 7)
+        shell: pwsh
+        run: pwsh -NoProfile -ExecutionPolicy Bypass -File packages/aec/scripts/ops/switch-to-monorepo.ps1 -SelfTest

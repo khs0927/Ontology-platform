@@ -9,6 +9,8 @@
   "modified": true
  },
  "dump_sha256": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+ "content_address": "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d",
+ "capture_set_sha256": "3877a3fa11cbf5aa8a0839e63d8119ef2959ccdc6ee0919365dd449f70bada19",
  "probe_sha256": {
   "geometry_probe": "c7a26eaf9fe1424a56c46803eb75f964834d673c2f859abdce074d85ced042a8",
   "grouping_probe": "e623d142271d04e5597d41ac46f4821780ad3732db5a3317c89c74fcecfa5fbb"

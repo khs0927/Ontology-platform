@@ -1,0 +1,11 @@
+{
+ "schema": "sion-sketchup-content-index/v1",
+ "description": "Content address (SHA-256 of the committed model_dump.json, after BOM strip and personal-path redaction) -> the one namespace that ingested it. Edit with `python -m sion_ingestion.sketchup_collection ingest`.",
+ "by_dump_sha256": {
+  "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d": {
+   "namespace": "0914-meeting",
+   "capture_set_sha256": "3877a3fa11cbf5aa8a0839e63d8119ef2959ccdc6ee0919365dd449f70bada19",
+   "skp_file": "0914_담당미팅.skp"
+  }
+ }
+}

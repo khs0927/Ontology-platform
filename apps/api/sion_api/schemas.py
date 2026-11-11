@@ -254,7 +254,9 @@ class CandidateDecision(BaseModel):
     """Approve/reject one pending candidate.
 
     An approval records a reviewer's judgement of a candidate (``human_verified``); it does not
-    verify the underlying fact and never overwrites confidence or evidence.
+    verify the underlying fact and never overwrites confidence or evidence. It casts one
+    reversible vote on that candidate's extraction rule or guideline predicate, which can
+    change only the ranking score of later candidates. It never auto-verifies them.
     """
 
     reviewer: str | None = Field(default=None, max_length=200, description="Recorded in properties.review.reviewer")
@@ -302,7 +304,8 @@ class BulkCandidateDecision(BaseModel):
 class CandidateReopen(BaseModel):
     """Undo a mistaken approve/reject or re-review a candidate: it returns to pending and the old
     decision (reviewer, note, batch_id) is kept in ``properties.review_history``. The opposite
-    decision can only be recorded after a reopen."""
+    decision can only be recorded after a reopen. Reopening also removes that candidate's
+    extraction-weight vote, so later ranking no longer includes it."""
 
     note: str = Field(min_length=1, max_length=2000, description="Required reason for re-review")
     reviewer: str | None = Field(default=None, max_length=200)

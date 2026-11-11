@@ -20,7 +20,8 @@ real examples from this model with sizes, levels, tags, materials and evidence.
 | `packages/ingestion/sion_ingestion/sketchup_assets.py` | Generator, evidence attacher and CLI |
 | `data/sources/sketchup/namespaces.json` | Namespace registry (`sion-sketchup-namespaces/v1`): repo-relative build inputs/output per model; `sketchup_assets.DEFAULTS` is loaded from it |
 | `data/sources/sketchup/0914-meeting/manifest.json` | Collection manifest (`sion-sketchup-collection-manifest/v1`, `schemas/sion-sketchup-collection-manifest-1.schema.json`): model, SketchUp version, capture SHA-256, inputs, outputs |
-| `packages/ingestion/sion_ingestion/sketchup_collection.py` | `preflight`, `manifest` and `scaffold` commands for collecting further models |
+| `packages/ingestion/sion_ingestion/sketchup_collection.py` | `ingest` (one command per new model), plus `preflight`, `manifest` and `scaffold` |
+| `data/sources/sketchup/content-index.json` | Content address (committed dump SHA-256) → the one namespace that ingested it |
 | `data/bootstrap/sketchup-0914-meeting.json` | Generated export: 1,195 nodes / 4,509 edges (tests regenerate and compare) |
 | `scripts/sketchup/*.rb` | The read-only Ruby extraction scripts |
 | `docs/sketchup/AGENT-PLAYBOOK.ko.md` | 에이전트가 GraphRAG를 조회하고 SketchUp 작업으로 옮기는 실행 플레이북 |
@@ -88,13 +89,33 @@ the converter treats every edge as an unverified candidate and replaces `propert
 `su_evidence` stays in the properties.
 
 Candidates (`properties.candidate = true`: the 214 classifications and the guideline links) show
-up at `/review` and stay `unverified` until a person approves them.
+up at `/review` and stay `unverified` until a person approves them. A classification or supplement
+candidate keeps its `confidence` and evidence locator. That confidence is not added to the GraphRAG
+relationship weight until the candidate's `verification_state` is `human_verified`. Other relations
+still add confidence the way issue #80 describes.
 
 ### Reviewing them quickly (`/review`)
 
-- Filter by relation type, source file, minimum evidence count / confidence, `추천` hint or text,
-  group by type / source / hint, then tick rows (or a group, or `필터 결과 전체 선택`).
-- Keyboard: `j`/`k` move, `x` select, `a` approve, `r` reject (per-item routes, optional note).
+Opening the page, picking a queue, or changing a filter never writes a decision. The `추천`
+badge stays display-only. A decision is recorded only when a person uses 승인/거절, the `a`/`r`
+keys, or 선택 일괄 승인/거절 on rows they checked.
+
+- Queue chips (counts follow the status filter): **맵 관계** (issue #3), **SketchUp 분류**
+  (`predicate=classified_as`, the 214 assignments), **워크플로** (queued candidates whose predicate
+  is a guideline or grouping link), **기타** (level, block, and other inferred candidates). The chip
+  also sets a reading group (type, 도착 노드, or 출발 노드) and does not select rows. The importer
+  still queues only inferred or imported candidates, so `source_kind=document` links stay out of
+  this page.
+- Each card shows `basis_ko` inline. Map edges, which have no `basis_ko`, show the source and
+  target descriptions and the first evidence excerpt. The rest of the excerpts stay under
+  **노드 설명 · 근거 원문**.
+- Filter by relation type, source file, evidence count, confidence minimum and maximum (bands:
+  0.8 이상, 0.6–0.7, 0.5 이하, 미기재), `추천`, or text. Group by type, source file, hint,
+  **출발 노드**, or **도착 노드**.
+- Tick rows, a group, or `필터 결과 전체 선택`, then `선택 일괄 승인/거절`. `한 건씩` (also the
+  phone default) shows one card with a bottom 승인/거절 bar. Keyboard: `j`/`k` move, `n`/`p`
+  next/previous pending, `x` select, `a` approve, `r` reject, `f` toggle one-card mode.
+  The progress bar is pending/approved/rejected plus how many decisions this page recorded.
 - `선택 일괄 승인/거절` calls `POST /api/v1/relations/candidates/bulk`
   `{"ids": [...], "decision": "approve"|"reject", "note": "<required>", "reviewer": "..."}`
   (`write:knowledge`). Only the listed ids are touched; each gets the same `properties.review`
@@ -121,6 +142,12 @@ up at `/review` and stay `unverified` until a person approves them.
   facts). The opposite decision is refused (`409` / `conflict`) until the candidate is reopened with
   `POST /api/v1/relations/candidates/{id}/reopen` and a required note; the previous decision
   (reviewer, note, `batch_id`) stays in `properties.review_history` and nothing is deleted.
+- That decision also votes once on the candidate's extraction rule or guideline predicate
+  (`applies_to_class`, `classified_as`, and the other `properties.predicate` values). Later
+  candidates that share the predicate are ranked with multiplier
+  `clamp(1 + 0.05 * (approvals - rejections), 0.75, 1.25)`. The vote is the latest
+  `relation.updated` event, so reopen removes it. The multiplier never verifies a candidate
+  and never overwrites `confidence`. The queue returns it as `extraction_weight`.
 - `GET /api/v1/review/report` (paged with `limit`/`offset`, optional `batch_id`) lists which reviewed
   relations the review-state policy keeps (rejected ones are excluded by default) and each bulk
   `batch_id` with its per-id results. The live GraphRAG index applies the same default policy
@@ -137,21 +164,39 @@ up at `/review` and stay `unverified` until a person approves them.
 
 ## Adding another model
 
-The collection pipeline is in `sion_ingestion.sketchup_collection` (details and the full check list in
-`scripts/sketchup/README.md`):
+One command, after the read-only SketchUp capture (details in `scripts/sketchup/README.md`):
 
-1. Run the read-only scripts (`dump_model.rb`, `geom_probe.rb`, `grouping_probe.rb`, optionally
-   `export_objects.rb`) in SketchUp.
-2. `python -m sion_ingestion.sketchup_collection scaffold --namespace <ns> --from-dir <export folder>
-   --guidelines <model guide>.md`: copies the JSON captures to `data/sources/sketchup/<ns>/`, writes
-   an empty `classification.json` pinned to the dump sha256, registers the namespace in
-   `data/sources/sketchup/namespaces.json`, runs `build` and `build --check`, writes `manifest.json`
-   and emits `tests/test_sketchup_ns_<ns>.py`.
-3. Fill `classification.json` (every assignment stays an inferred, `unverified` candidate with a
-   `basis_ko`), rebuild with `sketchup_assets build --namespace <ns>`, and extend the test stub with
-   spot facts.
-4. `python -m sion_ingestion.sketchup_collection preflight --build` before committing; CI runs the same
-   preflight through `tests/test_sketchup_collection.py`.
+```bash
+uv run python -m sion_ingestion.sketchup_collection ingest \
+  --namespace <ns> --from-dir "$SION_SU_EXPORT_DIR" \
+  [--guidelines docs/sketchup/<model guide>.md] [--grouping-doc docs/sketchup/<grouping doc>.md]
+```
+
+`ingest` is idempotent and content-addressed:
+
+* It copies JSON captures only. `.skp` / `.skb` binaries and rendered PNGs stay in the export folder.
+* A leading UTF-8 BOM is stripped. Personal absolute paths (a Windows profile directory,
+  `/home/<name>`, `/Users/<name>`) become `<redacted>/<filename>` before the file is hashed.
+  Generic profile names such as `USER` are left as captured.
+* The content address is the SHA-256 of the committed `model_dump.json`. The same address cannot
+  be registered under a second namespace. Running the command again on the same bytes changes nothing.
+* `classification.json` is pinned to that SHA-256. A candidate is written only when a definition
+  attribute `sion_class`, `object_class` or `su_class` is exactly an id in `object-classes.json`.
+  The candidate is `unverified` / `inferred`, with `confidence` 0.55 (a pipeline constant, not a
+  measurement), `basis_ko`, `evidence_locator` and `evidence_sha256`. Names, sizes and materials
+  are not turned into classes. An unknown id or two disagreeing attributes abort the command and
+  leave the tree unchanged.
+* The command registers the namespace, runs `build` and `build --check`, writes `manifest.json`
+  and `content-index.json`, and emits `tests/test_sketchup_ns_<ns>.py`.
+* `preflight` (and CI, through `tests/test_sketchup_collection.py`) checks the content address, the
+  capture-set hash, personal paths, BOM, size limits, hierarchy order, and that `model.modified?`
+  agrees across the dump, grouping probe and hierarchy export (a before/after change means the
+  capture script modified the model).
+
+The default guideline document cites the 0914 definitions. Unknown `def:` references fail the build,
+so a different model needs its own `--guidelines` file. Pass `--force` only to replace a capture or
+classification that already differs. An authored assignment is kept; it is not overwritten with a
+guess.
 
 Guideline sections can cite `def:<name>`, `obj:<persistent_id>`, `tag:`, `mat:`, `scene:N`, `section:N`,
 `model:`; unknown references fail the build, so a new model needs a guideline document whose evidence

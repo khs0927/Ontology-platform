@@ -16,6 +16,7 @@ import uuid
 from collections.abc import Callable, Iterable
 from datetime import datetime, timedelta, timezone
 
+from sion_ingestion.review_weights import relation_event_fields
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, attributes
 
@@ -41,7 +42,7 @@ def _payload(obj) -> tuple[str, dict]:
             "category": obj.category,
         }
     if isinstance(obj, models.Relation):
-        return "relation", {
+        payload = {
             "stable_key": obj.stable_key,
             "relation_type_id": obj.relation_type_id,
             "source_entity_id": _s(obj.source_entity_id),
@@ -49,6 +50,10 @@ def _payload(obj) -> tuple[str, dict]:
             "verification_state": obj.verification_state,
             "valid_to": obj.valid_to.isoformat() if obj.valid_to else None,
         }
+        # /review candidates carry the fields the extraction-weight ledger folds.
+        # Other relations keep the previous payload.
+        payload.update(relation_event_fields(obj.verification_state, obj.properties))
+        return "relation", payload
     if isinstance(obj, models.Evidence):
         return "evidence", {
             "entity_id": _s(obj.entity_id),

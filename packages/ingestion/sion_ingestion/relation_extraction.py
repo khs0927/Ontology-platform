@@ -7,6 +7,11 @@ Nothing here asserts a fact. Every proposal is stored as a ``relations`` row wit
 (source URI, locator, excerpt and its SHA-256). A reviewer approves or rejects it
 through ``/api/v1/relations/candidates`` (see ``sion_api.review``).
 
+A later human decision can change the *ranking score* of a new candidate that
+uses the same extraction rule (``sion_ingestion.review_weights``). The stored
+``confidence`` stays the extractor's base number, and ``verification_state``
+stays ``unverified``. Reopening the decision removes its vote.
+
 Extractors
 ----------
 * **rule**: two known entities in one sentence joined by an explicit verb phrase
@@ -42,6 +47,7 @@ from sqlalchemy.orm import Session
 
 from sion_ingestion.document_ingest import DOCUMENT_SUFFIXES, DocumentUnreadable, extract_text
 from sion_ingestion.graph_export import KNOWN_RELATION_TYPES, normalize_relation_type
+from sion_ingestion.review_weights import describe_score, load_extraction_ledger
 
 EXTRACTOR = "sion-relation-extractor/v1"
 AUTO_PREFIXES = ("concept:", "document:", "artifact:", "ifc:", "cand:")
@@ -448,6 +454,8 @@ def store_proposals(session: Session, proposals: Iterable[Proposal], *, extracto
         for row in session.scalars(select(models.Entity).where(models.Entity.stable_key.in_(sorted(keys))))
     } if keys else {}
     known_types = {row.id for row in session.scalars(select(models.RelationType))}
+    # Votes already committed by /review. This run's own unverified rows do not vote.
+    weight_ledger = load_extraction_ledger(session)
     candidate_ids: list[str] = []
 
     for proposal in proposals:
@@ -529,8 +537,11 @@ def store_proposals(session: Session, proposals: Iterable[Proposal], *, extracto
         if proposal.rule not in rules:
             rules.append(proposal.rule)
         properties.update({"candidate": True, "rules": rules, "support": len(have)})
-        row.properties = properties
+        # Confidence stays the extractor's base. The review multiplier is metadata
+        # for ranking and is never written back into confidence or verification_state.
         row.confidence = max(row.confidence or 0.0, proposal.confidence)
+        properties["extraction_weight"] = describe_score(row.confidence, properties, weight_ledger)
+        row.properties = properties
         candidate_ids.append(str(row.id))
     session.commit()
     return {

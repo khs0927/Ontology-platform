@@ -7,6 +7,12 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# Coverage reports (pytest-cov; see docs/COVERAGE.md)
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
 # Node
 node_modules/
 dist/

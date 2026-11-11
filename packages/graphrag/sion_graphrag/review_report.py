@@ -37,8 +37,8 @@ from .projection import (
     resolve_verification_states,
 )
 
-# Intended default review policy: approved/machine-verified and pending relations;
-# /review-rejected relations only on request (audit/debug). The live engine does not apply it yet.
+# Default review policy: approved/machine-verified and pending relations.
+# /review-rejected relations are reported on request and are not written into the live index.
 DEFAULT_REPORT_REVIEW_STATES = ("verified", "unverified")
 AUDIT_REPORT_REVIEW_STATES = ("verified", "unverified", "rejected")
 REVIEW_BATCH_AGGREGATE = "review_batch"
@@ -46,12 +46,15 @@ REVIEW_BATCH_EVENT = "review.batch_decided"
 LIVE_INDEX_NOTICE = (
     "projected_under_policy and weight describe the review-state policy in review_states. The live "
     "GraphRAG index (POST /api/v1/graphrag/project) projects verified + unverified relations by "
-    "default and excludes rejected ones; ?include_rejected=true is an explicit audit projection."
+    "default and excludes rejected ones. ?include_rejected=true returns preview counts and does "
+    "not write them into the index."
 )
 FACT_VERIFICATION_NOTICE = (
     "A /review approval records a reviewer's judgement of a candidate; it does not verify the "
     "underlying fact. Confidence and evidence are left as extracted; human_verified only adds a "
-    "bounded ranking boost."
+    "bounded ranking boost. The same decision also casts one reversible vote on that candidate's "
+    "extraction rule or guideline predicate, which can change only the ranking score of later "
+    "candidates and never auto-verifies them. Reopening the decision removes the vote."
 )
 
 _REVIEW_FIELDS = ("decision", "reviewer", "note", "decided_at", "batch_id")
@@ -141,7 +144,7 @@ def build_review_report(
             "verification_state": state,
             "confidence": confidence,
             "projected_under_policy": projected,
-            "weight": relation_weight(confidence, state) if projected else None,
+            "weight": relation_weight(confidence, state, properties) if projected else None,
             "review": review,
             "review_history": history,
         })
