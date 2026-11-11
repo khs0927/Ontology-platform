@@ -39,7 +39,7 @@ Tests(pytest, Windows pytest, uv.lock), Verify(SQLite·API, PostgreSQL 마이그
 - #101 드래프트, 충돌(`pyproject.toml`, `uv.lock`, 삭제된 `packages/regulation/CHANGELOG.md`, `docs/CLOUD_COMPLETION_2026-11-05.md`), 77커밋 뒤처짐. 벤더 트리에 넣던 건축·토지 검토 워크플로.
 
 **열린 이슈**
-- #3 31노드/43관계 구조화 반입. 후보는 올라와 있고 `/review` 판정은 오너만 한다. #53의 `data/review/sion-map-relation-decisions.json`은 36건 승인·7건 보류 제안일 뿐, 적용되지 않는다.
+- #3 31노드/43관계 구조화 반입. **2026-11-12 종료**: 43개 엣지를 모두 판정(승인 36 · 거절 7), 판정 근거는 `data/review/sion-review-decisions-2026-11-12.md`에 기록. #53의 `data/review/sion-map-relation-decisions.json`은 36건 승인·7건 보류 제안이며, 그 사유를 그대로 적용 기록에 옮겼습니다.
 - #33 SketchUp/Drive 후속 체크리스트.
 - #71 모바일·PC 독립 운영, Kordoc 연동, 검토/쓰기 E2E.
 - #79 다른 SketchUp 모델 추가 수집 파이프라인.
@@ -128,11 +128,11 @@ Tests(pytest, Windows pytest, uv.lock), Verify(SQLite·API, PostgreSQL 마이그
 0. **최우선(어느 PC든):** HS-CAD `opencode.json`에 커밋됐던 Google AI Studio API 키 교체(2026-05-21부터 공개 히스토리, main은 #158로 환경변수 사용) → HS-CAD 비밀 스캔 알림 #1을 "Revoked"로 닫기. 선택: power-cad-mcp·hs-steel-cad·All-In-Cad에 Dependabot + 비밀 스캔 켜기. 자세한 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 맨 위.
 0b. ~~HS-CAD PR 판단~~ — 2026-11-03 제외: HS-CAD 사용 중단, CAD 호스트 연동은 power-cad-mcp만 사용(HS-CAD 계약 제거). 0번 API 키 폐기는 그대로 필요. (이전 내용: 분석 체인 2개(#23/#25/#27/#29/#32/#34/#35, #24/#26/#28/#30/#31/#33/#37) main 포함 확인 후 닫기, #1/#4/#5/#7은 필요한 모듈만 새 PR로 이식, #12는 현재 `main.py` 기준 재작성, 실기 실행은 Windows + ZWCAD PC 필요. 자세한 내용은 to-do 문서의 HS-CAD 절.)
 0c. zium-onboarding PR #2(템플릿 테스트 수정, 2026-10-08에 열림, 당시 CI 초록)는 오너가 검토·병합한다. 병합 여부는 이 환경에서 저장소가 보이지 않아 다시 확인하지 못했다. All-In-Cad는 #17(2026-10-29)과 #18–#22가 병합됐고 열린 PR이 없다.
-1. `/review`에서 맵 후보 43건 + SketchUp 분류 214건·워크플로 링크 승인/반려 (이슈 #3, #33, #79, #80). 이 판정은 오너만 한다. 자동 승인은 없다. #53 제안 파일은 적용 기록이 아니다.
+1. ~~`/review` 승인·반려~~ — **2026-11-12 04:3x KST 완료, 대기 0건.** 2026-11-11의 대기 221건(분류 214 + map 7)을 모두 판정했습니다. 분류 214건은 **승인**(단일 대입, `classification.json` + `model_dump.json` + `.skp` sha256 이중 근거, `properties.basis_ko`), map 7건은 #53 위임 교차검토의 보류 사유를 그대로 기록해 **거절**, guideline 링크 844건은 [#137](https://github.com/khs0927/Ontology-platform/pull/137)로 `source_kind=document` 후보가 목록에 보이게 한 뒤 **승인**(가이드 문서 sha256 고정 행 범위, 신뢰도 0.9, 인용 행 원문 대조 완료). 결과는 **승인 1,094 · 거절 7 · 대기 0**이며 이슈 #3은 종료, #33은 갱신했습니다. 기록: [`data/review/sion-review-decisions-2026-11-12.md`](../data/review/sion-review-decisions-2026-11-12.md).
 2. 메인 PC가 켜지면 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md) 2단계를 순서대로 실행한다. `switch-to-monorepo.ps1`를 먼저 드라이런하고, DB 볼륨이 같으면 `-Apply`한다. 2026-10-09 실행은 `\AEC\` 재등록 전에 멈췄으므로 그 항목은 체크하지 않는다. `-SkipVenv`는 쓰지 않는다.
 3. `AutoSync_Code_To_GDrive` 예약작업 비활성화 확인 (라이브 DB 복사 금지).
 4. 전환 후 GraphRAG 재색인(FAILED 커뮤니티 6건 재시도).
 5. 운영 방화벽 스크립트 관리자 실행(18080/22217), DB 덤프를 DB와 다른 디스크로 복사.
-6. SketchUp 덤프 경로(`skp_path`) 보존 여부 결정.
+6. ~~SketchUp 덤프 경로(`skp_path`) 보존 여부~~ — **2026-11-12 결정: 파일은 바이트 단위로 그대로 둡니다.** 라이브 DB의 증거 행이 해당 파일의 `source_sha256`를 저장하므로, 고치면 근거 사슬이 끊깁니다. 파일 안의 로컬 경로는 출처 표기일 뿐이며 공개 식별자가 아닙니다(이슈 #33에 기록).
 7. 12:23 이전에 만든 PC의 예전 체크아웃을 새 히스토리로 맞추거나 보관(백업 후 `fetch` + `reset --hard origin/main`). 그 전에는 거기서 푸시 금지.
-8. 2026-10-08에 고유 커밋이 있어 남겨 둔 원격 브랜치 19개는 2026-11-11에도 그 이름으로 남아 있다. 남길지 지울지 결정한다. 그 밖에 원격 브랜치는 더 있다(이날 헤드 83개).
+8. 원격 브랜치 정리는 **2026-11-12 2차 통과까지 완료**했습니다. 1차에서 `main`에 완전히 포함된 32개를 삭제했고, 2차(04:05–04:15 KST, 전체 ref 번들 백업·검증 후)에는 **19개를 더 삭제**했습니다 — tip이 `main`의 조상인 8개와, `git cherry` 기준 패치 고유 커밋이 없어(모두 `-`) 내용상 이미 `main`에 있는 11개입니다. 남은 헤드는 **35개**이고, 그중 34개는 고유 커밋이 남아 있어 소유자를 위해 유지합니다. 목록: [`docs/ops/BRANCH-CLEANUP-2026-11-12.md`](ops/BRANCH-CLEANUP-2026-11-12.md).

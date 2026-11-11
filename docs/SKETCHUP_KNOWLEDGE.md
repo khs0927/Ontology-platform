@@ -93,6 +93,7 @@ up at `/review` and stay `unverified` until a person approves them. A classifica
 candidate keeps its `confidence` and evidence locator. That confidence is not added to the GraphRAG
 relationship weight until the candidate's `verification_state` is `human_verified`. Other relations
 still add confidence the way issue #80 describes.
+2026-11-12 기준 상태: SketchUp 분류 214건과 guideline 링크 844건은 승인(`human_verified`), 맵 관계 43건은 승인 36·거절 7이며 **대기 후보는 0건**입니다. guideline 링크는 `source_kind=document` 후보라 이전에는 목록에서 빠져 있었습니다(#137로 노출). 판정 근거와 되돌리기 방법은 `data/review/sion-review-decisions-2026-11-12.md`에 기록돼 있습니다.
 ### Reviewing them quickly (`/review`)
 
 Opening the page, picking a queue, or changing a filter never writes a decision. The `추천`

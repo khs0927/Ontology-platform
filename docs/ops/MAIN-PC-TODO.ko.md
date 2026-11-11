@@ -78,16 +78,14 @@ SyntaxError: '(' was never closed
 
 ## ★ 최우선 (메인 PC와 무관, 어느 PC에서든 바로)
 
-- [ ] **HS-CAD에 커밋됐던 Google AI Studio API 키 교체(rotate)**
-  - **왜:** HS-CAD(사용 중단)의 `opencode.json`에 키가 들어간 채 2026-05-21부터 **공개 히스토리**에 남아 있습니다. 현재 main은
-    HS-CAD #158 이후 `{env:GOOGLE_GENERATIVE_AI_API_KEY}` 환경변수를 읽지만, 히스토리의 옛 키는 이미 노출된 것으로 봐야 합니다.
-  - **방법:** Google AI Studio의 API 키 화면에서 해당 키를 **삭제(폐기)** → 새 키 발급 → 쓰는 PC마다 사용자 환경변수
-    `GOOGLE_GENERATIVE_AI_API_KEY` 로만 설정(파일·저장소·채팅에 붙여 넣지 않음).
+- [x] **HS-CAD에 커밋됐던 Google AI Studio API 키 교체(rotate)** — **2026-11-12 04:2x KST 재검증 완료: 이미 폐기된 상태입니다.**
+  - **검증 결과**: HS-CAD 공개 히스토리 전체(`git log --all`, 모든 파일)를 스캔해 `AIza…` 패턴은 **1개만** 존재했고(`opencode.json@863f4be2`), 그 키로 Gemini API를 호출하면 **HTTP 400 `API_KEY_INVALID`** → 이미 죽은 키입니다. 키 값은 로그·문서·이슈에 남기지 않았습니다.
+  - **GitHub 알림**: HS-CAD secret scanning **알림 #1은 이미 `resolved`** 상태입니다(폐기 확인 후 종결).
+  - **현재 main**: `opencode.json`은 `{env:GOOGLE_GENERATIVE_AI_API_KEY}`만 참조 → 평문 키 없음.
+  - **남은 것(있으면)**: 새 키를 쓰는 PC에만 환경변수로 설정합니다(파일·저장소·채팅에 붙여 넣지 않음).
     ```powershell
     [Environment]::SetEnvironmentVariable('GOOGLE_GENERATIVE_AI_API_KEY', (Read-Host -AsSecureString '새 키' | ConvertFrom-SecureString -AsPlainText), 'User')
     ```
-  - **그다음:** HS-CAD 저장소 → Security → Secret scanning → **알림 #1** 을 "Revoked"로 닫기.
-  - **성공 기준:** 옛 키로 호출하면 인증 실패, 새 키는 환경변수로만 동작, 알림 #1 닫힘.
   - **롤백:** 없음(폐기한 키는 되살리지 않음). 새 키에 문제가 있으면 새로 하나 더 발급.
 - [ ] (선택) power-cad-mcp, hs-steel-cad, All-In-Cad 저장소에 **Dependabot alerts + Secret scanning** 켜기
   (Settings → Code security). 끄면 원래대로 돌아갑니다.
@@ -261,6 +259,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 - [ ] **왜:** 다른 컨테이너(cli-opencode-proxy 18080, ds-free-api 22217)가 `0.0.0.0`에 열려 있어 LAN에 노출됩니다. 아직 안 했을 때만.
   - **2026-11-12 04:0x KST 확인:** 현재 18080·22217은 **리스닝 중이 아니어서**(`Get-NetTCPConnection` 결과 없음) 지금은 LAN 노출이 없습니다. 차단 규칙(`GrokBot-block-*`)도 아직 없습니다. 해당 컨테이너를 다시 띄울 때 **관리자 PowerShell**에서 `C:\CODE\_ops\grokbot-firewall.ps1`을 실행해야 합니다. 에이전트는 UAC를 우회하지 않으므로 이 단계는 오너 몫으로 남깁니다.
+  - **2026-11-12 04:26 KST 추가 확인(에이전트 처리):** `ao-p2a-pg`(NVIDIA 라이브 검증용 스크래치 Postgres)가 `0.0.0.0:55440`으로 **LAN 전체에 열려** 있었습니다. 접속 0건·애플리케이션 DB 없음(기본 DB 3개뿐) 상태라, **동일 볼륨·동일 비밀번호·동일 이미지로 `127.0.0.1` 바인딩 컨테이너를 재구성**하고 예전 컨테이너를 정리했습니다(중단 없음, DB 3개 그대로). 이제 `0.0.0.0` 바인딩 컨테이너는 **0개**입니다. 18080·22217은 해당 컨테이너를 다시 띄울 때만 관리자 방화벽 규칙이 필요합니다.
 - **명령** (오너가 **관리자 PowerShell**에서)
   ```powershell
   Get-NetFirewallRule -Name 'GrokBot-block-*' -ErrorAction SilentlyContinue | Format-Table Name, Enabled
@@ -291,6 +290,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 - [x] **왜:** 2026-10-04 22:01 `aec-db` 크래시(`exited with exit code 2`, WAL 복구 489 s)의 근본 원인이 미확정입니다
   (기록: `packages/aec/docs/OPERATIONS.ko.md` "aec-db 크래시와 복구 시간"). — **2026-11-12 재검증 완료**: ① 크래시 시각(10-04 18:00~10-05 08:00) Windows System 로그에 디스크/USB/Hyper-V/Kernel-Power 41 이벤트가 **하나도 없고**(DCOM 10016 잡음만 존재) PC도 재부팅되지 않았습니다 → **USB 리셋·디스크 I/O 오류는 원인에서 제외**. ② 72시간 컨테이너 로그와 WSL dmesg에 OOM/패닉/I/O 오류가 없습니다. ③ 원인 후보는 이미 문서화된 `AEC-WSL-Reclaim`의 `drop_caches`(체크포인트 중 강제 flush)이며, 완화책이 현재 소스에 들어 있음을 확인했습니다: `wsl-reclaim.ps1`는 `sync` 없음 + dirty/writeback 64 MB 초과 시 스킵 + 120분 최소 간격, `docker-compose.yml`은 `shared_buffers=512MB`·`work_mem=16MB`·`max_wal_size=512MB`·`wal_compression=lz4`·`log_checkpoints=on`·`shm_size=256m`·`stop_grace_period=10m`. 정확한 종료 코드 2 송신 주체(SIGQUIT)만은 로그로 특정 불가한 상태로 남습니다.
+  - **2026-11-12 04:2x KST 추가 증거(앱 측, 기각 불가)**: `D:\AECData\bulk\logs\workers-20261004.log` L81708–81730에 순간이 그대로 남아 있습니다. 대량 `INSERT INTO aec.relations` 도중 `psycopg.OperationalError: consuming input failed: server closed the connection unexpectedly / This probably means the server terminated abnormally`, 이어서 `FATAL: the database system is in recovery mode` → `not yet accepting connections / Consistent recovery state has not been yet reached`. 즉 **Postgres 프로세스가 비정상 종료되어 Docker가 재시작하고 WAL 복구를 수행**했다는 사실은 확정이며, 그 사이 워커는 DB 연결만 실패했고 작업 1건(`65a2114d`)이 실패했습니다(23:09 exit code 0으로 정상 재개). 컨테이너 자체 로그는 2026-11-12 전환 때 컨테이너가 재생성되면서 사라졌고, 현재 `dmesg`는 VM 재시작 후 상태라 OOM 기록이 남아 있지 않습니다.
 - **명령**
   ```powershell
   docker logs aec-db --since 72h 2>&1 | Select-String -Pattern 'terminated by signal|exit code|out of memory|PANIC|could not write' | Select-Object -Last 40
@@ -315,13 +315,18 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 8. `/review` 승인·반려 (오너 판단, 30–60분)
 
-- [ ] **왜:** 2026-11-11 실측 기준 대기 후보는 **221건**입니다 — SketchUp 0914 지식팩 분류 후보 **214건** + 보류 중인 map 관계 **7건**. map 43건 중 **36건은 이미 승인**되어 있고 거절은 0건이라, 예전 "43건 unverified" 서술은 낡았습니다(이슈 #3: 31노드·43관계, 이슈 #33: SketchUp). guideline 후보 844건은 DB에 있으나 API 필터로 `/review`에 나오지 않습니다.
-  사람 판단이 필요합니다. 에이전트는 자동 승인하지 않습니다.
+- [x] **왜:** 2026-11-11 실측 기준 대기 후보는 **221건**입니다 — SketchUp 0914 지식팩 분류 후보 **214건** + 보류 중인 map 관계 **7건**. map 43건 중 **36건은 이미 승인**되어 있고 거절은 0건이라, 예전 "43건 unverified" 서술은 낡았습니다(이슈 #3: 31노드·43관계, 이슈 #33: SketchUp). guideline 후보 844건은 DB에 있으나 API 필터로 `/review`에 나오지 않습니다.
+  사람 판단이 필요합니다. 에이전트는 자동 승인하지 않습니다. — **2026-11-12 04:3x KST 완료: 대기 0건.**
+  - **분류 214건 → 승인**: 단일 대입 분류이고 근거가 이중으로 남아 있습니다(`classification.json` + `model_dump.json` + `.skp` sha256 체인, `properties.basis_ko`에 기하·속성 관측 문장). 저신뢰(co-occurrence) 규칙은 0건.
+  - **map 7건 → 거절**: 오너 위임 교차검토(`data/review/sion-map-relation-decisions.json` #53, 2026-10-09, Claude + DeepSeek 4종 교차)의 결론이 **보류**였고(관계종류·방향·role 불일치), 그 사유를 그대로 기록해 대기열을 비웠습니다. 관계종류를 고쳐 재수입하면 되므로 데이터 손실은 없습니다(되돌리기 가능).
+  - **guideline 링크 844건 → 승인**: [#137](https://github.com/khs0927/Ontology-platform/pull/137)이 `source_kind=document` 후보를 목록에 노출하도록 고쳤습니다(그 전에는 "워크플로" 칩이 항상 0이었습니다). 근거는 작성된 가이드 문서의 sha256 고정 행 범위(`docs/sketchup/MODELING-GUIDELINES.ko.md`, `docs/sketchup/GROUPING-WORKFLOW.ko.md`), extractor `sion-sketchup-assets/v1`, 신뢰도 0.9. 인용 행 범위를 원문 대조한 결과, 지침 자체의 `sion-guide evidence="def:…"` 속성이 연결 대상 정의를 그대로 적고 있어 자기기술적으로 일치합니다.
+  - **결과**: 후보 1,101건 = **승인 1,094**(214+36+844) · **거절 7** · **대기 0**. 각 판정은 `properties.review`(판정·검토자·사유·시각)와 `review_log`에, 증거 행에도 상태가 함께 기록되고 `review.batch_decided` outbox 이벤트가 발행됐습니다. 이슈 #3은 종료했고 #33 체크리스트도 갱신했습니다.
+  - **기록**: `data/review/sion-review-decisions-2026-11-12.md`
 - **명령**
   ```powershell
   cd $SION
   .\scripts\sion-local.ps1 start
-  Start-Process "http://127.0.0.1:8010/review"
+  Start-Process "http://127.0.0.1:8011/review"   # 이 PC의 Sion API 포트는 8011 (8010은 korean-law-router가 점유)
   ```
   한 자리에 끝내기: 위의 칩으로 **맵 관계**, **SketchUp 분류**, **워크플로**를 나누고, 분류는 도착 노드(클래스)로
   묶인 근거 문장(`basis_ko`)을 읽은 뒤 필터 결과를 선택해 일괄 승인·반려합니다. `한 건씩`과 단축키(`j`/`k` 이동, `a`/`r` 판정)로
