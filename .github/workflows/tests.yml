@@ -79,3 +79,43 @@ jobs:
 
       - name: Tests (locked environment)
         run: uv run --locked pytest
+
+  coverage:
+    name: Coverage report
+    runs-on: ubuntu-latest
+    # Coverage tracing is slower than the plain pytest job; keep a higher ceiling.
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install package with all optional extras
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[all,test,dev]"
+
+      # pytest-cov is intentionally ad hoc: coverage stays out of pyproject.toml
+      # and uv.lock so the declared/tested dependency set does not change.
+      - name: Install pytest-cov
+        run: python -m pip install "pytest-cov==7.1.0"
+
+      # Informational only: no --cov-fail-under gate yet, so a low or dropping
+      # coverage number cannot fail the pull request. Test failures still fail
+      # the job (the report is uploaded with if: always() below).
+      - name: Run tests with coverage
+        run: python -m pytest --cov --cov-report=term-missing --cov-report=xml --cov-report=html
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+          retention-days: 14
