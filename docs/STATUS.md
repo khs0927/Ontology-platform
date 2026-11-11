@@ -1,6 +1,6 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-11-12 00:20 KST (Asia/Seoul). Re-checked against `origin/main` `2d69e2e`.
+Updated: 2026-11-12 00:12 KST (Asia/Seoul). Re-checked against `origin/main` `2d69e2e`.
 
 ## Current state (re-checked 2026-11-12 KST)
 
@@ -24,11 +24,11 @@ Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked insta
 
 All merges above landed with this set green. #128 removed the `apt`/DNS flake that had reddened every PR's Verify job. ArchOntos Helm render and ArchOntos lint/types run in the ArchOntos repository.
 
-### Open pull requests (ten besides this one)
+### Open pull requests (eleven besides this one)
 
-Ten besides #121 against `2d69e2e`; #124 and #109 are `CONFLICTING`, the rest `MERGEABLE`. Fresh runs are in flight after the 23:55 merges; #128 (merged) removed the apt/DNS flake, so a failing Verify job before 23:54 only needs a re-run.
+Eleven besides #121 against `2d69e2e` at this snapshot; #124 and #109 are `CONFLICTING`, the rest `MERGEABLE`, and #120, #122 and #123 have already gone **CLEAN**. Other agents are opening PRs concurrently, so re-check the count before merging. #128 (merged) removed the apt/DNS flake, so a failing Verify job before 23:54 only needs a re-run.
 
-| PR | State | CI / notes at 2026-11-12 00:20 KST |
+| PR | State | CI / notes at 2026-11-12 00:12 KST |
 |---|---|---|
 | [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | `CONFLICTING`; NVIDIA live checks fail; the owner wrote "merge not planned" |
 | [#120](https://github.com/khs0927/Ontology-platform/pull/120) | ready | graphrag audit-preview wording; tests-only change |
@@ -40,6 +40,7 @@ Ten besides #121 against `2d69e2e`; #124 and #109 are `CONFLICTING`, the rest `M
 | [#129](https://github.com/khs0927/Ontology-platform/pull/129) | ready | v0.3.0 release metadata (squash-merge; no tag in the PR) |
 | [#130](https://github.com/khs0927/Ontology-platform/pull/130) | ready | apt retry hardening for the remaining `aec.yml` installs |
 | [#131](https://github.com/khs0927/Ontology-platform/pull/131) | ready | informational pytest coverage; no threshold gate |
+| [#132](https://github.com/khs0927/Ontology-platform/pull/132) | ready | follow-up review fixes for #106/#115 (embedhub, SketchUp) |
 
 ### Open issues
 
