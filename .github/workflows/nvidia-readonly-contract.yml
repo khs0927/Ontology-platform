@@ -1,0 +1,67 @@
+name: NVIDIA real connector vs Sion readonly PostgreSQL
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "integrations/nvidia-auto-ontology/ci/**"
+      - ".github/workflows/nvidia-readonly-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nvidia-postgres:
+    name: NVIDIA connector / Sion project-specific ACL
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17
+        env:
+          POSTGRES_DB: sion_nvidia_ci
+          POSTGRES_USER: sion_owner
+          POSTGRES_PASSWORD: sion_owner
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sion_owner -d sion_nvidia_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      SION_TEST_POSTGRES_URL: postgresql://sion_owner:sion_owner@127.0.0.1:5432/sion_nvidia_ci
+      SION_NVIDIA_PILOT_RO_DSN: postgresql://nvidia_pilot_reader:ci_only_test_password_0101@127.0.0.1:5432/sion_nvidia_ci
+    steps:
+      - name: Checkout Sion
+        uses: actions/checkout@v7.0.1
+      - name: Create synthetic Sion canonical records
+        run: |
+          psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 -f migrations/001_core.sql
+          psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 -f migrations/004_seed_core_types.sql
+          psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 -f integrations/nvidia-auto-ontology/ci/seed.sql
+      - name: Configure project-locked SELECT-only view
+        run: |
+          psql "$SION_TEST_POSTGRES_URL" -X -v ON_ERROR_STOP=1 \
+            -v project_id=00000000-0000-0000-0000-0000000000a1 \
+            -v role_password=ci_only_test_password_0101 \
+            -f integrations/nvidia-auto-ontology/ci/readonly.sql
+      - name: Checkout pinned NVIDIA Auto Ontology
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: NVIDIA/auto-ontology
+          ref: c447003f72a822301e927196a4ecb5b597c308d5
+          path: nvidia
+      - name: Setup Python
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: nvidia/uv.lock
+      - name: Install pinned NVIDIA connector
+        working-directory: nvidia
+        run: uv sync --locked
+      - name: Test real NVIDIA connector privilege enforcement
+        working-directory: nvidia
+        run: uv run --no-sync python "$GITHUB_WORKSPACE/integrations/nvidia-auto-ontology/ci/verify_connector.py"

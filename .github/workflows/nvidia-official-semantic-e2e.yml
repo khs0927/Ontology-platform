@@ -1,0 +1,79 @@
+name: NVIDIA actual semantic compilation and NL2SQL - isolated Sion E2E
+
+on:
+  push:
+    branches: [feat/nvidia-auto-ontology-federation-20261107]
+    paths:
+      - .github/workflows/nvidia-official-semantic-e2e.yml
+      - integrations/nvidia-auto-ontology/ci/prepare_live_models.py
+      - integrations/nvidia-auto-ontology/ci/official_semantic_smoke.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  official-semantic:
+    if: github.repository == 'khs0927/Ontology-platform'
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    concurrency:
+      group: nvidia-live-semantic-ci
+      cancel-in-progress: true
+    steps:
+      - name: Free nonessential runner disk
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          df -h /
+      - uses: actions/checkout@v7.0.1
+      - name: Checkout pinned upstream NVIDIA code
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: NVIDIA/auto-ontology
+          ref: c447003f72a822301e927196a4ecb5b597c308d5
+          path: nvidia
+      - name: Create disconnected ephemeral Sion-NVIDIA environment
+        run: python integrations/nvidia-auto-ontology/ci/prepare_ephemeral_env.py
+      - name: Securely configure live NIM model roles in runner-only environment
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: python integrations/nvidia-auto-ontology/ci/prepare_live_models.py
+      - name: Start only isolated PostgreSQL
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml up -d --wait postgres
+      - name: Seed artificial Sion objects and restricted source view
+        run: |
+          export PGPASSWORD="$(awk -F= '$1=="POSTGRES_PASSWORD"{print $2}' nvidia/.env)"
+          export URL="postgresql://sion_owner:$PGPASSWORD@127.0.0.1:15432/auto_ontology"
+          psql "$URL" -X -v ON_ERROR_STOP=1 -c "CREATE DATABASE sion_nvidia_ci"
+          export URL="postgresql://sion_owner:$PGPASSWORD@127.0.0.1:15432/sion_nvidia_ci"
+          psql "$URL" -X -v ON_ERROR_STOP=1 -f migrations/001_core.sql
+          psql "$URL" -X -v ON_ERROR_STOP=1 -f migrations/004_seed_core_types.sql
+          psql "$URL" -X -v ON_ERROR_STOP=1 -f integrations/nvidia-auto-ontology/ci/seed.sql
+          psql "$URL" -X -v ON_ERROR_STOP=1 -v project_id=00000000-0000-0000-0000-0000000000a1 -v role_password=ci_only_test_password_0101 -f integrations/nvidia-auto-ontology/ci/readonly.sql
+      - name: Boot actual NVIDIA frontend, backend, ingestion and catalog
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml up -d --build --wait auto-ontology-frontend
+          docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml ps
+      - name: Install pinned Sion HTTP test runtime
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked --extra test
+      - name: Run official upstream ontology compilation and query goldens
+        run: uv run --no-sync python integrations/nvidia-auto-ontology/ci/official_semantic_smoke.py
+      - name: Report isolated services without dumping containers or secrets
+        if: always()
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml ps || true
+          df -h /
+      - name: Remove all isolated containers, databases, source credentials
+        if: always()
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml down -v --remove-orphans || true

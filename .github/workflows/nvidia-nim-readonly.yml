@@ -1,0 +1,24 @@
+name: NVIDIA developer key read-only check
+
+on:
+  push:
+    branches: [feat/nvidia-auto-ontology-federation-20261107]
+    paths:
+      - .github/workflows/nvidia-nim-readonly.yml
+      - integrations/nvidia-auto-ontology/ci/nim_probe.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.repository == 'khs0927/Ontology-platform'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the existing secret without model inference
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: python integrations/nvidia-auto-ontology/ci/nim_probe.py

@@ -26,6 +26,7 @@ from . import (
     __version__,
     law_knowledge,
     models,
+    nvidia_auto_ontology,
     ops,
     outbox,
     project_summary,
@@ -54,6 +55,7 @@ def create_app(
     ingest_roots: list[Path] | None = None,
     regulation_transport=None,
     review_require_version: bool | None = None,
+    nvidia_transport=None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if review_require_version is not None:
@@ -107,6 +109,7 @@ def create_app(
     regulation_review.register(app, factory, get_session, read_knowledge, write_knowledge)
     law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
+    nvidia_auto_ontology.register(app, read_knowledge, transport=nvidia_transport)
 
     if aec_adapter is None:
         aec_config = AecCairConfig.from_env()

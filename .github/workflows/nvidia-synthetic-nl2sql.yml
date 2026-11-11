@@ -1,0 +1,26 @@
+name: NVIDIA free developer two-call synthetic ontology NL2SQL pilot
+
+on:
+  push:
+    branches: [feat/nvidia-auto-ontology-federation-20261107]
+    paths:
+      - .github/workflows/nvidia-synthetic-nl2sql.yml
+      - integrations/nvidia-auto-ontology/ci/nvidia_synthetic_nl2sql.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-synthetic:
+    if: github.repository == 'khs0927/Ontology-platform'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test isolated offline SQL safety before any API call
+        run: python integrations/nvidia-auto-ontology/ci/nvidia_synthetic_nl2sql.py
+      - name: At most two free developer inference calls with synthetic data
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: python integrations/nvidia-auto-ontology/ci/nvidia_synthetic_nl2sql.py --live

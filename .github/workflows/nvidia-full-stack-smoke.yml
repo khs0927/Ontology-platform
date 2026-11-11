@@ -1,0 +1,131 @@
+name: NVIDIA full stack to Sion - free ephemeral smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "integrations/nvidia-auto-ontology/ci/full_stack_smoke.py"
+      - "integrations/nvidia-auto-ontology/ci/prepare_ephemeral_env.py"
+      - "integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml"
+      - ".github/workflows/nvidia-full-stack-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-stack:
+    name: Full NVIDIA frontend/backend/ingest/PG + real Sion bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    concurrency:
+      group: nvidia-free-smoke
+      cancel-in-progress: true
+    steps:
+      - name: Free nonessential disk for reproducible source builds
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          df -h /
+
+      - name: Use public DNS resolvers for Docker builds
+        run: |
+          # Same runner DNS blip as the official live workflow: archive.ubuntu.com
+          # can become unresolvable inside build containers. Point Docker at public
+          # resolvers before any compose service exists; undo it if it fails.
+          if [ -f /etc/docker/daemon.json ]; then sudo cp /etc/docker/daemon.json /tmp/daemon.json.orig; fi
+          sudo mkdir -p /etc/docker
+          sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+          {
+            "dns": ["1.1.1.1", "8.8.8.8"]
+          }
+          EOF
+          if ! sudo systemctl restart docker || ! timeout 90 bash -c 'until docker info >/dev/null 2>&1; do sleep 2; done'; then
+            echo "Docker did not come back with the DNS override; restoring previous config" >&2
+            if [ -f /tmp/daemon.json.orig ]; then sudo cp /tmp/daemon.json.orig /etc/docker/daemon.json; else sudo rm -f /etc/docker/daemon.json; fi
+            sudo systemctl restart docker
+            timeout 90 bash -c 'until docker info >/dev/null 2>&1; do sleep 2; done'
+          fi
+          docker info >/dev/null
+
+      - name: Checkout Sion isolated PR
+        uses: actions/checkout@v7.0.1
+
+      - name: Checkout immutable NVIDIA source
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: NVIDIA/auto-ontology
+          ref: c447003f72a822301e927196a4ecb5b597c308d5
+          path: nvidia
+
+      - name: Create runner-only config with unreachable inference endpoint
+        run: python integrations/nvidia-auto-ontology/ci/prepare_ephemeral_env.py
+
+      - name: Start only PostgreSQL
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f \
+            ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml up -d --wait postgres
+
+      - name: Seed canonical Sion fixture in separate same-server database
+        run: |
+          export PGPASSWORD="$(awk -F= '$1=="POSTGRES_PASSWORD"{print $2}' nvidia/.env)"
+          export URL="postgresql://sion_owner:$PGPASSWORD@127.0.0.1:15432/auto_ontology"
+          psql "$URL" -X -v ON_ERROR_STOP=1 -c "CREATE DATABASE sion_nvidia_ci"
+          export URL="postgresql://sion_owner:$PGPASSWORD@127.0.0.1:15432/sion_nvidia_ci"
+          psql "$URL" -X -v ON_ERROR_STOP=1 -f migrations/001_core.sql
+          psql "$URL" -X -v ON_ERROR_STOP=1 -f migrations/004_seed_core_types.sql
+          psql "$URL" -X -v ON_ERROR_STOP=1 -f integrations/nvidia-auto-ontology/ci/seed.sql
+          psql "$URL" -X -v ON_ERROR_STOP=1 \
+            -v project_id=00000000-0000-0000-0000-0000000000a1 \
+            -v role_password=ci_only_test_password_0101 \
+            -f integrations/nvidia-auto-ontology/ci/readonly.sql
+
+      - name: Build and boot actual NVIDIA frontend, backend and ingestion
+        working-directory: nvidia
+        run: |
+          # Same Ubuntu mirror DNS blip as the official live workflow: retry the
+          # image build, then still fail if the upstream Dockerfile is broken.
+          compose=(docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml)
+          for attempt in 1 2 3; do
+            if "${compose[@]}" up -d --build --wait auto-ontology-frontend; then
+              break
+            fi
+            echo "NVIDIA image build attempt ${attempt} failed"
+            if [ "$attempt" = 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 20))
+          done
+          "${compose[@]}" ps
+
+      - name: Set up Python/uv for Sion API
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install pinned Sion tests and HTTP client
+        run: uv sync --locked --extra test
+
+      - name: Real authenticated NVIDIA to Sion HTTP integration smoke
+        run: |
+          uv run --no-sync python \
+            integrations/nvidia-auto-ontology/ci/full_stack_smoke.py
+
+      - name: Record service state (no secrets or container logs)
+        if: always()
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f \
+            ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml ps || true
+          df -h /
+
+      - name: Stop and erase CI services and temporary database
+        if: always()
+        working-directory: nvidia
+        run: |
+          docker compose -f docker-compose.yml -f \
+            ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml \
+            down -v --remove-orphans || true
