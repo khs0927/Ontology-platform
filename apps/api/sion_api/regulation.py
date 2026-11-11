@@ -75,15 +75,27 @@ _LAND_FAMILIES: dict[str, frozenset[str]] = {
     "land_transaction_permit": frozenset({"LT_C_UQ141"}),
     "district_plan": frozenset({"LT_C_UPISUQ161", "LT_C_UPISUQ171"}),
     "urban_facility": frozenset(f"LT_C_UPISUQ15{i}" for i in range(1, 10)),
+    # OTHER_LAW in korean-land-mcp analyze_parcel.ts at contract pin 3110809.
+    "other_law": frozenset({
+        "LT_C_AGRIXUE101", "LT_C_AGRIXUE102", "LT_C_UF151", "LT_C_UF602", "LT_C_UF901",
+        "LT_C_WGISIEGUG", "LT_C_WGISIENONG", "LT_C_WGISIEILBAN", "LT_C_WGISIEDOSI",
+        "LT_C_DAMDAN", "LT_C_DAMYOD", "LT_C_DAMYOJ", "LT_C_DAMYUCH", "LT_C_UM710",
+        "LT_C_UM901", "LT_C_UM301", "LT_C_UM221", "LT_C_WGISARWET", "LT_C_UM000",
+        "LT_C_UO301", "LT_C_UO501", "LT_C_WGISNPGUG", "LT_C_WGISNPGUN", "LT_C_WGISNPDO",
+        "LT_C_UO101", "LT_C_UO601", "LT_C_UJ401", "LT_C_UH501", "LT_C_UH402", "LT_C_UH701",
+        "LT_C_UB901", "LT_C_UD601", "LT_C_UD610", "LT_C_UD620", "LT_C_UP201", "LT_C_UP401",
+        "LT_C_TFISMPA", "LT_C_WGISREPLAN", "LT_C_WGISRECOMP", "LT_C_AISPRHC", "LT_C_AISALTC",
+        "LT_C_AISMOAC",
+    }),
 }
 _GREENBELT_LAYER = "LT_C_UD801"  # 개발제한구역
 
 
-def _land_family(layer: str) -> str:
+def _land_family(layer: str) -> str | None:
     for family, layers in _LAND_FAMILIES.items():
         if layer in layers:
             return family
-    return "other_law"
+    return None
 
 
 def facts_from_land_parcel(record: dict[str, Any]) -> dict[str, Any]:
@@ -105,9 +117,10 @@ def facts_from_land_parcel(record: dict[str, Any]) -> dict[str, Any]:
     zoning = record["zoning"]
     precision = record["source"].get("precision")
     errors = [e for e in record.get("layer_errors") or [] if isinstance(e, dict)]
-    errored = {_land_family(str(e.get("layer", ""))) for e in errors}
-    if any(not str(e.get("layer", "")).startswith("LT_C_") for e in errors):
-        errored |= {*_LAND_FAMILIES, "other_law"}  # unknown layer: trust no negative overlay
+    families = {_land_family(str(e.get("layer", ""))) for e in errors}
+    errored = {family for family in families if family is not None}
+    if None in families:
+        errored.update(_LAND_FAMILIES)  # unknown layer: trust no negative overlay
     negatives_trusted = precision == "polygon"
 
     land: dict[str, Any] = {"contract": LAND_CONTRACT, "precision": precision, "layer_error_count": len(errors)}
@@ -180,13 +193,15 @@ def facts_from_land_parcel(record: dict[str, Any]) -> dict[str, Any]:
 
 
 def land_facts_checked(record: Any) -> dict[str, Any]:
-    """:func:`facts_from_land_parcel` after JSON Schema validation (when ``jsonschema`` is installed)."""
+    """:func:`facts_from_land_parcel` after required JSON Schema validation."""
     from sion_core import contracts
 
     try:
         problems = contracts.errors(LAND_CONTRACT, record)
-    except MissingExtra:
-        problems = []  # structural checks in facts_from_land_parcel still apply
+    except MissingExtra as exc:
+        raise ValueError(f"{LAND_CONTRACT} validation unavailable: jsonschema is required") from exc
     if problems:
         raise ValueError(f"{LAND_CONTRACT} contract violated: " + "; ".join(problems[:10]))
+    if any(_land_family(error["layer"]) is None for error in record["layer_errors"]):
+        raise ValueError(f"{LAND_CONTRACT}: unknown layer error; evaluation withheld")
     return facts_from_land_parcel(record)
