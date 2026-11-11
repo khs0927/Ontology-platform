@@ -51,7 +51,9 @@ LIVE_INDEX_NOTICE = (
 FACT_VERIFICATION_NOTICE = (
     "A /review approval records a reviewer's judgement of a candidate; it does not verify the "
     "underlying fact. Confidence and evidence are left as extracted; human_verified only adds a "
-    "bounded ranking boost."
+    "bounded ranking boost. The same decision also casts one reversible vote on that candidate's "
+    "extraction rule or guideline predicate, which can change only the ranking score of later "
+    "candidates and never auto-verifies them. Reopening the decision removes the vote."
 )
 
 _REVIEW_FIELDS = ("decision", "reviewer", "note", "decided_at", "batch_id")

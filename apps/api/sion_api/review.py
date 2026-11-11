@@ -29,7 +29,10 @@ reject (or reject after approve) is a 409 / ``conflict`` until the candidate is 
 
 An approval records a person's review judgement of a candidate. It is not a factual
 verification of the source: the relation's confidence and evidence are left as extracted, and
-GraphRAG only adds a bounded ranking boost for ``human_verified``.
+GraphRAG only adds a bounded ranking boost for ``human_verified``. The same decision casts one
+vote on that candidate's extraction rule or guideline predicate (see
+``sion_ingestion.review_weights``). Later candidates that share the key are ranked with a
+bounded multiplier. Reopening removes the vote. No candidate is auto-verified.
 
 Every bulk call that applies at least one decision also writes a ``review.batch_decided`` outbox
 event (aggregate ``review_batch``, id = ``batch_id``) with the per-id results, in the same
@@ -58,6 +61,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
+from sion_ingestion.review_weights import describe_score, load_extraction_ledger, rank_tuple, weight_policy
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
@@ -188,7 +192,13 @@ def _source_file(properties: dict[str, Any], evidence: list[models.Evidence]) ->
     return None
 
 
-def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 10) -> dict[str, Any]:
+def serialize(
+    session: Session,
+    row: models.Relation,
+    *,
+    evidence_limit: int = 10,
+    ledger: Any | None = None,
+) -> dict[str, Any]:
     evidence = list(
         session.scalars(
             select(models.Evidence)
@@ -199,6 +209,8 @@ def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 1
     )
     evidence_count = session.scalar(select(func.count()).select_from(models.Evidence).where(models.Evidence.relation_id == row.id))
     properties = dict(row.properties or {})
+    recorded = properties.get("extraction_weight")
+    weight_ledger = ledger if ledger is not None else load_extraction_ledger(session)
     return {
         "id": str(row.id),
         "stable_key": row.stable_key,
@@ -206,6 +218,12 @@ def serialize(session: Session, row: models.Relation, *, evidence_limit: int = 1
         "verification_state": row.verification_state,
         "relation_type_id": row.relation_type_id,
         "confidence": row.confidence,
+        "extraction_weight": describe_score(
+            row.confidence,
+            properties,
+            weight_ledger,
+            recorded=recorded if isinstance(recorded, dict) else None,
+        ),
         "source_kind": row.source_kind,
         "source": _entity_brief(session.get(models.Entity, row.source_entity_id)),
         "target": _entity_brief(session.get(models.Entity, row.target_entity_id)),
@@ -246,7 +264,10 @@ def list_candidates(session: Session, *, status: str = "pending", limit: int = 1
         states = [STATUS_TO_STATE[status]]
     else:
         raise ReviewError(f"status must be one of pending, approved, rejected, all (got {status!r})")
+    ledger = load_extraction_ledger(session)
     rows = _candidate_rows(session, states)
+    # Rank by the live review multiplier. A neutral ledger keeps confidence order.
+    rows.sort(key=lambda row: rank_tuple(row.confidence, row.properties, ledger, row.created_at, row.id))
     counts = {name: 0 for name in STATUS_TO_STATE}
     for row in _candidate_rows(session, list(STATUS_TO_STATE.values())):
         counts[STATE_TO_STATUS[row.verification_state]] += 1
@@ -257,7 +278,8 @@ def list_candidates(session: Session, *, status: str = "pending", limit: int = 1
         "counts": counts,
         "limit": limit,
         "offset": offset,
-        "candidates": [serialize(session, row) for row in page],
+        "extraction_weight_policy": weight_policy(),
+        "candidates": [serialize(session, row, ledger=ledger) for row in page],
     }
 
 

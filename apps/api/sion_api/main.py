@@ -334,7 +334,11 @@ def create_app(
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
-        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted."""
+        """Record a review approval (human_verified). Not a fact verification: confidence and evidence stay as extracted.
+
+        The decision also casts one reversible vote on the candidate's extraction rule or guideline
+        predicate. That vote can change only the ranking score of later candidates.
+        """
         return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
 
     @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
@@ -771,7 +775,11 @@ def create_app(
     # --- relation construction ---------------------------------------------------
     @app.post("/api/v1/extract/relations", dependencies=[Depends(write_knowledge)])
     def extract_relations_route(payload: schemas.RelationExtractionRequest, session: Session = Depends(get_session)):
-        """Propose unverified candidate relations (with evidence spans) from documents/DXF/IFC."""
+        """Propose unverified candidate relations (with evidence spans) from documents/DXF/IFC.
+
+        A prior /review vote may attach an extraction_weight ranking multiplier. It does not
+        verify the new rows or change their extracted confidence.
+        """
         from sion_ingestion.relation_extraction import extract_relation_candidates
 
         paths = [resolve_ingest_path(item) for item in payload.paths]
