@@ -1,12 +1,12 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-11-11 23:00 KST (Asia/Seoul). Re-checked against `origin/main` `ff583a2`.
+Updated: 2026-11-11 23:30 KST (Asia/Seoul). Re-checked against `origin/main` `94222fc`.
 
 ## Current state (re-checked 2026-11-11 KST)
 
-Base: `main` at `ff583a2` (merge of [#107](https://github.com/khs0927/Ontology-platform/pull/107), 2026-11-11 22:50 KST). The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **192 commits** behind. History length: 508 commits. Release tag is still **[v0.2.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0)** (2026-10-07). No newer tag.
+Base: `main` at `94222fc` (merge of [#118](https://github.com/khs0927/Ontology-platform/pull/118), 2026-11-11 23:08 KST). The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **201 commits** behind. History length: 517 commits. Release tag is still **[v0.2.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0)** (2026-10-07). No newer tag.
 
-[#106](https://github.com/khs0927/Ontology-platform/pull/106) (`sion_embedhub`, NVIDIA + local embeddings) merged at 22:49 KST the same evening, immediately before #107. Both were green on the checks below.
+[#106](https://github.com/khs0927/Ontology-platform/pull/106) (`sion_embedhub`, NVIDIA + local embeddings) merged at 22:49 KST, immediately before #107 (22:50). Three more merged before 23:09 KST: #108 at 23:00, #112 and #118 at 23:08. They were green on the checks below.
 
 ### Shape of the tree since 2026-10-08
 
@@ -14,27 +14,34 @@ Base: `main` at `ff583a2` (merge of [#107](https://github.com/khs0927/Ontology-p
 - **`packages/aec` was caught up** with the archived Ontology tree ([#110](https://github.com/khs0927/Ontology-platform/pull/110), [#114](https://github.com/khs0927/Ontology-platform/pull/114), [#116](https://github.com/khs0927/Ontology-platform/pull/116), [#117](https://github.com/khs0927/Ontology-platform/pull/117)), including the Google Drive CAD GraphRAG pack (`e9bd7eb`, Ontology #97).
 - **Main PC cutover is unfinished.** On 2026-10-09 `-Apply` created the venv, kept the existing DB volume, and backed up `\AEC\` task XML, then stopped with a Windows PowerShell 5.1 `SyntaxError` before those tasks were re-registered. Next action: dry-run, then `-Apply`, from a clean `main`. Do not pass `-SkipVenv`. Details and the unchanged safety rules are in [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md).
 - **All-In-Cad** PR [#17](https://github.com/khs0927/All-In-Cad/pull/17) (`agent/autocad-host-2027`) merged 2026-10-29 KST. [#18](https://github.com/khs0927/All-In-Cad/pull/18)–[#22](https://github.com/khs0927/All-In-Cad/pull/22) are merged. No open All-In-Cad pull requests.
-- **zium-onboarding** PR #2 (template test fixes, opened 2026-10-08, CI green at the time) is for the owner to review and merge. This environment cannot see that repository, so the merge was not re-checked here.
+- **zium-onboarding** PR #2 (template test fixes, opened 2026-10-08) merged 2026-11-05 KST; #3–#5 merged after it. No open pull requests remain there.
 
 The 2026-10-08 test-count table and the "15 checks" list below are that day's record.
 
 ### CI gate on `main` (workflow names as of 2026-11-11)
 
-Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked install. Verify: SQLite and API tests; PostgreSQL migration verification. AEC / CAD: aec_intelligence lint + tests + extensions; operational stack (PostgreSQL + AGE + pgvector + PostGIS); api/worker image; GOD-CAD (ubuntu-latest, py3.12); GOD-CAD (windows-latest, py3.12). Regulation: ArchOntos pin, guard, bridge, migrations (PostgreSQL). Public security: privacy; dependencies. CircleCI: `ci/circleci: pytest`. The Windows agent-bridge exe build runs when package paths change. Path-filtered workflows (drawing-context headless, hindsight advisory) run only when their files change.
+Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked install. Verify: SQLite and API tests; PostgreSQL migration verification. AEC / CAD: aec_intelligence lint + tests + extensions; switch-to-monorepo parse + argv (Windows PowerShell 5.1 and PowerShell 7); operational stack (PostgreSQL + AGE + pgvector + PostGIS); api/worker image; GOD-CAD (ubuntu-latest, py3.12); GOD-CAD (windows-latest, py3.12). Regulation: ArchOntos pin, guard, bridge, migrations (PostgreSQL). Public security: privacy; dependencies. CircleCI: `ci/circleci: pytest`. The Windows agent-bridge exe build runs when package paths change. Path-filtered workflows (drawing-context headless, hindsight advisory) run only when their files change.
 
-#106 and #107 merged with this set green. ArchOntos Helm render and ArchOntos lint/types run in the ArchOntos repository.
+#106–#108, #112 and #118 merged with this set green. ArchOntos Helm render and ArchOntos lint/types run in the ArchOntos repository.
 
-### Open pull requests
+### Open pull requests (eleven; #121 is this PR)
 
-| PR | State | Against `ff583a2` |
+All eleven are `MERGEABLE` against `94222fc` (GitHub shows `UNSTABLE` only because of the CI results below).
+
+| PR | State | CI at 2026-11-11 23:30 KST |
 |---|---|---|
-| [#108](https://github.com/khs0927/Ontology-platform/pull/108) | ready (not draft) | clean, 33 commits behind, CI green on its 2026-11-07 head |
-| [#118](https://github.com/khs0927/Ontology-platform/pull/118) | draft | clean, 7 behind (the #106/#107 commits), CI green |
-| [#115](https://github.com/khs0927/Ontology-platform/pull/115) | draft | clean, 31 behind, CI green |
-| [#112](https://github.com/khs0927/Ontology-platform/pull/112) | draft | clean, 31 behind, CI green |
-| [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | merges, 33 behind; `official-inference` failed, other checks passed |
-| [#113](https://github.com/khs0927/Ontology-platform/pull/113) | draft | conflicts (`gdrive_cad/README.md`, `graphrag/ask.py`, `parsers.py`) |
-| [#101](https://github.com/khs0927/Ontology-platform/pull/101) | draft | conflicts (`pyproject.toml`, `uv.lock`, deleted `packages/regulation/CHANGELOG.md`, `docs/CLOUD_COMPLETION_2026-11-05.md`); 77 behind |
+| [#101](https://github.com/khs0927/Ontology-platform/pull/101) | draft | its own pytest, SQLite/API and uv.lock checks fail; needs work before merge |
+| [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | NVIDIA stack checks fail (live providers); other checks pass |
+| [#113](https://github.com/khs0927/Ontology-platform/pull/113) | draft | only `PostgreSQL migration verification` failed |
+| [#115](https://github.com/khs0927/Ontology-platform/pull/115) | draft | only `PostgreSQL migration verification` failed |
+| [#120](https://github.com/khs0927/Ontology-platform/pull/120) | ready | only `PostgreSQL migration verification` failed |
+| [#122](https://github.com/khs0927/Ontology-platform/pull/122) | ready | only `PostgreSQL migration verification` failed |
+| [#123](https://github.com/khs0927/Ontology-platform/pull/123) | ready | only `PostgreSQL migration verification` failed |
+| [#124](https://github.com/khs0927/Ontology-platform/pull/124) | ready | only `PostgreSQL migration verification` failed |
+| [#125](https://github.com/khs0927/Ontology-platform/pull/125) | ready | only `PostgreSQL migration verification` failed |
+| [#126](https://github.com/khs0927/Ontology-platform/pull/126) | ready | real pytest failure (`tests/test_review_concurrency.py:189`); the PostgreSQL job failed too |
+
+`PostgreSQL migration verification` fails inside `apt-get install postgresql-client` because the Ubuntu runner cannot resolve `archive.ubuntu.com` (`Temporary failure resolving`). It is an infrastructure flake, not a defect in the PR: a re-run cleared it on this PR. Expect to re-run that job on each PR before merging.
 
 ### Open issues
 
@@ -42,21 +49,21 @@ Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked insta
 - [#33](https://github.com/khs0927/Ontology-platform/issues/33) — SketchUp / Drive follow-up checklist, including whether dump paths stay in the pinned SketchUp files.
 - [#71](https://github.com/khs0927/Ontology-platform/issues/71) — mobile and PC-independent operation: Kordoc link and a safe review/write end-to-end path.
 - [#79](https://github.com/khs0927/Ontology-platform/issues/79) — repeatable pipeline for adding another SketchUp model.
-- [#80](https://github.com/khs0927/Ontology-platform/issues/80) — feed `/review` approvals into guideline weights. Steps landed in #96–#99; the issue is still open. Auto-approve stays off.
+- ~~[#80](https://github.com/khs0927/Ontology-platform/issues/80)~~ — feed `/review` approvals into guideline weights. Steps landed in #96–#99; the issue was closed at 2026-11-11 23:13 KST when #126 opened. Auto-approve stays off.
 
 ### Remaining owner actions
 
 0. **Top priority (any PC):** rotate the Google AI Studio API key that was committed to HS-CAD `opencode.json` (in public history since 2026-05-21; main now uses an env var via HS-CAD #158), then close HS-CAD secret-scanning alert #1 as revoked. Optionally enable Dependabot + secret scanning on power-cad-mcp, hs-steel-cad, All-In-Cad. See the top of `docs/ops/MAIN-PC-TODO.ko.md`.
 0b. ~~HS-CAD PR decisions~~ — dropped 2026-11-03: HS-CAD is retired and power-cad-mcp is the only CAD host bridge (HS-CAD contracts removed). The key rotation in item 0 still applies.
-0c. zium-onboarding: PR #2 is open for the owner to review and merge (template test fixes, opened 2026-10-08, CI green then; merge not re-checked here). All-In-Cad no longer has an "open a PR" action: #17–#22 are merged and nothing is open.
-1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issues #3, #33, #79, #80). These decisions stay with the owner. Nothing in this tree auto-approves them.
+0c. ~~zium-onboarding PR #2~~ — merged 2026-11-05 KST (#3–#5 followed; no open PRs). ~~All-In-Cad~~ — #17–#22 merged, nothing open.
+1. `/review`: approve or reject the 43 map-edge candidates, plus SketchUp definition→class assignments (214) and workflow links (issues #3, #33, #79; #80 closed 2026-11-11). These decisions stay with the owner. Nothing in this tree auto-approves them.
 2. When the **main PC** is online: from a clean `main`, run section 2 of `docs/ops/MAIN-PC-TODO.ko.md` in order. Dry-run `switch-to-monorepo.ps1`, confirm the DB volume, then `-Apply`. The 2026-10-09 run stopped before `\AEC\` re-registration; that checkbox stays open. Do not pass `-SkipVenv`.
 3. Confirm Windows task `AutoSync_Code_To_GDrive` stays **disabled** (live DB must not be copied; export-on-write to `SION_STORAGE_ROOT` is the design).
 4. After the runtime switch: GraphRAG refresh (retries the 6 FAILED communities).
 5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
 6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
 7. Bring PC checkouts made before 12:23 KST on 2026-10-08 onto the rewritten history (backup, then `fetch` + `reset --hard origin/main`) or archive them; do not push from them meanwhile.
-8. The 19 remote branches left on 2026-10-08 because they still had commits outside `main` are still present (names in the historical "Branch cleanup" section). Decide whether to keep or delete them. Many newer branches exist as well (83 heads on the remote at this check).
+8. The 19 remote branches left on 2026-10-08 because they still had commits outside `main` are still present (names in the historical "Branch cleanup" section). Decide whether to keep or delete them. Many newer branches exist as well (90 heads on the remote at this check).
 
 ## Current state (re-checked 2026-10-08 22:00 KST) — historical snapshot
 
