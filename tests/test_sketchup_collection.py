@@ -11,13 +11,17 @@ from pathlib import Path
 import pytest
 from sion_ingestion.sketchup_assets import DEFAULTS, REGISTRY_REL, load_registry
 from sion_ingestion.sketchup_collection import (
+    CONTENT_INDEX_REL,
+    EXPLICIT_CLASS_CONFIDENCE,
     MANIFEST_SCHEMA_FILE,
     CollectionError,
     build_namespace,
+    ingest,
     manifest_path,
     manifest_text,
     personal_paths,
     preflight,
+    redact_personal_paths,
     scaffold,
     write_registry,
 )
@@ -35,6 +39,7 @@ SHARED = [
     "docs/sketchup/GROUPING-WORKFLOW.ko.md",
     "data/bootstrap/sketchup-0914-meeting.json",
     "data/bootstrap/sketchup-0914-meeting.ontology.json",
+    CONTENT_INDEX_REL,
 ]
 
 
@@ -53,6 +58,10 @@ def test_committed_manifest_is_current_and_pins_the_captures():
     assert manifest["model"]["sketchup_version"] == "25.0.634"
     assert manifest["model"]["skp_file"] == "0914_담당미팅.skp"
     assert manifest["dump_sha256"] == "b698c632b9396c37abb06f6f0f4a040a16066d953b22c39dd83acf6f1f674b7d"
+    assert manifest["content_address"] == manifest["dump_sha256"]
+    index = json.loads((ROOT / CONTENT_INDEX_REL).read_text(encoding="utf-8"))
+    assert index["by_dump_sha256"][manifest["content_address"]]["namespace"] == NS
+    assert index["by_dump_sha256"][manifest["content_address"]]["capture_set_sha256"] == manifest["capture_set_sha256"]
     assert set(manifest["probe_sha256"]) == {"geometry_probe", "grouping_probe"}
     assert all("sha256" in i for i in manifest["inputs"] if i["kind"] == "capture")
     assert {o["role"] for o in manifest["outputs"]} == {"graph-export", "ontology-export"}
@@ -369,3 +378,302 @@ def test_scaffold_validates_before_writing(fresh_root):
         scaffold("typo-name", root, from_dir=export, guidelines="docs/sketchup/missing.md")
     assert _tree(root) == before
     assert not (root / "data/sources/sketchup/typo-name").exists()
+
+
+def test_redact_personal_paths_keeps_generic_profiles_and_the_filename():
+    payload = {
+        "path": WIN_USERS + "\\hong\\Desktop\\fixture.skp",
+        "note": "/" + "home/alice/secret.skp",
+        "ok": WIN_USERS + "\\USER\\a.skp",
+    }
+    redacted, count = redact_personal_paths(json.dumps(payload).encode())
+    parsed = json.loads(redacted)
+    assert count == 2
+    assert parsed["path"] == "<redacted>/fixture.skp"
+    assert parsed["note"] == "<redacted>/secret.skp"
+    assert "USER" in parsed["ok"] and "hong" not in redacted.decode()
+    assert personal_paths(redacted) == 0
+    again, again_count = redact_personal_paths(redacted)
+    assert again == redacted and again_count == 0
+
+
+def _synthetic_dump(*, modified: bool = False, object_class: str = "retaining-wall", conflict: bool = False) -> dict:
+    """Public synthetic capture. A class is present only as an explicit attribute value."""
+    attributes: dict = {"sion": {"object_class": object_class}}
+    if conflict:
+        attributes["sion"]["su_class"] = "paving"
+    return {
+        "_meta": {
+            "tool": "synthetic-fixture",
+            "sketchup_version": "0",
+            "dumped_at": "2026-01-01 00:00:00 +0000",
+            "length_unit": "mm",
+            "area_unit": "m2",
+        },
+        "model": {
+            "title": "fixture",
+            "path": WIN_USERS + "\\hong\\Desktop\\fixture.skp",
+            "description": "",
+            "modified": modified,
+            "georeferenced": False,
+            "units_options": {"LengthUnit": 2, "LengthPrecision": 0, "SnapAngle": 15.0},
+            "shadow_info": {"City": "Seoul", "Country": "KR", "Latitude": 0, "Longitude": 0},
+            "bounds": {"min": [0, 0, 0], "max": [1000, 200, 300], "size": [1000, 200, 300]},
+            "top_level_count": 1,
+            "top_level_types": {"ComponentInstance": 1},
+            "definitions_count": 2,
+            "layers_count": 1,
+            "materials_count": 0,
+            "pages_count": 0,
+            "styles_count": 0,
+        },
+        "styles": [],
+        "pages": [],
+        "selected_page": None,
+        "layer_folders": [],
+        "layers": [
+            {
+                "name": "Layer0",
+                "visible": True,
+                "color": [0, 0, 0, 255],
+                "line_style": None,
+                "usage_by_type": {},
+                "usage_total": 0,
+            }
+        ],
+        "materials": [],
+        "definitions": [
+            {
+                "name": "wall-a",
+                "guid": "00000000-0000-4000-8000-000000000001",
+                "description": "",
+                "kind": "component",
+                "instances": 1,
+                "used_instances": 1,
+                "bounds_size": [1000, 200, 300],
+                "entity_counts": {"Face": 6, "Edge": 12},
+                "face_area_m2": 1.0,
+                "child_definitions": {},
+                "layers_used": {"Layer0": 18},
+                "materials_used": {},
+                "instance_layers": {"Layer0": 1},
+                "attributes": attributes,
+            },
+            {
+                "name": "retaining-wall",
+                "guid": "00000000-0000-4000-8000-000000000002",
+                "description": "/" + "home/alice/secret.skp",
+                "kind": "component",
+                "instances": 0,
+                "used_instances": 0,
+                "bounds_size": [1, 1, 1],
+                "entity_counts": {"Face": 0, "Edge": 0},
+                "face_area_m2": 0,
+                "child_definitions": {},
+                "layers_used": {},
+                "materials_used": {},
+                "attributes": {"note": "retaining-wall"},
+            },
+        ],
+        "hierarchy": [
+            {
+                "pid": 1,
+                "depth": 0,
+                "type": "ComponentInstance",
+                "name": "",
+                "definition": "wall-a",
+                "path": "wall-a",
+                "layer": "Layer0",
+                "material": None,
+                "transform": {"origin": [0, 0, 0], "scale": [1, 1, 1], "rot_z_deg": 0},
+                "world_bounds": {"min": [0, 0, 0], "max": [1000, 200, 300], "size": [1000, 200, 300]},
+                "child_counts": {},
+            }
+        ],
+    }
+
+
+def _grouping(modified: bool) -> dict:
+    return {
+        "_meta": {"tool": "synthetic-fixture", "dumped_at": "2026-01-01 00:00:00 +0000", "model": "fixture"},
+        "model_modified": modified,
+        "active_path": [],
+        "nodes": [
+            {
+                "pid_path": [1],
+                "depth": 0,
+                "definition": "wall-a",
+                "local_identity": True,
+                "local_origin": [0, 0, 0],
+                "local_xaxis": [1, 0, 0],
+                "mirrored": False,
+                "locked": False,
+                "hidden": False,
+                "glued_to": None,
+            }
+        ],
+        "definitions": [
+            {
+                "name": "wall-a",
+                "kind": "component",
+                "count_instances": 1,
+                "raw_geometry_by_layer": {"Face": {"Layer0": 6}},
+                "child_instances_by_layer": {},
+                "bounds_min": [0, 0, 0],
+                "insertion_point": [0, 0, 0],
+                "behavior": {"cuts_opening": False},
+            }
+        ],
+    }
+
+
+def _ingest_root(tmp_path: Path) -> Path:
+    root = tmp_path / "repo"
+    classes = ROOT / "data/sources/sketchup/object-classes.json"
+    (root / "data/sources/sketchup").mkdir(parents=True)
+    shutil.copyfile(classes, root / "data/sources/sketchup/object-classes.json")
+    guide = root / "docs/sketchup/FIXTURE.ko.md"
+    guide.parent.mkdir(parents=True)
+    guide.write_text(
+        "\n".join(
+            [
+                "## Fixture",
+                "",
+                '<!-- sion-guide id="fixture" order="1" kind="guideline" '
+                'applies_to="retaining-wall" evidence="def:wall-a" tools="sketchup-mcp2.get_model_info" -->',
+                "",
+                "Public synthetic fixture. Numbers come from the dump.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return root
+
+
+def _write_export(directory: Path, dump: dict, *, modified_probe: bool | None = None) -> None:
+    directory.mkdir()
+    raw = json.dumps(dump).encode()
+    (directory / "model_dump.json").write_bytes(b"\xef\xbb\xbf" + raw)
+    if modified_probe is not None:
+        (directory / "grouping_probe.json").write_bytes(json.dumps(_grouping(modified_probe)).encode())
+    (directory / "model.skp").write_bytes(b"SketchUp Model")
+    (directory / "view_iso.png").write_bytes(b"\x89PNG")
+
+
+def test_ingest_is_idempotent_content_addressed_and_unverified(tmp_path):
+    root = _ingest_root(tmp_path)
+    export = tmp_path / "export"
+    _write_export(export, _synthetic_dump(), modified_probe=False)
+    result = ingest(
+        "fixture-wall",
+        root,
+        from_dir=export,
+        guidelines="docs/sketchup/FIXTURE.ko.md",
+        write_test=False,
+    )
+    assert result["ok"], result["preflight"]
+    assert result["personal_paths_redacted"] == 2
+    ns_dir = root / "data/sources/sketchup/fixture-wall"
+    assert not any(p.suffix.lower() in {".skp", ".png"} for p in ns_dir.rglob("*"))
+    dump_bytes = (ns_dir / "model_dump.json").read_bytes()
+    assert not dump_bytes.startswith(b"\xef\xbb\xbf")
+    assert personal_paths(dump_bytes) == 0
+    assert b"hong" not in dump_bytes and b"<redacted>/fixture.skp" in dump_bytes
+    overlay = json.loads((ns_dir / "classification.json").read_text(encoding="utf-8"))
+    assert overlay["model_dump_sha256"] == result["content_address"]
+    assert [a["definition"] for a in overlay["assignments"]] == ["wall-a"]
+    assignment = overlay["assignments"][0]
+    assert assignment["class"] == "retaining-wall"
+    assert assignment["confidence"] == EXPLICIT_CLASS_CONFIDENCE
+    assert assignment["verification_state"] == "unverified" and assignment["source_kind"] == "inferred"
+    assert assignment["evidence_locator"] == "$.definitions[0].attributes.sion.object_class"
+    assert assignment["evidence_sha256"] == result["content_address"]
+    assert "retaining-wall" not in {a["definition"] for a in overlay["assignments"][1:]}
+    manifest = json.loads((ns_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["content_address"] == result["content_address"] == manifest["dump_sha256"]
+    assert manifest["model"]["modified"] is False and manifest["model"]["skp_file"] == "fixture.skp"
+    index = json.loads((root / CONTENT_INDEX_REL).read_text(encoding="utf-8"))
+    assert index["by_dump_sha256"][result["content_address"]]["namespace"] == "fixture-wall"
+    export_json = json.loads((root / "data/bootstrap/sketchup-fixture-wall.json").read_text(encoding="utf-8"))
+    edge = next(e for e in export_json["edges"] if e["properties"].get("predicate") == "classified_as" and e["properties"].get("candidate"))
+    assert edge["verification_state"] == "unverified" and edge["confidence"] == EXPLICIT_CLASS_CONFIDENCE
+    assert edge["properties"]["su_evidence"]["locator"] == assignment["evidence_locator"]
+    assert edge["properties"]["su_evidence"]["source_sha256"] == result["content_address"]
+    from sion_graphrag.projection import BASE_RELATION_WEIGHT, relation_weight
+
+    assert relation_weight(edge["confidence"], edge["verification_state"], edge["properties"]) == BASE_RELATION_WEIGHT
+    assert preflight("fixture-wall", root) == []
+
+    before = _tree(root)
+    again = ingest(
+        "fixture-wall",
+        root,
+        from_dir=export,
+        guidelines="docs/sketchup/FIXTURE.ko.md",
+        write_test=False,
+    )
+    assert again["ok"] and again["content_address"] == result["content_address"]
+    assert _tree(root) == before
+
+    with pytest.raises(CollectionError, match="already ingested"):
+        ingest("other-wall", root, from_dir=export, guidelines="docs/sketchup/FIXTURE.ko.md", write_test=False)
+    assert _tree(root) == before
+
+
+def test_ingest_refuses_unknown_or_conflicting_labels_without_writing(tmp_path):
+    root = _ingest_root(tmp_path)
+    export = tmp_path / "export"
+    _write_export(export, _synthetic_dump(object_class="not-a-class"), modified_probe=False)
+    before = _tree(root)
+    with pytest.raises(CollectionError, match="not an object-class id"):
+        ingest("fixture-wall", root, from_dir=export, guidelines="docs/sketchup/FIXTURE.ko.md", write_test=False)
+    assert _tree(root) == before
+
+    conflict = tmp_path / "conflict"
+    _write_export(conflict, _synthetic_dump(conflict=True), modified_probe=False)
+    with pytest.raises(CollectionError, match="conflicting class attributes"):
+        ingest("fixture-wall", root, from_dir=conflict, guidelines="docs/sketchup/FIXTURE.ko.md", write_test=False)
+    assert _tree(root) == before
+
+
+def test_ingest_refuses_a_capture_that_changed_the_model(tmp_path):
+    root = _ingest_root(tmp_path)
+    export = tmp_path / "export"
+    _write_export(export, _synthetic_dump(modified=False), modified_probe=True)
+    before = _tree(root)
+    with pytest.raises(CollectionError, match="model_modified disagrees"):
+        ingest("fixture-wall", root, from_dir=export, guidelines="docs/sketchup/FIXTURE.ko.md", write_test=False)
+    assert _tree(root) == before
+    assert not (root / "data/sources/sketchup/fixture-wall").exists()
+
+
+def test_ingest_cli_on_a_synthetic_export(tmp_path):
+    root = _ingest_root(tmp_path)
+    export = tmp_path / "export"
+    _write_export(export, _synthetic_dump(), modified_probe=False)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sion_ingestion.sketchup_collection",
+            "ingest",
+            "--namespace",
+            "fixture-wall",
+            "--from-dir",
+            str(export),
+            "--root",
+            str(root),
+            "--guidelines",
+            "docs/sketchup/FIXTURE.ko.md",
+            "--no-test",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=root,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["ok"] and payload["classifications"] == 1
+    assert preflight("fixture-wall", root) == []

@@ -141,7 +141,7 @@ def build_review_report(
             "verification_state": state,
             "confidence": confidence,
             "projected_under_policy": projected,
-            "weight": relation_weight(confidence, state) if projected else None,
+            "weight": relation_weight(confidence, state, properties) if projected else None,
             "review": review,
             "review_history": history,
         })
