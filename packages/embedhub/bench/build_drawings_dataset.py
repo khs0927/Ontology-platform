@@ -1,6 +1,9 @@
 """Build a retrieval benchmark from the repo's Korean DXF fixtures.
 
     python packages/embedhub/bench/build_drawings_dataset.py OUT_DIR
+    python -m sion_embedhub.cli bench-drawings OUT_DIR
+
+The second command renders this same corpus and scores it. Renders stay in OUT_DIR.
 
 Writes OUT_DIR/renders/<id>.png (matplotlib render of each sheet), OUT_DIR/drawings.jsonl (one doc per
 sheet carrying both its extracted text and its rendered image) and appends the hand-labelled queries from
