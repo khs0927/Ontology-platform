@@ -1,12 +1,14 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-11-12 00:14 KST (Asia/Seoul). Re-checked against `origin/main` `bd3e932`.
+Updated: 2026-11-12 02:39 KST (Asia/Seoul). Re-checked against `origin/main` `7db62c5` (tag `v0.3.0`).
 
 ## Current state (re-checked 2026-11-12 KST)
 
-Base: `main` at `bd3e932` (merge of [#123](https://github.com/khs0927/Ontology-platform/pull/123), 2026-11-12 00:12 KST). The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **247 commits** behind. History length: 563 commits. Release tag is still **[v0.2.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0)** (2026-10-07); [#129](https://github.com/khs0927/Ontology-platform/pull/129) prepares v0.3.0 metadata but does not create a tag.
+Base: `main` at `7db62c5` (merge of [#132](https://github.com/khs0927/Ontology-platform/pull/132), 2026-11-12 02:09 KST), which is also the [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0) tag. The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **257 commits** behind. History length: 573 commits. Release tag: **[v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0)** (2026-11-12), built from the [#129](https://github.com/khs0927/Ontology-platform/pull/129) metadata (version bump, `CHANGELOG.md`, `docs/releases/v0.3.0.md`) after its CI went 17/17 green.
 
-Merge wave on 2026-11-11/12 (KST): [#106](https://github.com/khs0927/Ontology-platform/pull/106) 22:49, #107 22:50, #108 23:00, #112 and #118 23:08, [#128](https://github.com/khs0927/Ontology-platform/pull/128) 23:54, [#115](https://github.com/khs0927/Ontology-platform/pull/115), [#113](https://github.com/khs0927/Ontology-platform/pull/113), [#101](https://github.com/khs0927/Ontology-platform/pull/101) 23:55, then [#120](https://github.com/khs0927/Ontology-platform/pull/120), [#122](https://github.com/khs0927/Ontology-platform/pull/122) and [#123](https://github.com/khs0927/Ontology-platform/pull/123) 00:12.
+Merge wave on 2026-11-11/12 (KST): [#106](https://github.com/khs0927/Ontology-platform/pull/106) 22:49, #107 22:50, #108 23:00, #112 and #118 23:08, [#128](https://github.com/khs0927/Ontology-platform/pull/128) 23:54, [#115](https://github.com/khs0927/Ontology-platform/pull/115), [#113](https://github.com/khs0927/Ontology-platform/pull/113), [#101](https://github.com/khs0927/Ontology-platform/pull/101) 23:55, then [#120](https://github.com/khs0927/Ontology-platform/pull/120), [#122](https://github.com/khs0927/Ontology-platform/pull/122), [#123](https://github.com/khs0927/Ontology-platform/pull/123) 00:12, [#125](https://github.com/khs0927/Ontology-platform/pull/125), [#129](https://github.com/khs0927/Ontology-platform/pull/129), [#130](https://github.com/khs0927/Ontology-platform/pull/130) 00:18–00:19, [#133](https://github.com/khs0927/Ontology-platform/pull/133) 02:05, [#121](https://github.com/khs0927/Ontology-platform/pull/121), [#126](https://github.com/khs0927/Ontology-platform/pull/126), [#131](https://github.com/khs0927/Ontology-platform/pull/131) 02:07, [#124](https://github.com/khs0927/Ontology-platform/pull/124) 02:08 and [#132](https://github.com/khs0927/Ontology-platform/pull/132) 02:09. Every merge was gated on a fully completed, failure-free check run (16–17 checks), and the two conflicted branches (#124, #126) were rebased onto `main` with union conflict resolutions before their final green run.
+
+The standing process for this kind of catch-up work — intake, verify, green-gate merge, release, branch hygiene, and the handoff that keeps this document current — is documented in [`docs/ops/COMPLETION-PLAYBOOK.ko.md`](ops/COMPLETION-PLAYBOOK.ko.md).
 
 ### Shape of the tree since 2026-10-08
 
@@ -24,20 +26,9 @@ Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked insta
 
 All merges above landed with this set green. #128 removed the `apt`/DNS flake that had reddened every PR's Verify job. ArchOntos Helm render and ArchOntos lint/types run in the ArchOntos repository.
 
-### Open pull requests (eight besides this one)
+### Open pull requests (one besides this one)
 
-Eight besides #121 against `bd3e932` at this snapshot. The live list is always https://github.com/khs0927/Ontology-platform/pulls: #120, #122 and #123 merged at 00:12 KST while this snapshot was being written, and other agents keep opening and merging. #128 (merged) removed the apt/DNS flake, so a failing Verify job before 23:54 only needs a re-run.
-
-| PR | State | CI / notes at 2026-11-12 00:14 KST |
-|---|---|---|
-| [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | NVIDIA Auto Ontology; had conflicts after the merge wave; the owner wrote "merge not planned" |
-| [#124](https://github.com/khs0927/Ontology-platform/pull/124) | ready | SketchUp ingest; was `CONFLICTING` after #115 merged, re-check after its latest update |
-| [#125](https://github.com/khs0927/Ontology-platform/pull/125) | ready | `/review` backlog in one sitting; merge before #126 |
-| [#126](https://github.com/khs0927/Ontology-platform/pull/126) | ready | `/review` ranking; its `refreshCounts()` pytest contract failure needs the #125-based rebase |
-| [#129](https://github.com/khs0927/Ontology-platform/pull/129) | ready | v0.3.0 release metadata (squash-merge; no tag in the PR) |
-| [#130](https://github.com/khs0927/Ontology-platform/pull/130) | ready | apt retry hardening for the remaining `aec.yml` installs |
-| [#131](https://github.com/khs0927/Ontology-platform/pull/131) | ready | informational pytest coverage; no threshold gate |
-| [#132](https://github.com/khs0927/Ontology-platform/pull/132) | ready | follow-up review fixes for #106/#115 (embedhub, SketchUp) |
+Only [#109](https://github.com/khs0927/Ontology-platform/pull/109) remains open — a draft for the NVIDIA Auto Ontology read-only federation. It was cut long before this merge wave and showed as conflicted; a rebase of its branch onto the current `main` is in progress so the owner can review it against the real code. Its live-NVIDIA checks need credentials that are not present in the default CI context, so a red "Full NVIDIA ... real Sion bridge" check there is environment-dependent, not automatically a code failure. The live list is always https://github.com/khs0927/Ontology-platform/pulls.
 
 ### Open issues
 
@@ -59,7 +50,7 @@ Eight besides #121 against `bd3e932` at this snapshot. The live list is always h
 5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
 6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
 7. Bring PC checkouts made before 12:23 KST on 2026-10-08 onto the rewritten history (backup, then `fetch` + `reset --hard origin/main`) or archive them; do not push from them meanwhile.
-8. The 19 remote branches left on 2026-10-08 because they still had commits outside `main` are still present (names in the historical "Branch cleanup" section). Decide whether to keep or delete them. Merged PR branches are auto-deleted; 60 heads remained on the remote at this check.
+8. **Remote branches were cleaned up on 2026-11-12.** 32 branches whose tips were fully contained in `main` (no open/draft PR, older than 3 days) were deleted; nothing became unreachable. 53 heads remained afterwards, including 39 branches with commits not in `main` that are kept for an owner decision — the full deleted/kept list with old tips is in [`docs/ops/BRANCH-CLEANUP-2026-11-12.md`](ops/BRANCH-CLEANUP-2026-11-12.md). The 19 branches flagged on 2026-10-08 are part of that kept list (names in the historical "Branch cleanup" section below).
 
 ## Current state (re-checked 2026-10-08 22:00 KST) — historical snapshot
 
