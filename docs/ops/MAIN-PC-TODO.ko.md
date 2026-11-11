@@ -83,6 +83,7 @@ SyntaxError: '(' was never closed
   - **GitHub 알림**: HS-CAD secret scanning **알림 #1은 이미 `resolved`** 상태입니다(폐기 확인 후 종결).
   - **현재 main**: `opencode.json`은 `{env:GOOGLE_GENERATIVE_AI_API_KEY}`만 참조 → 평문 키 없음.
   - **남은 것(있으면)**: 새 키를 쓰는 PC에만 환경변수로 설정합니다(파일·저장소·채팅에 붙여 넣지 않음).
+  - **절차 문서**: [`docs/ops/EXPOSED-KEY-REVOCATION.ko.md`](EXPOSED-KEY-REVOCATION.ko.md) — 키 값을 노출하지 않는 유효성 확인 절차, Google AI Studio 폐기 절차, GitHub 알림 종결 조건, 히스토리 위생 판단(리라이트는 위험), 점검 목록.
     ```powershell
     [Environment]::SetEnvironmentVariable('GOOGLE_GENERATIVE_AI_API_KEY', (Read-Host -AsSecureString '새 키' | ConvertFrom-SecureString -AsPlainText), 'User')
     ```
