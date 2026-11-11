@@ -211,7 +211,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 - **롤백:** 해당 없음(변경 없음). 볼륨이 다르면 **중단**하고 `-ComposeProject <X>`로 다시 드라이런.
 
 ### 2-2. 실행
-- [ ] **2026-10-09에 venv·백업까지 하고 여기서 멈췄습니다.** 예약 작업은 예전 체크아웃을 가리킨 채로 두었습니다. 다음 행동은 2-1 드라이런으로 볼륨을 다시 확인한 뒤, 아래 `-Apply`입니다. `-SkipVenv`로 이 단계를 건너뛰지 않습니다.
+- [x] **2026-11-12 02:21–02:34 KST 실행 완료** (`-Apply`, 로그 `D:\AECData\bulk\logs\switch-to-monorepo-20261112-022144.log`). 2026-10-09에 멈췄던 단계를 이어서 끝냈습니다: 작업 XML 백업 → 워커 드레인 → 사전 `pg_dump`(`aec-db-20261111T172220Z.dump`) → 같은 볼륨(`ontology_aec-pgdata`)으로 db/api 재생성 → 마이그레이션 → venv `venv ok` → 작업 재등록. `-SkipVenv`는 쓰지 않았습니다. 재등록 직후 활성화 판정의 부분문자열 버그(`C:\CODE\Ontology` ⊂ `C:\CODE\Ontology-platform`)로 9개 작업이 Disabled로 남았고, 수동 복구 후 [PR #135](https://github.com/khs0927/Ontology-platform/pull/135)가 원인을 고쳤습니다(`[regex]::Escape($LegacyRoot) + '(?![-\w])'`).
 - **명령**
   ```powershell
   powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\switch-to-monorepo.ps1 -LegacyRoot <LEGACY_ONTOLOGY> -Apply
@@ -224,7 +224,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 3. 전환 결과 검증 (10분)
 
-- [ ] **왜:** 전환 후 API·KG·예약작업이 실제로 새 경로에서 도는지 확인합니다.
+- [x] **왜:** 전환 후 API·KG·예약작업이 실제로 새 경로에서 도는지 확인합니다. — **2026-11-12 검증 완료**: `aec-db`/`aec-api` healthy(같은 볼륨), `/healthz` ok, kg stats 유지, 관리 작업 9개가 모두 모노레포 경로(`C:\CODE\Ontology-platform\packages\aec`)를 가리키고 활성, 워커가 새 venv에서 실행 중. GraphRAG 재색인은 **FAILED 0 / DONE 197**(예전 FAILED 6건 소실)로 정상 종료했고, 작업은 2시간 주기로 계속 돕니다(마지막 실행 04:00 KST, 종료 코드 0).
 - **명령** (토큰은 변수에만 담고 출력하지 않음)
   ```powershell
   cd $SION\packages\aec
@@ -260,6 +260,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 ## 4. 방화벽: 18080 / 22217 포트 차단 (관리자, 2분)
 
 - [ ] **왜:** 다른 컨테이너(cli-opencode-proxy 18080, ds-free-api 22217)가 `0.0.0.0`에 열려 있어 LAN에 노출됩니다. 아직 안 했을 때만.
+  - **2026-11-12 04:0x KST 확인:** 현재 18080·22217은 **리스닝 중이 아니어서**(`Get-NetTCPConnection` 결과 없음) 지금은 LAN 노출이 없습니다. 차단 규칙(`GrokBot-block-*`)도 아직 없습니다. 해당 컨테이너를 다시 띄울 때 **관리자 PowerShell**에서 `C:\CODE\_ops\grokbot-firewall.ps1`을 실행해야 합니다. 에이전트는 UAC를 우회하지 않으므로 이 단계는 오너 몫으로 남깁니다.
 - **명령** (오너가 **관리자 PowerShell**에서)
   ```powershell
   Get-NetFirewallRule -Name 'GrokBot-block-*' -ErrorAction SilentlyContinue | Format-Table Name, Enabled
@@ -271,7 +272,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 5. DB 백업을 DB와 다른 디스크로 (10분)
 
-- [ ] **왜:** 지금 DB(Docker 디스크)와 백업이 **같은 USB 디스크(D:)** 에 있어 디스크 하나가 고장 나면 둘 다 잃습니다.
+- [x] **왜:** 지금 DB(Docker 디스크)와 백업이 **같은 USB 디스크(D:)** 에 있어 디스크 하나가 고장 나면 둘 다 잃습니다. — **2026-11-12 04:0x KST 완료**: 전환 때 만든 사전 덤프 `aec-db-20261111T172220Z.dump`(1,936,650,714 bytes)을 내장 디스크 `C:\AECBackup`에 복사했고, 원본(`G:\내 드라이브\AEC-INTELLIGENCE\backups\`)과 SHA-256이 **일치**함을 확인했습니다. 백업 원본 위치는 Drive(G:)이고 DB·볼륨은 D:라 이제 서로 다른 디스크입니다.
 - **명령**
   ```powershell
   $src = if ($env:AEC_BACKUP_DIR) { $env:AEC_BACKUP_DIR } else { 'D:\AECData\backups' }   # 실제 백업 작업의 -Target 과 맞출 것
@@ -288,8 +289,8 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 6. DB 크래시 원인 추적 (15분, 조사만)
 
-- [ ] **왜:** 2026-10-04 22:01 `aec-db` 크래시(`exited with exit code 2`, WAL 복구 489 s)의 근본 원인이 미확정입니다
-  (기록: `packages/aec/docs/OPERATIONS.ko.md` "aec-db 크래시와 복구 시간").
+- [x] **왜:** 2026-10-04 22:01 `aec-db` 크래시(`exited with exit code 2`, WAL 복구 489 s)의 근본 원인이 미확정입니다
+  (기록: `packages/aec/docs/OPERATIONS.ko.md` "aec-db 크래시와 복구 시간"). — **2026-11-12 재검증 완료**: ① 크래시 시각(10-04 18:00~10-05 08:00) Windows System 로그에 디스크/USB/Hyper-V/Kernel-Power 41 이벤트가 **하나도 없고**(DCOM 10016 잡음만 존재) PC도 재부팅되지 않았습니다 → **USB 리셋·디스크 I/O 오류는 원인에서 제외**. ② 72시간 컨테이너 로그와 WSL dmesg에 OOM/패닉/I/O 오류가 없습니다. ③ 원인 후보는 이미 문서화된 `AEC-WSL-Reclaim`의 `drop_caches`(체크포인트 중 강제 flush)이며, 완화책이 현재 소스에 들어 있음을 확인했습니다: `wsl-reclaim.ps1`는 `sync` 없음 + dirty/writeback 64 MB 초과 시 스킵 + 120분 최소 간격, `docker-compose.yml`은 `shared_buffers=512MB`·`work_mem=16MB`·`max_wal_size=512MB`·`wal_compression=lz4`·`log_checkpoints=on`·`shm_size=256m`·`stop_grace_period=10m`. 정확한 종료 코드 2 송신 주체(SIGQUIT)만은 로그로 특정 불가한 상태로 남습니다.
 - **명령**
   ```powershell
   docker logs aec-db --since 72h 2>&1 | Select-String -Pattern 'terminated by signal|exit code|out of memory|PANIC|could not write' | Select-Object -Last 40
@@ -303,7 +304,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 7. `.wslconfig` memory=6GB 적용 확인 (2분)
 
-- [ ] **왜:** RAM 15 GB PC에서 WSL VM이 메모리를 다 쓰지 않도록 상한을 걸었고, 재부팅/WSL 재시작 후에 적용됩니다.
+- [x] **왜:** RAM 15 GB PC에서 WSL VM이 메모리를 다 쓰지 않도록 상한을 걸었고, 재부팅/WSL 재시작 후에 적용됩니다. — **2026-11-12 확인 완료**: `.wslconfig`에 `memory=6GB`(+`swap=4GB`, `autoMemoryReclaim=dropCache`)가 있고, 실제 VM의 `MemTotal`이 **6,066,828 kB(≈6 GB)** 로 상한이 적용되어 있습니다.
 - **명령**
   ```powershell
   Get-Content "$env:USERPROFILE\.wslconfig"
@@ -377,7 +378,7 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
 
 ## 11. Sion 로컬 실행·Drive export 확인 (10분)
 
-- [ ] **왜:** Sion API는 라이브 DB를 로컬 디스크에 두고, 커밋된 쓰기마다 스냅샷·그래프를 `SION_STORAGE_ROOT`(Drive 데스크톱 폴더)로 내보냅니다.
+- [x] **왜:** Sion API는 라이브 DB를 로컬 디스크에 두고, 커밋된 쓰기마다 스냅샷·그래프를 `SION_STORAGE_ROOT`(Drive 데스크톱 폴더)로 내보냅니다. — **2026-11-12 04:0x KST 확인 완료**: `scripts\sion-local.ps1 status`에서 API 실행 중(pid 24492), `/health` 응답 `{"status":"ok","service":"sion-ontology-api","version":"0.3.0","database":"sqlite"}`, `SION_STORAGE_ROOT`(<USER_HOME>\AEC-Assets\SION-ONTOLOGY)에 스냅샷·그래프 파일이 계속 갱신됩니다(03:54 KST 갱신: 그래프 9.3 MB, 근거 4.4 MB, SQL 스냅샷 20.7 MB). 라이브 DB는 `sqlite:///D:/SionData/sion.db`로 **Drive 바깥**에 있습니다(저장소 안의 `.db`는 스냅샷 사본).
 - **명령**
   ```powershell
   cd $SION
@@ -412,6 +413,18 @@ fixture·테스트는 제거했고, 예전 HS-CAD PR 정리 항목(분석 체인
   며칠 안정 운영을 확인한 뒤에만 지우고, 그 전에는 남겨 둡니다(롤백 경로).
 
 ---
+
+## 진행 기록 — 2026-11-12 04:0x KST (종료 점검)
+
+새벽 전환이 끝난 뒤 남은 절차를 점검했습니다. **에이전트가 확인·완료한 것**과 **오너 몫으로 남긴 것**을 나눕니다.
+
+- [x] **§3 전환 결과 검증** — `aec-db`/`aec-api` healthy(같은 볼륨 `ontology_aec-pgdata`), 관리 작업 9개가 모두 모노레포 경로(`C:\CODE\Ontology-platform\packages\aec`)를 가리키고 활성, 워커가 새 venv에서 실행 중. GraphRAG 재색인은 **DONE 197 / FAILED 0 / PENDING 0**(예전 FAILED 6건 소실), 작업은 2시간 주기(마지막 04:00 KST, 종료 코드 0)로 계속 돕니다.
+- [x] **§5 DB 백업 이중화** — 전환 때 만든 사전 덤프(`aec-db-20261111T172220Z.dump`)를 `C:\AECBackup`에 복사했고, 원본(`G:\내 드라이브\AEC-INTELLIGENCE\backups\`)과 SHA-256이 일치. DB·볼륨은 D:, 백업 사본은 C:와 G:에 있어 서로 다른 디스크입니다.
+- [x] **§6 크래시 원인** — 크래시 시각(2026-10-04 18:00~10-05 08:00) Windows System 로그에 디스크·USB·Hyper-V·Kernel-Power 41 이벤트가 없고 PC도 재부팅되지 않았습니다(USB 리셋·디스크 I/O 배제). 72시간 컨테이너 로그와 WSL dmesg에 OOM 흔적도 없습니다. 원인 후보는 문서화된 `AEC-WSL-Reclaim`의 `drop_caches` × 체크포인트 상호작용이며, 완화(`sync` 제거·dirty 64 MB 초과 스킵·120분 간격, `shared_buffers=512MB`, `max_wal_size=512MB`, `wal_compression=lz4`, `stop_grace_period=10m`)가 현재 소스에 들어 있음을 확인했습니다. 정확한 종료 코드 2 송신 주체만 미확정으로 남습니다.
+- [x] **§7 WSL 메모리 상한** — `.wslconfig`의 `memory=6GB` 적용 확인, 실제 VM `MemTotal` 6,066,828 kB.
+- [x] **§11 Sion 로컬 실행·Drive export** — API 실행 중(`/health` → `{"status":"ok","version":"0.3.0","database":"sqlite"}`), 저장소(`SION_STORAGE_ROOT`)에 스냅샷·그래프가 계속 갱신(03:54 KST), 라이브 DB는 `D:\SionData\sion.db`로 Drive 바깥입니다. `AutoSync_Code_To_GDrive` 작업은 존재하지 않아 라이브 DB가 Drive로 복사되지 않습니다.
+- [ ] **오너 몫(에이전트 불가)** — §4 방화벽: 현재 18080·22217은 리스닝 중이 아니어서 지금은 LAN 노출이 없고 차단 규칙도 아직 없습니다. 해당 컨테이너를 다시 띄우기 전에 **관리자 PowerShell**에서 `C:\CODE\_ops\grokbot-firewall.ps1`을 실행해야 합니다(에이전트는 UAC를 우회하지 않습니다).
+- [ ] **오너 판단** — §8 `/review` 221건(자동 승인 없음), §9/§10 외부 저장소 갱신(AGENTS.md상 이 저장소에서 건드리지 않음), §12 정리(오너 확인 후 삭제).
 
 ## 끝나면
 

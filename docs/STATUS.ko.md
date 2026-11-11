@@ -1,6 +1,6 @@
 # Sion Ontology Platform — 현재 상태 (한국어 요약)
 
-갱신: 2026-11-12 02:39 KST (Asia/Seoul). `origin/main` `7db62c5`(태그 `v0.3.0`)를 기준으로 다시 확인했다.
+갱신: 2026-11-12 04:00 KST (Asia/Seoul). `origin/main` `d972785`(태그 `v0.3.0`)를 기준으로 다시 확인했다.
 
 ## 아키텍처 (요약)
 
@@ -13,16 +13,16 @@
 7. **GraphRAG / 검색**: LightRAG 경계, 임베딩·벡터 검색(`sion_embedhub`는 #106, 2026-11-11 병합), AEC/CAIR 읽기 전용 페더레이션. 쓰기는 `write:knowledge` 스코프.
 8. **CI**: Tests(Ubuntu+Windows, uv.lock), Verify, AEC/CAD, Regulation(ArchOntos 핀·가드·브리지·마이그레이션), Public security, CircleCI pytest. agent-bridge Windows exe는 패키지 경로가 바뀔 때 빌드하고, 배포 파일은 Releases에 둔다.
 
-## 현재 상태 (2026-11-11 KST 재확인)
+## 현재 상태 (2026-11-12 KST 재확인)
 
-기준: `main` `7db62c5`(#132 병합, 2026-11-12 02:09 KST)이자 [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0) 태그 지점이다. 2026-10-08의 `e2bffe3`(#48)보다 커밋 257개가 앞에 있고, 전체 이력은 573커밋이다. 2026-11-11 밤부터 11-12 새벽 사이에 #106~#108, #112, #118, #115, #113, #101, #120, #122, #123, #125, #129, #130, #133, #121, #126, #131, #124, #132, #128이 모두 병합됐고, 각 병합은 체크 16~17개가 전부 완료·실패 0인 상태에서 이뤄졌다. 충돌이 있던 #124·#126은 main을 병합해 충돌을 합친 뒤 최종 초록을 확인했다. 열려 있는 PR은 #109(NVIDIA 페더레이션 드래프트)뿐이다. 이런 정리 작업의 표준 절차는 [`docs/ops/COMPLETION-PLAYBOOK.ko.md`](ops/COMPLETION-PLAYBOOK.ko.md)에 정리돼 있다.
+기준: `main` `d972785`(#109 병합, 2026-11-12 03:3x KST)이며 [v0.3.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.3.0) 태그 라인과 같다. 2026-10-08의 `e2bffe3`(#48)보다 커밋 259개가 앞에 있고, 전체 이력은 578커밋이다. 2026-11-11 밤부터 11-12 새벽 사이에 #106~#108, #112, #118, #115, #113, #101, #120, #122, #123, #125, #129, #130, #133, #121, #126, #131, #124, #132, #128, #135, #136, #109가 모두 병합됐고, 각 병합은 체크 16~20개가 전부 완료·실패 0인 상태에서 이뤄졌다. 충돌이 있던 #124·#126은 main을 병합해 충돌을 합친 뒤 최종 초록을 확인했고, #109는 main 기준으로 리베이스한 뒤 머지했다. **열려 있는 PR은 없다.** 이런 정리 작업의 표준 절차는 [`docs/ops/COMPLETION-PLAYBOOK.ko.md`](ops/COMPLETION-PLAYBOOK.ko.md)에 정리돼 있다.
 
 **10-08 이후 뼈대**
 - ArchOntos 기준은 루트 `pyproject.toml`·`uv.lock`·`docs/INTEGRATION_CONTRACTS.md`의 핀(`534367c`)이다. #119에서 `packages/regulation` 아래 복사본은 제거됐다.
 - `packages/aec`는 보관된 Ontology와 맞춰 두었다(#110, #114, #116, #117). Google Drive CAD GraphRAG 팩도 main에 있다(`e9bd7eb`).
-- 메인 PC 전환은 끝나지 않았다. 2026-10-09 `-Apply`는 venv 설치, DB 볼륨 유지, `\AEC\` 작업 XML 백업까지 하고, 예약 작업 재등록 전에 Windows PowerShell 5.1 따옴표 `SyntaxError`로 멈췄다. 다음 행동은 깨끗한 `main`에서 드라이런 다음 `-Apply`이다. `-SkipVenv`는 쓰지 않는다. 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md).
+- **메인 PC 전환은 끝났다.** 2026-11-12 02:21–02:34 KST에 `-Apply`를 끝까지 돌려 작업 XML 백업 → 드레인 → 사전 `pg_dump` → 같은 볼륨으로 db/api 재생성 → 마이그레이션 → venv 확인 → 작업 재등록까지 마쳤다(같은 볼륨 `ontology_aec-pgdata`). 재등록 직후 활성화 판정 버그로 9개 작업이 꺼져 있던 건은 수동 복구했고 [#135](https://github.com/khs0927/Ontology-platform/pull/135)가 고쳤다. 04:00 KST 검증 결과: API·컨테이너 healthy, 관리 작업 9개가 모노레포 경로, 워커가 새 venv에서 동작, GraphRAG 재색인은 **DONE 197 / FAILED 0**(예전 FAILED 6건 소실, 2시간 주기 실행). DB 백업은 `C:\AECBackup`에 해시 동일한 사본이 있고, 2026-10-04 크래시는 `drop_caches`×체크포인트 상호작용으로 좁혀졌으며(호스트 디스크/USB/Hyper-V 이벤트·OOM 흔적 없음) 완화는 현재 소스에 반영돼 있다. 절차는 [`docs/ops/MAIN-PC-TODO.ko.md`](ops/MAIN-PC-TODO.ko.md).
 - All-In-Cad #17(`agent/autocad-host-2027`)은 2026-10-29에 병합됐고 #18–#22도 병합됐다. 열린 PR은 없다.
-- zium-onboarding PR #2(템플릿 테스트 수정, 2026-10-08에 열림, 당시 CI 초록)는 오너가 검토하고 병합한다. 이 환경에서는 그 저장소가 보이지 않아 병합 여부는 다시 확인하지 못했다.
+- zium-onboarding PR #2는 2026-11-05에 오너가 병합했고 #3–#5도 뒤따라 병합됐다. 남은 PR은 없다.
 
 아래 "2026-10-08 저녁" 절의 테스트 숫자와 "체크 15개"는 그날의 기록이다.
 
