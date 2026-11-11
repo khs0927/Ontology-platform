@@ -96,9 +96,20 @@ def test_python_312_is_enforced_in_preflight_before_any_change():
 def test_legacy_targeting_tasks_are_never_re_enabled():
     text = SCRIPT.read_text(encoding="utf-8")
     loop = _section(text, "if (-not $DryRun) {\n    foreach ($t in (Get-AecTasks))", "# --- 10. AutoSync")
-    legacy_branch = loop[loop.index('if ($a -like "*$LegacyRoot*")'): loop.index("if ($t.State -eq 'Disabled')")]
+    legacy_branch = loop[loop.index("if (Test-TargetsLegacyPath $a $LegacyRoot)"): loop.index("if ($t.State -eq 'Disabled')")]
     assert "Disable-ScheduledTask" in legacy_branch and "continue" in legacy_branch
     assert "Enable-ScheduledTask" not in legacy_branch
+
+
+def test_legacy_path_check_does_not_match_the_monorepo_roots_longer_name():
+    # Live failure on 2026-11-12: the bare wildcard '*C:\CODE\Ontology*' also matched the
+    # freshly re-registered 'C:\CODE\Ontology-platform\...' actions, so all nine managed
+    # tasks were left disabled and starting AEC-GraphRAG-Refresh failed (exit 1). The
+    # check must anchor the root so a longer folder name cannot inherit it.
+    text = SCRIPT.read_text(encoding="utf-8")
+    helper = _section(text, "function Test-TargetsLegacyPath", "function Invoke-SwitchSelfTest")
+    assert "(?![-\\w])" in helper, "the root must not match inside a longer folder name"
+    assert '-like "*$LegacyRoot*"' not in text, "the bare substring match is the bug"
 
 
 @pytest.mark.parametrize("path", ["packages/aec/.venv.old-20260101-000000/pyvenv.cfg",
