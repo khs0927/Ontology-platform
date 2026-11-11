@@ -274,6 +274,16 @@ function Export-TaskXml($Task) {
     Write-Log "backed up $($Task.TaskPath)$($Task.TaskName) -> $file"
 }
 
+# "$LegacyRoot" is a strict prefix of "$LegacyRoot-platform", so a bare wildcard
+# match flags the freshly re-registered monorepo tasks as legacy and leaves them
+# disabled (seen live on 2026-11-12: the -Apply then died starting AEC-GraphRAG-Refresh).
+# Match the root only when the next character cannot extend the folder name
+# (separator, quote, bracket, whitespace or end of string).
+function Test-TargetsLegacyPath([string]$Text, [string]$Root) {
+    if (-not $Text) { return $false }
+    return $Text -match ([regex]::Escape($Root) + '(?![-\w])')
+}
+
 function Invoke-SwitchSelfTest {
     $onWindows = $true
     if (Test-Path variable:IsWindows) { $onWindows = $IsWindows }
@@ -297,6 +307,16 @@ function Invoke-SwitchSelfTest {
         }
         Write-Host "parsed $path"
     }
+    $legacyCases = @(
+        @{ Text = 'powershell.exe -File "C:\CODE\Ontology\scripts\ops\bulk-run.ps1" [C:\CODE\Ontology]'; Want = $true },
+        @{ Text = 'powershell.exe -File "C:\CODE\Ontology-platform\packages\aec\scripts\ops\bulk-run.ps1" [C:\CODE\Ontology-platform\packages\aec]'; Want = $false },
+        @{ Text = 'powershell.exe -File D:\AECData\dev\db-tune.ps1 [C:\CODE\Ontology]'; Want = $true }
+    )
+    foreach ($c in $legacyCases) {
+        $got = Test-TargetsLegacyPath $c.Text 'C:\CODE\Ontology'
+        if ($got -ne [bool]$c.Want) { throw "legacy path check: got [$got], want [$($c.Want)] for [$($c.Text)]" }
+    }
+    Write-Host 'legacy path prefix check ok (the root is not matched inside a longer folder name)'
     $python = Resolve-NativeExe 'python'
     if ($python -eq 'python') {
         $found = Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -424,7 +444,7 @@ if (-not $SkipVenv) {
 $tasks = Get-AecTasks
 foreach ($t in $tasks) {
     $args0 = ($t.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments) [$($_.WorkingDirectory)]" }) -join ' | '
-    $legacy = $args0 -like "*$LegacyRoot*"
+    $legacy = Test-TargetsLegacyPath $args0 $LegacyRoot
     Write-Log ("task {0}{1} state={2} legacy={3}" -f $t.TaskPath, $t.TaskName, $t.State, $legacy)
 }
 $autoSync = @(Get-ScheduledTask -TaskName $AutoSyncTask -ErrorAction SilentlyContinue)
@@ -617,7 +637,7 @@ foreach ($name in $StaleTasks) {
 if (-not $DryRun) {
     foreach ($t in (Get-AecTasks)) {
         $a = ($t.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments) $($_.WorkingDirectory)" }) -join ' '
-        if ($a -like "*$LegacyRoot*") {
+        if (Test-TargetsLegacyPath $a $LegacyRoot) {
             # Not managed by the register scripts and still running archived code against the live DB:
             # keep it disabled (XML backup above) until it is migrated by hand.
             if ($t.State -ne 'Disabled') {
