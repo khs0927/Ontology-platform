@@ -28,6 +28,26 @@ jobs:
             /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
           df -h /
 
+      - name: Use public DNS resolvers for Docker builds
+        run: |
+          # Same runner DNS blip as the official live workflow: archive.ubuntu.com
+          # can become unresolvable inside build containers. Point Docker at public
+          # resolvers before any compose service exists; undo it if it fails.
+          if [ -f /etc/docker/daemon.json ]; then sudo cp /etc/docker/daemon.json /tmp/daemon.json.orig; fi
+          sudo mkdir -p /etc/docker
+          sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+          {
+            "dns": ["1.1.1.1", "8.8.8.8"]
+          }
+          EOF
+          if ! sudo systemctl restart docker || ! timeout 90 bash -c 'until docker info >/dev/null 2>&1; do sleep 2; done'; then
+            echo "Docker did not come back with the DNS override; restoring previous config" >&2
+            if [ -f /tmp/daemon.json.orig ]; then sudo cp /tmp/daemon.json.orig /etc/docker/daemon.json; else sudo rm -f /etc/docker/daemon.json; fi
+            sudo systemctl restart docker
+            timeout 90 bash -c 'until docker info >/dev/null 2>&1; do sleep 2; done'
+          fi
+          docker info >/dev/null
+
       - name: Checkout Sion isolated PR
         uses: actions/checkout@v7.0.1
 

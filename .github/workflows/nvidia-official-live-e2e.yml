@@ -26,6 +26,28 @@ jobs:
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
           df -h /
 
+      - name: Use public DNS resolvers for Docker builds
+        run: |
+          # The pinned upstream Dockerfiles apt-get from Ubuntu during the image
+          # build. When the runner resolver blips, archive.ubuntu.com becomes
+          # unresolvable inside build containers and the build fails before any
+          # Sion or NVIDIA assertion. No compose service exists yet, so a dockerd
+          # reload here is safe. Restore the runner config if it does not boot.
+          if [ -f /etc/docker/daemon.json ]; then sudo cp /etc/docker/daemon.json /tmp/daemon.json.orig; fi
+          sudo mkdir -p /etc/docker
+          sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
+          {
+            "dns": ["1.1.1.1", "8.8.8.8"]
+          }
+          EOF
+          if ! sudo systemctl restart docker || ! timeout 90 bash -c 'until docker info >/dev/null 2>&1; do sleep 2; done'; then
+            echo "Docker did not come back with the DNS override; restoring previous config" >&2
+            if [ -f /tmp/daemon.json.orig ]; then sudo cp /tmp/daemon.json.orig /etc/docker/daemon.json; else sudo rm -f /etc/docker/daemon.json; fi
+            sudo systemctl restart docker
+            timeout 90 bash -c 'until docker info >/dev/null 2>&1; do sleep 2; done'
+          fi
+          docker info >/dev/null
+
       - name: Checkout isolated Sion branch
         uses: actions/checkout@v7.0.1
 
