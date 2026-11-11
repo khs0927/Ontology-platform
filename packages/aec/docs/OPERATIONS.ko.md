@@ -260,3 +260,19 @@ docker compose up -d --no-deps --force-recreate api
 powershell -ExecutionPolicy Bypass -File C:\CODE\_ops\grokbot-firewall.ps1
 # 되돌리기: Remove-NetFirewallRule -Name GrokBot-block-18080, GrokBot-block-22217
 ```
+
+## 11. 재부팅·절전 후 전체 재개 (`resume-all.ps1`)
+
+이 스크립트는 운영 PC에서 수동으로 한 번 실행해 Docker/DB, Ollama, 워커, storey backfill을 순서대로 재개합니다. 예약 작업을 등록하거나 정기 반복 실행하지 않습니다. `-Resume`을 지정하면 `STOP-WORKERS`를 지우지 않고 `STOP-WORKERS.resumed-<시각>`으로 이름을 바꿉니다. 기존 게이트가 있고 `-Resume`이 없으면 워커 단계는 건너뜁니다. `-AfterDrain`은 큐 처리와 backfill 뒤에 `kg-build --force`를 추가합니다.
+
+운영 데이터와 로컬 설정을 사용하는 명령이므로 CI나 승인되지 않은 데이터에서 실행하지 마세요. `sources.json`은 비공개 경로 목록이므로 저장소에 넣지 않습니다. 스크립트는 Docker 컨테이너·볼륨을 제거하지 않고 예약 작업도 변경하지 않습니다.
+
+모노레포 루트에서 실행:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\resume-all.ps1 -Resume
+# 큐가 비워진 뒤 지식그래프까지 재생성하려면
+powershell -ExecutionPolicy Bypass -File packages\aec\scripts\ops\resume-all.ps1 -Resume -AfterDrain
+```
+
+`-Config`, `-LogDir`, `-Workers`, `-GbPerWorker`, `-MemoryWaitMin`, `-DockerWaitMin`, `-OllamaWaitMin`은 필요 시 명시적으로 덮어쓸 수 있습니다. `-Config` 기본값은 기존 `bulk-run.ps1`의 비공개 `sources.json` 위치를 사용합니다.
