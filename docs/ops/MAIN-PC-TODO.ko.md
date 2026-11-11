@@ -33,9 +33,22 @@
 
 - [x] Docker Desktop 기동 후 `aec-db` 확인: compose project `ontology`, DB 볼륨 `ontology_aec-pgdata`, 2026-11-09 23:31 KST에 정상 종료(exited 0). 볼륨은 그대로입니다.
 - [x] PR #121의 수정 스크립트로 **2-1 드라이런** 실행(별도 worktree, `-LegacyRoot C:\CODE\Ontology -AllowNotMain`). 결과: `compose project=ontology db volume=ontology_aec-pgdata` — `docker inspect aec-db`와 일치. `[DRY-RUN] would ...` 계획만 출력하고 변경 없음.
-- [ ] **2-2 `-Apply`는 아직.** 운영 체크아웃 `C:\CODE\Ontology-platform`이 `feat/regulation-gateway-bridge@46228e8`(origin/main보다 175커밋 뒤) + 로컬 수정 4건이라 preflight(깨끗한 `main`)를 통과하지 못합니다. PR #121 병합 후 1절 절차(백업 번들→stash→`reset --hard origin/main`)로 정리한 뒤 실행합니다.
-- [ ] `\AEC\` 작업은 여전히 15개 모두 예전/임시 경로를 가리킵니다(레거시 참조 11개, `D:\AECData\dev` 참조 4개, monorepo 경로 0개). 재등록은 2-2가 끝나야 합니다.
+- [x] **2-2 `-Apply`는 2026-11-12 02:21–02:38에 실행해 끝냈습니다.** 기록은 아래 2026-11-12 절.
+- [x] 예약 작업 재등록 완료(2026-11-12 02:38): 관리 작업 9개가 모두 `C:\CODE\Ontology-platform\packages\aec`를 가리킵니다. 아래 2026-11-12 절 참고.
 - [ ] `/review` 실측(2026-11-11, `D:\SionData\sion.db` 읽기 전용): 대기 **221건** = SketchUp 214 + map 7. map 43건 중 36건은 이미 승인, 거절 0. guideline 후보 844건은 DB에 있으나 API가 `source_kind in (inferred, imported)`만 보여 화면에 나오지 않습니다.
+
+## 진행 기록 — 2026-11-12 새벽 (Asia/Seoul)
+
+**모노레포 전환을 끝냈습니다.** 1절 정리 → 2-1 드라이런 → 2-2 `-Apply` → 3절 검증까지 통과.
+
+- [x] **1절(운영 체크아웃 정리)**: `C:\CODE\Ontology-platform`을 백업 후 깨끗한 `main`(`7db62c5`)으로 정리. 이전 상태는 번들(`%USERPROFILE%\sion-bundles\Ontology-platform-pre-reset-20261112-021920.bundle`, 144 refs) + stash(`pre-reset-20261112-021920`) + 파일 사본으로 보존. `feat/regulation-gateway-bridge@46228e8`은 이미 origin/main에 포함돼 있어 손실 없음.
+- [x] **2-1 드라이런(02:20)**: 운영 체크아웃에서 **경고 0건**. `compose project=ontology db volume=ontology_aec-pgdata` 확인.
+- [x] **2-2 `-Apply`(02:21–02:38)**: 작업 XML 15개 백업(`D:\AECData\switch-backup\20261112-022144`) → 워커 드레인 → 사전 안전 pg_dump(`G:\내 드라이브\AEC-INTELLIGENCE\backups\aec-db-20261111T172220Z.dump`) → `.env` 복사(구 파일은 `.env.bak-20261112-022144`) → api 이미지 빌드 → **같은 볼륨으로 db/api 재생성**(컨테이너 라벨 workdir=`...\Ontology-platform\packages\aec`) → migrate → **venv 재생성 + `venv ok`**(2026-10-09의 실패 지점 통과) → 작업 재등록.
+- [x] **검증 단계 버그 수복**: 재등록 직후의 활성화 판정이 부분문자열 버그(`C:\CODE\Ontology`가 `C:\CODE\Ontology-platform`에도 매치)로 관리 작업 9개를 Disabled로 남기고 GraphRAG 시작이 `0x80041326`으로 실패(종료 코드 1). 수정은 PR #135. 수동 마무리: 관리 작업 9개 Enable, 오인 활성화된 DEV 원샷 3개(AEC-Ops-DeployApi/DeployFinal/FinalAB) Disabled 원복, `stop-workers.ps1 -Resume`(STOP 마커 해제), `AEC-GraphRAG-Refresh` 수동 시작.
+- [x] **3절 검증(02:41)**: `/healthz ok`(bge-m3 정상), kg stats 유지, **communities DONE 187**(예전 FAILED 6건 소실), `\AEC\` 관리 작업 9개 전부 모노레포 경로 + 활성, `AEC-GraphRAG-Refresh` 재색인 Running, 워커가 새 venv에서 실행(`run-workers`, `bulk-census` 프로세스 확인). DEV 원샷 4개(`AEC-Ops-DbTune/DeployApi/DeployFinal/FinalAB`)는 Disabled 잔존 — 삭제 여부는 오너 판단.
+- [x] **5절 일부**: 최신 덤프 사본을 `C:\AECBackup\aec-db-20261111T172220Z.dump`에 저장(해시 일치 확인).
+- [x] **7절**: `.wslconfig memory=6GB` 적용 확인(`docker-desktop` MemTotal ≈ 6.07 GB).
+- [ ] 남은 오너 항목: **§4 방화벽(18080/22217, 관리자)**, §6 aec-db 크래시 원인 추적, §8 `/review` 221건 판정(Sion API는 `scripts\sion-local.ps1 start`, 포트 **8011** — 이 PC의 8010은 korean-law-router가 점유), v0.3.0 태그 생성(#129 메타데이터는 병합됨, 태그는 별도).
 
 ### 전환이 중단된 원인
 
