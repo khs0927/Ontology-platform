@@ -1,12 +1,12 @@
 # Sion Ontology Platform — Status
 
-Updated: 2026-11-12 00:12 KST (Asia/Seoul). Re-checked against `origin/main` `2d69e2e`.
+Updated: 2026-11-12 00:14 KST (Asia/Seoul). Re-checked against `origin/main` `bd3e932`.
 
 ## Current state (re-checked 2026-11-12 KST)
 
-Base: `main` at `2d69e2e` (merge of [#101](https://github.com/khs0927/Ontology-platform/pull/101), 2026-11-11 23:55 KST). The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **244 commits** behind. History length: 560 commits. Release tag is still **[v0.2.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0)** (2026-10-07); [#129](https://github.com/khs0927/Ontology-platform/pull/129) prepares v0.3.0 metadata but does not create a tag.
+Base: `main` at `bd3e932` (merge of [#123](https://github.com/khs0927/Ontology-platform/pull/123), 2026-11-12 00:12 KST). The previously documented base `e2bffe3` ([#48](https://github.com/khs0927/Ontology-platform/pull/48), 2026-10-08) is **247 commits** behind. History length: 563 commits. Release tag is still **[v0.2.0](https://github.com/khs0927/Ontology-platform/releases/tag/v0.2.0)** (2026-10-07); [#129](https://github.com/khs0927/Ontology-platform/pull/129) prepares v0.3.0 metadata but does not create a tag.
 
-Merge wave on 2026-11-11 (KST): [#106](https://github.com/khs0927/Ontology-platform/pull/106) 22:49, #107 22:50, #108 23:00, #112 and #118 23:08, [#128](https://github.com/khs0927/Ontology-platform/pull/128) 23:54, then [#115](https://github.com/khs0927/Ontology-platform/pull/115), [#113](https://github.com/khs0927/Ontology-platform/pull/113) and [#101](https://github.com/khs0927/Ontology-platform/pull/101) 23:55.
+Merge wave on 2026-11-11/12 (KST): [#106](https://github.com/khs0927/Ontology-platform/pull/106) 22:49, #107 22:50, #108 23:00, #112 and #118 23:08, [#128](https://github.com/khs0927/Ontology-platform/pull/128) 23:54, [#115](https://github.com/khs0927/Ontology-platform/pull/115), [#113](https://github.com/khs0927/Ontology-platform/pull/113), [#101](https://github.com/khs0927/Ontology-platform/pull/101) 23:55, then [#120](https://github.com/khs0927/Ontology-platform/pull/120), [#122](https://github.com/khs0927/Ontology-platform/pull/122) and [#123](https://github.com/khs0927/Ontology-platform/pull/123) 00:12.
 
 ### Shape of the tree since 2026-10-08
 
@@ -24,19 +24,16 @@ Tests: pytest; pytest (windows-latest, all extras); uv.lock check + locked insta
 
 All merges above landed with this set green. #128 removed the `apt`/DNS flake that had reddened every PR's Verify job. ArchOntos Helm render and ArchOntos lint/types run in the ArchOntos repository.
 
-### Open pull requests (eleven besides this one)
+### Open pull requests (eight besides this one)
 
-Eleven besides #121 against `2d69e2e` at this snapshot; #124 and #109 are `CONFLICTING`, the rest `MERGEABLE`, and #120, #122 and #123 have already gone **CLEAN**. Other agents are opening PRs concurrently, so re-check the count before merging. #128 (merged) removed the apt/DNS flake, so a failing Verify job before 23:54 only needs a re-run.
+Eight besides #121 against `bd3e932` at this snapshot. The live list is always https://github.com/khs0927/Ontology-platform/pulls: #120, #122 and #123 merged at 00:12 KST while this snapshot was being written, and other agents keep opening and merging. #128 (merged) removed the apt/DNS flake, so a failing Verify job before 23:54 only needs a re-run.
 
-| PR | State | CI / notes at 2026-11-12 00:12 KST |
+| PR | State | CI / notes at 2026-11-12 00:14 KST |
 |---|---|---|
-| [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | `CONFLICTING`; NVIDIA live checks fail; the owner wrote "merge not planned" |
-| [#120](https://github.com/khs0927/Ontology-platform/pull/120) | ready | graphrag audit-preview wording; tests-only change |
-| [#122](https://github.com/khs0927/Ontology-platform/pull/122) | ready | embedhub drawing benchmark, one command; live NVIDIA run not verified |
-| [#123](https://github.com/khs0927/Ontology-platform/pull/123) | ready | read-only API deployment (#71); flag defaults off, 19 tests |
-| [#124](https://github.com/khs0927/Ontology-platform/pull/124) | ready | `CONFLICTING` after #115 merged; overlaps #115's model-unchanged checker |
-| [#125](https://github.com/khs0927/Ontology-platform/pull/125) | ready | `/review` backlog in one sitting; must merge before #126 |
-| [#126](https://github.com/khs0927/Ontology-platform/pull/126) | ready | real pytest failure: `tests/test_review_concurrency.py:189` (`refreshCounts()` contract); needs #125 first |
+| [#109](https://github.com/khs0927/Ontology-platform/pull/109) | draft | NVIDIA Auto Ontology; had conflicts after the merge wave; the owner wrote "merge not planned" |
+| [#124](https://github.com/khs0927/Ontology-platform/pull/124) | ready | SketchUp ingest; was `CONFLICTING` after #115 merged, re-check after its latest update |
+| [#125](https://github.com/khs0927/Ontology-platform/pull/125) | ready | `/review` backlog in one sitting; merge before #126 |
+| [#126](https://github.com/khs0927/Ontology-platform/pull/126) | ready | `/review` ranking; its `refreshCounts()` pytest contract failure needs the #125-based rebase |
 | [#129](https://github.com/khs0927/Ontology-platform/pull/129) | ready | v0.3.0 release metadata (squash-merge; no tag in the PR) |
 | [#130](https://github.com/khs0927/Ontology-platform/pull/130) | ready | apt retry hardening for the remaining `aec.yml` installs |
 | [#131](https://github.com/khs0927/Ontology-platform/pull/131) | ready | informational pytest coverage; no threshold gate |
@@ -62,7 +59,7 @@ Eleven besides #121 against `2d69e2e` at this snapshot; #124 and #109 are `CONFL
 5. Run the ops firewall script as admin (ports 18080 / 22217) and copy DB dumps off the USB disk that holds the DB.
 6. Decide whether dump/`skp_path` local paths stay in the pinned SketchUp data files (issue #33).
 7. Bring PC checkouts made before 12:23 KST on 2026-10-08 onto the rewritten history (backup, then `fetch` + `reset --hard origin/main`) or archive them; do not push from them meanwhile.
-8. The 19 remote branches left on 2026-10-08 because they still had commits outside `main` are still present (names in the historical "Branch cleanup" section). Decide whether to keep or delete them. Merged PR branches are auto-deleted; 62 heads remained on the remote at this check.
+8. The 19 remote branches left on 2026-10-08 because they still had commits outside `main` are still present (names in the historical "Branch cleanup" section). Decide whether to keep or delete them. Merged PR branches are auto-deleted; 60 heads remained on the remote at this check.
 
 ## Current state (re-checked 2026-10-08 22:00 KST) — historical snapshot
 
