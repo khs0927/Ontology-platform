@@ -85,11 +85,24 @@ class Database:
             statement_timeout_seconds = self.statement_timeout_seconds
         timeout = max(0, int(statement_timeout_seconds))
         extra = {"application_name": self.application_name} if self.application_name else {}
+        # Read-only is opt-in (AEC_API_READ_ONLY). The PC path never sets it and keeps the
+        # three setup statements below in the request transaction, exactly as before.
+        # LOAD is not allowed inside a transaction that is already read-only, and
+        # default_transaction_read_only applies to the *next* transaction, so the mobile
+        # path runs setup in autocommit and only then starts a read-only transaction.
+        from .config import env_flag
+
+        read_only = env_flag("AEC_API_READ_ONLY")
         with psycopg.connect(self.dsn, row_factory=dict_row, connect_timeout=self.connect_timeout_seconds,
                              **extra) as conn:
+            if read_only:
+                conn.autocommit = True
             conn.execute("LOAD 'age'")
             conn.execute('SET search_path = ag_catalog, aec, public')
             conn.execute(f"SET statement_timeout = '{timeout}s'")
+            if read_only:
+                conn.execute("SET default_transaction_read_only = on")
+                conn.autocommit = False
             yield conn
 
     def initialize(self):
