@@ -387,6 +387,31 @@ def test_capture_that_changed_the_model_fails(tree):
     assert ("model-modified", "hierarchy.json") not in _checks(tree)  # already dirty: a warning, not a failure
 
 
+def test_geometry_probe_meta_participates_in_model_modified(tree):
+    """geom_probe.rb stores the pair in ``_meta``; ``_meta`` is not a probed definition (#115 follow-up B)."""
+    ns_dir = tree / NS_DIR
+    probe = ns_dir / "geometry_probe.json"
+    _edit_json(probe, lambda d: d.update(
+        _meta={"tool": "grokbot read-only geometry probe v1", "modified_before": False, "modified_after": True}))
+    checks = _checks(tree)
+    assert ("model-modified", "geometry_probe.json") in checks
+    assert ("hierarchy-order", "geometry_probe.json") not in checks
+
+    _edit_json(probe, lambda d: d["_meta"].update(modified_before=True, modified_after=True))
+    assert "geometry_probe.json" in {Path(w["path"]).name for w in preflight_warnings(NS, tree)}
+    assert ("model-modified", "geometry_probe.json") not in _checks(tree)  # already dirty: a warning only
+
+
+def test_producer_scripts_record_the_model_state_pair():
+    """Ruby cannot run here or in CI, so pin the capture contract each producer script must write."""
+    scripts = ROOT / "scripts/sketchup"
+    for name in ("dump_model.rb", "geom_probe.rb", "grouping_probe.rb", "export_objects.rb"):
+        text = (scripts / name).read_text(encoding="utf-8")
+        assert "modified_before" in text and "modified_after" in text, name
+    export = (scripts / "export_objects.rb").read_text(encoding="utf-8")
+    assert export.index("objects.json") < export.index("hierarchy.json")  # hierarchy written after the export
+
+
 def test_dirty_model_capture_is_a_warning(tree):
     ns_dir = tree / NS_DIR
     warned = {Path(w["path"]).name for w in preflight_warnings(NS, tree)}
