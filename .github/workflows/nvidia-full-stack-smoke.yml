@@ -64,11 +64,20 @@ jobs:
       - name: Build and boot actual NVIDIA frontend, backend and ingestion
         working-directory: nvidia
         run: |
-          docker compose -f docker-compose.yml -f \
-            ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml \
-            up -d --build --wait auto-ontology-frontend
-          docker compose -f docker-compose.yml -f \
-            ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml ps
+          # Same Ubuntu mirror DNS blip as the official live workflow: retry the
+          # image build, then still fail if the upstream Dockerfile is broken.
+          compose=(docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml)
+          for attempt in 1 2 3; do
+            if "${compose[@]}" up -d --build --wait auto-ontology-frontend; then
+              break
+            fi
+            echo "NVIDIA image build attempt ${attempt} failed"
+            if [ "$attempt" = 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 20))
+          done
+          "${compose[@]}" ps
 
       - name: Set up Python/uv for Sion API
         uses: astral-sh/setup-uv@v10.2.0

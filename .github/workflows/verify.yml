@@ -63,8 +63,18 @@ jobs:
 
       - name: Install PostgreSQL client
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes postgresql-client
+          # GitHub-hosted runners occasionally fail to resolve archive.ubuntu.com.
+          # Retry the mirror fetch; a missing package still fails on the last try.
+          for attempt in 1 2 3; do
+            if sudo apt-get update && sudo apt-get install --yes postgresql-client; then
+              exit 0
+            fi
+            echo "apt mirror attempt ${attempt} failed"
+            if [ "$attempt" = 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 15))
+          done
 
       - name: Wait for PostgreSQL
         run: |

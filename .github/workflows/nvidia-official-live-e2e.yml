@@ -66,7 +66,21 @@ jobs:
       - name: Build and boot actual NVIDIA frontend, backend and ingestion
         working-directory: nvidia
         run: |
-          docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml up -d --build --wait auto-ontology-frontend
+          # Upstream images apt-get from Ubuntu during docker build. A runner DNS
+          # blip makes archive.ubuntu.com unresolvable and fails the step before
+          # any Sion or NVIDIA assertion. Retry that fetch; a real package or
+          # compile error still fails after the last attempt.
+          compose=(docker compose -f docker-compose.yml -f ../integrations/nvidia-auto-ontology/ci/docker-compose.ci.yml)
+          for attempt in 1 2 3; do
+            if "${compose[@]}" up -d --build --wait auto-ontology-frontend; then
+              exit 0
+            fi
+            echo "NVIDIA image build attempt ${attempt} failed"
+            if [ "$attempt" = 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 20))
+          done
 
       - name: Set up Sion Python HTTP test environment
         uses: astral-sh/setup-uv@v10.2.0
