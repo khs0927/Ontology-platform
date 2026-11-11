@@ -9,11 +9,12 @@ import sys
 from pathlib import Path
 
 import pytest
-from sion_ingestion.sketchup_assets import DEFAULTS, REGISTRY_REL, load_registry
+from sion_ingestion.sketchup_assets import DEFAULTS, REGISTRY_REL, SketchUpAssetError, load_registry
 from sion_ingestion.sketchup_collection import (
     MANIFEST_SCHEMA_FILE,
     CollectionError,
     build_namespace,
+    main,
     manifest_path,
     manifest_text,
     personal_paths,
@@ -382,3 +383,16 @@ def test_supplement_candidates_need_an_evidence_locator(tree):
 def test_v1_classification_overlay_does_not_require_a_locator(tree):
     _edit_json(tree / NS_DIR / "classification.json", lambda d: d["assignments"][0].pop("hierarchy_locator", None))
     assert not [f for f in preflight(NS, tree) if "hierarchy_locator" in f["message"]]
+
+
+def test_preflight_cli_prints_findings_when_the_registry_cannot_load(monkeypatch, capsys):
+    import sion_ingestion.sketchup_collection as collection
+
+    def broken(root=collection.ROOT):
+        raise SketchUpAssetError("registry schema rejected")
+
+    monkeypatch.setattr(collection, "load_registry", broken)
+    assert main(["preflight"]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert report["ok"] is False and report["warnings"] == []
+    assert any(f["check"] == "registry" for f in report["findings"])

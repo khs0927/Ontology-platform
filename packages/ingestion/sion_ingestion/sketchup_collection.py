@@ -855,7 +855,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "preflight":
             findings = preflight(args.namespace, build=args.build)
-            namespaces = [args.namespace] if args.namespace else sorted(load_registry(ROOT))
+            try:
+                # A schema error is already a finding. Loading again must not replace that JSON with a traceback.
+                namespaces = [args.namespace] if args.namespace else sorted(load_registry(ROOT))
+            except SketchUpAssetError:
+                namespaces = []
             warnings = [w for ns in namespaces for w in preflight_warnings(ns)]
             report = {"ok": not findings, "findings": findings, "warnings": warnings}
             print(json.dumps(report, ensure_ascii=False, indent=1))
