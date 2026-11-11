@@ -60,9 +60,10 @@ This platform automatically discovers and ingests interaction sessions from mult
 
 ## Integration Policy
 
-This repository is the **main monorepo**. ArchOntos (`packages/regulation`), Ontology / `aec_intelligence`
-(`packages/aec`) and GOD-CAD (`packages/cad/god-cad`) were merged with full history via `git subtree`
-(see [`packages/README.md`](packages/README.md)). Five repositories stay separate and are **bridged by
+This repository is the **main monorepo**. Ontology / `aec_intelligence` (`packages/aec`) and GOD-CAD
+(`packages/cad/god-cad`) were merged with full history via `git subtree`
+(see [`packages/README.md`](packages/README.md)). ArchOntos is consumed as a **pinned git dependency**
+(`archontos`, `regulation` extra; pin in [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md)). Five repositories stay separate and are **bridged by
 versioned contracts**: power-cad-mcp, hs-steel-cad, korean-land-mcp, All-In-Cad and CAD-MCP.
 HS-CAD is retired; power-cad-mcp is the only active CAD host bridge.
 See [`docs/INTEGRATION_CONTRACTS.md`](docs/INTEGRATION_CONTRACTS.md). JSON Schemas ship in
@@ -182,7 +183,7 @@ See [`packages/README.md`](packages/README.md) for the package map.
 | `bim` (alias `ifc`) | ifcopenshell >=0.9 | built-in STEP text parser |
 | `rag` (alias `graphrag`) | lightrag-hku 1.5.7, asyncpg 0.32.0, pgvector 0.5.0 | GraphRAG routes return 503 |
 | `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works (changed Drive files are first copied to `.history/<UTC stamp>/`) |
-| `regulation` | pydantic-settings, sqlalchemy[asyncio], asyncpg, … (ArchOntos services) | `/api/v1/regulation/evaluate` returns 503 |
+| `regulation` | `archontos` (pinned git dependency) + pydantic-settings, sqlalchemy[asyncio], asyncpg, … | `/api/v1/regulation/evaluate` returns 503 |
 | `documents` | pypdf >=6.19, python-docx >=1.2 | DOCX via the built-in OOXML reader; PDFs reported as `skipped` |
 | `validation` | rdflib >=7.6, pyshacl >=0.40.1 | `GET /api/v1/validation/shacl` returns 503 |
 | `all` | all of the above | |

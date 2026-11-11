@@ -9,8 +9,10 @@
     \AEC\AEC-GraphRAG-Refresh  graphrag.ps1 refresh (incremental kg-build, kg-summarize incl. FAILED retries,
                           kg-stats) 10 min after logon + every -GraphRagEveryHours h; IgnoreNew + a named mutex
                           (no overlap), 3 h limit, low priority, yields to interactive queries
+    \AEC\AEC-Docker-Startup  start-docker.ps1 once at logon: requests Docker Desktop only when neither the
+                          Desktop nor the backend process exists (never restarts it; not a watchdog), 2 min limit
 .PARAMETER Only
-  Register just these tasks (Ollama, Reembed, WslReclaim, GraphRag). Default: all four.
+  Register just these tasks (Ollama, Reembed, WslReclaim, GraphRag, DockerStartup). Default: all five.
   Re-registering AEC-Ollama restarts nothing by itself, but the next trigger starts the new action
   only after the running server exits; restart it with Stop-/Start-ScheduledTask when convenient.
 .EXAMPLE
@@ -18,7 +20,7 @@
   powershell -ExecutionPolicy Bypass -File scripts\ops\register-host-tasks.ps1 -OllamaHome C:\AECLocal\Ollama
 #>
 param(
-    [ValidateSet('Ollama', 'Reembed', 'WslReclaim', 'GraphRag')][string[]]$Only = @('Ollama', 'Reembed', 'WslReclaim', 'GraphRag'),
+    [ValidateSet('Ollama', 'Reembed', 'WslReclaim', 'GraphRag', 'DockerStartup')][string[]]$Only = @('Ollama', 'Reembed', 'WslReclaim', 'GraphRag', 'DockerStartup'),
     [string]$OllamaHome = 'C:\AECLocal\Ollama',
     [string]$OllamaLog = 'D:\AECData\ollama-logs\serve.log',
     [int]$ReembedEveryMin = 30,
@@ -45,6 +47,8 @@ function Repeating([int]$Minutes) {
     $t = New-ScheduledTaskTrigger -Daily -At '00:00'
     $t.Repetition = (New-ScheduledTaskTrigger -Once -At '00:00' -RepetitionInterval (New-TimeSpan -Minutes $Minutes) `
         -RepetitionDuration (New-TimeSpan -Days 1)).Repetition
+    # Repetition is a watchdog; a day boundary must not terminate a live task.
+    $t.Repetition.StopAtDurationEnd = $false
     $t
 }
 
@@ -73,6 +77,12 @@ if ($Only -contains 'GraphRag') {
     $logon = New-ScheduledTaskTrigger -AtLogOn -User $user
     $logon.Delay = 'PT10M'  # let Ollama/Docker settle after logon
     Register-AecTask 'AEC-GraphRAG-Refresh' 'graphrag.ps1' 'refresh' @($logon, (Repeating ($GraphRagEveryHours * 60))) $s
+}
+if ($Only -contains 'DockerStartup') {
+    # Logon only: if the user quits Docker Desktop it stays quit (see docs/OPERATIONS.ko.md).
+    $s = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable `
+        -ExecutionTimeLimit (New-TimeSpan -Minutes 2) -MultipleInstances IgnoreNew
+    Register-AecTask 'AEC-Docker-Startup' 'start-docker.ps1' '' @(New-ScheduledTaskTrigger -AtLogOn -User $user) $s
 }
 if ($Start) { foreach ($n in $registered) { Start-ScheduledTask -TaskPath '\AEC\' -TaskName $n } }
 Get-ScheduledTask -TaskPath '\AEC\' | Select-Object TaskName, State | Format-Table -AutoSize

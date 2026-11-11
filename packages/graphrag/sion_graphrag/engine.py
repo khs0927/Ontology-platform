@@ -8,6 +8,7 @@ provider packages at runtime.
 from __future__ import annotations
 
 import os
+from contextlib import nullcontext
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Awaitable, Callable
@@ -49,6 +50,8 @@ class GraphRagConfig:
     llm_model: str | None = None
     llm_base_url: str | None = None
     llm_api_key: str | None = None
+    # "openai" (OpenAI-compatible endpoint) or "embedhub" (sion_embedhub registry key in embedding_model, e.g. nv-1b)
+    embedding_provider: str = "openai"
 
     @classmethod
     def from_env(cls) -> "GraphRagConfig | None":
@@ -70,6 +73,7 @@ class GraphRagConfig:
             llm_model=os.getenv("SION_GRAPHRAG_LLM_MODEL"),
             llm_base_url=os.getenv("SION_GRAPHRAG_LLM_BASE_URL"),
             llm_api_key=os.getenv("SION_GRAPHRAG_LLM_API_KEY"),
+            embedding_provider=os.getenv("SION_GRAPHRAG_EMBED_PROVIDER", "openai").strip().lower(),
         )
 
     @property
@@ -106,6 +110,19 @@ class SionGraphRag:
             raise GraphRagUnavailable("install the 'rag' extra: pip install 'sion-ontology-platform[rag]' (lightrag-hku)") from exc
         config = self.config
         embed = self._embedding_func
+        model_name = config.embedding_model
+        if embed is None and config.embedding_provider == "embedhub":
+            # LightRAG names its vector tables after model_name, so use the real model id (not the registry key):
+            # nv-1b @ 1024d keeps reading the tables already written by nvidia/nemotron-3.5-embed-1b.
+            from sion_embedhub import Embedder, KeyPool, default_registry
+            from sion_embedhub.lightrag import lightrag_embedding_func
+
+            spec = default_registry().get(config.embedding_model)
+            embedder = Embedder(spec, KeyPool.from_env("NVIDIA_API_KEY") if spec.provider == "nvidia" else None)
+            embed = lightrag_embedding_func(embedder, config.embedding_dim)
+            model_name = spec.model
+        elif embed is None and config.embedding_provider != "openai":
+            raise ValueError("SION_GRAPHRAG_EMBED_PROVIDER must be 'openai' or 'embedhub'")
         if embed is None:
             from lightrag.llm.openai import openai_embed
 
@@ -142,12 +159,20 @@ class SionGraphRag:
             embedding_func=EmbeddingFunc(
                 embedding_dim=config.embedding_dim,
                 func=embed,
-                model_name=config.embedding_model,
+                model_name=model_name,
             ),
             llm_model_func=llm or _no_llm,
             **storages,
             **extra,
         )
+
+    def _query_role(self):
+        """Asymmetric embedhub models must embed search text as 'query', stored text as 'passage'."""
+        if self.config.embedding_provider == "embedhub":
+            from sion_embedhub.lightrag import as_query
+
+            return as_query()
+        return nullcontext()
 
     async def start(self) -> None:
         if self._rag is None:
@@ -213,7 +238,8 @@ class SionGraphRag:
             raise ValueError(f"mode must be one of {sorted(QUERY_MODES)}")
         await self.start()
         if self.config.answers_enabled or self._llm_func is not None:
-            answer = await self._rag.aquery(question, param=QueryParam(mode=mode, top_k=top_k, enable_rerank=False))
+            with self._query_role():
+                answer = await self._rag.aquery(question, param=QueryParam(mode=mode, top_k=top_k, enable_rerank=False))
             return {"mode": mode, "answer": answer}
         param = QueryParam(
             mode=mode,
@@ -223,5 +249,6 @@ class SionGraphRag:
             hl_keywords=[question],
             enable_rerank=False,
         )
-        context = await self._rag.aquery(question, param=param)
+        with self._query_role():
+            context = await self._rag.aquery(question, param=param)
         return {"mode": mode, "context": context}

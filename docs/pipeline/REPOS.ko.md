@@ -21,7 +21,7 @@
 | [khs0927/Ontology-platform](https://github.com/khs0927/Ontology-platform) | public | 메인 모노레포 — SketchUp/AEC 자산·지침·본 문서 | `d3e5c37` 2026-10-14 19:56 — Merge pull request #73 from khs0927/feat/sketchup-openings |
 | [khs0927/Ontology](https://github.com/khs0927/Ontology) | public | packages/aec subtree 원본 | `d81598f` 2026-10-17 02:35 — Integrate readonly-bridge draft PRs (stacks on netguard PR) / 드래프트 PR  |
 | [khs0927/GOD-CAD](https://github.com/khs0927/GOD-CAD) | public | packages/cad/god-cad subtree 원본 | `bcab135` 2026-10-03 18:32 — ci: enable manual workflow dispatch |
-| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) | public | packages/regulation subtree 원본 | `c911978` 2026-10-08 00:47 — Merge pull request #15 from khs0927/feat/roles-rls-pagination |
+| [khs0927/ArchOntos](https://github.com/khs0927/ArchOntos) | public | **정본**. 모노레포는 `regulation` extra의 고정 커밋 의존성으로 설치 (subtree 복사본 제거, 고정 SHA는 docs/INTEGRATION_CONTRACTS.md) | 복사 당시 `c911978` 2026-10-08 00:47 — Merge pull request #15 |
 | [khs0927/jev-browser-control-plane](https://github.com/khs0927/jev-browser-control-plane) | public | Jev 검증/브라우저 제어 플레인 | `b874110` 2026-10-22 00:47 — ci(rea): allow owner-triggered synthetic-only free runner smoke |
 | [khs0927/mac-cad-bridge](https://github.com/khs0927/mac-cad-bridge) | private | 참고 | `7905051` 2026-09-26 15:03 — Initial commit |
 | [khs0927/freecad-spkane-mcp](https://github.com/khs0927/freecad-spkane-mcp) | private | IFC 검증·수리(선택) | `10e93bf` 2026-10-08 20:16 — Merge pull request #3 from khs0927/codex/offline-wrapper-integrity |
