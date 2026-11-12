@@ -56,6 +56,7 @@ def create_app(
     regulation_transport=None,
     review_require_version: bool | None = None,
     nvidia_transport=None,
+    jobs: bool | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if review_require_version is not None:
@@ -734,6 +735,75 @@ def create_app(
         if path.suffix.lower() not in suffixes or not path.is_file():
             raise HTTPException(status_code=422, detail=f"{label} file required")
         return path
+
+    # --- durable ingestion jobs (DBOS, `jobs` extra) -------------------------------
+    jobs_enabled = jobs if jobs is not None else os.getenv("SION_JOBS", "").strip().lower() in {"1", "on", "true"}
+    if jobs_enabled:
+        import anyio
+        from sion_ingestion import jobs as ingest_jobs
+
+        async def _start_jobs() -> None:  # DBOS setup is blocking; keep it off the event loop
+            await anyio.to_thread.run_sync(lambda: ingest_jobs.start(
+                factory, database_url=ingest_jobs.system_database_url(settings.database_url)))
+
+        async def _stop_jobs() -> None:
+            await anyio.to_thread.run_sync(ingest_jobs.stop)
+
+        app.router.on_startup.append(_start_jobs)
+        app.router.on_shutdown.append(_stop_jobs)
+
+    def _jobs_module():
+        from sion_ingestion import jobs as ingest_jobs
+
+        if not jobs_enabled or not ingest_jobs.started():
+            raise HTTPException(503, "ingestion jobs are off: set SION_JOBS=on (and install the jobs extra)")
+        return ingest_jobs
+
+    @app.post("/api/v1/jobs/ingest", status_code=202, dependencies=[Depends(write_knowledge)])
+    def enqueue_ingest_jobs(payload: schemas.IngestJobRequest):
+        """Queue one durable workflow per file (parse -> load -> relation candidates)."""
+        ingest_jobs = _jobs_module()
+        paths = [resolve_ingest_path(item) for item in payload.paths]
+        return {"jobs": ingest_jobs.enqueue(paths, extract_relations=payload.extract_relations)}
+
+    @app.get("/api/v1/jobs", dependencies=[Depends(read_knowledge)])
+    def list_ingest_jobs(status: str | None = None, limit: int = Query(50, ge=1, le=500)):
+        return {"jobs": _jobs_module().list_jobs(status=status, limit=limit)}
+
+    @app.get("/api/v1/jobs/{job_id}", dependencies=[Depends(read_knowledge)])
+    def get_ingest_job(job_id: str):
+        found = _jobs_module().get(job_id)
+        if found is None:
+            raise HTTPException(404, "no such job")
+        return found
+
+    @app.post("/api/v1/jobs/{job_id}/cancel", dependencies=[Depends(write_knowledge)])
+    def cancel_ingest_job(job_id: str):
+        ingest_jobs = _jobs_module()
+        if ingest_jobs.get(job_id) is None:
+            raise HTTPException(404, "no such job")
+        ingest_jobs.cancel(job_id)
+        return ingest_jobs.get(job_id)
+
+    @app.post("/api/v1/jobs/{job_id}/resume", dependencies=[Depends(write_knowledge)])
+    def resume_ingest_job(job_id: str):
+        """Continue a cancelled job where it stopped."""
+        ingest_jobs = _jobs_module()
+        if ingest_jobs.get(job_id) is None:
+            raise HTTPException(404, "no such job")
+        ingest_jobs.resume(job_id)
+        return ingest_jobs.get(job_id)
+
+    @app.post("/api/v1/jobs/{job_id}/retry", status_code=202, dependencies=[Depends(write_knowledge)])
+    def retry_ingest_job(job_id: str):
+        """Re-run a failed job from its first failed step as a new job (finished steps are reused)."""
+        ingest_jobs = _jobs_module()
+        found = ingest_jobs.get(job_id)
+        if found is None:
+            raise HTTPException(404, "no such job")
+        if found["status"] not in ingest_jobs.TERMINAL:
+            raise HTTPException(409, "job is still running")
+        return {"job_id": ingest_jobs.retry(job_id), "retry_of": job_id}
 
     @app.post("/api/v1/ingest/documents", dependencies=[Depends(write_knowledge)])
     def ingest_document_route(payload: dict, session: Session = Depends(get_session)):
