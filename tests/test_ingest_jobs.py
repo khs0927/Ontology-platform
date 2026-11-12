@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sqlite3
 
 import pytest
 
@@ -26,6 +27,8 @@ def app_with_jobs(tmp_path, monkeypatch):
 
         with create_engine(pg).begin() as conn:
             conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public; DROP SCHEMA IF EXISTS dbos CASCADE"))
+    elif sqlite3.sqlite_version_info < jobs.MIN_SQLITE:
+        pytest.skip(f"SQLite {sqlite3.sqlite_version} is too old for DBOS; set SION_TEST_JOBS_POSTGRES_URL")
     monkeypatch.setenv("SION_JOBS_DATABASE_URL", pg or f"sqlite:///{tmp_path / 'jobs.sqlite'}")
     app = create_app(database_url=pg or f"sqlite:///{tmp_path / 'sion.sqlite'}", auto_create_schema=True,
                      ingest_roots=[tmp_path], jobs=True)
@@ -140,3 +143,10 @@ def test_system_database_url(monkeypatch, tmp_path):
     assert jobs.system_database_url("sqlite:///x.db") == f"sqlite:///{(tmp_path / 'sion-jobs.sqlite').as_posix()}"
     monkeypatch.setenv("SION_JOBS_DATABASE_URL", "sqlite:///elsewhere.sqlite")
     assert jobs.system_database_url("postgresql://x") == "sqlite:///elsewhere.sqlite"
+
+
+def test_old_sqlite_is_refused_with_a_clear_message(monkeypatch):
+    monkeypatch.setattr(jobs.sqlite3, "sqlite_version_info", (3, 37, 2))
+    with pytest.raises(RuntimeError, match="SION_JOBS_DATABASE_URL to a PostgreSQL URL"):
+        jobs.check_system_database("sqlite:///x.sqlite")
+    jobs.check_system_database("postgresql+psycopg://u@db/sion")  # Postgres is unaffected

@@ -23,6 +23,7 @@ Steps of ``ingest_file``:
 from __future__ import annotations
 
 import os
+import sqlite3
 from pathlib import Path
 from typing import Any
 
@@ -126,14 +127,29 @@ def system_database_url(app_database_url: str | None = None) -> str:
     return f"sqlite:///{(root / 'sion-jobs.sqlite').as_posix()}"
 
 
+# DBOS's SQLite system-database migrations use unixepoch() (SQLite 3.38+).
+MIN_SQLITE = (3, 38)
+
+
+def check_system_database(url: str) -> None:
+    """Fail early with a usable message instead of a half-migrated DBOS database."""
+    if url.startswith("sqlite") and sqlite3.sqlite_version_info < MIN_SQLITE:
+        raise RuntimeError(
+            f"DBOS needs SQLite >= {'.'.join(map(str, MIN_SQLITE))} for its system database "
+            f"(this Python links {sqlite3.sqlite_version}); set SION_JOBS_DATABASE_URL to a PostgreSQL URL"
+        )
+
+
 def start(factory, *, database_url: str | None = None, concurrency: int | None = None) -> None:
     """Launch DBOS in this process: recover unfinished workflows and start consuming the queue."""
+    url = database_url or system_database_url()
+    check_system_database(url)
     DBOS = _dbos()
     _register()
     _state["factory"] = factory
     if _state["queue"] is not None:
         return
-    DBOS(config={"name": APP_NAME, "system_database_url": database_url or system_database_url(),
+    DBOS(config={"name": APP_NAME, "system_database_url": url,
                  "application_version": "sion-ingest-1", "run_migrations": True})
     DBOS.launch()
     workers = concurrency or int(os.getenv("SION_JOBS_CONCURRENCY", "2"))
