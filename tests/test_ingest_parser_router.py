@@ -275,6 +275,11 @@ def fake_kordoc(tmp_path, monkeypatch):
     script = tmp_path / "kordoc"
     script.write_text(FAKE_KORDOC.format(python=sys.executable, log=str(log)), encoding="utf-8")
     script.chmod(0o755)
+    if sys.platform == "win32":
+        # npm installs kordoc as a .cmd shim on Windows; mirror that instead of a shebang script.
+        shim = tmp_path / "kordoc.cmd"
+        shim.write_text(f'@"{sys.executable}" "{script}" %*\r\n', encoding="utf-8")
+        script = shim
     monkeypatch.setenv("SION_KORDOC", "on")
     monkeypatch.setenv("SION_KORDOC_BIN", str(script))
 
