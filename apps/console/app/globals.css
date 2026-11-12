@@ -1,0 +1,60 @@
+:root {
+  --bg: #f7f7f5;
+  --panel: #ffffff;
+  --text: #1c1c1a;
+  --muted: #6b6b66;
+  --line: #e3e3de;
+  --accent: #2f5d50;
+  --accent-text: #ffffff;
+  --ok: #2f7a3e;
+  --warn: #9a5b00;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151514;
+    --panel: #1e1e1c;
+    --text: #ececea;
+    --muted: #a3a39d;
+    --line: #33332f;
+    --accent: #7fb8a6;
+    --accent-text: #0f1d18;
+    --ok: #7cc68a;
+    --warn: #e0a64a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  line-height: 1.55;
+}
+header.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+header.top nav { display: flex; gap: 16px; align-items: center; }
+a { color: var(--accent); }
+main { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+.card h2 { margin: 0 0 10px; font-size: 1.05rem; }
+.muted { color: var(--muted); }
+.ok { color: var(--ok); }
+.warn { color: var(--warn); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+code { font-size: 0.9em; }
+button, .button {
+  font: inherit; cursor: pointer; border: 0; border-radius: 8px; padding: 9px 16px;
+  background: var(--accent); color: var(--accent-text);
+}
+button.secondary { background: transparent; color: var(--text); border: 1px solid var(--line); }
+button:disabled { opacity: 0.55; cursor: default; }
+input {
+  font: inherit; width: 100%; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text);
+}
+form.stack { display: grid; gap: 10px; max-width: 380px; }
