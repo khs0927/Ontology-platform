@@ -2,11 +2,12 @@
 
 Claims stay unverified. No external model is called.
 
-Formats: ``.md``/``.txt``/``.csv`` (always), ``.docx`` (python-docx from the
-``documents`` extra, else a built-in reader of the OOXML ``word/document.xml``),
-``.pdf`` (pypdf from the ``documents`` extra; without it PDFs are reported as
-skipped, never guessed). DOCX "Heading 1-3" paragraphs become markdown headings
-so claim extraction is uniform across formats.
+Parsing is delegated to :mod:`sion_ingestion.parsers`, a format router: ``.md``/``.txt``/``.csv``
+(always), ``.docx`` (python-docx from the ``documents`` extra, else a built-in OOXML reader),
+``.pdf`` (pypdf; scanned pages go to vision OCR when configured), ``.hwpx`` (built-in reader or
+``hwp`` extra), ``.hwp`` (``hwp`` extra), ``.pptx``/``.xlsx``/``.html`` (Docling) and images
+(vision OCR). A file whose backend is missing is reported as skipped, never guessed. DOCX
+"Heading 1-3" paragraphs become markdown headings so claim extraction is uniform across formats.
 """
 
 from __future__ import annotations
@@ -14,9 +15,7 @@ from __future__ import annotations
 import hashlib
 import re
 import zipfile
-from dataclasses import dataclass
 from pathlib import Path
-from xml.etree import ElementTree
 
 from sion_api import models
 from sion_core import MissingExtra, require
@@ -24,26 +23,18 @@ from sion_core.optional import is_available
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from sion_ingestion import parsers
 from sion_ingestion.map_import import MapEdge, MapExport, MapNode, import_map_export
+from sion_ingestion.parsers import (  # re-exported: callers import these from here
+    DOCUMENT_SUFFIXES,
+    DocumentUnreadable,
+    ExtractedText,
+)
 
 _HEADING = re.compile(r"^(#{1,3})\s+(.+)$", re.MULTILINE)
 _HEADING_STYLE = re.compile(r"^heading\s*([1-3])$", re.IGNORECASE)
 
-TEXT_SUFFIXES = frozenset({".md", ".txt", ".csv"})
-DOCUMENT_SUFFIXES = TEXT_SUFFIXES | {".docx", ".pdf"}
-
 _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
-
-
-class DocumentUnreadable(ValueError):
-    """The file has a supported suffix but its content cannot be read."""
-
-
-@dataclass(frozen=True)
-class ExtractedText:
-    text: str
-    extractor: str
-    page_count: int | None = None
 
 
 def _key(prefix: str, raw: str) -> str:
@@ -52,11 +43,8 @@ def _key(prefix: str, raw: str) -> str:
 
 
 def supported_suffixes() -> set[str]:
-    """Suffixes ingestible with the libraries installed right now."""
-    suffixes = set(TEXT_SUFFIXES) | {".docx"}  # DOCX always has the built-in reader
-    if is_available("pypdf"):
-        suffixes.add(".pdf")
-    return suffixes
+    """Suffixes ingestible with the libraries and endpoints configured right now."""
+    return parsers.supported_suffixes()
 
 
 def _heading_line(text: str, style_name: str) -> str:
@@ -77,10 +65,10 @@ def _docx_with_python_docx(path: Path) -> str:
 def _docx_builtin(path: Path) -> str:
     """Body-level paragraphs of word/document.xml; heading levels from styles.xml names."""
     with zipfile.ZipFile(path) as archive:
-        document = ElementTree.fromstring(archive.read("word/document.xml"))
+        document = parsers.parse_xml(parsers.read_zip_member(archive, "word/document.xml"))
         style_names: dict[str, str] = {}
         if "word/styles.xml" in archive.namelist():
-            for style in ElementTree.fromstring(archive.read("word/styles.xml")).iter(f"{_W}style"):
+            for style in parsers.parse_xml(parsers.read_zip_member(archive, "word/styles.xml")).iter(f"{_W}style"):
                 name = style.find(f"{_W}name")
                 if name is not None:
                     style_names[style.get(f"{_W}styleId", "")] = name.get(f"{_W}val", "")
@@ -104,31 +92,20 @@ def _docx_builtin(path: Path) -> str:
     return "\n".join(lines)
 
 
+def _read_docx(path: Path) -> ExtractedText:
+    try:
+        if is_available("docx"):
+            return ExtractedText(_docx_with_python_docx(path), "python-docx")
+        return ExtractedText(_docx_builtin(path), "docx-builtin")
+    except DocumentUnreadable:
+        raise
+    except Exception as exc:  # BadZipFile, KeyError, ParseError, python-docx package errors
+        raise DocumentUnreadable(f"DOCX could not be read ({type(exc).__name__}: {exc})") from exc
+
+
 def extract_text(path: Path) -> ExtractedText:
-    """Text of one document. Raises :class:`MissingExtra` (PDF without pypdf) or :class:`DocumentUnreadable`."""
-    suffix = path.suffix.lower()
-    if suffix == ".pdf":
-        pypdf = require("pypdf", extra="documents")
-        try:
-            reader = pypdf.PdfReader(str(path))
-            if reader.is_encrypted:
-                raise DocumentUnreadable("encrypted PDF")
-            pages = [page.extract_text() or "" for page in reader.pages]
-        except DocumentUnreadable:
-            raise
-        except Exception as exc:  # pypdf raises several error types for damaged files
-            raise DocumentUnreadable(f"PDF could not be read ({type(exc).__name__}: {exc})") from exc
-        return ExtractedText("\n".join(pages), "pypdf", len(pages))
-    if suffix == ".docx":
-        try:
-            if is_available("docx"):
-                return ExtractedText(_docx_with_python_docx(path), "python-docx")
-            return ExtractedText(_docx_builtin(path), "docx-builtin")
-        except Exception as exc:  # BadZipFile, KeyError, ParseError, python-docx package errors
-            raise DocumentUnreadable(f"DOCX could not be read ({type(exc).__name__}: {exc})") from exc
-    if suffix in TEXT_SUFFIXES:
-        return ExtractedText(path.read_text(encoding="utf-8", errors="replace"), "text")
-    raise DocumentUnreadable(f"unsupported document type: {suffix or '(none)'}")
+    """Text of one document. Raises :class:`MissingExtra` or :class:`DocumentUnreadable`."""
+    return parsers.route(path, docx_reader=_read_docx)
 
 
 def build_document_export(
@@ -161,6 +138,7 @@ def build_document_export(
                     "heading_count": len(headings),
                     "excerpt_hash": hashlib.sha256(text.encode("utf-8")).hexdigest(),
                     "extractor": content.extractor,
+                    **({"parser_notes": list(content.notes)} if content.notes else {}),
                     **({"page_count": content.page_count} if content.page_count is not None else {}),
                 },
             )
@@ -253,7 +231,8 @@ def ingest_documents(session: Session, paths: list[Path]) -> dict:
             skipped.append({"path": str(path), "reason": str(exc)})
             continue
         if not content.text.strip():
-            skipped.append({"path": str(path), "reason": "no extractable text (scanned PDF? OCR is not performed)"})
+            reason = "no extractable text" + (f" ({'; '.join(content.notes)})" if content.notes else "")
+            skipped.append({"path": str(path), "reason": reason})
             continue
         files.append(path)
         extracted[path] = content
