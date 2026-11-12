@@ -6,8 +6,11 @@
 * ``law-search``  the production lexical search, ``sion_api.law_knowledge.search``, run in-process
                   on an in-memory SQLite copy of the corpus.
 
-Later phases (morphological BM25, vectors, graph expansion, reranking) register here and are
-compared on the same gold set.
+* ``law-hybrid``  the production hybrid search (``sion_api.law_search``): bigram BM25 plus
+                  citation-graph expansion, RRF-fused (``law-hybrid-nograph`` without the graph).
+
+Vectors and reranking register here when an embedder is configured and are compared on the
+same gold set.
 """
 
 from __future__ import annotations
@@ -66,12 +69,13 @@ class Bm25:
         return [self.keys[i] for _, i in scores[:k]]
 
 
-def law_search_retriever(docs: list[Doc]) -> Callable[[str, int], list[str]]:
-    """The API's lexical law search over an in-memory SQLite copy of the corpus."""
+def law_search_retriever(docs: list[Doc], mode: str = "lexical", graph: bool = True) -> Callable[[str, int], list[str]]:
+    """The API's law search (``lexical`` or ``hybrid``) over an in-memory SQLite copy of the corpus."""
     from datetime import date
 
     from fastapi import HTTPException
     from sion_api.law_knowledge import LawArticle, LawArticleIn, ingest, search
+    from sion_api.law_search import HybridOptions, hybrid_search
     from sqlalchemy import create_engine
     from sqlalchemy.orm import Session
     from sqlalchemy.pool import StaticPool
@@ -87,7 +91,11 @@ def law_search_retriever(docs: list[Doc]) -> Callable[[str, int], list[str]]:
     def retrieve(query: str, k: int) -> list[str]:
         with Session(engine) as session:
             try:
-                res = search(session, query, limit=k, as_of=date(2026, 1, 1))
+                if mode == "hybrid":
+                    res = hybrid_search(session, query, limit=k, as_of=date(2026, 1, 1),
+                                        options=HybridOptions(graph=graph))
+                else:
+                    res = search(session, query, limit=k, as_of=date(2026, 1, 1))
             except HTTPException:
                 return []
         return [f"{r['law_name']}:{r['article_key']}" for r in res["results"]]
@@ -99,4 +107,6 @@ RETRIEVERS: dict[str, Callable[[list[Doc]], Callable[[str, int], list[str]]]] = 
     "bm25-word": lambda docs: Bm25(docs, word_tokens),
     "bm25-bigram": lambda docs: Bm25(docs, bigram_tokens),
     "law-search": law_search_retriever,
+    "law-hybrid-nograph": lambda docs: law_search_retriever(docs, "hybrid", graph=False),
+    "law-hybrid": lambda docs: law_search_retriever(docs, "hybrid"),
 }
