@@ -11,6 +11,9 @@ Design rules
 * Search is portable (SQLite and PostgreSQL) lexical scoring over title + text with an ``as_of``
   filter so callers never get an article that was not in force on the review date.
   Vector/graph retrieval is a later slice.
+* Cross-references (slice 3): an article ingested without ``refs`` gets them from the rule extractor
+  in :mod:`sion_api.law_refs` (``"<법령명>:<article_key>"``). ``GET …/refs`` returns both directions,
+  resolved against the versions in force on ``as_of``; an unresolved target is listed, not dropped.
 """
 
 from __future__ import annotations
@@ -20,6 +23,7 @@ import re
 import unicodedata
 import uuid
 from datetime import date, datetime, timezone
+from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -27,6 +31,7 @@ from sqlalchemy import JSON, Date, DateTime, Index, String, Text, UniqueConstrai
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from .db import Base
+from .law_refs import extract_refs
 
 ARTICLE_KEY = re.compile(r"^\d{1,4}(?:-\d{1,3})?$")  # "61", "61-2" (제61조의2)
 _TOKEN = re.compile(r"[0-9A-Za-z\uac00-\ud7a3]+")
@@ -135,8 +140,14 @@ def _out(a: LawArticle) -> dict:
     }
 
 
+def _known_law_names(session: Session, articles: list[LawArticleIn]) -> list[str]:
+    stored = set(session.scalars(select(LawArticle.law_name).distinct()))
+    return sorted(stored | {a.law_name for a in articles})
+
+
 def ingest(session: Session, articles: list[LawArticleIn]) -> dict:
     created, unchanged, conflicts = [], [], []
+    known = _known_law_names(session, articles)
     for item in articles:
         if item.effective_to and item.effective_to < item.effective_from:
             raise HTTPException(422, f"{item.law_name} {item.article_key}: effective_to before effective_from")
@@ -148,7 +159,9 @@ def ingest(session: Session, articles: list[LawArticleIn]) -> dict:
         if existing is not None:
             (unchanged if existing.content_hash == h else conflicts).append(key)
             continue
-        row = LawArticle(**item.model_dump(exclude={"text"}), text=normalize_text(item.text), content_hash=h)
+        row = LawArticle(**item.model_dump(exclude={"text", "refs"}), text=normalize_text(item.text), content_hash=h,
+                         refs=item.refs or [r.key for r in extract_refs(item.text, item.law_name,
+                                                                        self_key=item.article_key, known_laws=known)])
         session.add(row)
         session.flush()
         created.append(key)
@@ -206,6 +219,56 @@ def search(session: Session, q: str, *, law: str | None = None, as_of: date | No
     }
 
 
+def _in_force(as_of: date):
+    return select(LawArticle).where(
+        LawArticle.effective_from <= as_of,
+        or_(LawArticle.effective_to.is_(None), LawArticle.effective_to >= as_of))
+
+
+def _latest_by_key(rows) -> dict[str, LawArticle]:
+    latest: dict[str, LawArticle] = {}
+    for a in rows:
+        k = f"{a.law_name}:{a.article_key}"
+        if k not in latest or a.effective_from > latest[k].effective_from:
+            latest[k] = a
+    return latest
+
+
+def _brief(a: LawArticle) -> dict:
+    return {"law_id": a.law_id, "law_name": a.law_name, "article_key": a.article_key,
+            "citation": f"{a.law_name} {article_label(a.article_key)}", "title": a.title,
+            "effective_from": a.effective_from.isoformat(), "content_hash": a.content_hash}
+
+
+def article_refs(session: Session, law_id: str, article_key: str, as_of: date | None = None) -> dict:
+    """Outgoing and incoming cross-references of one article, among versions in force on ``as_of``."""
+    as_of = as_of or date.today()
+    in_force = _latest_by_key(session.scalars(_in_force(as_of)))
+    article = next((a for a in in_force.values() if a.law_id == law_id and a.article_key == article_key), None)
+    if article is None:
+        raise HTTPException(404, "no version of this article in force on as_of")
+    me = f"{article.law_name}:{article.article_key}"
+    outgoing = [{"ref": ref, **({"resolved": True, **_brief(in_force[ref])} if ref in in_force else {"resolved": False})}
+                for ref in article.refs or []]
+    incoming = [_brief(a) for k, a in sorted(in_force.items()) if me in (a.refs or []) and k != me]
+    return {"article": _brief(article), "as_of": as_of.isoformat(), "outgoing": outgoing, "incoming": incoming}
+
+
+def rebuild_refs(session: Session, *, only_empty: bool = True) -> dict:
+    """Run the rule extractor over stored articles (all versions); manual refs are kept unless asked."""
+    known = sorted(set(session.scalars(select(LawArticle.law_name).distinct())))
+    updated = 0
+    for a in session.scalars(select(LawArticle)):
+        if only_empty and a.refs:
+            continue
+        refs = [r.key for r in extract_refs(a.text, a.law_name, self_key=a.article_key, known_laws=known)]
+        if refs != (a.refs or []):
+            a.refs = refs
+            updated += 1
+    session.commit()
+    return {"updated": updated, "only_empty": only_empty}
+
+
 def register(app: FastAPI, get_session, read_dep, write_dep) -> None:
     @app.post("/api/v1/law/articles", dependencies=[Depends(write_dep)], status_code=201)
     def law_ingest(payload: LawIngest, session: Session = Depends(get_session)):
@@ -214,8 +277,30 @@ def register(app: FastAPI, get_session, read_dep, write_dep) -> None:
     @app.get("/api/v1/law/search", dependencies=[Depends(read_dep)])
     def law_search(q: str = Query(min_length=1, max_length=500), law: str | None = None,
                    as_of: date | None = None, limit: int = Query(10, ge=1, le=50),
+                   mode: Literal["hybrid", "lexical"] = "hybrid", graph: bool = True,
                    session: Session = Depends(get_session)):
-        return search(session, q, law=law, as_of=as_of, limit=limit)
+        if mode == "lexical":
+            return {**search(session, q, law=law, as_of=as_of, limit=limit), "mode": "lexical"}
+        from .law_search import HybridOptions, embedder_from_env, hybrid_search
+
+        if not tokens(q):
+            raise HTTPException(422, "query has no searchable tokens")
+        embedder, model = embedder_from_env()
+        return hybrid_search(session, q, law=law, as_of=as_of, limit=limit,
+                             options=HybridOptions(embedder=embedder, embed_model=model, graph=graph))
+
+    @app.get("/api/v1/law/articles/{law_id}/{article_key}/refs", dependencies=[Depends(read_dep)])
+    def law_article_refs(law_id: str, article_key: str, as_of: date | None = None,
+                         session: Session = Depends(get_session)):
+        try:
+            key = parse_article_key(article_key)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        return article_refs(session, law_id, key, as_of)
+
+    @app.post("/api/v1/law/refs/rebuild", dependencies=[Depends(write_dep)])
+    def law_refs_rebuild(only_empty: bool = True, session: Session = Depends(get_session)):
+        return rebuild_refs(session, only_empty=only_empty)
 
     @app.get("/api/v1/law/articles/{law_id}/{article_key}", dependencies=[Depends(read_dep)])
     def law_article(law_id: str, article_key: str, as_of: date | None = None,

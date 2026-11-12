@@ -4,6 +4,33 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Hybrid law search** (upgrade phase 4) — `GET /api/v1/law/search` defaults to `mode=hybrid`.
+  Hybrid mode runs BM25 over word tokens plus Hangul bigrams, adds an optional vector channel
+  (`SION_LAW_EMBED_MODEL`, an EmbedHub model key) fused by RRF, and applies citation-graph
+  expansion over `law_articles.refs`. Every result reports which channels found it.
+  On the building-law gold set, recall@10 rises from 0.625 to 0.977 and MRR from 0.422 to
+  0.770. `mode=lexical` keeps the previous scorer. See `docs/EVALUATION.md`.
+
+- **Retrieval evaluation** (`sion_eval`, `packages/eval`) — Korean building-law gold set (44 questions)
+  over a 1,159-article statute corpus, recall/MRR/nDCG metrics, baseline retrievers and a CLI
+  (`python -m sion_eval.cli run`). Baseline: the current law search reaches recall@10 0.625;
+  BM25 over Hangul bigrams reaches 0.977. See `docs/EVALUATION.md`.
+- **Ontology-constrained model extraction** — `POST /api/v1/extract/relations/llm` asks any
+  OpenAI-compatible model for relations with a JSON schema generated from the live
+  `entity_types`/`relation_types`. Replies pass schema (one retry), verbatim-quote grounding,
+  curated-entity resolution and domain/range gates, and the survivors are stored as unverified
+  review candidates. Unknown names come back as `entity_suggestions`.
+  `GET /api/v1/extract/llm/schema` shows the schema and prompt. See `docs/EXTRACTION.md`.
+- **Law cross-references** (law-knowledge slice 3) — a rule extractor fills `law_articles.refs`
+  on ingest. It handles 법/영/규칙, 같은 법, 「…」, lists, ranges and 별표, and resolves 97.4% of
+  in-corpus references on the evaluation corpus. `GET /api/v1/law/articles/{law_id}/{article}/refs`
+  returns outgoing and incoming references as of a date, and `POST /api/v1/law/refs/rebuild`
+  backfills stored rows.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable
