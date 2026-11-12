@@ -9,7 +9,7 @@ static bearer tokens and never need anything on this page.
 | Sign-in | Supabase Auth (any OIDC issuer with a JWKS works) | `sion_api/oidc.py`, `sion_api/auth.py` |
 | Billing | Paddle Billing (merchant of record: tax, invoices, refunds) | `sion_api/billing.py` |
 | Entitlements | `billing_subscriptions` + `billing_events` tables | `migrations/010_billing.sql` |
-| Web app | Next.js 16 (separate PR) | `apps/web` |
+| Web app | Next.js 16 console | `apps/console` |
 
 ## Sign-in (OIDC)
 
@@ -54,10 +54,14 @@ are stored: no names, emails, addresses or raw payloads.
 `GET /api/v1/billing/me` (signed-in users) returns `active` (any subscription `active`,
 `trialing` or `past_due`), the active price ids and each subscription.
 
+## Web console
+
+`apps/console` is the Next.js 16 front end: magic-link sign-in, a dashboard that shows what the
+API grants the user, and Paddle checkout. Setup is in [`apps/console/README.md`](../apps/console/README.md).
+
 ## Not in this slice
 
 - Feature gating by plan (which price unlocks what) and usage metering.
 - Tenant/organization objects and row-level security on knowledge tables; users are scoped to
   projects through the existing project ACL, so most knowledge routes stay closed to them until
   they become project-scoped.
-- The Next.js 16 web app (sign-in, dashboard, checkout): next PR.

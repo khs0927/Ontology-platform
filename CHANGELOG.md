@@ -12,6 +12,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   default, any JWKS issuer) as `Principal(kind="user")` with fail-closed project claims,
   `GET /api/v1/me`, a signature-verified, idempotent and order-safe Paddle Billing webhook, and
   `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
+- **Sion Console (phase 7b)** — Next.js 16 web app in `apps/console`: Supabase magic-link sign-in
+  via `proxy.ts`, account/subscription dashboard calling the API server-side, Paddle checkout.
 
 ## [0.3.0] - 2026-11-11
 
