@@ -186,6 +186,7 @@ See [`packages/README.md`](packages/README.md) for the package map.
 | `regulation` | `archontos` (pinned git dependency) + pydantic-settings, sqlalchemy[asyncio], asyncpg, … | `/api/v1/regulation/evaluate` returns 503 |
 | `documents` | pypdf >=6.19, python-docx >=1.2 | DOCX via the built-in OOXML reader; PDFs reported as `skipped` |
 | `validation` | rdflib >=7.6, pyshacl >=0.40.1 | `GET /api/v1/validation/shacl` returns 503 |
+| `mcp` | mcp 2.3.0 (official SDK) | `sion-mcp` remote MCP server unavailable ([`docs/MCP_SERVER.md`](docs/MCP_SERVER.md)) |
 | `all` | all of the above | |
 | `test` | pytest, httpx, jsonschema (contract validation) | |
 | `dev` | `test` + ruff 0.16.10, build 1.6.1 | |
