@@ -1,0 +1,44 @@
+{"id": "bl-001", "query": "대지는 도로에 최소 몇 미터 이상 접해야 하나요?", "category": "single", "relevant": ["건축법:44"]}
+{"id": "bl-002", "query": "건폐율은 무엇이고 최대한도는 어느 법을 따르나요?", "category": "cross", "relevant": ["건축법:55", "국토의 계획 및 이용에 관한 법률:77"]}
+{"id": "bl-003", "query": "용적률의 뜻과 최대한도 기준", "category": "cross", "relevant": ["건축법:56", "국토의 계획 및 이용에 관한 법률:78"]}
+{"id": "bl-004", "query": "제2종일반주거지역 건폐율 상한은 몇 퍼센트인가", "category": "numeric", "relevant": ["국토의 계획 및 이용에 관한 법률 시행령:84"]}
+{"id": "bl-005", "query": "제3종일반주거지역에서 허용되는 용적률 범위", "category": "numeric", "relevant": ["국토의 계획 및 이용에 관한 법률 시행령:85"]}
+{"id": "bl-006", "query": "상업지역 용적률 최대한도는 법률에서 몇 퍼센트로 정하나", "category": "numeric", "relevant": ["국토의 계획 및 이용에 관한 법률:78"]}
+{"id": "bl-007", "query": "계획관리지역 건폐율 한도", "category": "numeric", "relevant": ["국토의 계획 및 이용에 관한 법률:77", "국토의 계획 및 이용에 관한 법률 시행령:84"]}
+{"id": "bl-008", "query": "주거지역에서 정북방향 인접 대지경계선과 띄어야 하는 거리, 높이 10미터 이하 부분", "category": "cross", "relevant": ["건축법 시행령:86", "건축법:61"]}
+{"id": "bl-009", "query": "6층 이상이고 연면적 2천제곱미터 이상이면 승강기를 설치해야 하나", "category": "single", "relevant": ["건축법:64"]}
+{"id": "bl-010", "query": "6층 건물인데 직통계단을 충분히 두면 승용 승강기를 안 둬도 되는 경우", "category": "cross", "relevant": ["건축법 시행령:89", "건축법:64"]}
+{"id": "bl-011", "query": "높이 31미터를 넘는 건물에 비상용승강기 추가 설치", "category": "single", "relevant": ["건축법:64"]}
+{"id": "bl-012", "query": "주거지역에서 건축물이 있는 대지를 나눌 때 최소 면적", "category": "cross", "relevant": ["건축법 시행령:80", "건축법:57"]}
+{"id": "bl-013", "query": "녹지지역 대지 분할 제한 면적은 얼마", "category": "numeric", "relevant": ["건축법 시행령:80"]}
+{"id": "bl-014", "query": "건폐율이나 대지와 도로 관계 기준에 못 미치게 대지를 분할할 수 있나", "category": "single", "relevant": ["건축법:57"]}
+{"id": "bl-015", "query": "몇 제곱미터 이상 대지에 건축할 때 조경을 해야 하나", "category": "single", "relevant": ["건축법:42"]}
+{"id": "bl-016", "query": "축사나 녹지지역 건축물은 조경을 하지 않아도 되나", "category": "cross", "relevant": ["건축법 시행령:27", "건축법:42"]}
+{"id": "bl-017", "query": "공개공지를 확보해야 하는 지역은 어디인가", "category": "single", "relevant": ["건축법:43"]}
+{"id": "bl-018", "query": "공개공지 면적은 대지면적의 몇 분의 몇 이하로 조례로 정하나", "category": "numeric", "relevant": ["건축법 시행령:27-2"]}
+{"id": "bl-019", "query": "바닥면적 5천제곱미터 이상 판매시설·업무시설의 공개 공지 설치 의무", "category": "cross", "relevant": ["건축법 시행령:27-2", "건축법:43"]}
+{"id": "bl-020", "query": "공개공지에 물건을 쌓아두거나 출입을 막아도 되나", "category": "single", "relevant": ["건축법:43"]}
+{"id": "bl-021", "query": "소요 너비에 못 미치는 도로에서 건축선은 어떻게 정하나", "category": "single", "relevant": ["건축법:46"]}
+{"id": "bl-022", "query": "너비 8미터 미만 도로 모퉁이에 있는 대지의 건축선 후퇴 거리", "category": "cross", "relevant": ["건축법 시행령:31", "건축법:46"]}
+{"id": "bl-023", "query": "건축선과 인접 대지경계선에서 건물을 띄워야 하는 대지 안의 공지 거리", "category": "cross", "relevant": ["건축법:58", "건축법 시행령:80-2"]}
+{"id": "bl-024", "query": "21층 이상 건물을 광역시에 지으려면 누구의 허가를 받아야 하나", "category": "single", "relevant": ["건축법:11"]}
+{"id": "bl-025", "query": "바닥면적 85제곱미터 이내 증축은 허가 대신 신고로 되나", "category": "single", "relevant": ["건축법:14"]}
+{"id": "bl-026", "query": "관리지역에서 연면적 200제곱미터 미만 3층 미만 건물 신축은 신고 대상인가", "category": "single", "relevant": ["건축법:14"]}
+{"id": "bl-027", "query": "상위 시설군으로 용도변경하면 허가, 하위 시설군이면 신고인가", "category": "single", "relevant": ["건축법:19"]}
+{"id": "bl-028", "query": "같은 시설군 안에서 용도를 바꿀 때 필요한 절차", "category": "single", "relevant": ["건축법:19"]}
+{"id": "bl-029", "query": "도시계획시설 예정지에 4층 이상 가설건축물을 허가받을 수 있나", "category": "single", "relevant": ["건축법:20"]}
+{"id": "bl-030", "query": "공사용 가설건축물이나 전람회용 가설건축물은 신고 후 착공하나", "category": "single", "relevant": ["건축법:20"]}
+{"id": "bl-031", "query": "공사 완료 후 사용승인 신청할 때 감리완료보고서를 첨부해야 하나", "category": "single", "relevant": ["건축법:22"]}
+{"id": "bl-032", "query": "단독주택이나 공동주택 지하층에 거실을 둘 수 있나", "category": "single", "relevant": ["건축법:53"]}
+{"id": "bl-033", "query": "건폐율이나 용적률을 초과해 지은 위반건축물 이행강제금 산정 기준", "category": "single", "relevant": ["건축법:80"]}
+{"id": "bl-034", "query": "연면적 60제곱미터 이하 주거용 건축물의 이행강제금 감경", "category": "single", "relevant": ["건축법:80"]}
+{"id": "bl-035", "query": "건축물의 연면적, 높이, 층수 산정 방법", "category": "cross", "relevant": ["건축법:84", "건축법 시행령:119"]}
+{"id": "bl-036", "query": "대지면적을 계산할 때 건축선과 도로 사이 면적은 빼나", "category": "single", "relevant": ["건축법 시행령:119"]}
+{"id": "bl-037", "query": "가로구역 단위로 건축물 높이를 지정 공고하는 제도", "category": "single", "relevant": ["건축법:60"]}
+{"id": "bl-038", "query": "인접 대지경계선 방향으로 채광창을 두는 공동주택의 높이 제한", "category": "single", "relevant": ["건축법:61"]}
+{"id": "bl-039", "query": "도시지역에서 건물을 지을 때 부설주차장 설치 의무", "category": "single", "relevant": ["주차장법:19"]}
+{"id": "bl-040", "query": "부설주차장 설치 대신 비용을 납부할 수 있나", "category": "single", "relevant": ["주차장법:19"]}
+{"id": "bl-041", "query": "소방관이 진입할 수 있는 창을 설치해야 하는 건축물", "category": "single", "relevant": ["건축법:49"]}
+{"id": "bl-042", "query": "용도지역에서 건축할 수 있는 건축물의 용도와 규모 제한은 어디서 정하나", "category": "single", "relevant": ["국토의 계획 및 이용에 관한 법률:76"]}
+{"id": "bl-043", "query": "건축설비에는 승강기나 피뢰침이 포함되나", "category": "single", "relevant": ["건축법:2"]}
+{"id": "bl-044", "query": "일반공업지역 용적률 범위", "category": "numeric", "relevant": ["국토의 계획 및 이용에 관한 법률 시행령:85"]}
