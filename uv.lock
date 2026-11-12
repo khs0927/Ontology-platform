@@ -3194,6 +3194,7 @@ all = [
     { name = "pillow" },
     { name = "prometheus-client" },
     { name = "pydantic-settings" },
+    { name = "pyjwt", extra = ["crypto"] },
     { name = "pypdf" },
     { name = "pyshacl" },
     { name = "python-docx" },
@@ -3255,6 +3256,9 @@ regulation = [
     { name = "pydantic-settings" },
     { name = "sqlalchemy", extra = ["asyncio"] },
 ]
+saas = [
+    { name = "pyjwt", extra = ["crypto"] },
+]
 test = [
     { name = "httpx" },
     { name = "httpx2" },
@@ -3297,6 +3301,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = "==3.3.6" },
     { name = "pydantic", specifier = "==2.13.5" },
     { name = "pydantic-settings", marker = "extra == 'regulation'", specifier = ">=2.7,<3" },
+    { name = "pyjwt", extras = ["crypto"], marker = "extra == 'saas'", specifier = ">=2.10,<3" },
     { name = "pypdf", marker = "extra == 'documents'", specifier = ">=6.19,<7" },
     { name = "pyshacl", marker = "extra == 'validation'", specifier = ">=0.40.1,<1" },
     { name = "pytest", marker = "extra == 'test'", specifier = "==9.1.1" },
@@ -3306,14 +3311,14 @@ requires-dist = [
     { name = "sion-ontology-platform", extras = ["bim"], marker = "extra == 'ifc'" },
     { name = "sion-ontology-platform", extras = ["cad"], marker = "extra == 'dxf'" },
     { name = "sion-ontology-platform", extras = ["cad", "bim"], marker = "extra == 'aec'" },
-    { name = "sion-ontology-platform", extras = ["cad", "bim", "rag", "drive", "regulation", "documents", "validation"], marker = "extra == 'all'" },
+    { name = "sion-ontology-platform", extras = ["cad", "bim", "rag", "drive", "regulation", "documents", "validation", "saas"], marker = "extra == 'all'" },
     { name = "sion-ontology-platform", extras = ["rag"], marker = "extra == 'graphrag'" },
     { name = "sion-ontology-platform", extras = ["test"], marker = "extra == 'dev'" },
     { name = "sqlalchemy", specifier = "==2.1.3" },
     { name = "sqlalchemy", extras = ["asyncio"], marker = "extra == 'regulation'", specifier = "==2.1.3" },
     { name = "uvicorn", specifier = "==0.54.0" },
 ]
-provides-extras = ["cad", "bim", "rag", "drive", "regulation", "documents", "validation", "all", "test", "dev", "aec", "dxf", "ifc", "graphrag"]
+provides-extras = ["cad", "bim", "rag", "drive", "regulation", "documents", "validation", "saas", "all", "test", "dev", "aec", "dxf", "ifc", "graphrag"]
 
 [[package]]
 name = "six"

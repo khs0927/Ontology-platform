@@ -4,9 +4,10 @@ This page describes how `apps/api` (`sion_api`) authorizes requests. The policy 
 `apps/api/sion_api/auth.py`; route coverage is enforced by `tests/test_api_scopes.py`.
 
 The policy is provider-neutral. It authorizes opaque bearer tokens mapped to scopes and an
-optional project allowlist. An OIDC/OAuth 2.1 front door, a Cloudflare Access gate or a
-reverse proxy can issue or map credentials onto this policy without changing route code.
-Identity-provider integration is infrastructure work and is not part of this module.
+optional project allowlist. For hosted deployments it can also verify identity-provider access
+tokens (OIDC JWTs, Supabase Auth by default) locally against the issuer's JWKS; see
+[OIDC user tokens](#oidc-user-tokens) and [`SAAS.md`](SAAS.md). A Cloudflare Access gate or a
+reverse proxy can still map credentials onto this policy without changing route code.
 
 ## Modes
 
@@ -61,7 +62,8 @@ A handful of `POST` routes compute an answer without persisting anything. They r
 `/api/v1/regulation/evaluate` and `/api/v1/regulation/gateway/report`.
 
 Public routes without authorization are limited to `/health`, the static `/review` and `/map`
-HTML shells (their data calls are scoped), and the FastAPI schema and docs pages.
+HTML shells (their data calls are scoped), the FastAPI schema and docs pages, and the Paddle
+webhook, which is authenticated by its HMAC signature instead of a bearer token.
 
 ## Project ACL
 
@@ -82,6 +84,26 @@ route project-scoped, wrap its scope dependency with `project_scoped()` and call
 `PROJECT_SCOPED_ROUTES` in `tests/test_api_scopes.py`.
 
 Trusted local access and tokens without `projects` are unrestricted.
+
+## OIDC user tokens
+
+Set `SION_OIDC_ISSUER` (install the `saas` extra) and a bearer value that is not a configured
+static token is verified as a JWT from that issuer. `bearer` modes then start without
+`SION_API_TOKENS_JSON`. Verification is local: signature against the issuer's JWKS (cached ten
+minutes; asymmetric algorithms only), `iss`, `aud` (default `authenticated`), `exp`/`nbf` with
+30 s leeway, and a required `sub`.
+
+A verified token becomes `Principal(kind="user", subject=<sub>)`:
+
+- Scopes are `SION_OIDC_DEFAULT_SCOPES` (default `read:knowledge`) plus the list at
+  `SION_OIDC_SCOPES_CLAIM` (default `app_metadata.sion_scopes`). `*` from a claim is dropped.
+- Projects come from `SION_OIDC_PROJECTS_CLAIM` (default `app_metadata.sion_projects`). A token
+  without the claim is restricted to **no** projects; malformed ids are dropped. Only an explicit
+  `"*"` entry makes a user unrestricted. In Supabase, `app_metadata` is writable only with the
+  service role, so users cannot grant themselves projects.
+- Users are therefore project-restricted and reach only project-scoped routes, including
+  `GET /api/v1/me` (the caller's identity) and `GET /api/v1/billing/me`.
+- Per-client throttling keys on a digest of `sub`.
 
 ## Token handling
 
