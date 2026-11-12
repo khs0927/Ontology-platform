@@ -24,8 +24,9 @@ jobs:
             python -m pip install -e ".[all,test,dev]"
       - run:
           name: Wait for PostgreSQL
+          # CircleCI 2.1 treats << as a parameter tag; \<< is its escape for a literal heredoc.
           command: |
-            python - <<'PY'
+            python - \<<'PY'
             import time, psycopg
             for _ in range(60):
                 try:
