@@ -4,6 +4,17 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **GraphRAG graph backend** — with `SION_GRAPHRAG_STORAGE=postgres`, LightRAG now stores its graph in
+  plain tables (`PGTableGraphStorage`) instead of Apache AGE (`PGGraphStorage`). LightRAG 1.5.7 refuses
+  the AGE backend on AGE 1.8.0+. Existing deployments keep their data by running
+  `python -m lightrag.tools.migrate_graph_storage --apply` once, or rebuild with
+  `POST /api/v1/graphrag/project`; `SION_GRAPHRAG_GRAPH_BACKEND=age` restores the old backend.
+  `GET /api/v1/graphrag/status` reports the active `graph_storage`. See `docs/GRAPHRAG.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

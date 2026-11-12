@@ -39,24 +39,58 @@ projected before it was rejected), project into a new `SION_GRAPHRAG_WORKSPACE`.
 ## Storage
 
 `SION_GRAPHRAG_STORAGE=postgres` (default) keeps KV, vectors (pgvector), graph
-(Apache AGE) and document status in PostgreSQL. LightRAG reads its own
-connection settings: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`,
-`POSTGRES_PASSWORD`, `POSTGRES_DATABASE`. The server needs both extensions and
-AGE preloaded:
+and document status in PostgreSQL. LightRAG reads its own connection settings:
+`POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
+`POSTGRES_DATABASE`. Only the `vector` extension is required:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS age;
--- postgresql.conf: shared_preload_libraries = 'age'
 ```
+
+### Graph backend
+
+`SION_GRAPHRAG_GRAPH_BACKEND` picks LightRAG's Postgres graph storage:
+
+| Value | LightRAG class | Needs |
+| --- | --- | --- |
+| `table` (default) | `PGTableGraphStorage` | plain tables `lightrag_graph_nodes` / `lightrag_graph_edges`, created on first start |
+| `age` (legacy) | `PGGraphStorage` | Apache AGE loaded in every session |
+
+The default moved from AGE to plain tables because LightRAG 1.5.6 made
+`PGTableGraphStorage` its preferred Postgres graph backend, and 1.5.7 refuses
+`PGGraphStorage` on AGE 1.8.0 or newer. AGE is also unavailable on most managed
+Postgres hosts. `GET /api/v1/graphrag/status` reports the active class as
+`graph_storage`. The optional Cypher projection in `migrations/005_age_projection.sql`
+(`sion_graphrag.age`) is separate and unchanged.
+
+#### Moving an existing AGE projection
+
+The projection is rebuildable, so either path is safe:
+
+1. **Rebuild** (canonical relations only): start with the default backend and call
+   `POST /api/v1/graphrag/project`. Graph edges that LightRAG extracted from inserted
+   documents with an LLM are not rebuilt this way.
+2. **Migrate** (keeps everything): stop the API and workers, keep AGE loaded, then run
+   LightRAG's offline tool against the same database. It is a dry run unless `--apply`
+   is given, refuses a non-empty target, verifies counts and payloads, and rolls back
+   its own writes on failure:
+
+   ```bash
+   python -m lightrag.tools.migrate_graph_storage --workspace "$SION_GRAPHRAG_WORKSPACE"
+   python -m lightrag.tools.migrate_graph_storage --workspace "$SION_GRAPHRAG_WORKSPACE" --apply
+   ```
+
+Until the migration is done, set `SION_GRAPHRAG_GRAPH_BACKEND=age` and keep AGE
+below 1.8.0.
 
 ### Sharing the Ontology pipeline's PostgreSQL
 
 The Ontology pipeline's `aec-postgres-age` container (PostgreSQL 16 with AGE
 and pgvector, host port `55432`) can host the projection in a separate
-database. `scripts/graphrag_db_setup.sql` creates `sion_graphrag` and loads
-AGE per session through `session_preload_libraries`, so the server config
-does not change:
+database. `scripts/graphrag_db_setup.sql` creates `sion_graphrag` with
+pgvector. The default graph backend needs no AGE, so the server config does
+not change (the script keeps the per-session AGE lines, commented, for the
+legacy backend):
 
 ```bash
 psql -h localhost -p 55432 -U aec -d aec -f scripts/graphrag_db_setup.sql
@@ -69,12 +103,13 @@ POSTGRES_USER=aec
 POSTGRES_PASSWORD=<AEC_DB_PASSWORD>
 POSTGRES_DATABASE=sion_graphrag
 SION_GRAPHRAG_STORAGE=postgres
+SION_GRAPHRAG_GRAPH_BACKEND=table
 SION_GRAPHRAG_WORKSPACE=sion
 ```
 
 `SION_GRAPHRAG_STORAGE=local` uses LightRAG's file stores under
 `SION_GRAPHRAG_WORKING_DIR` (default `runtime/graphrag`) for machines without
-AGE.
+PostgreSQL.
 
 ## Models
 
