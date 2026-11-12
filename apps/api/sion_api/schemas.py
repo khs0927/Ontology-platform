@@ -327,6 +327,11 @@ class RelationExtractionRequest(BaseModel):
     include_cooccurrence: bool = True
 
 
+class IngestJobRequest(BaseModel):
+    paths: list[str] = Field(min_length=1, max_length=1000)
+    extract_relations: bool = True
+
+
 class GraphExportImportRequest(BaseModel):
     path: str = Field(min_length=1)
     namespace: str | None = Field(default=None, max_length=120, pattern=r"^[0-9A-Za-z._-]+$")
