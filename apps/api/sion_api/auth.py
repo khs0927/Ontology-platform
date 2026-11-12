@@ -31,9 +31,10 @@ class Principal:
     token without a project allowlist); otherwise only those project ids are visible.
     """
 
-    kind: str  # "local" or "bearer"
+    kind: str  # "local", "bearer" (static token) or "user" (verified OIDC access token)
     scopes: frozenset[str]
     projects: frozenset[str] | None = None
+    subject: str | None = None  # OIDC ``sub`` for "user" principals
 
     def can_access_project(self, project_id: object) -> bool:
         if self.projects is None:
@@ -98,6 +99,9 @@ class AuthPolicy:
     # Optional per-token project ACL: token -> allowed project ids. Tokens absent here
     # are unrestricted (backward compatible with the plain token -> scopes map).
     token_projects: tuple[tuple[str, frozenset[str]], ...] = ()
+    # Optional OIDC verifier (sion_api.oidc.OidcVerifier). Bearer values that are not a
+    # configured static token are tried as identity-provider access tokens.
+    oidc: Any = None
 
     @classmethod
     def from_env(cls) -> "AuthPolicy":
@@ -124,9 +128,14 @@ class AuthPolicy:
                 if projects is not None:
                     token_projects.append((token, projects))
 
-        if mode in {"bearer", "local-or-bearer"} and not token_scopes:
-            raise RuntimeError("SION_API_TOKENS_JSON is required when bearer authentication is enabled")
-        return cls(mode=mode, token_scopes=tuple(token_scopes), token_projects=tuple(token_projects))
+        from .oidc import OidcVerifier
+
+        oidc = OidcVerifier.from_env()
+        if mode in {"bearer", "local-or-bearer"} and not token_scopes and oidc is None:
+            raise RuntimeError(
+                "SION_API_TOKENS_JSON or SION_OIDC_ISSUER is required when bearer authentication is enabled"
+            )
+        return cls(mode=mode, token_scopes=tuple(token_scopes), token_projects=tuple(token_projects), oidc=oidc)
 
     @staticmethod
     def _is_local(request: Request) -> bool:
@@ -170,7 +179,7 @@ class AuthPolicy:
         presented = token.encode("utf-8")
         scopes = _lookup(self.token_scopes, presented)
         if scopes is None:
-            return None
+            return self._oidc_principal(token)
         projects = _lookup(self.token_projects, presented)
         if "*" not in scopes:
             # ``project:<uuid>`` scope entries also restrict the token. Malformed entries fail
@@ -180,6 +189,17 @@ class AuthPolicy:
                 from_scopes = frozenset(p for p in (normalize_project_id(e) for e in entries) if p is not None)
                 projects = from_scopes if projects is None else projects & from_scopes
         return Principal(kind="bearer", scopes=scopes, projects=projects)
+
+    def _oidc_principal(self, token: str) -> Principal | None:
+        if self.oidc is None or not self.oidc.looks_like_jwt(token):
+            return None
+        from .oidc import OidcError
+
+        try:
+            claims = self.oidc.verify(token)
+        except OidcError:
+            return None
+        return Principal(kind="user", scopes=claims.scopes, projects=claims.projects, subject=claims.subject)
 
     def _matched_token(self, authorization: str | None) -> str | None:
         """The configured token the header authenticates as (never returned to clients)."""
@@ -254,6 +274,11 @@ class AuthPolicy:
         matched = self._matched_token(request.headers.get("Authorization"))
         if matched is not None:
             return "token:" + hashlib.sha256(matched.encode("utf-8")).hexdigest()[:32]
+        principal = getattr(request.state, "sion_principal", None)
+        if not isinstance(principal, Principal) and self.oidc is not None:
+            principal = self._principal_for_authorization(request.headers.get("Authorization"))
+        if isinstance(principal, Principal) and principal.kind == "user" and principal.subject:
+            return "user:" + hashlib.sha256(principal.subject.encode("utf-8")).hexdigest()[:32]
         return host
 
 def _lookup(entries: Iterable[tuple[str, frozenset[str]]], presented: bytes) -> frozenset[str] | None:

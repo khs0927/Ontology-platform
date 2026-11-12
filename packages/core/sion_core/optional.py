@@ -24,6 +24,7 @@ EXTRAS: dict[str, tuple[str, ...]] = {
     "regulation": ("pydantic_settings", "asyncpg", "greenlet"),
     "documents": ("pypdf", "docx"),
     "validation": ("rdflib", "pyshacl"),
+    "saas": ("jwt", "cryptography"),
 }
 
 # import name -> extra that provides it
