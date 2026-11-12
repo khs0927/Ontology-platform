@@ -4,6 +4,23 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Document parser router** (`sion_ingestion.parsers`) — picks a backend per file type:
+  HWPX (built-in reader, or `hwp-hwpx-parser` from the new `hwp` extra), HWP 5.0 (`hwp` extra),
+  scanned PDFs and images through any OpenAI-compatible vision OCR endpoint such as PaddleOCR-VL
+  (`SION_OCR_BASE_URL`, `SION_OCR_MODEL`; page rendering from the new `ocr` extra), and Docling
+  for PPTX/XLSX/HTML or, with `SION_PARSER_PREFER=docling`, for PDF/DOCX. See `docs/INGESTION.md`.
+
+### Changed
+
+- Document ingest skips now say why: an image without an OCR endpoint, or a scanned PDF, names
+  the settings that enable OCR instead of `unsupported type` / `OCR is not performed`.
+- Built-in DOCX/HWPX readers refuse XML members over 64 MB uncompressed and use defusedxml when
+  it is installed.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable
