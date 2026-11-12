@@ -231,7 +231,7 @@ def ingest_documents(session: Session, paths: list[Path]) -> dict:
             skipped.append({"path": str(path), "reason": str(exc)})
             continue
         if not content.text.strip():
-            reason = "; ".join(content.notes) or "no extractable text"
+            reason = "no extractable text" + (f" ({'; '.join(content.notes)})" if content.notes else "")
             skipped.append({"path": str(path), "reason": reason})
             continue
         files.append(path)

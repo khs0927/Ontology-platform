@@ -9,10 +9,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - **Document parser router** (`sion_ingestion.parsers`) — picks a backend per file type:
-  HWPX (built-in reader, or `hwp-hwpx-parser` from the new `hwp` extra), HWP 5.0 (`hwp` extra),
-  scanned PDFs and images through any OpenAI-compatible vision OCR endpoint such as PaddleOCR-VL
-  (`SION_OCR_BASE_URL`, `SION_OCR_MODEL`; page rendering from the new `ocr` extra), and Docling
-  for PPTX/XLSX/HTML or, with `SION_PARSER_PREFER=docling`, for PDF/DOCX. See `docs/INGESTION.md`.
+  HWP/HWPX and `.xls` through the kordoc CLI (MIT, first choice when installed), then
+  `hwp-hwpx-parser` (new `hwp` extra) or the built-in HWPX reader. Scanned PDFs and images go to
+  any OpenAI-compatible vision OCR endpoint such as PaddleOCR-VL (`SION_OCR_BASE_URL`,
+  `SION_OCR_MODEL`; page rendering from the new `ocr` extra), else to kordoc's built-in OCR.
+  Docling handles PPTX/XLSX/HTML. `SION_PARSER_PREFER=kordoc|docling` makes either parser the
+  first choice for PDF/DOCX too. See `docs/INGESTION.md`.
 
 ### Changed
 

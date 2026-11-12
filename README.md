@@ -185,7 +185,7 @@ See [`packages/README.md`](packages/README.md) for the package map.
 | `drive` | google-api-python-client >=2.201, google-auth >=2.60 | service-account upload unavailable; mounted-folder publish still works (changed Drive files are first copied to `.history/<UTC stamp>/`) |
 | `regulation` | `archontos` (pinned git dependency) + pydantic-settings, sqlalchemy[asyncio], asyncpg, … | `/api/v1/regulation/evaluate` returns 503 |
 | `documents` | pypdf >=6.19, python-docx >=1.2 | DOCX via the built-in OOXML reader; PDFs reported as `skipped` |
-| `hwp` | hwp-hwpx-parser >=1.0 (Apache-2.0) | HWPX via the built-in reader; `.hwp` reported as `skipped` |
+| `hwp` | hwp-hwpx-parser >=1.0 (Apache-2.0) | HWPX via the built-in reader; `.hwp` reported as `skipped`. When the kordoc CLI (`npm install -g kordoc`) is installed it is used first for HWP/HWPX ([`docs/INGESTION.md`](docs/INGESTION.md)) |
 | `ocr` | pypdfium2 >=5 | scanned PDFs reported as `skipped` (images still OCR when an endpoint is set); see [`docs/INGESTION.md`](docs/INGESTION.md) |
 | `validation` | rdflib >=7.6, pyshacl >=0.40.1 | `GET /api/v1/validation/shacl` returns 503 |
 | `all` | all of the above | |

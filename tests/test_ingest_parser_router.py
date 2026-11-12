@@ -59,8 +59,9 @@ def blank_pdf(page_count: int) -> bytes:
 
 @pytest.fixture(autouse=True)
 def _no_env(monkeypatch):
-    for name in ("SION_OCR_BASE_URL", "SION_OCR_MODEL", "SION_OCR_API_KEY", "SION_PARSER_PREFER"):
+    for name in ("SION_OCR_BASE_URL", "SION_OCR_MODEL", "SION_OCR_API_KEY", "SION_PARSER_PREFER", "SION_KORDOC_BIN"):
         monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("SION_KORDOC", "off")  # tests opt in to kordoc explicitly
 
 
 # --------------------------------------------------------------------------- HWPX
@@ -244,3 +245,117 @@ def test_docling_missing_names_the_install(tmp_path, monkeypatch):
     path.write_bytes(b"pk")
     with pytest.raises(ImportError, match="docling"):
         parsers.route(path)
+
+
+# --------------------------------------------------------------------------- kordoc
+
+FAKE_KORDOC = """#!{python}
+import json, sys
+args = sys.argv[1:]
+with open({log!r}, "a", encoding="utf-8") as log:
+    log.write(json.dumps(args) + "\\n")
+path = args[0]
+if path.endswith("broken.hwp"):
+    print(json.dumps({{"success": False, "error": "손상된 파일", "code": "PARSE_ERROR"}}))
+elif path.endswith("garbage.hwp"):
+    print("not json"); sys.stderr.write("boom")
+else:
+    ocr = "--ocr" in args
+    print(json.dumps({{"success": True, "fileType": "x", "pageCount": 2,
+                       "markdown": "### 제1조(목적)\\n\\n| 별표 | 기준 |" + (" (ocr)" if ocr else ""),
+                       "warnings": [{{"message": "w1", "code": "W"}}]}}))
+"""
+
+
+@pytest.fixture
+def fake_kordoc(tmp_path, monkeypatch):
+    import sys
+
+    log = tmp_path / "kordoc-calls.jsonl"
+    script = tmp_path / "kordoc"
+    script.write_text(FAKE_KORDOC.format(python=sys.executable, log=str(log)), encoding="utf-8")
+    script.chmod(0o755)
+    monkeypatch.setenv("SION_KORDOC", "on")
+    monkeypatch.setenv("SION_KORDOC_BIN", str(script))
+
+    def calls() -> list[list[str]]:
+        return [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()] if log.exists() else []
+
+    return calls
+
+
+def test_kordoc_is_first_for_hwp_and_hwpx(tmp_path, fake_kordoc):
+    for name in ("law.hwp", "law.hwpx"):
+        path = tmp_path / name
+        path.write_bytes(b"x")
+        content = document_ingest.extract_text(path)
+        assert content.extractor == "kordoc" and content.page_count == 2 and content.notes == ("w1",)
+        assert content.text.startswith("### 제1조(목적)")
+    assert all(c[1:] == ["--format", "json", "--no-images"] for c in fake_kordoc())
+    assert ".xls" in parsers.supported_suffixes() and ".hwp" in parsers.supported_suffixes()
+
+
+def test_kordoc_errors_are_unreadable(tmp_path, fake_kordoc):
+    broken = tmp_path / "broken.hwp"
+    broken.write_bytes(b"x")
+    with pytest.raises(DocumentUnreadable, match="손상된 파일"):
+        parsers.route(broken)
+    garbage = tmp_path / "garbage.hwp"
+    garbage.write_bytes(b"x")
+    with pytest.raises(DocumentUnreadable, match="no JSON.*boom"):
+        parsers.route(garbage)
+
+
+@needs_pypdf
+def test_kordoc_ocr_for_scans_and_images_when_no_vlm_endpoint(tmp_path, fake_kordoc):
+    scan = tmp_path / "scan.pdf"
+    scan.write_bytes(blank_pdf(1))
+    content = parsers.route(scan)
+    assert content.extractor == "kordoc+ocr" and content.text.endswith("(ocr)")
+    image = tmp_path / "page.png"
+    image.write_bytes(b"\x89PNG")
+    assert parsers.route(image).extractor == "kordoc+ocr"
+    # a configured vision endpoint still wins for scans
+    seen: list[dict] = []
+    assert parsers.route(image, ocr=OCR, ocr_transport=_ocr_transport(seen)).extractor == "ocr:paddleocr-vl"
+
+
+def test_kordoc_preference_and_fallbacks(tmp_path, fake_kordoc, monkeypatch):
+    sheet = tmp_path / "old.xls"
+    sheet.write_bytes(b"x")
+    assert parsers.route(sheet).extractor == "kordoc"
+    monkeypatch.setattr(parsers, "is_available", lambda m: False if m == "docling" else is_available(m))
+    deck = tmp_path / "deck.pptx"
+    deck.write_bytes(b"x")
+    assert parsers.route(deck).extractor == "kordoc"  # Docling missing -> kordoc
+    docx = tmp_path / "a.docx"
+    docx.write_bytes(b"x")
+    sentinel = ExtractedText("from docx reader", "docx-builtin")
+    assert parsers.route(docx, docx_reader=lambda p: sentinel) is sentinel
+    monkeypatch.setenv("SION_PARSER_PREFER", "kordoc")
+    assert parsers.route(docx, docx_reader=lambda p: sentinel).extractor == "kordoc"
+
+
+def test_kordoc_off_and_missing(tmp_path, monkeypatch):
+    path = tmp_path / "old.xls"
+    path.write_bytes(b"x")
+    assert parsers.kordoc_bin() is None
+    with pytest.raises(DocumentUnreadable, match="npm install -g kordoc"):
+        parsers.route(path)
+    monkeypatch.setenv("SION_KORDOC", "on")
+    monkeypatch.setenv("SION_KORDOC_BIN", str(tmp_path / "missing"))
+    assert parsers.kordoc_bin() is None
+
+
+def _real_kordoc() -> str | None:
+    import shutil
+
+    return shutil.which("kordoc")
+
+
+@pytest.mark.skipif(_real_kordoc() is None, reason="kordoc CLI not installed")
+def test_real_kordoc_reads_the_hwpx_fixture(tmp_path, monkeypatch):
+    monkeypatch.setenv("SION_KORDOC", "on")
+    content = parsers.route(minimal_hwpx(tmp_path / "law.hwpx"))
+    assert content.extractor == "kordoc" and content.page_count == 2
+    assert "| 복도 폭 | 1.2m 이상 |" in content.text and "제34조(직통계단의 설치)" in content.text

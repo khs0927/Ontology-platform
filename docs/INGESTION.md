@@ -8,15 +8,40 @@ configured, and every result records that backend in the document node's `extrac
 | Type | Backends, in order | Install |
 |---|---|---|
 | `.md` `.txt` `.csv` | plain text | core |
-| `.hwpx` | hwp-hwpx-parser → built-in OWPML reader (body text + tables as Markdown) | `hwp` extra, optional |
-| `.hwp` (HWP 5.0) | hwp-hwpx-parser | `hwp` extra |
-| `.pdf` | Docling (when preferred) → pypdf; a PDF with no text layer goes to vision OCR | `documents` extra; `ocr` extra + endpoint for scans |
-| `.docx` | Docling (when preferred) → python-docx → built-in OOXML reader | `documents` extra, optional |
-| `.pptx` `.xlsx` `.html` | Docling | `pip install docling` |
-| `.png` `.jpg` `.webp` `.tif` | vision OCR | endpoint only |
+| `.hwpx` | **kordoc** → hwp-hwpx-parser → built-in OWPML reader (body text + tables as Markdown) | kordoc CLI; `hwp` extra; nothing |
+| `.hwp` (HWP 3/5) | **kordoc** → hwp-hwpx-parser | kordoc CLI or `hwp` extra |
+| `.pdf` | preferred parser → pypdf; no text layer → vision OCR endpoint → kordoc OCR | `documents` extra; endpoint or kordoc for scans |
+| `.docx` | preferred parser → python-docx → built-in OOXML reader | `documents` extra, optional |
+| `.pptx` `.xlsx` | preferred parser → Docling → kordoc | Docling or kordoc |
+| `.xls` | kordoc | kordoc CLI |
+| `.html` | Docling | `pip install docling` |
+| `.png` `.jpg` `.webp` `.tif` | vision OCR endpoint → kordoc OCR | endpoint or kordoc |
+
+"Preferred parser" is `SION_PARSER_PREFER=kordoc` or `SION_PARSER_PREFER=docling` (ignored when that
+parser is not installed).
 
 A file whose backend is missing is listed under `skipped` with the reason (the extra to install or
 the setting to set). It is never guessed.
+
+## kordoc (Korean public documents)
+
+[kordoc](https://github.com/chrisryugj/kordoc) (MIT, Node 20+) is the first choice for HWP and HWPX
+because it is built for Korean public documents. Its self-reported benchmarks include 346/346
+statute appendix (법령 별표) tables from HWP and 10,342/10,342 HWPX table structures. It also
+reads PDF, Office files and images with a built-in Korean OCR (PP-OCRv5, about 18 MB downloaded on
+first use), so it doubles as a no-GPU OCR fallback.
+
+```bash
+npm install -g kordoc            # or: npm install kordoc && export SION_KORDOC_BIN=$PWD/node_modules/.bin/kordoc
+export SION_PARSER_PREFER=kordoc # optional: kordoc for PDF/DOCX/XLSX/PPTX too
+export SION_KORDOC_TIMEOUT_SECONDS=300
+export SION_KORDOC=off           # disable it without uninstalling
+```
+
+The router runs `kordoc <file> --format json --no-images` (adding `--ocr` for scans) as a
+subprocess with a fixed argument list. Its warnings are kept as `parser_notes`, and the extractor
+is recorded as `kordoc` or `kordoc+ocr`. For bulk ingestion, the resident `kordoc parse-worker`
+(one Node process for many files) is the planned path for the job queue in phase 6.
 
 ## Vision OCR for scans and images
 
@@ -38,7 +63,7 @@ export SION_OCR_MAX_PAGES=50           # pages rendered per PDF
 ```
 
 A PDF counts as scanned when every page has fewer than 20 extractable characters. Without an
-endpoint such a PDF is skipped with `no extractable text (no text layer); set SION_OCR_BASE_URL …`.
+endpoint, and without kordoc, such a PDF is skipped with `no extractable text (no text layer; set SION_OCR_BASE_URL …)`. A configured endpoint is used before kordoc's OCR.
 OCR output is model text: it stays `unverified` like every other extraction and goes through
 `/review` before it becomes canonical.
 
@@ -51,6 +76,6 @@ deliberately with `pip install docling`. Once installed it handles PPTX/XLSX/HTM
 
 ## Not used, and why
 
-- **pyhwp** — AGPL-3.0; hwp-hwpx-parser (Apache-2.0) covers HWP 5.0 and HWPX.
+- **pyhwp** — AGPL-3.0; kordoc (MIT) and hwp-hwpx-parser (Apache-2.0) cover HWP and HWPX.
 - **Firecrawl** — AGPL-3.0 server; use Crawl4AI (Apache-2.0) for web sources when crawling is added.
 - **Cloud document APIs** — the platform is local-first; the OCR endpoint can be self-hosted.

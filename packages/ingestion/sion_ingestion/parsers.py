@@ -7,17 +7,21 @@ layout-aware parser, HWP/HWPX needs a native reader, and scanned pages need a vi
 ==========  ==================================================================================
 Suffix      Backends, in order
 ==========  ==================================================================================
-``.hwpx``   ``hwp-hwpx-parser`` (``hwp`` extra) → built-in HWPX XML reader (no dependency)
-``.hwp``    ``hwp-hwpx-parser`` (``hwp`` extra)
-``.pdf``    Docling (when ``SION_PARSER_PREFER=docling``) → pypdf (``documents`` extra);
-            pages with no text layer → vision OCR (``SION_OCR_BASE_URL`` + ``SION_OCR_MODEL``)
-``.docx``   Docling (when preferred) → python-docx → built-in OOXML reader
+``.hwpx``   kordoc → ``hwp-hwpx-parser`` (``hwp`` extra) → built-in HWPX XML reader
+``.hwp``    kordoc → ``hwp-hwpx-parser`` (``hwp`` extra)
+``.pdf``    preferred parser (``SION_PARSER_PREFER=kordoc|docling``) → pypdf (``documents`` extra);
+            no text layer → vision OCR (``SION_OCR_BASE_URL`` + ``SION_OCR_MODEL``) → kordoc OCR
+``.docx``   preferred parser → python-docx → built-in OOXML reader
 ``.pptx``,
-``.xlsx``,
-``.html``   Docling (when installed)
-images      vision OCR (when configured)
+``.xlsx``   preferred parser → Docling → kordoc
+``.xls``    kordoc
+``.html``   Docling
+images      vision OCR → kordoc OCR
 ==========  ==================================================================================
 
+kordoc (MIT, Node 20+, ``npm install -g kordoc``) is the Korean public-document parser: HWP 3/5,
+HWPX, statute appendix (별표) tables, PDF with local OCR. It is found on ``PATH`` or through
+``SION_KORDOC_BIN`` and run as a subprocess (``SION_KORDOC=off`` disables it).
 Docling is not an extra (it pulls in torch); ``pip install docling`` enables it. Vision OCR talks
 to any OpenAI-compatible chat endpoint that accepts images, such as PaddleOCR-VL or Qwen-VL served
 by vLLM; ``pypdfium2`` (``ocr`` extra) renders PDF pages for it. Every result names the backend
@@ -28,8 +32,11 @@ from __future__ import annotations
 
 import base64
 import importlib
+import json
 import os
 import re
+import shutil
+import subprocess
 import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -42,7 +49,9 @@ from sion_core.optional import is_available
 TEXT_SUFFIXES = frozenset({".md", ".txt", ".csv"})
 IMAGE_SUFFIXES = frozenset({".png", ".jpg", ".jpeg", ".webp", ".tif", ".tiff"})
 DOCLING_ONLY_SUFFIXES = frozenset({".pptx", ".xlsx", ".html", ".htm"})
-DOCUMENT_SUFFIXES = TEXT_SUFFIXES | {".docx", ".pdf", ".hwpx", ".hwp"} | DOCLING_ONLY_SUFFIXES | IMAGE_SUFFIXES
+KORDOC_SUFFIXES = frozenset({".hwp", ".hwpx", ".pdf", ".docx", ".xlsx", ".xls", ".pptx"}) | IMAGE_SUFFIXES
+DOCUMENT_SUFFIXES = (TEXT_SUFFIXES | {".docx", ".pdf", ".hwpx", ".hwp", ".xls"} | DOCLING_ONLY_SUFFIXES
+                     | IMAGE_SUFFIXES)
 
 # A PDF page with fewer extractable characters than this is treated as scanned.
 MIN_TEXT_CHARS_PER_PAGE = 20
@@ -89,13 +98,35 @@ class OcrConfig:
         )
 
 
+def kordoc_bin() -> str | None:
+    """Path of the kordoc CLI, or None when it is not installed or disabled (``SION_KORDOC=off``)."""
+    if os.getenv("SION_KORDOC", "").strip().lower() in {"off", "0", "false", "no"}:
+        return None
+    configured = os.getenv("SION_KORDOC_BIN")
+    if configured:
+        return configured if Path(configured).is_file() else None
+    return shutil.which("kordoc")
+
+
+def preferred() -> str | None:
+    """``SION_PARSER_PREFER`` when that parser is actually available: 'kordoc', 'docling' or None."""
+    choice = os.getenv("SION_PARSER_PREFER", "").strip().lower()
+    if choice == "docling" and is_available("docling"):
+        return "docling"
+    if choice == "kordoc" and kordoc_bin():
+        return "kordoc"
+    return None
+
+
 def prefer_docling() -> bool:
-    return os.getenv("SION_PARSER_PREFER", "").strip().lower() == "docling" and is_available("docling")
+    return preferred() == "docling"
 
 
 def supported_suffixes() -> set[str]:
     """Suffixes ingestible with the libraries and endpoints configured right now."""
     suffixes = set(TEXT_SUFFIXES) | {".docx", ".hwpx"}  # built-in readers
+    if kordoc_bin():
+        suffixes |= KORDOC_SUFFIXES
     if is_available("pypdf") or is_available("docling"):
         suffixes.add(".pdf")
     if is_available("hwp_hwpx_parser"):
@@ -231,6 +262,38 @@ def read_hwp_parser(path: Path) -> ExtractedText:
     return ExtractedText(re.sub(r"\n{3,}", "\n\n", text).strip(), "hwp-hwpx-parser")
 
 
+# ---------------------------------------------------------------- kordoc
+
+
+def read_kordoc(path: Path, *, ocr: bool = False, binary: str | None = None) -> ExtractedText:
+    """Markdown from the kordoc CLI (``--format json``). ``ocr`` turns on its built-in OCR."""
+    binary = binary or kordoc_bin()
+    if not binary:
+        raise DocumentUnreadable("kordoc is not installed: npm install -g kordoc (Node 20+) or set SION_KORDOC_BIN")
+    args = [binary, str(path.resolve()), "--format", "json", "--no-images"]
+    if ocr:
+        args.append("--ocr")
+    timeout = float(os.getenv("SION_KORDOC_TIMEOUT_SECONDS", "300"))
+    try:
+        done = subprocess.run(args, capture_output=True, timeout=timeout, check=False)  # noqa: S603 - fixed argv
+    except subprocess.TimeoutExpired as exc:
+        raise DocumentUnreadable(f"kordoc timed out after {timeout:.0f}s") from exc
+    except OSError as exc:
+        raise DocumentUnreadable(f"kordoc could not start ({exc})") from exc
+    try:
+        result = json.loads(done.stdout.decode("utf-8"))
+    except ValueError as exc:
+        stderr = done.stderr.decode("utf-8", "replace").strip()[-300:]
+        raise DocumentUnreadable(f"kordoc returned no JSON (exit {done.returncode}: {stderr})") from exc
+    if not isinstance(result, dict) or not result.get("success"):
+        error = result.get("error") if isinstance(result, dict) else None
+        raise DocumentUnreadable(f"kordoc could not read the file ({error or 'unknown error'})")
+    notes = tuple(str(w.get("message")) for w in result.get("warnings") or [] if isinstance(w, dict) and w.get("message"))
+    pages = result.get("pageCount") or (result.get("metadata") or {}).get("pageCount")
+    return ExtractedText((result.get("markdown") or "").strip(), "kordoc" + ("+ocr" if ocr else ""),
+                         int(pages) if pages else None, notes)
+
+
 # ---------------------------------------------------------------- Docling
 
 
@@ -345,41 +408,58 @@ def route(path: Path, *, docx_reader: Callable[[Path], ExtractedText] | None = N
     """Parse one file with the best available backend. Raises :class:`MissingExtra` or :class:`DocumentUnreadable`."""
     suffix = path.suffix.lower()
     ocr = ocr if ocr is not None else OcrConfig.from_env()
+    kordoc = kordoc_bin()
+    choice = preferred()
 
     if suffix in TEXT_SUFFIXES:
         return ExtractedText(path.read_text(encoding="utf-8", errors="replace"), "text")
 
-    if suffix == ".hwpx":
-        return read_hwp_parser(path) if is_available("hwp_hwpx_parser") else read_hwpx_builtin(path)
-    if suffix == ".hwp":
+    if suffix in {".hwp", ".hwpx"}:
+        if kordoc:
+            return read_kordoc(path, binary=kordoc)
+        if suffix == ".hwpx" and not is_available("hwp_hwpx_parser"):
+            return read_hwpx_builtin(path)
         return read_hwp_parser(path)
 
+    if choice == "kordoc" and suffix in KORDOC_SUFFIXES - IMAGE_SUFFIXES:
+        return read_kordoc(path, binary=kordoc, ocr=suffix == ".pdf" and ocr is None)
+    if choice == "docling" and suffix in {".pdf", ".docx"} | DOCLING_ONLY_SUFFIXES:
+        return read_docling(path)
+
     if suffix == ".pdf":
-        if prefer_docling():
-            return read_docling(path)
         if not is_available("pypdf") and is_available("docling"):
             return read_docling(path)
+        if not is_available("pypdf") and kordoc:
+            return read_kordoc(path, binary=kordoc, ocr=ocr is None)
         extracted, pages = read_pdf_pypdf(path)
-        if is_scanned(pages):
-            if ocr is None:
-                return ExtractedText(extracted.text, extracted.extractor, extracted.page_count,
-                                     ("no extractable text (no text layer); set SION_OCR_BASE_URL and SION_OCR_MODEL to OCR scans",))
+        if not is_scanned(pages):
+            return extracted
+        if ocr is not None:
             return read_ocr(path, ocr, render=ocr_render, transport=ocr_transport)
-        return extracted
+        if kordoc:
+            return read_kordoc(path, binary=kordoc, ocr=True)
+        return ExtractedText(extracted.text, extracted.extractor, extracted.page_count, (
+            "no text layer; set SION_OCR_BASE_URL and SION_OCR_MODEL, "
+            "or install kordoc, to OCR scans",))
 
     if suffix == ".docx":
-        if prefer_docling():
-            return read_docling(path)
         if docx_reader is None:
             raise DocumentUnreadable("no DOCX reader")
         return docx_reader(path)
 
     if suffix in DOCLING_ONLY_SUFFIXES:
+        if not is_available("docling") and kordoc and suffix in KORDOC_SUFFIXES:
+            return read_kordoc(path, binary=kordoc)
         return read_docling(path)
 
+    if suffix == ".xls":
+        return read_kordoc(path, binary=kordoc)
+
     if suffix in IMAGE_SUFFIXES:
-        if ocr is None:
-            raise DocumentUnreadable("image files need vision OCR: set SION_OCR_BASE_URL and SION_OCR_MODEL")
-        return read_ocr(path, ocr, transport=ocr_transport)
+        if ocr is not None:
+            return read_ocr(path, ocr, transport=ocr_transport)
+        if kordoc:
+            return read_kordoc(path, binary=kordoc, ocr=True)
+        raise DocumentUnreadable("image files need OCR: set SION_OCR_BASE_URL and SION_OCR_MODEL, or install kordoc")
 
     raise DocumentUnreadable(f"unsupported document type: {suffix or '(none)'}")
