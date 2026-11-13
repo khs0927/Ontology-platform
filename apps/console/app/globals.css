@@ -70,3 +70,27 @@ textarea {
   font: inherit; width: 100%; padding: 9px 12px; border-radius: 8px;
   border: 1px solid var(--line); background: var(--bg); color: var(--text); resize: vertical;
 }
+nav.switcher { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+nav.switcher a[aria-current="page"] { font-weight: 600; text-decoration: none; }
+form.new-project { display: flex; gap: 8px; flex: 1 1 260px; margin-left: auto; min-width: 0; }
+form.new-project input { min-width: 0; }
+ul.members { list-style: none; margin: 0 0 8px; padding: 0; }
+ul.members li {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px;
+  padding: 8px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere;
+}
+ul.members li:last-child { border-bottom: 0; }
+.member-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.member-actions form { display: flex; gap: 6px; align-items: center; }
+.card h3 { font-size: 0.98rem; margin: 16px 0 8px; }
+select {
+  font: inherit; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text);
+}
+form.invite { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
+form.invite label { display: grid; gap: 4px; color: var(--muted); font-size: 0.92em; }
+.invite-link { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.invite-link p { flex-basis: 100%; }
+.invite-link input { flex: 1 1 220px; min-width: 0; }
+a.button { display: inline-block; text-decoration: none; }
+button, .button { white-space: nowrap; }
