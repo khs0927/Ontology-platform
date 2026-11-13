@@ -36,3 +36,35 @@ export async function sionApi<T>(path: string): Promise<ApiResult<T>> {
     return { ok: false, status: 0, error: "Sion API is unreachable" };
   }
 }
+
+export type LawHit = {
+  id: string;
+  law_name: string;
+  article_label: string;
+  title: string | null;
+  snippet: string;
+  citation: string;
+  effective_from: string;
+  source_url: string | null;
+  score: number;
+};
+export type LawSearch = { query: string; as_of: string; total: number; results: LawHit[] };
+
+export type Entity = {
+  id: string;
+  name: string;
+  entity_type_id: string;
+  category: string | null;
+  description: string | null;
+};
+export type GraphEdge = { id: string; source: string; target: string; type: string; verification_state: string };
+export type Graph = { nodes: Entity[]; edges: GraphEdge[] };
+
+export function withQuery(path: string, params: Record<string, string | number | undefined>): string {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  }
+  const text = query.toString();
+  return text ? `${path}?${text}` : path;
+}

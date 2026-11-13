@@ -14,6 +14,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
 - **Sion Console (phase 7b)** — Next.js 16 web app in `apps/console`: Supabase magic-link sign-in
   via `proxy.ts`, account/subscription dashboard calling the API server-side, Paddle checkout.
+- **Console search** — `/projects` (the user's project entities and relations) and `/search`
+  (law search with a reference date) in `apps/console`.
 
 ## [0.3.0] - 2026-11-11
 
