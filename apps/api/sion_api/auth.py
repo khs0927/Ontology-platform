@@ -295,18 +295,22 @@ def _remember(request: Request, principal: Principal) -> Principal:
     return principal
 
 
-def require_scope(policy: AuthPolicy, scope: str, *, project_scoped: bool = False) -> Callable[[Request], None]:
+def require_scope(
+    policy: AuthPolicy, scope: str, *, project_scoped: bool = False, shared_reference: bool = False
+) -> Callable[[Request], None]:
     """FastAPI dependency requiring ``scope``.
 
     A token restricted to a project allowlist may only reach routes declared
     ``project_scoped`` (routes that apply the project ACL themselves through
-    :func:`require_project_access` / :func:`allowed_projects`). Every other route
-    could return cross-project data, so restricted tokens fail closed there.
+    :func:`require_project_access` / :func:`allowed_projects`) or
+    ``shared_reference`` (routes that only return data shared by every tenant, such as
+    published law text or the ontology schema). Every other route could return
+    cross-project data, so restricted tokens fail closed there.
     """
 
     def dependency(request: Request) -> None:
         principal = policy.authorize(request, scope)
-        if principal.projects is not None and not project_scoped:
+        if principal.projects is not None and not (project_scoped or shared_reference):
             raise HTTPException(
                 status_code=403,
                 detail="project-restricted token cannot access cross-project routes",
@@ -315,6 +319,7 @@ def require_scope(policy: AuthPolicy, scope: str, *, project_scoped: bool = Fals
     # Introspected by the route-coverage test (tests/test_api_scopes.py).
     dependency.required_scope = scope  # type: ignore[attr-defined]
     dependency.project_scoped = project_scoped  # type: ignore[attr-defined]
+    dependency.shared_reference = shared_reference  # type: ignore[attr-defined]
     dependency.policy = policy  # type: ignore[attr-defined]
     dependency.sion_scope = scope  # type: ignore[attr-defined]  # read by install_openapi_security
     return dependency
@@ -328,6 +333,21 @@ def project_scoped(dependency: Callable[[Request], None]) -> Callable[[Request],
         dependency.policy,  # type: ignore[attr-defined]
         dependency.required_scope,  # type: ignore[attr-defined]
         project_scoped=True,
+    )
+
+
+def shared_reference(dependency: Callable[[Request], None]) -> Callable[[Request], None]:
+    """Derive a variant of a :func:`require_scope` dependency for tenant-independent data.
+
+    Only for routes whose responses contain no project data at all (published law text,
+    the ontology schema). Project-restricted callers may reach them.
+    """
+    if not hasattr(dependency, "policy"):
+        return dependency
+    return require_scope(
+        dependency.policy,  # type: ignore[attr-defined]
+        dependency.required_scope,  # type: ignore[attr-defined]
+        shared_reference=True,
     )
 
 

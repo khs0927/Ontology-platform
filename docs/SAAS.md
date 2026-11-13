@@ -57,7 +57,8 @@ are stored: no names, emails, addresses or raw payloads.
 ## Not in this slice
 
 - Feature gating by plan (which price unlocks what) and usage metering.
-- Tenant/organization objects and row-level security on knowledge tables; users are scoped to
-  projects through the existing project ACL, so most knowledge routes stay closed to them until
-  they become project-scoped.
+- Tenant/organization objects and row-level security on knowledge tables. Users are scoped to
+  projects through the project ACL: entity, relation and graph reads filter to their projects,
+  law search and the ontology schema are shared, and the remaining knowledge routes (evidence,
+  artifacts, review queue, GraphRAG, vector search, all writes) stay closed to them for now.
 - The Next.js 16 web app (sign-in, dashboard, checkout): next PR.
