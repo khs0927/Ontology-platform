@@ -15,16 +15,23 @@ export type Billing = { subject: string; active: boolean; price_ids: string[]; s
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number; error: string };
 
 /** Call the Sion API with the signed-in user's access token. Server-side only. */
-export async function sionApi<T>(path: string): Promise<ApiResult<T>> {
+export async function sionApi<T>(
+  path: string,
+  init?: { method?: "GET" | "POST" | "PATCH"; body?: BodyInit; contentType?: string },
+): Promise<ApiResult<T>> {
   const base = process.env.SION_API_URL;
   if (!base) return { ok: false, status: 0, error: "SION_API_URL is not set" };
   const supabase = await createClient();
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) return { ok: false, status: 401, error: "not signed in" };
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
+  if (init?.contentType) headers["Content-Type"] = init.contentType;
   try {
     const response = await fetch(new URL(path, base), {
-      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      method: init?.method ?? "GET",
+      headers,
+      body: init?.body,
       cache: "no-store",
     });
     if (!response.ok) {
@@ -68,3 +75,24 @@ export function withQuery(path: string, params: Record<string, string | number |
   const text = query.toString();
   return text ? `${path}?${text}` : path;
 }
+
+export type ProjectDocument = {
+  id: string;
+  name: string;
+  filename: string | null;
+  byte_size: number | null;
+  sha256: string | null;
+  extractor: string | null;
+  description: string | null;
+  updated_at: string | null;
+};
+export type ProjectDocuments = { project_id: string; items: ProjectDocument[] };
+export type UploadResult = {
+  filename: string;
+  created_nodes: number;
+  skipped: string[];
+  document: ProjectDocument | null;
+};
+
+export const UPLOAD_SUFFIXES = [".md", ".txt", ".csv", ".docx", ".pdf"];
+export const UPLOAD_MAX_BYTES = 25 * 1024 * 1024;
