@@ -44,6 +44,7 @@ CORE_SEQUENCE = (
     "004_seed_core_types",
     "006_outbox",
     "007_relation_type_validates",
+    "008_law_articles",
     "009_relation_types_coexistence",
 )
 OPTIONAL_AGE = "005_age_projection"
