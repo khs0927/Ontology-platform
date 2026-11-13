@@ -14,6 +14,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
 - **Plan entitlements** — `SION_PLAN_SCOPES_JSON` maps Paddle price ids to extra API scopes for
   signed-in users with an active subscription; cached 60 s and cleared on every billing webhook.
+- **Project uploads and edits** — `POST/GET /api/v1/projects/{id}/documents` (raw-body upload,
+  size-limited, content-addressed per project, ingested with `properties.project_id`) and
+  `PATCH /api/v1/entities/{id}` (merge-patch edit) for project members with `write:knowledge`.
 
 ### Changed
 
@@ -21,6 +24,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `/graph` now accept project-restricted callers (OIDC users, project tokens) and filter to their
   projects (`properties.project_id`), with an optional `project_id` filter for everyone. Law search
   and the ontology schema are marked shared reference data. See `docs/API_AUTH.md`.
+- **Project-scoped knowledge writes** — entity, relation, relation-invalidate and evidence writes
+  accept project-restricted callers and keep them inside their projects (404 otherwise; no new
+  `Project` entities, no moving entities between projects).
 
 ## [0.3.0] - 2026-11-11
 

@@ -62,6 +62,14 @@ PROJECT_SCOPED_ROUTES = {
     ("GET", "/api/v1/entities/{entity_id}"),
     ("GET", "/api/v1/relations"),
     ("GET", "/api/v1/graph"),
+    # Knowledge writes that check the caller's projects (sion_api.project_writes).
+    ("POST", "/api/v1/entities"),  # properties.project_id must be on the ACL; no new projects
+    ("PATCH", "/api/v1/entities/{entity_id}"),  # only visible entities; project_id is frozen
+    ("POST", "/api/v1/relations"),  # both endpoints visible
+    ("POST", "/api/v1/relations/{relation_id}/invalidate"),  # relation visible
+    ("POST", "/api/v1/evidence"),  # target entity/relation visible
+    ("POST", "/api/v1/projects/{project_id}/documents"),  # upload into a project on the ACL
+    ("GET", "/api/v1/projects/{project_id}/documents"),
     ("GET", "/api/v1/me"),  # the caller's own identity; no project data
     ("GET", "/api/v1/billing/me"),  # the caller's own subscriptions; no project data
     ("GET", "/regulation"),
