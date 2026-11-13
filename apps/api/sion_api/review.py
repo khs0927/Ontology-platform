@@ -218,10 +218,15 @@ def _is_candidate(row: models.Relation) -> bool:
     return bool((row.properties or {}).get("candidate"))
 
 
-def _candidate_rows(session: Session, states: list[str]) -> list[models.Relation]:
+def _candidate_rows(
+    session: Session, states: list[str], projects: frozenset[str] | None = None
+) -> list[models.Relation]:
+    from .repository import relation_in_projects
+
     statement = (
         select(models.Relation)
         .where(models.Relation.verification_state.in_(states))
+        .where(relation_in_projects(projects))
         .where(models.Relation.source_kind.in_(CANDIDATE_SOURCE_KINDS))
         .order_by(models.Relation.confidence.desc(), models.Relation.created_at, models.Relation.id)
     )
@@ -408,11 +413,19 @@ def _serialize_page(
     ]
 
 
-def list_candidates(session: Session, *, status: str = "pending", limit: int = 100, offset: int = 0) -> dict[str, Any]:
+def list_candidates(
+    session: Session,
+    *,
+    status: str = "pending",
+    limit: int = 100,
+    offset: int = 0,
+    projects: frozenset[str] | None = None,
+) -> dict[str, Any]:
+    """Candidates (and their counts) whose both endpoints are in ``projects``; ``None`` is unrestricted."""
     if status != "all" and status not in STATUS_TO_STATE:
         raise ReviewError(f"status must be one of pending, approved, rejected, all (got {status!r})")
     ledger = load_extraction_ledger(session)
-    all_rows = _candidate_rows(session, list(STATUS_TO_STATE.values()))
+    all_rows = _candidate_rows(session, list(STATUS_TO_STATE.values()), projects)
     counts = {name: 0 for name in STATUS_TO_STATE}
     for row in all_rows:
         counts[STATE_TO_STATUS[row.verification_state]] += 1

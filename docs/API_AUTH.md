@@ -81,7 +81,8 @@ A token with a `projects` allowlist is project-restricted:
 Project-scoped routes today are `/regulation`, `/api/v1/regulation/works*`,
 `/api/v1/regulation/summary`, `/api/v1/me`, `/api/v1/billing/me`, and the knowledge reads
 `GET /api/v1/entities`, `/api/v1/entities/{id}`, `/api/v1/relations` and `/api/v1/graph`, the
-project writes listed below, and `/api/v1/projects/{project_id}/documents`.
+project writes listed below, `/api/v1/projects/{project_id}/documents`, the review queue
+(`/api/v1/relations/candidates*`) and `GET /api/v1/evidence`.
 
 For the knowledge reads, an entity belongs to a project when it **is** the `Project` entity or
 its `properties.project_id` names it (the convention regulation works already use). A relation
@@ -105,6 +106,14 @@ Project-restricted callers with `write:knowledge` may also write inside their pr
   limit `SION_UPLOAD_MAX_BYTES`, default 25 MiB) and ingests it with every node stamped with the
   project. Re-uploading the same bytes reuses the same document. `GET` on the same path lists
   the project's documents. Server paths are never returned.
+
+The review queue and the evidence list follow the same rule. A candidate is listed, read,
+decided or reopened only when both of its endpoints are visible; counts cover only those. A bulk
+decision answers 404, and decides nothing, if any well-formed id is outside the caller's
+projects. Evidence is listed when its entity and relation (whichever are set) are visible. For a
+signed-in user the reviewer is recorded as `user:<sub>`, whatever `reviewer` the request names.
+A decision still casts one vote on its extraction rule; those votes are shared across projects
+and change only the ranking of later candidates.
 
 To make a new route project-scoped, wrap its scope dependency with `project_scoped()` and call
 `require_project_access()` or `allowed_projects()` in the handler. Then add the route to

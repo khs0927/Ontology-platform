@@ -44,6 +44,7 @@ from . import (
 from .auth import (
     AuthPolicy,
     allowed_projects,
+    current_principal,
     install_openapi_security,
     project_scoped,
     require_project_access,
@@ -303,17 +304,27 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     # --- candidate relations: review queue ---------------------------------------
-    @app.get("/api/v1/relations/candidates", dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/relations/candidates", dependencies=[Depends(read_project)])
     def list_candidate_relations(
+        request: Request,
         status: str = Query(default="pending", pattern="^(pending|approved|rejected|all)$"),
+        project_id: uuid.UUID | None = Query(default=None, description="Only candidates inside this project"),
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         session: Session = Depends(get_session),
     ):
-        return review.list_candidates(session, status=status, limit=limit, offset=offset)
+        return review.list_candidates(
+            session, status=status, limit=limit, offset=offset, projects=_project_filter(request, project_id)
+        )
 
-    @app.get("/api/v1/relations/candidates/{relation_id}", dependencies=[Depends(read_knowledge)])
-    def get_candidate_relation(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+    def _reviewer(request: Request, claimed: str | None) -> str | None:
+        """Signed-in reviewers are recorded by their account, never by a name they typed."""
+        principal = current_principal(request)
+        return f"user:{principal.subject}" if principal.kind == "user" and principal.subject else claimed
+
+    @app.get("/api/v1/relations/candidates/{relation_id}", dependencies=[Depends(read_project)])
+    def get_candidate_relation(request: Request, relation_id: uuid.UUID, session: Session = Depends(get_session)):
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             row = review.get_candidate(session, relation_id)
         except LookupError as exc:
@@ -344,13 +355,16 @@ def create_app(
         review.LowTrustConfirmationRequired,
     )
 
-    def _decide(relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool):
+    def _decide(
+        request: Request, relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool
+    ):
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             return review.decide(
                 session,
                 relation_id,
                 approve=approve,
-                reviewer=payload.reviewer,
+                reviewer=_reviewer(request, payload.reviewer),
                 note=payload.note,
                 expected_version=payload.expected_version,
                 confirm_low_trust=payload.confirm_low_trust,
@@ -360,16 +374,29 @@ def create_app(
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_knowledge)])
-    def bulk_decide_candidate_relations(payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)):
-        """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item."""
+    @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_project)])
+    def bulk_decide_candidate_relations(
+        request: Request, payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)
+    ):
+        """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item.
+
+        Project-restricted callers: every well-formed id must be a relation inside their projects,
+        otherwise the whole request answers 404 and nothing is decided.
+        """
+        if allowed_projects(request) is not None:
+            for raw in payload.ids:
+                try:
+                    relation_id = uuid.UUID(raw)
+                except ValueError:
+                    continue  # reported per item as invalid by decide_bulk
+                project_writes.check_relation_visible(session, request, relation_id)
         try:
             return review.decide_bulk(
                 session,
                 payload.ids,
                 approve=payload.decision == "approve",
                 note=payload.note,
-                reviewer=payload.reviewer,
+                reviewer=_reviewer(request, payload.reviewer),
                 expected_versions=payload.expected_versions,
                 confirm_low_trust=payload.confirm_low_trust,
                 dry_run=payload.dry_run,
@@ -378,16 +405,18 @@ def create_app(
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.get("/api/v1/relations/candidates/{relation_id}/audit", dependencies=[Depends(read_knowledge)])
-    def candidate_relation_audit(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+    @app.get("/api/v1/relations/candidates/{relation_id}/audit", dependencies=[Depends(read_project)])
+    def candidate_relation_audit(request: Request, relation_id: uuid.UUID, session: Session = Depends(get_session)):
         """Replayable decision log of one candidate (and whether replaying it reproduces the stored state)."""
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             return review.audit(session, relation_id)
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_project)])
     def approve_candidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
@@ -397,30 +426,33 @@ def create_app(
         The decision also casts one reversible vote on the candidate's extraction rule or guideline
         predicate. That vote can change only the ranking score of later candidates.
         """
-        return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
+        return _decide(request, relation_id, payload or schemas.CandidateDecision(), session, True)
 
-    @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_project)])
     def reject_candidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
         """Record a review rejection; the candidate and its evidence are kept (rejected), never deleted."""
-        return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
+        return _decide(request, relation_id, payload or schemas.CandidateDecision(), session, False)
 
-    @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_project)])
     def reopen_candidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.CandidateReopen,
         session: Session = Depends(get_session),
     ):
         """Return an approved/rejected candidate to pending (note required; the reverted decision stays on record)."""
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             return review.reopen(
                 session,
                 relation_id,
                 note=payload.note,
-                reviewer=payload.reviewer,
+                reviewer=_reviewer(request, payload.reviewer),
                 expected_version=payload.expected_version,
                 dry_run=payload.dry_run,
                 require_version=settings.review_require_version,
@@ -474,13 +506,17 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead], dependencies=[Depends(read_project)])
     def list_evidence(
+        request: Request,
+        project_id: uuid.UUID | None = Query(default=None, description="Only evidence inside this project"),
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         session: Session = Depends(get_session),
     ):
-        return repository.list_evidence(session, limit=limit, offset=offset)
+        return repository.list_evidence(
+            session, limit=limit, offset=offset, projects=_project_filter(request, project_id)
+        )
 
     @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_project)])
     def graph(
