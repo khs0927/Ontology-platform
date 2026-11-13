@@ -13,6 +13,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `GET /api/v1/me`, a signature-verified, idempotent and order-safe Paddle Billing webhook, and
   `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
 
+### Changed
+
+- **Project-scoped knowledge reads** — `GET /api/v1/entities`, `/entities/{id}`, `/relations` and
+  `/graph` now accept project-restricted callers (OIDC users, project tokens) and filter to their
+  projects (`properties.project_id`), with an optional `project_id` filter for everyone. Law search
+  and the ontology schema are marked shared reference data. See `docs/API_AUTH.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

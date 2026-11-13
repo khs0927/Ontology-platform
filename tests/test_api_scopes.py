@@ -57,6 +57,11 @@ READ_ONLY_POSTS = {
 
 # Routes that apply the project ACL themselves and therefore accept project-restricted tokens.
 PROJECT_SCOPED_ROUTES = {
+    # Knowledge reads filtered to the caller's projects (repository.in_projects).
+    ("GET", "/api/v1/entities"),
+    ("GET", "/api/v1/entities/{entity_id}"),
+    ("GET", "/api/v1/relations"),
+    ("GET", "/api/v1/graph"),
     ("GET", "/api/v1/me"),  # the caller's own identity; no project data
     ("GET", "/api/v1/billing/me"),  # the caller's own subscriptions; no project data
     ("GET", "/regulation"),
@@ -151,6 +156,20 @@ def test_allowlists_are_not_stale(app):
     assert PROJECT_SCOPED_ROUTES <= present
 
 
+# Routes that return only tenant-independent data, so project-restricted tokens may read them.
+SHARED_REFERENCE_ROUTES = {
+    ("GET", "/api/v1/schema/ontology"),  # the ontology schema file
+    ("GET", "/api/v1/law/search"),  # published law text
+    ("GET", "/api/v1/law/articles/{law_id}/{article_key}"),
+}
+
+
+def test_shared_reference_routes_are_explicit(app):
+    marked = {(m, p) for m, p, deps in _routes(app) if any(getattr(d, "shared_reference", False) for d in deps)}
+    assert marked == SHARED_REFERENCE_ROUTES
+    assert all(m == "GET" for m, _ in marked)  # never a write
+
+
 def test_project_scoped_routes_are_explicit(app):
     marked = {(m, p) for m, p, deps in _routes(app) if any(getattr(d, "project_scoped", False) for d in deps)}
     assert marked == PROJECT_SCOPED_ROUTES
@@ -220,7 +239,7 @@ def test_tokens_are_never_echoed_or_logged(app, caplog):
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {unknown}"}),
             client.post("/api/v1/entities", json={}, headers={"Authorization": f"Bearer {READ}"}),
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {WRITE}"}),
-            client.get("/api/v1/entities", headers={"Authorization": f"Bearer {RESTRICTED}"}),
+            client.get("/api/v1/evidence", headers={"Authorization": f"Bearer {RESTRICTED}"}),
         ]
     assert [r.status_code for r in responses] == [401, 403, 403, 403]
     for response in responses:
@@ -343,7 +362,7 @@ def test_project_acl_on_regulation_works(monkeypatch, tmp_path):
         assert denied.status_code == 404
         assert len(gateway_calls) == calls_before
 
-        # Cross-project routes fail closed for project-restricted tokens.
-        for path in ("/api/v1/entities", "/api/v1/graph", "/api/v1/evidence", "/api/v1/relations/candidates"):
+        # Cross-project routes fail closed for project-restricted tokens (entities/graph filter instead).
+        for path in ("/api/v1/evidence", "/api/v1/relations/candidates", "/api/v1/artifacts"):
             assert client.get(path, headers=limited).status_code == 403, path
         assert client.post("/api/v1/regulation/gateway/report", json={}, headers=limited).status_code == 403

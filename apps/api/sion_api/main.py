@@ -7,7 +7,7 @@ from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 from sion_bim.ifc import ifcopenshell_available, ingest_ifc
@@ -20,6 +20,7 @@ from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
 )
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from . import (
@@ -39,7 +40,15 @@ from . import (
     schemas,
     vector_repository,
 )
-from .auth import AuthPolicy, install_openapi_security, project_scoped, require_scope
+from .auth import (
+    AuthPolicy,
+    allowed_projects,
+    install_openapi_security,
+    project_scoped,
+    require_project_access,
+    require_scope,
+    shared_reference,
+)
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .drive_export import DriveExporter, install_export_on_write
@@ -108,7 +117,10 @@ def create_app(
     read_aec = require_scope(auth_policy, "read:aec")
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
     regulation_review.register(app, factory, get_session, read_knowledge, write_knowledge)
-    law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
+    # Published law text is the same for every tenant, so project-restricted users may read it.
+    law_knowledge.register(app, get_session, shared_reference(read_knowledge), write_knowledge)
+    # Knowledge reads that filter to the caller's projects themselves (see _project_filter).
+    read_project = project_scoped(read_knowledge)
     # /me routes return only the caller's own data, so project-restricted users may reach them.
     billing.register(app, get_session, project_scoped(read_knowledge))
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
@@ -153,7 +165,19 @@ def create_app(
         """Installed optional extras (cad, bim, rag, drive). Uses find_spec only."""
         return {"version": __version__, "extras": extras_report()}
 
-    @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse, dependencies=[Depends(read_knowledge)])
+    def _project_filter(request: Request, project_id: uuid.UUID | None) -> frozenset[str] | None:
+        """Projects this request may see: the caller's ACL, narrowed by an optional ``project_id``."""
+        allowed = allowed_projects(request)
+        if project_id is None:
+            return allowed
+        require_project_access(request, project_id)
+        return frozenset({str(project_id)})
+
+    @app.get(
+        "/api/v1/schema/ontology",
+        response_class=PlainTextResponse,
+        dependencies=[Depends(shared_reference(read_knowledge))],
+    )
     def ontology_schema():
         path: Path = settings.ontology_path
         if not path.exists():
@@ -184,21 +208,28 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/entities", response_model=list[schemas.EntityRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/entities", response_model=list[schemas.EntityRead], dependencies=[Depends(read_project)])
     def list_entities(
+        request: Request,
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
+        project_id: uuid.UUID | None = Query(default=None, description="Only this project and its members"),
         session: Session = Depends(get_session),
     ):
-        return repository.list_entities(session, limit=limit, offset=offset)
+        projects = _project_filter(request, project_id)
+        return repository.list_entities(session, limit=limit, offset=offset, projects=projects)
 
-    @app.get("/api/v1/entities/{entity_id}", response_model=schemas.EntityRead, dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/entities/{entity_id}", response_model=schemas.EntityRead, dependencies=[Depends(read_project)])
     def get_entity(
+        request: Request,
         entity_id: uuid.UUID,
         session: Session = Depends(get_session),
     ):
-        row = session.get(models.Entity, entity_id)
-        if row is None:
+        projects = allowed_projects(request)
+        row = session.scalar(
+            select(models.Entity).where(models.Entity.id == entity_id, repository.in_projects(projects))
+        )
+        if row is None:  # also for entities outside the caller's projects: no probing
             raise HTTPException(status_code=404, detail="entity not found")
         return row
 
@@ -219,8 +250,10 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/relations", response_model=list[schemas.RelationRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/relations", response_model=list[schemas.RelationRead], dependencies=[Depends(read_project)])
     def list_relations(
+        request: Request,
+        project_id: uuid.UUID | None = Query(default=None, description="Only relations inside this project"),
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         at: datetime | None = Query(default=None, description="Return relations valid at this instant"),
@@ -233,6 +266,7 @@ def create_app(
             offset=offset,
             at=at,
             active_only=active_only,
+            projects=_project_filter(request, project_id),
         )
 
     @app.post(
@@ -429,8 +463,10 @@ def create_app(
     ):
         return repository.list_evidence(session, limit=limit, offset=offset)
 
-    @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_project)])
     def graph(
+        request: Request,
+        project_id: uuid.UUID | None = Query(default=None, description="Only this project's subgraph"),
         limit: int = Query(default=500, ge=1, le=5000),
         at: datetime | None = Query(default=None, description="Return graph edges valid at this instant"),
         active_only: bool = Query(default=False, description="Return graph edges valid now; ignored when at is supplied"),
@@ -442,6 +478,7 @@ def create_app(
             limit=limit,
             at=at,
             active_only=active_only,
+            projects=_project_filter(request, project_id),
         )
         if not include_rejected:
             edges = [edge for edge in edges if edge.verification_state != "rejected"]

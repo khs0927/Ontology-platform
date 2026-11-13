@@ -78,10 +78,25 @@ A token with a `projects` allowlist is project-restricted:
   token cannot probe for other projects.
 - Lists without a `project_id` filter return only the allowed projects.
 
-Project-scoped routes today are `/regulation` and `/api/v1/regulation/works*`. To make a new
-route project-scoped, wrap its scope dependency with `project_scoped()` and call
+Project-scoped routes today are `/regulation`, `/api/v1/regulation/works*`,
+`/api/v1/regulation/summary`, `/api/v1/me`, `/api/v1/billing/me`, and the knowledge reads
+`GET /api/v1/entities`, `/api/v1/entities/{id}`, `/api/v1/relations` and `/api/v1/graph`.
+
+For the knowledge reads, an entity belongs to a project when it **is** the `Project` entity or
+its `properties.project_id` names it (the convention regulation works already use). A relation
+is visible only when both of its endpoints are, so an edge never reveals an entity outside the
+caller's projects. These routes also take an optional `project_id` filter; asking for a project
+outside the allowlist answers 404. Unscoped entities (no `project_id`) are visible only to
+unrestricted callers.
+
+To make a new route project-scoped, wrap its scope dependency with `project_scoped()` and call
 `require_project_access()` or `allowed_projects()` in the handler. Then add the route to
 `PROJECT_SCOPED_ROUTES` in `tests/test_api_scopes.py`.
+
+Routes that return only tenant-independent data are marked `shared_reference()` and are open to
+restricted callers too: `GET /api/v1/schema/ontology`, `/api/v1/law/search` and
+`/api/v1/law/articles/{law_id}/{article_key}` (published law text). Only add a route there when
+its response can never contain project data; they are listed in `SHARED_REFERENCE_ROUTES`.
 
 Trusted local access and tokens without `projects` are unrestricted.
 
