@@ -61,6 +61,8 @@ PROJECT_SCOPED_ROUTES = {
     ("GET", "/api/v1/regulation/works/{work_id}"),
     ("POST", "/api/v1/regulation/works/{work_id}"),
     ("GET", "/api/v1/regulation/works/{work_id}/briefing"),
+    ("POST", "/api/v1/graphrag/project"),  # per-project LightRAG workspace (require_project_access)
+    ("POST", "/api/v1/graphrag/query"),
 }
 
 

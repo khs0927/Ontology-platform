@@ -215,6 +215,8 @@ class GraphRagQuery(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     mode: Literal["local", "global", "hybrid", "naive", "mix"] = "mix"
     top_k: int = Field(default=20, ge=1, le=200)
+    # Query one project's own LightRAG workspace. Required for project-restricted callers.
+    project_id: uuid.UUID | None = None
 
 
 class OutboxEventRead(BaseModel):
