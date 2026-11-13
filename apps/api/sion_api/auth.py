@@ -102,6 +102,9 @@ class AuthPolicy:
     # Optional OIDC verifier (sion_api.oidc.OidcVerifier). Bearer values that are not a
     # configured static token are tried as identity-provider access tokens.
     oidc: Any = None
+    # Optional ``subject -> extra scopes`` callable (sion_api.billing.EntitlementResolver) that
+    # adds paid-plan scopes to verified OIDC users.
+    entitlements: Any = None
 
     @classmethod
     def from_env(cls) -> "AuthPolicy":
@@ -199,7 +202,10 @@ class AuthPolicy:
             claims = self.oidc.verify(token)
         except OidcError:
             return None
-        return Principal(kind="user", scopes=claims.scopes, projects=claims.projects, subject=claims.subject)
+        scopes = claims.scopes
+        if self.entitlements is not None:
+            scopes = scopes | frozenset(s for s in self.entitlements(claims.subject) if s != "*")
+        return Principal(kind="user", scopes=scopes, projects=claims.projects, subject=claims.subject)
 
     def _matched_token(self, authorization: str | None) -> str | None:
         """The configured token the header authenticates as (never returned to clients)."""

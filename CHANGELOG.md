@@ -12,6 +12,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   default, any JWKS issuer) as `Principal(kind="user")` with fail-closed project claims,
   `GET /api/v1/me`, a signature-verified, idempotent and order-safe Paddle Billing webhook, and
   `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
+- **Plan entitlements** — `SION_PLAN_SCOPES_JSON` maps Paddle price ids to extra API scopes for
+  signed-in users with an active subscription; cached 60 s and cleared on every billing webhook.
 
 ### Changed
 

@@ -111,6 +111,12 @@ def create_app(
 
     auth_policy = auth_policy or AuthPolicy.from_env()
     auth_policy = replace(auth_policy, trusted_origins=settings.cors_origins)
+    # Paid-plan scopes for signed-in users (SION_PLAN_SCOPES_JSON); off without OIDC or plans.
+    plans = billing.PlanCatalog.from_env()
+    app.state.entitlements = None
+    if auth_policy.oidc is not None and plans and auth_policy.entitlements is None:
+        app.state.entitlements = billing.EntitlementResolver(factory, plans)
+        auth_policy = replace(auth_policy, entitlements=app.state.entitlements)
     app.state.auth_policy = auth_policy
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")

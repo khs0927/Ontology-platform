@@ -288,3 +288,44 @@ def test_billing_migration_matches_models():
         assert f"CREATE TABLE IF NOT EXISTS {table.name}" in sql
         for column in table.columns:
             assert f"  {column.name} " in sql, column.name
+
+
+# --- plan entitlements --------------------------------------------------------------------
+
+
+def test_active_plan_adds_scopes_and_cancel_removes_them(keypair, monkeypatch):
+    private, public = keypair
+    monkeypatch.setenv("SION_PADDLE_WEBHOOK_SECRET", SECRET)
+    monkeypatch.setenv("SION_PLAN_SCOPES_JSON", json.dumps({"pri_pro_monthly": ["write:knowledge", "read:aec"]}))
+    user = {"Authorization": f"Bearer {_token(private, app_metadata={})}"}
+    with TestClient(_app(public)) as client:
+        assert client.get("/api/v1/me", headers=user).json()["scopes"] == ["read:knowledge"]
+        assert _post(client, _event("evt_p1", "active", "2026-11-12T00:00:00Z")).json()["status"] == "processed"
+        assert client.get("/api/v1/me", headers=user).json()["scopes"] == [
+            "read:aec", "read:knowledge", "write:knowledge"
+        ]
+        assert _post(client, _event("evt_p2", "canceled", "2026-11-12T01:00:00Z")).json()["status"] == "processed"
+        assert client.get("/api/v1/me", headers=user).json()["scopes"] == ["read:knowledge"]
+        # another user's subscription grants this user nothing
+        other = {"Authorization": f"Bearer {_token(private, sub='user-999', app_metadata={})}"}
+        _post(client, _event("evt_p3", "active", "2026-11-12T02:00:00Z"))
+        assert client.get("/api/v1/me", headers=other).json()["scopes"] == ["read:knowledge"]
+
+
+def test_plan_catalog_validation(monkeypatch):
+    monkeypatch.setenv("SION_PLAN_SCOPES_JSON", json.dumps({"pri_x": ["*"]}))
+    with pytest.raises(RuntimeError, match="cannot grant"):
+        billing.PlanCatalog.from_env()
+    monkeypatch.setenv("SION_PLAN_SCOPES_JSON", json.dumps({"pri_x": "write:knowledge"}))
+    with pytest.raises(RuntimeError, match="scope lists"):
+        billing.PlanCatalog.from_env()
+    monkeypatch.delenv("SION_PLAN_SCOPES_JSON")
+    assert not billing.PlanCatalog.from_env()
+
+
+def test_entitlement_lookup_errors_grant_nothing():
+    def broken_factory():
+        raise RuntimeError("db down")
+
+    resolver = billing.EntitlementResolver(broken_factory, billing.PlanCatalog({"pri": frozenset({"write:knowledge"})}))
+    assert resolver("user-1") == frozenset()

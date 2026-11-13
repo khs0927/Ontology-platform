@@ -54,9 +54,24 @@ are stored: no names, emails, addresses or raw payloads.
 `GET /api/v1/billing/me` (signed-in users) returns `active` (any subscription `active`,
 `trialing` or `past_due`), the active price ids and each subscription.
 
+## Plan entitlements
+
+Map Paddle prices to extra API scopes:
+
+```bash
+export SION_PLAN_SCOPES_JSON='{"pri_pro_monthly": ["write:knowledge", "read:aec"]}'
+```
+
+A signed-in user with an `active`, `trialing` or `past_due` subscription to a listed price gets
+those scopes on top of `SION_OIDC_DEFAULT_SCOPES`; `GET /api/v1/me` shows the result. Lookups are
+cached for 60 s per user and the cache is cleared whenever a webhook changes a subscription, so
+an upgrade or cancellation applies on the next request. A plan can never grant `*`, and a lookup
+error grants nothing. Scopes still sit inside the project ACL: a plan widens *what* a user may do,
+never *which projects* they see.
+
 ## Not in this slice
 
-- Feature gating by plan (which price unlocks what) and usage metering.
+- Usage metering and quotas.
 - Tenant/organization objects and row-level security on knowledge tables. Users are scoped to
   projects through the project ACL: entity, relation and graph reads filter to their projects,
   law search and the ontology schema are shared, and the remaining knowledge routes (evidence,
