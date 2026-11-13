@@ -6,6 +6,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **GraphRAG per-project workspaces** — `POST /api/v1/graphrag/project?project_id=` and
+  `POST /api/v1/graphrag/query {"project_id"}` use a separate LightRAG workspace per project,
+  projected from that project's entities only. Project-restricted callers must name a project on
+  their ACL; unrestricted callers keep the shared workspace. See `docs/GRAPHRAG.md`.
+
 ### Changed
 
 - **GraphRAG graph backend** — with `SION_GRAPHRAG_STORAGE=postgres`, LightRAG now stores its graph in

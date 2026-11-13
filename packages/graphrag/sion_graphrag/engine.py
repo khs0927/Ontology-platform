@@ -7,9 +7,13 @@ provider packages at runtime.
 
 from __future__ import annotations
 
+import asyncio
 import os
+import re
+import uuid
+from collections import OrderedDict
 from contextlib import nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -40,6 +44,23 @@ LOCAL_STORAGES = {
     "doc_status_storage": "JsonDocStatusStorage",
 }
 QUERY_MODES = {"local", "global", "hybrid", "naive", "mix"}
+# Open per-project engines kept at once; the least recently used one is finalized first.
+DEFAULT_MAX_PROJECT_ENGINES = 32
+
+
+def project_workspace(base: str, project_id: object) -> str:
+    """LightRAG workspace for one project: ``<base>_p_<uuid hex>``.
+
+    LightRAG keys every Postgres row (and every local storage directory) by workspace,
+    so a project's chunks, vectors and graph never mix with another project's.
+    """
+    try:
+        token = uuid.UUID(str(project_id)).hex
+    except ValueError as exc:
+        raise ValueError("project_id must be a UUID") from exc
+    if not re.fullmatch(r"[A-Za-z0-9_]+", base):
+        raise ValueError("SION_GRAPHRAG_WORKSPACE may contain only letters, digits and '_'")
+    return f"{base}_p_{token}"
 
 
 class GraphRagUnavailable(RuntimeError):
@@ -124,6 +145,34 @@ class SionGraphRag:
         self._embedding_func = embedding_func
         self._llm_func = llm_func
         self._rag = None
+        self.project_id: str | None = None
+        self._children: OrderedDict[str, SionGraphRag] = OrderedDict()
+        self._children_lock = asyncio.Lock()
+        self.max_project_engines = DEFAULT_MAX_PROJECT_ENGINES
+
+    async def for_project(self, project_id: object) -> "SionGraphRag":
+        """Engine bound to one project's own LightRAG workspace (cached, LRU-bounded)."""
+        if self.project_id is not None:
+            raise RuntimeError("for_project() is only available on the base engine")
+        workspace = project_workspace(self.config.workspace, project_id)
+        async with self._children_lock:
+            child = self._children.get(workspace)
+            if child is None:
+                child = SionGraphRag(
+                    replace(self.config, workspace=workspace),
+                    embedding_func=self._embedding_func,
+                    llm_func=self._llm_func,
+                    tokenizer=self._tokenizer,
+                )
+                child.project_id = str(uuid.UUID(str(project_id)))
+                self._children[workspace] = child
+            self._children.move_to_end(workspace)
+            evicted = []
+            while len(self._children) > self.max_project_engines:
+                evicted.append(self._children.popitem(last=False)[1])
+        for old in evicted:
+            await old.close()
+        return child
 
     def _build(self):
         try:
@@ -204,6 +253,10 @@ class SionGraphRag:
             self._rag = rag
 
     async def close(self) -> None:
+        children = list(self._children.values())
+        self._children.clear()
+        for child in children:
+            await child.close()
         if self._rag is not None:
             await self._rag.finalize_storages()
             self._rag = None
@@ -214,7 +267,7 @@ class SionGraphRag:
         """Upsert the default projection, or count the audit projection without indexing it."""
         states = AUDIT_PROJECTION_REVIEW_STATES if include_rejected else DEFAULT_PROJECTION_REVIEW_STATES
         with session_factory() as session:
-            custom_kg = build_custom_kg(session, review_states=states)
+            custom_kg = build_custom_kg(session, review_states=states, project_id=self.project_id)
         if not include_rejected and custom_kg["chunks"]:
             await self.start()
             await self._rag.ainsert_custom_kg(custom_kg, full_doc_id=f"sion-canonical-{self.config.workspace}")

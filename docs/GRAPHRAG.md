@@ -135,6 +135,22 @@ Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 - `POST /api/v1/graphrag/query` (`read:knowledge`) `{"question", "mode": "mix|local|global|hybrid|naive", "top_k"}`
 - `GET /api/v1/graphrag/assets` (`read:knowledge`) SketchUp BIM asset Graph RAG (see below)
 
+### Per-project workspaces
+
+`project_id` (query parameter on `/graphrag/project`, body field on `/graphrag/query`) selects
+that project's own LightRAG workspace, `<SION_GRAPHRAG_WORKSPACE>_p_<project uuid hex>`. LightRAG
+keys every Postgres row and every local storage directory by workspace, so one project's chunks,
+vectors and graph never mix with another's. The project projection contains only the Project
+entity and entities whose `properties.project_id` names it; relations survive only when both
+endpoints are inside, so shared material is not copied into project workspaces.
+
+- A project-restricted caller (a token with `project:<id>` scopes, or a signed-in user) must pass
+  a `project_id` on its ACL: none answers 422, another project answers 404.
+- An unrestricted caller may omit `project_id` and keeps the shared workspace as before.
+- The server keeps at most 32 per-project engines open and finalizes the least recently used one.
+- Rebuild a project's workspace with `POST /api/v1/graphrag/project?project_id=<id>` after its
+  knowledge changes. The shared workspace is not split retroactively.
+
 Install with `pip install -e ".[graphrag]"`. Note that importing LightRAG can
 install missing provider packages at runtime, so the package is imported only
 when the engine starts.
