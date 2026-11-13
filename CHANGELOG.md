@@ -4,6 +4,14 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Law-article table in PostgreSQL** — `migrations/008_law_articles.sql` was never applied by
+  `sion-migrate`, so `/api/v1/law/*` had no table on a migrated database. It is now in the core
+  sequence, and a test fails if a migration file is left out again.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

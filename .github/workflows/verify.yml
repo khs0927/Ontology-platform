@@ -144,8 +144,8 @@ jobs:
           docker exec -i "$PG_CONTAINER" psql -U ontology -d ontology -X -v ON_ERROR_STOP=1 <<'SQL'
           DO $$
           BEGIN
-            IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'public') <> 12 THEN
-              RAISE EXCEPTION 'expected 12 public tables (11 + sion_schema_migrations)';
+            IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'public') <> 13 THEN
+              RAISE EXCEPTION 'expected 13 public tables (11 core + law_articles + sion_schema_migrations)';
             END IF;
             IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'regulation') < 29 THEN
               RAISE EXCEPTION 'ArchOntos tables missing from schema regulation';
