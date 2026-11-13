@@ -58,3 +58,15 @@ input {
   border: 1px solid var(--line); background: var(--bg); color: var(--text);
 }
 form.stack { display: grid; gap: 10px; max-width: 380px; }
+form.upload { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+form.upload input[type="file"] { flex: 1 1 200px; min-width: 0; max-width: 100%; width: auto; }
+dd { min-width: 0; }
+ul.docs { margin: 0; padding-left: 18px; }
+ul.docs li { overflow-wrap: anywhere; }
+details summary { cursor: pointer; overflow-wrap: anywhere; }
+form.edit { margin: 8px 0 4px; }
+form.edit label { display: grid; gap: 4px; color: var(--muted); font-size: 0.92em; }
+textarea {
+  font: inherit; width: 100%; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text); resize: vertical;
+}

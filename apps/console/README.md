@@ -22,6 +22,11 @@ How it fits together
 - `/projects` lists the entities and relations of the user's projects (`/api/v1/graph?project_id=`),
   and `/search` searches published law text (`/api/v1/law/search`, with an optional 기준일). Both
   need the project-scoped API from phase 8a.
+- On `/projects`, users with `write:knowledge` (a paid plan or a granted scope) can upload a
+  document (.md, .txt, .csv, .docx, .pdf; up to 25 MB) into the selected project and rename or
+  describe its items. Both run as server actions (`app/projects/actions.ts`) that call
+  `POST /api/v1/projects/{id}/documents` and `PATCH /api/v1/entities/{id}`; the API checks the
+  project ACL. `next.config.ts` raises the server-action and proxy body limits to 26 MB to match.
 - `/billing` opens Paddle checkout with `customData.sion_user_id`; the API's Paddle webhook links
   the subscription to the user. The page re-reads entitlements after `checkout.completed`.
 - Supabase projects must use asymmetric JWT signing keys; the API refuses HS256 tokens.
