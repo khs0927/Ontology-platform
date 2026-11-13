@@ -131,18 +131,27 @@ def extract_text(path: Path) -> ExtractedText:
     raise DocumentUnreadable(f"unsupported document type: {suffix or '(none)'}")
 
 
+def document_stable_key(path: Path) -> str:
+    """Stable key of the Document node ``build_document_export`` creates for ``path``."""
+    return _key("document", f"{path.resolve()}:{path.stat().st_size}")
+
+
 def build_document_export(
     paths: list[Path],
     source: str = "document-ingest",
     *,
     extracted: dict[Path, ExtractedText] | None = None,
+    project_id: str | None = None,
 ) -> MapExport:
+    """``project_id`` stamps every node with ``properties.project_id`` (project tenancy) and
+    keeps the server-side path out of the stored node, since tenants can read it back."""
     nodes: list[MapNode] = []
+    scope = {"project_id": project_id} if project_id else {}
     edges: list[MapEdge] = []
     for path in paths:
         content = (extracted or {}).get(path) or extract_text(path)
         text = content.text
-        doc_key = _key("document", f"{path.resolve()}:{path.stat().st_size}")
+        doc_key = document_stable_key(path)
         title = path.stem
         headings = [match.group(2).strip() for match in _HEADING.finditer(text)]
         if headings:
@@ -154,9 +163,14 @@ def build_document_export(
                 name=title[:500],
                 category="content_assets",
                 description=text[:500] or None,
-                external_uri=f"file:///{path.resolve().as_posix()}",
+                external_uri=(
+                    f"urn:sion:project:{project_id}:document:{doc_key.split(':', 1)[1]}"
+                    if project_id
+                    else f"file:///{path.resolve().as_posix()}"
+                ),
                 properties={
-                    "path": str(path),
+                    **scope,
+                    "path": path.name if project_id else str(path),
                     "byte_size": path.stat().st_size,
                     "heading_count": len(headings),
                     "excerpt_hash": hashlib.sha256(text.encode("utf-8")).hexdigest(),
@@ -174,7 +188,7 @@ def build_document_export(
                     entity_type_id="Concept",
                     name=claim[:500],
                     category="data_validation",
-                    properties={"ordinal": index, "verification_state": "unverified"},
+                    properties={**scope, "ordinal": index, "verification_state": "unverified"},
                 )
             )
             edges.append(
@@ -235,8 +249,11 @@ def attach_document_evidence(session: Session, export: MapExport) -> int:
     return created
 
 
-def ingest_documents(session: Session, paths: list[Path]) -> dict:
-    """Ingest documents; unreadable or unsupported files are reported in ``skipped`` (never a 500)."""
+def ingest_documents(session: Session, paths: list[Path], *, project_id: str | None = None) -> dict:
+    """Ingest documents; unreadable or unsupported files are reported in ``skipped`` (never a 500).
+
+    With ``project_id`` every created node belongs to that project (``properties.project_id``).
+    """
     files: list[Path] = []
     extracted: dict[Path, ExtractedText] = {}
     skipped: list[dict[str, str]] = []
@@ -257,7 +274,7 @@ def ingest_documents(session: Session, paths: list[Path]) -> dict:
             continue
         files.append(path)
         extracted[path] = content
-    export = build_document_export(files, extracted=extracted)
+    export = build_document_export(files, extracted=extracted, project_id=project_id)
     result = import_map_export(session, export)
     evidence = attach_document_evidence(session, export)
     return {

@@ -80,7 +80,8 @@ A token with a `projects` allowlist is project-restricted:
 
 Project-scoped routes today are `/regulation`, `/api/v1/regulation/works*`,
 `/api/v1/regulation/summary`, `/api/v1/me`, `/api/v1/billing/me`, and the knowledge reads
-`GET /api/v1/entities`, `/api/v1/entities/{id}`, `/api/v1/relations` and `/api/v1/graph`.
+`GET /api/v1/entities`, `/api/v1/entities/{id}`, `/api/v1/relations` and `/api/v1/graph`, the
+project writes listed below, and `/api/v1/projects/{project_id}/documents`.
 
 For the knowledge reads, an entity belongs to a project when it **is** the `Project` entity or
 its `properties.project_id` names it (the convention regulation works already use). A relation
@@ -88,6 +89,22 @@ is visible only when both of its endpoints are, so an edge never reveals an enti
 caller's projects. These routes also take an optional `project_id` filter; asking for a project
 outside the allowlist answers 404. Unscoped entities (no `project_id`) are visible only to
 unrestricted callers.
+
+Project-restricted callers with `write:knowledge` may also write inside their projects
+(`sion_api.project_writes`):
+
+- `POST /api/v1/entities` needs `properties.project_id` on the allowlist; creating a `Project`
+  entity answers 403 (projects are created by an unrestricted caller).
+- `PATCH /api/v1/entities/{id}` edits `name`, `description`, `category` and `properties` (a JSON
+  merge patch, `null` removes a key) of a visible entity. Restricted callers cannot change
+  `properties.project_id`, so data never moves between projects.
+- `POST /api/v1/relations` needs both endpoints visible; `POST /api/v1/relations/{id}/invalidate`
+  and `POST /api/v1/evidence` need the relation or entity visible. Anything else answers 404.
+- `POST /api/v1/projects/{project_id}/documents?filename=<name>` takes the file as the raw
+  request body, stores it under `SION_UPLOAD_ROOT/<project_id>/` (default `runtime/uploads`,
+  limit `SION_UPLOAD_MAX_BYTES`, default 25 MiB) and ingests it with every node stamped with the
+  project. Re-uploading the same bytes reuses the same document. `GET` on the same path lists
+  the project's documents. Server paths are never returned.
 
 To make a new route project-scoped, wrap its scope dependency with `project_scoped()` and call
 `require_project_access()` or `allowed_projects()` in the handler. Then add the route to

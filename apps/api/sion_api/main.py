@@ -32,6 +32,7 @@ from . import (
     ops,
     outbox,
     project_summary,
+    project_writes,
     regulation,
     regulation_review,
     regulation_workspace,
@@ -127,6 +128,9 @@ def create_app(
     law_knowledge.register(app, get_session, shared_reference(read_knowledge), write_knowledge)
     # Knowledge reads that filter to the caller's projects themselves (see _project_filter).
     read_project = project_scoped(read_knowledge)
+    # Knowledge writes that check the caller's projects themselves (see project_writes).
+    write_project = project_scoped(write_knowledge)
+    project_writes.register(app, get_session, write_project, read_project)
     # /me routes return only the caller's own data, so project-restricted users may reach them.
     billing.register(app, get_session, project_scoped(read_knowledge))
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
@@ -150,7 +154,7 @@ def create_app(
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
         allow_credentials=False,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
         allow_headers=["*"],
     )
     # Outermost: one JSON access-log line per request; headers/query strings are never logged.
@@ -201,12 +205,14 @@ def create_app(
         "/api/v1/entities",
         response_model=schemas.EntityRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_entity(
+        request: Request,
         payload: schemas.EntityCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_entity_create(request, payload)
         try:
             return repository.create_entity(session, payload)
         except repository.MissingReferenceError as exc:
@@ -243,12 +249,14 @@ def create_app(
         "/api/v1/relations",
         response_model=schemas.RelationRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_relation(
+        request: Request,
         payload: schemas.RelationCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_entities_visible(session, request, payload.source_entity_id, payload.target_entity_id)
         try:
             return repository.create_relation(session, payload)
         except repository.MissingReferenceError as exc:
@@ -278,13 +286,15 @@ def create_app(
     @app.post(
         "/api/v1/relations/{relation_id}/invalidate",
         response_model=schemas.RelationRead,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def invalidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.RelationInvalidate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             return repository.invalidate_relation(session, relation_id, payload)
         except repository.MissingReferenceError as exc:
@@ -448,12 +458,15 @@ def create_app(
         "/api/v1/evidence",
         response_model=schemas.EvidenceRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_evidence(
+        request: Request,
         payload: schemas.EvidenceCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_entities_visible(session, request, payload.entity_id)
+        project_writes.check_relation_visible(session, request, payload.relation_id)
         try:
             return repository.create_evidence(session, payload)
         except repository.MissingReferenceError as exc:
