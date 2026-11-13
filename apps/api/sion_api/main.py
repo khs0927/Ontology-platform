@@ -593,13 +593,19 @@ def create_app(
         "/api/v1/embeddings",
         response_model=schemas.EmbeddingRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_embedding(
+        request: Request,
         payload: schemas.EmbeddingCreate,
         session: Session = Depends(get_session),
     ):
         try:
+            projects = allowed_projects(request)
+            if projects is not None:
+                vector_repository.require_pgvector(session)
+                if not vector_repository.target_in_projects(session, payload, projects):
+                    raise HTTPException(status_code=404, detail="embedding target not found")
             return vector_repository.create_embedding(session, payload)
         except vector_repository.VectorBackendUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -611,14 +617,18 @@ def create_app(
     @app.post(
         "/api/v1/vector/search",
         response_model=schemas.VectorSearchResponse,
-        dependencies=[Depends(read_knowledge)],
+        dependencies=[Depends(read_project)],
     )
     def vector_search(
+        request: Request,
         payload: schemas.VectorSearchRequest,
         session: Session = Depends(get_session),
     ):
+        projects = _project_filter(request, payload.project_id)
+        if projects is not None and not projects:
+            return schemas.VectorSearchResponse(hits=[], count=0)
         try:
-            hits = vector_repository.search_vectors(session, payload)
+            hits = vector_repository.search_vectors(session, payload, projects)
         except vector_repository.VectorBackendUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return schemas.VectorSearchResponse(

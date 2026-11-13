@@ -173,6 +173,7 @@ class VectorSearchRequest(BaseModel):
     embedding: list[float] = Field(min_length=1, max_length=8192)
     limit: int = Field(default=10, ge=1, le=100)
     target_kind: str | None = Field(default=None, pattern="^(entity|chunk)$")
+    project_id: uuid.UUID | None = Field(default=None, description="Only embeddings inside this project")
 
 
 class VectorHit(BaseModel):

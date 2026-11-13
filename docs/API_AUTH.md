@@ -82,7 +82,8 @@ Project-scoped routes today are `/regulation`, `/api/v1/regulation/works*`,
 `/api/v1/regulation/summary`, `/api/v1/me`, `/api/v1/billing/me`, and the knowledge reads
 `GET /api/v1/entities`, `/api/v1/entities/{id}`, `/api/v1/relations` and `/api/v1/graph`, the
 project writes listed below, `/api/v1/projects/{project_id}/documents`, the review queue
-(`/api/v1/relations/candidates*`) and `GET /api/v1/evidence`.
+(`/api/v1/relations/candidates*`), `GET /api/v1/evidence`, `POST /api/v1/embeddings` and
+`POST /api/v1/vector/search`.
 
 For the knowledge reads, an entity belongs to a project when it **is** the `Project` entity or
 its `properties.project_id` names it (the convention regulation works already use). A relation
@@ -114,6 +115,13 @@ projects. Evidence is listed when its entity and relation (whichever are set) ar
 signed-in user the reviewer is recorded as `user:<sub>`, whatever `reviewer` the request names.
 A decision still casts one vote on its extraction rule; those votes are shared across projects
 and change only the ranking of later candidates.
+
+Vector search for a restricted caller searches only embeddings of entities in its projects and
+of chunks whose document's `entity_id` is in them; chunks of documents without an entity stay
+hidden. `project_id` in the request body narrows the search for everyone. A restricted caller can
+add an embedding only to such an entity or chunk (404 otherwise). The project condition is applied
+while the nearest-neighbour query runs, so with an approximate index a restricted search can
+return fewer than `limit` hits.
 
 To make a new route project-scoped, wrap its scope dependency with `project_scoped()` and call
 `require_project_access()` or `allowed_projects()` in the handler. Then add the route to
