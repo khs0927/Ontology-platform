@@ -31,6 +31,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `GET /api/v1/evidence` accept project-restricted callers and show or decide only what lies
   inside their projects (optional `project_id` filter for everyone); signed-in reviewers are
   recorded by account.
+- **Project-scoped vector search** — `POST /api/v1/vector/search` and `POST /api/v1/embeddings`
+  accept project-restricted callers and stay inside their projects (entities, and chunks via
+  `documents.entity_id`); the search takes an optional `project_id`.
 
 ## [0.3.0] - 2026-11-11
 

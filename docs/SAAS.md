@@ -76,9 +76,9 @@ never *which projects* they see.
   projects through the project ACL: entity, relation and graph reads filter to their projects,
   law search and the ontology schema are shared, users with `write:knowledge` can upload
   documents into their projects and edit their entities, relations and evidence (see
-  `docs/API_AUTH.md`), review their projects' candidate relations and read their evidence,
-  and the remaining knowledge routes (artifacts, review report, GraphRAG, vector search,
-  path-based ingest) stay closed to them for now.
+  `docs/API_AUTH.md`), review their projects' candidate relations, read their evidence and run vector search over
+  them, and the remaining knowledge routes (artifacts, review report, GraphRAG, path-based
+  ingest) stay closed to them for now.
 - Creating a project for a signed-in user. Projects are made by an unrestricted caller and
   granted through the user's projects claim, which depends on the identity provider.
 - The Next.js 16 web app (sign-in, dashboard, checkout): next PR.

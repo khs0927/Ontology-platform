@@ -79,6 +79,8 @@ PROJECT_SCOPED_ROUTES = {
     ("POST", "/api/v1/relations/candidates/{relation_id}/reopen"),
     ("POST", "/api/v1/relations/candidates/bulk"),  # all-or-nothing: any foreign id answers 404
     ("GET", "/api/v1/evidence"),
+    ("POST", "/api/v1/embeddings"),  # target entity / chunk document in the caller's projects
+    ("POST", "/api/v1/vector/search"),  # searches only embeddings inside the caller's projects
     ("GET", "/api/v1/me"),  # the caller's own identity; no project data
     ("GET", "/api/v1/billing/me"),  # the caller's own subscriptions; no project data
     ("GET", "/regulation"),
