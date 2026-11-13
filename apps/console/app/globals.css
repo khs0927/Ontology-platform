@@ -32,10 +32,10 @@ body {
   line-height: 1.55;
 }
 header.top {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
 }
-header.top nav { display: flex; gap: 16px; align-items: center; }
+header.top nav { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 a { color: var(--accent); }
 main { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
