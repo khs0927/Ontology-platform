@@ -69,6 +69,30 @@ an upgrade or cancellation applies on the next request. A plan can never grant `
 error grants nothing. Scopes still sit inside the project ACL: a plan widens *what* a user may do,
 never *which projects* they see.
 
+## Projects and members
+
+Supabase Auth only proves who a user is. Which projects a user may read or write is stored in
+Sion's own Postgres (`migrations/011_project_members.sql`), so access changes apply on the next
+request without re-issuing tokens and do not depend on the identity provider.
+
+- `POST /api/v1/projects` creates a project owned by the signed-in caller. It needs
+  `write:knowledge` (for example from a paid plan); `SION_MAX_OWNED_PROJECTS` (default 10) caps
+  how many projects one user owns.
+- Roles: `owner` (manage members and invitations), `editor` (read and write) and `viewer` (read
+  only). Viewers get 403 on every write. Projects granted through the token's projects claim
+  behave like editor memberships.
+- `POST /api/v1/projects/{id}/invites` (owners) returns a one-time token, shown once and stored
+  only as SHA-256, with a role, an expiry (1-30 days, default 7) and an optional email binding.
+  The owner shares the link; no mail provider is needed. `POST /api/v1/invites/accept` joins
+  with it. It needs only `read:knowledge`, so free users can join, and every failure (unknown,
+  used, revoked, expired, other email) answers the same 404. An invitation can raise a member's
+  role but never lower it.
+- `GET /api/v1/projects` lists the caller's projects with role and `can_write`;
+  `GET/PATCH/DELETE /api/v1/projects/{id}/members[/{subject}]` lists members, changes roles
+  (owners) and removes members (owners, or a member leaving). A project always keeps one owner.
+- Lookups are cached for 30 s per user and cleared on every membership change made through the
+  API. Operators with an unrestricted token see and manage every project.
+
 ## Not in this slice
 
 - Usage metering and quotas.
@@ -79,6 +103,4 @@ never *which projects* they see.
   `docs/API_AUTH.md`), review their projects' candidate relations, read their evidence and run vector search over
   them, and the remaining knowledge routes (artifacts, review report, GraphRAG, path-based
   ingest) stay closed to them for now.
-- Creating a project for a signed-in user. Projects are made by an unrestricted caller and
-  granted through the user's projects claim, which depends on the identity provider.
 - The Next.js 16 web app (sign-in, dashboard, checkout): next PR.

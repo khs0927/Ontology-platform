@@ -29,7 +29,13 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from . import models, repository, schemas
-from .auth import allowed_projects, current_principal, require_project_access
+from .auth import (
+    allowed_projects,
+    current_principal,
+    require_project_access,
+    require_project_write,
+    writable_projects,
+)
 from .config import PROJECT_ROOT
 
 DEFAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
@@ -76,15 +82,21 @@ def safe_filename(raw: str) -> str:
     return name
 
 
-def _project_or_404(session: Session, request: Request, project_id: uuid.UUID) -> models.Entity:
+def _project_or_404(
+    session: Session, request: Request, project_id: uuid.UUID, *, write: bool = False
+) -> models.Entity:
     require_project_access(request, project_id)
     project = session.get(models.Entity, project_id)
     if project is None or project.entity_type_id != "Project":
         raise HTTPException(status_code=404, detail="project not found")
+    if write:
+        require_project_write(request, project_id)
     return project
 
 
-def _visible_entity(session: Session, request: Request, entity_id: uuid.UUID) -> models.Entity:
+def _visible_entity(
+    session: Session, request: Request, entity_id: uuid.UUID, *, write: bool = False
+) -> models.Entity:
     row = session.scalar(
         select(models.Entity).where(
             models.Entity.id == entity_id, repository.in_projects(allowed_projects(request))
@@ -92,7 +104,13 @@ def _visible_entity(session: Session, request: Request, entity_id: uuid.UUID) ->
     )
     if row is None:
         raise HTTPException(status_code=404, detail="entity not found")
+    if write and not _in(session, models.Entity.id == entity_id, repository.in_projects(writable_projects(request))):
+        raise HTTPException(status_code=403, detail="read-only access to this project")
     return row
+
+
+def _in(session: Session, *conditions) -> bool:
+    return session.scalar(select(models.Entity.id).where(*conditions)) is not None
 
 
 def check_entity_create(request: Request, payload: schemas.EntityCreate) -> None:
@@ -104,29 +122,40 @@ def check_entity_create(request: Request, payload: schemas.EntityCreate) -> None
     project_id = (payload.properties or {}).get("project_id")
     if project_id is None:
         raise HTTPException(status_code=422, detail="properties.project_id is required for project-restricted callers")
-    require_project_access(request, project_id)
+    require_project_write(request, project_id)
 
 
-def check_entities_visible(session: Session, request: Request, *entity_ids: uuid.UUID | None) -> None:
+def check_entities_visible(
+    session: Session, request: Request, *entity_ids: uuid.UUID | None, write: bool = False
+) -> None:
+    """404 unless every entity is visible; with ``write`` also 403 unless it is writable."""
     projects = allowed_projects(request)
     if projects is None:
         return
     for entity_id in entity_ids:
         if entity_id is not None:
-            _visible_entity(session, request, entity_id)
+            _visible_entity(session, request, entity_id, write=write)
 
 
-def check_relation_visible(session: Session, request: Request, relation_id: uuid.UUID | None) -> None:
+def check_relation_visible(
+    session: Session, request: Request, relation_id: uuid.UUID | None, *, write: bool = False
+) -> None:
+    """404 unless both endpoints are visible; with ``write`` also 403 unless both are writable."""
     projects = allowed_projects(request)
     if projects is None or relation_id is None:
         return
-    visible = session.scalar(
-        select(models.Relation.id).where(
-            models.Relation.id == relation_id, repository.relation_in_projects(projects)
-        )
-    )
-    if visible is None:
+
+    def inside(scope: frozenset[str] | None) -> bool:
+        return session.scalar(
+            select(models.Relation.id).where(
+                models.Relation.id == relation_id, repository.relation_in_projects(scope)
+            )
+        ) is not None
+
+    if not inside(projects):
         raise HTTPException(status_code=404, detail="relation not found")
+    if write and not inside(writable_projects(request)):
+        raise HTTPException(status_code=403, detail="read-only access to this project")
 
 
 async def _receive_upload(request: Request, settings: UploadSettings, directory: Path) -> tuple[Path, str, int]:
@@ -192,7 +221,7 @@ def register(app, get_session, write_project, read_project) -> None:
     ):
         from sion_ingestion.document_ingest import DOCUMENT_SUFFIXES, document_stable_key, ingest_documents
 
-        await run_in_threadpool(_project_or_404, session, request, project_id)
+        await run_in_threadpool(lambda: _project_or_404(session, request, project_id, write=True))
         name = safe_filename(filename)
         suffix = Path(name).suffix.lower()
         if suffix not in DOCUMENT_SUFFIXES:
@@ -273,7 +302,7 @@ def register(app, get_session, write_project, read_project) -> None:
         payload: EntityUpdate,
         session: Session = Depends(get_session),
     ):
-        row = _visible_entity(session, request, entity_id)
+        row = _visible_entity(session, request, entity_id, write=True)
         changes = payload.model_dump(exclude_unset=True)
         if "name" in changes and changes["name"] is None:
             raise HTTPException(status_code=422, detail="name cannot be null")

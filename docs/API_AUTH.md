@@ -116,6 +116,10 @@ signed-in user the reviewer is recorded as `user:<sub>`, whatever `reviewer` the
 A decision still casts one vote on its extraction rule; those votes are shared across projects
 and change only the ranking of later candidates.
 
+Signed-in users also get the projects they are members of (`sion_api.projects`, see
+`docs/SAAS.md`). A `viewer` member sees a project without being able to change it: every write
+above answers 403 for it, while a project the caller cannot see still answers 404.
+
 Vector search for a restricted caller searches only embeddings of entities in its projects and
 of chunks whose document's `entity_id` is in them; chunks of documents without an entity stay
 hidden. `project_id` in the request body narrows the search for everyone. A restricted caller can
