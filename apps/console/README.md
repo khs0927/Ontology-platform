@@ -27,6 +27,13 @@ How it fits together
   describe its items. Both run as server actions (`app/projects/actions.ts`) that call
   `POST /api/v1/projects/{id}/documents` and `PATCH /api/v1/entities/{id}`; the API checks the
   project ACL. `next.config.ts` raises the server-action and proxy body limits to 26 MB to match.
+- `/projects` also lists the user's projects by name and role. Users with `write:knowledge` can
+  create a project, and owners manage members and create one-time invitation links. The token
+  is returned to the owner's browser only and travels in the link's `#fragment`, which browsers
+  never send to a server. `/invite` is public: it keeps the token in this browser across the
+  magic-link sign-in (`/login?next=/invite`), then accepts it for the signed-in user. Add
+  `<site>/auth/callback?next=/invite` to the Supabase redirect allow list. This needs the
+  membership API from `saas/project-members`.
 - `/billing` opens Paddle checkout with `customData.sion_user_id`; the API's Paddle webhook links
   the subscription to the user. The page re-reads entitlements after `checkout.completed`.
 - Supabase projects must use asymmetric JWT signing keys; the API refuses HS256 tokens.

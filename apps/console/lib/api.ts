@@ -17,7 +17,7 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number; 
 /** Call the Sion API with the signed-in user's access token. Server-side only. */
 export async function sionApi<T>(
   path: string,
-  init?: { method?: "GET" | "POST" | "PATCH"; body?: BodyInit; contentType?: string },
+  init?: { method?: "GET" | "POST" | "PATCH" | "DELETE"; body?: BodyInit; contentType?: string },
 ): Promise<ApiResult<T>> {
   const base = process.env.SION_API_URL;
   if (!base) return { ok: false, status: 0, error: "SION_API_URL is not set" };
@@ -96,3 +96,17 @@ export type UploadResult = {
 
 export const UPLOAD_SUFFIXES = [".md", ".txt", ".csv", ".docx", ".pdf"];
 export const UPLOAD_MAX_BYTES = 25 * 1024 * 1024;
+
+export type Role = "owner" | "editor" | "viewer";
+export type ProjectSummary = { id: string; name: string; description: string | null; role: Role | null; can_write: boolean };
+export type ProjectList = { items: ProjectSummary[] };
+export type Member = { subject: string; email: string | null; role: Role; created_at: string | null };
+export type MemberList = { project_id: string; items: Member[] };
+export type Invite = {
+  id: string;
+  role: "editor" | "viewer";
+  email: string | null;
+  state: "pending" | "accepted" | "revoked" | "expired";
+  expires_at: string;
+};
+export type InviteList = { project_id: string; items: Invite[] };

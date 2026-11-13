@@ -1,7 +1,20 @@
 import { redirect } from "next/navigation";
 import { Header } from "@/app/header";
+import { ROLE_LABELS } from "@/app/invite/labels";
 import { editEntity, uploadDocument } from "@/app/projects/actions";
-import { sionApi, UPLOAD_SUFFIXES, withQuery, type Graph, type Me, type ProjectDocuments } from "@/lib/api";
+import { InviteForm } from "@/app/projects/invite-form";
+import { changeRole, createProject, removeMember, revokeInvite } from "@/app/projects/member-actions";
+import {
+  sionApi,
+  UPLOAD_SUFFIXES,
+  withQuery,
+  type Graph,
+  type InviteList,
+  type Me,
+  type MemberList,
+  type ProjectDocuments,
+  type ProjectList,
+} from "@/lib/api";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +37,22 @@ const NOTICES: Record<string, { text: string; ok?: boolean }> = {
   edit_forbidden: { text: "이 항목을 수정할 권한이 없습니다." },
   edit_not_found: { text: "항목을 찾지 못했습니다." },
   edit_failed: { text: "저장에 실패했습니다. 잠시 뒤 다시 시도하세요." },
+  project_created: { text: "프로젝트를 만들었습니다. 이제 문서를 올리고 팀원을 초대하세요.", ok: true },
+  project_empty: { text: "프로젝트 이름을 입력하세요." },
+  project_forbidden: { text: "프로젝트를 만들려면 쓰기 권한(유료 플랜)이 필요합니다." },
+  project_conflict: { text: "만들 수 있는 프로젝트 수를 넘었습니다." },
+  project_not_found: { text: "프로젝트를 만들지 못했습니다." },
+  project_failed: { text: "프로젝트를 만들지 못했습니다. 잠시 뒤 다시 시도하세요." },
+  invite_revoked: { text: "초대를 취소했습니다.", ok: true },
+  role_changed: { text: "역할을 바꿨습니다.", ok: true },
+  member_removed: { text: "멤버를 내보냈습니다.", ok: true },
+  left: { text: "프로젝트에서 나왔습니다.", ok: true },
+  member_forbidden: { text: "소유자만 할 수 있는 일입니다." },
+  member_not_found: { text: "멤버나 초대를 찾지 못했습니다." },
+  member_conflict: { text: "프로젝트에는 소유자가 한 명 이상 있어야 합니다." },
+  member_failed: { text: "처리하지 못했습니다. 잠시 뒤 다시 시도하세요." },
 };
+const INVITE_STATE: Record<string, string> = { pending: "대기", accepted: "수락됨", revoked: "취소됨", expired: "만료" };
 
 function formatBytes(bytes: number | null): string {
   if (bytes === null) return "";
@@ -44,17 +72,24 @@ export default async function ProjectsPage({
   if (!claims?.sub) redirect("/login");
   const email = typeof claims.email === "string" ? claims.email : null;
 
-  const me = await sionApi<Me>("/api/v1/me");
+  const [me, list] = await Promise.all([sionApi<Me>("/api/v1/me"), sionApi<ProjectList>("/api/v1/projects")]);
   const { project, notice } = await searchParams;
-  const projects = me.ok ? me.data.projects : null;
-  const selected = project ?? (projects && projects.length ? projects[0] : undefined);
-  const canWrite = me.ok && (me.data.scopes.includes("write:knowledge") || me.data.scopes.includes("*"));
-  const [graph, documents] = selected
+  const projects = list.ok ? list.data.items : [];
+  const selected = project ?? projects[0]?.id;
+  const current = projects.find((p) => p.id === selected);
+  const unrestricted = me.ok && me.data.projects === null;
+  const hasWriteScope = me.ok && (me.data.scopes.includes("write:knowledge") || me.data.scopes.includes("*"));
+  const canWrite = hasWriteScope && (current?.can_write ?? unrestricted);
+  const isOwner = current?.role === "owner" || unrestricted;
+  const [graph, documents, members, invites] = selected
     ? await Promise.all([
         sionApi<Graph>(withQuery("/api/v1/graph", { project_id: selected, limit: MAX_NODES })),
         sionApi<ProjectDocuments>(`/api/v1/projects/${encodeURIComponent(selected)}/documents`),
+        sionApi<MemberList>(`/api/v1/projects/${encodeURIComponent(selected)}/members`),
+        isOwner ? sionApi<InviteList>(`/api/v1/projects/${encodeURIComponent(selected)}/invites`) : Promise.resolve(null),
       ])
-    : [null, null];
+    : [null, null, null, null];
+  const self = me.ok ? me.data.subject : null;
   const message = notice ? NOTICES[notice] : undefined;
 
   const names = new Map<string, string>();
@@ -71,24 +106,36 @@ export default async function ProjectsPage({
             {message.text}
           </p>
         ) : null}
-        {!me.ok ? (
-          <p className="warn">계정을 확인하지 못했습니다: {me.error}</p>
-        ) : projects !== null && projects.length === 0 ? (
-          <p className="warn">아직 배정된 프로젝트가 없습니다. 관리자에게 요청하세요.</p>
+        {!me.ok || !list.ok ? (
+          <p className="warn">계정을 확인하지 못했습니다: {me.ok ? (list.ok ? "" : list.error) : me.error}</p>
         ) : (
           <>
-            {projects && projects.length > 1 ? (
-              <nav className="card" style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                {projects.map((id) => (
-                  <a key={id} href={withQuery("/projects", { project: id })} aria-current={id === selected ? "page" : undefined}>
-                    <code>{id.slice(0, 8)}</code>
-                  </a>
-                ))}
-              </nav>
-            ) : null}
-            {!selected ? (
-              <p className="muted">전체 접근 계정입니다. 주소에 ?project=&lt;프로젝트 ID&gt;를 붙여 프로젝트를 고르세요.</p>
-            ) : !graph?.ok ? (
+            <nav className="card switcher" aria-label="프로젝트 목록">
+              {projects.map((item) => (
+                <a
+                  key={item.id}
+                  href={withQuery("/projects", { project: item.id })}
+                  aria-current={item.id === selected ? "page" : undefined}
+                >
+                  {item.name}
+                  {item.role ? <span className="muted"> · {ROLE_LABELS[item.role]}</span> : null}
+                </a>
+              ))}
+              {projects.length === 0 ? (
+                <span className="muted">아직 프로젝트가 없습니다. 새로 만들거나 받은 초대 링크를 여세요.</span>
+              ) : null}
+              {hasWriteScope ? (
+                <form action={createProject} className="new-project">
+                  <input name="name" required maxLength={200} placeholder="새 프로젝트 이름" aria-label="새 프로젝트 이름" />
+                  <button type="submit">만들기</button>
+                </form>
+              ) : (
+                <span className="muted">
+                  프로젝트를 만들려면 <a href="/billing">유료 플랜</a>이 필요합니다.
+                </span>
+              )}
+            </nav>
+            {!selected ? null : !graph?.ok ? (
               <p className="warn">프로젝트를 불러오지 못했습니다: {graph?.error}</p>
             ) : (
               <>
@@ -109,7 +156,9 @@ export default async function ProjectsPage({
                     </form>
                   ) : (
                     <p className="muted">
-                      문서를 올리고 수정하려면 쓰기 권한이 필요합니다. <a href="/billing">요금제 보기</a>
+                      {current && !current.can_write
+                        ? "보기 전용 멤버라 문서를 올리거나 수정할 수 없습니다."
+                        : <>문서를 올리고 수정하려면 쓰기 권한이 필요합니다. <a href="/billing">요금제 보기</a></>}
                     </p>
                   )}
                   {!documents?.ok ? (
@@ -164,6 +213,82 @@ export default async function ProjectsPage({
                       ))}
                     </dl>
                   )}
+                </section>
+                <section className="card">
+                  <h2>멤버</h2>
+                  {!members?.ok ? (
+                    <p className="warn">멤버를 불러오지 못했습니다: {members?.error}</p>
+                  ) : (
+                    <ul className="members">
+                      {members.data.items.map((member) => (
+                        <li key={member.subject}>
+                          <span>
+                            {member.email ?? <code>{member.subject.slice(0, 8)}</code>}
+                            {member.subject === self ? <span className="muted"> (나)</span> : null}
+                          </span>
+                          {isOwner && member.subject !== self ? (
+                            <span className="member-actions">
+                              <form action={changeRole}>
+                                <input type="hidden" name="project" value={selected} />
+                                <input type="hidden" name="subject" value={member.subject} />
+                                <select name="role" defaultValue={member.role} aria-label="역할">
+                                  <option value="owner">소유자</option>
+                                  <option value="editor">편집자</option>
+                                  <option value="viewer">보기 전용</option>
+                                </select>
+                                <button type="submit" className="secondary">변경</button>
+                              </form>
+                              <form action={removeMember}>
+                                <input type="hidden" name="project" value={selected} />
+                                <input type="hidden" name="subject" value={member.subject} />
+                                <button type="submit" className="secondary">내보내기</button>
+                              </form>
+                            </span>
+                          ) : (
+                            <span className="member-actions">
+                              <span className="muted">{ROLE_LABELS[member.role]}</span>
+                              {member.subject === self ? (
+                                <form action={removeMember}>
+                                  <input type="hidden" name="project" value={selected} />
+                                  <input type="hidden" name="subject" value={member.subject} />
+                                  <input type="hidden" name="leaving" value="1" />
+                                  <button type="submit" className="secondary">나가기</button>
+                                </form>
+                              ) : null}
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {isOwner ? (
+                    <>
+                      <h3>초대</h3>
+                      <InviteForm project={selected} />
+                      {invites?.ok && invites.data.items.length ? (
+                        <ul className="members">
+                          {invites.data.items.map((invite) => (
+                            <li key={invite.id}>
+                              <span>
+                                {invite.email ?? "링크를 받은 누구나"} · {ROLE_LABELS[invite.role]}
+                                <span className="muted">
+                                  {" "}
+                                  · {INVITE_STATE[invite.state]} · {invite.expires_at.slice(0, 10)}까지
+                                </span>
+                              </span>
+                              {invite.state === "pending" ? (
+                                <form action={revokeInvite}>
+                                  <input type="hidden" name="project" value={selected} />
+                                  <input type="hidden" name="invite" value={invite.id} />
+                                  <button type="submit" className="secondary">취소</button>
+                                </form>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </>
+                  ) : null}
                 </section>
                 <section className="card">
                   <h2>관계</h2>
