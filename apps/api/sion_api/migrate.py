@@ -46,6 +46,7 @@ CORE_SEQUENCE = (
     "007_relation_type_validates",
     "009_relation_types_coexistence",
     "010_billing",
+    "011_project_members",
 )
 OPTIONAL_AGE = "005_age_projection"
 LOCK_KEY = 7_146_221_202  # distinct from ArchOntos' 7_146_221_101

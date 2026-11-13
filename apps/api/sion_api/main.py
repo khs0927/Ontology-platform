@@ -33,6 +33,7 @@ from . import (
     outbox,
     project_summary,
     project_writes,
+    projects,
     regulation,
     regulation_review,
     regulation_workspace,
@@ -50,6 +51,7 @@ from .auth import (
     require_project_access,
     require_scope,
     shared_reference,
+    writable_projects,
 )
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
@@ -119,6 +121,11 @@ def create_app(
     if auth_policy.oidc is not None and plans and auth_policy.entitlements is None:
         app.state.entitlements = billing.EntitlementResolver(factory, plans)
         auth_policy = replace(auth_policy, entitlements=app.state.entitlements)
+    # Project memberships for signed-in users (sion_api.projects); off without OIDC.
+    app.state.memberships = None
+    if auth_policy.oidc is not None and auth_policy.memberships is None:
+        app.state.memberships = projects.MembershipResolver(factory)
+        auth_policy = replace(auth_policy, memberships=app.state.memberships)
     app.state.auth_policy = auth_policy
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")
@@ -132,6 +139,7 @@ def create_app(
     # Knowledge writes that check the caller's projects themselves (see project_writes).
     write_project = project_scoped(write_knowledge)
     project_writes.register(app, get_session, write_project, read_project)
+    projects.register(app, get_session, read_project, write_project, read_project, app.state.memberships)
     # /me routes return only the caller's own data, so project-restricted users may reach them.
     billing.register(app, get_session, project_scoped(read_knowledge))
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
@@ -155,7 +163,7 @@ def create_app(
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
         allow_credentials=False,
-        allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
     # Outermost: one JSON access-log line per request; headers/query strings are never logged.
@@ -257,7 +265,7 @@ def create_app(
         payload: schemas.RelationCreate,
         session: Session = Depends(get_session),
     ):
-        project_writes.check_entities_visible(session, request, payload.source_entity_id, payload.target_entity_id)
+        project_writes.check_entities_visible(session, request, payload.source_entity_id, payload.target_entity_id, write=True)
         try:
             return repository.create_relation(session, payload)
         except repository.MissingReferenceError as exc:
@@ -295,7 +303,7 @@ def create_app(
         payload: schemas.RelationInvalidate,
         session: Session = Depends(get_session),
     ):
-        project_writes.check_relation_visible(session, request, relation_id)
+        project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return repository.invalidate_relation(session, relation_id, payload)
         except repository.MissingReferenceError as exc:
@@ -358,7 +366,7 @@ def create_app(
     def _decide(
         request: Request, relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool
     ):
-        project_writes.check_relation_visible(session, request, relation_id)
+        project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return review.decide(
                 session,
@@ -389,7 +397,7 @@ def create_app(
                     relation_id = uuid.UUID(raw)
                 except ValueError:
                     continue  # reported per item as invalid by decide_bulk
-                project_writes.check_relation_visible(session, request, relation_id)
+                project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return review.decide_bulk(
                 session,
@@ -446,7 +454,7 @@ def create_app(
         session: Session = Depends(get_session),
     ):
         """Return an approved/rejected candidate to pending (note required; the reverted decision stays on record)."""
-        project_writes.check_relation_visible(session, request, relation_id)
+        project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return review.reopen(
                 session,
@@ -497,8 +505,8 @@ def create_app(
         payload: schemas.EvidenceCreate,
         session: Session = Depends(get_session),
     ):
-        project_writes.check_entities_visible(session, request, payload.entity_id)
-        project_writes.check_relation_visible(session, request, payload.relation_id)
+        project_writes.check_entities_visible(session, request, payload.entity_id, write=True)
+        project_writes.check_relation_visible(session, request, payload.relation_id, write=True)
         try:
             return repository.create_evidence(session, payload)
         except repository.MissingReferenceError as exc:
@@ -606,6 +614,8 @@ def create_app(
                 vector_repository.require_pgvector(session)
                 if not vector_repository.target_in_projects(session, payload, projects):
                     raise HTTPException(status_code=404, detail="embedding target not found")
+                if not vector_repository.target_in_projects(session, payload, writable_projects(request)):
+                    raise HTTPException(status_code=403, detail="read-only access to this project")
             return vector_repository.create_embedding(session, payload)
         except vector_repository.VectorBackendUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc

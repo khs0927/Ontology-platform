@@ -14,6 +14,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
 - **Plan entitlements** — `SION_PLAN_SCOPES_JSON` maps Paddle price ids to extra API scopes for
   signed-in users with an active subscription; cached 60 s and cleared on every billing webhook.
+- **Projects and members** — signed-in users create projects (`POST /api/v1/projects`), invite
+  members with one-time, expiring, optionally email-bound tokens and manage `owner` / `editor` /
+  `viewer` roles. Membership lives in `migrations/011_project_members.sql` and is merged into the
+  project ACL on every request; viewers are read-only. See `docs/SAAS.md`.
 - **Project uploads and edits** — `POST/GET /api/v1/projects/{id}/documents` (raw-body upload,
   size-limited, content-addressed per project, ingested with `properties.project_id`) and
   `PATCH /api/v1/entities/{id}` (merge-patch edit) for project members with `write:knowledge`.
