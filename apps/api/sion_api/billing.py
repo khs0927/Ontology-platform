@@ -19,6 +19,8 @@ No customer names, emails or addresses are stored, and the raw payload is not ke
 Environment
 * ``SION_PADDLE_WEBHOOK_SECRET``  notification destination secret (webhook returns 503 without it)
 * ``SION_PADDLE_TOLERANCE_SECONDS``  replay window, default 300
+* ``SION_PLAN_SCOPES_JSON``  plan entitlements: ``{"<paddle price id>": ["scope", ...]}``. A signed-in
+  user with an active subscription to that price gets those scopes on top of the OIDC defaults.
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ import hashlib
 import hmac
 import json
 import os
+import threading
 import time
 from datetime import datetime, timezone
 from typing import Any
@@ -219,6 +222,92 @@ def entitlements_for(session: Session, subject: str) -> dict[str, Any]:
     }
 
 
+ENTITLEMENT_TTL_SECONDS = 60
+
+
+class PlanCatalog:
+    """Paddle price id -> extra API scopes, from ``SION_PLAN_SCOPES_JSON``."""
+
+    def __init__(self, price_scopes: dict[str, frozenset[str]]):
+        self.price_scopes = price_scopes
+
+    @classmethod
+    def from_env(cls) -> "PlanCatalog":
+        raw = os.getenv("SION_PLAN_SCOPES_JSON", "").strip()
+        if not raw:
+            return cls({})
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            raise RuntimeError("SION_PLAN_SCOPES_JSON must be valid JSON") from None
+        if not isinstance(parsed, dict):
+            raise RuntimeError("SION_PLAN_SCOPES_JSON must map Paddle price ids to scope lists")
+        catalog: dict[str, frozenset[str]] = {}
+        for price_id, scopes in parsed.items():
+            if not isinstance(price_id, str) or not isinstance(scopes, list) or not all(
+                isinstance(scope, str) and scope.strip() for scope in scopes
+            ):
+                raise RuntimeError("SION_PLAN_SCOPES_JSON must map Paddle price ids to scope lists")
+            cleaned = frozenset(scope.strip() for scope in scopes)
+            if "*" in cleaned:
+                raise RuntimeError("a plan cannot grant '*'")
+            catalog[price_id] = cleaned
+        return cls(catalog)
+
+    def __bool__(self) -> bool:
+        return bool(self.price_scopes)
+
+    def scopes_for(self, price_ids: list[str]) -> frozenset[str]:
+        granted: set[str] = set()
+        for price_id in price_ids:
+            granted |= self.price_scopes.get(price_id, frozenset())
+        return frozenset(granted)
+
+
+class EntitlementResolver:
+    """Extra scopes for an OIDC subject from its active subscriptions (cached briefly).
+
+    Installed on ``AuthPolicy.entitlements``. Errors resolve to no extra scopes, so a database
+    hiccup can only take paid features away for a moment, never grant them.
+    """
+
+    def __init__(self, session_factory, catalog: PlanCatalog, ttl: float = ENTITLEMENT_TTL_SECONDS):
+        self.session_factory = session_factory
+        self.catalog = catalog
+        self.ttl = ttl
+        self._cache: dict[str, tuple[float, frozenset[str]]] = {}
+        self._lock = threading.Lock()
+
+    def __call__(self, subject: str) -> frozenset[str]:
+        now = time.monotonic()
+        with self._lock:
+            hit = self._cache.get(subject)
+            if hit is not None and now - hit[0] < self.ttl:
+                return hit[1]
+        try:
+            with self.session_factory() as session:
+                rows = session.scalars(
+                    select(BillingSubscription).where(
+                        BillingSubscription.user_subject == subject,
+                        BillingSubscription.status.in_(sorted(ACTIVE_STATUSES)),
+                    )
+                ).all()
+                price_ids = [pid for row in rows for pid in (row.price_ids or [])]
+        except Exception:  # noqa: BLE001 - fail closed on any lookup error
+            return frozenset()
+        scopes = self.catalog.scopes_for(price_ids)
+        with self._lock:
+            self._cache[subject] = (now, scopes)
+        return scopes
+
+    def forget(self, subject: str | None = None) -> None:
+        with self._lock:
+            if subject is None:
+                self._cache.clear()
+            else:
+                self._cache.pop(subject, None)
+
+
 def register(app: FastAPI, get_session, read_dep) -> None:
     @app.post("/api/v1/billing/paddle/webhook", include_in_schema=False)
     async def paddle_webhook(request: Request, session: Session = Depends(get_session)):
@@ -239,7 +328,11 @@ def register(app: FastAPI, get_session, read_dep) -> None:
             raise HTTPException(status_code=400, detail="body is not JSON") from None
         if not isinstance(event, dict):
             raise HTTPException(status_code=400, detail="body must be a JSON object")
-        return {"status": await anyio.to_thread.run_sync(apply_event, session, event)}
+        outcome = await anyio.to_thread.run_sync(apply_event, session, event)
+        resolver = getattr(request.app.state, "entitlements", None)
+        if outcome == "processed" and resolver is not None:
+            resolver.forget()  # a plan change takes effect on the next request
+        return {"status": outcome}
 
     @app.get("/api/v1/me", dependencies=[Depends(read_dep)])
     def whoami(request: Request):
