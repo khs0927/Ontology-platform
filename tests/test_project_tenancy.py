@@ -85,7 +85,7 @@ def test_restricted_caller_sees_only_its_project(tmp_path):
 
         # Shared reference data stays readable; other cross-project routes stay closed.
         assert client.get("/api/v1/law/search?q=건축", headers=limited).status_code == 200
-        assert client.get("/api/v1/evidence", headers=limited).status_code == 403
+        assert client.get("/api/v1/artifacts", headers=limited).status_code == 403
 
 
 def test_caller_with_no_projects_sees_nothing(tmp_path):

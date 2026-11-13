@@ -70,6 +70,15 @@ PROJECT_SCOPED_ROUTES = {
     ("POST", "/api/v1/evidence"),  # target entity/relation visible
     ("POST", "/api/v1/projects/{project_id}/documents"),  # upload into a project on the ACL
     ("GET", "/api/v1/projects/{project_id}/documents"),
+    # Review queue and evidence, limited to relations whose both endpoints are visible.
+    ("GET", "/api/v1/relations/candidates"),
+    ("GET", "/api/v1/relations/candidates/{relation_id}"),
+    ("GET", "/api/v1/relations/candidates/{relation_id}/audit"),
+    ("POST", "/api/v1/relations/candidates/{relation_id}/approve"),
+    ("POST", "/api/v1/relations/candidates/{relation_id}/reject"),
+    ("POST", "/api/v1/relations/candidates/{relation_id}/reopen"),
+    ("POST", "/api/v1/relations/candidates/bulk"),  # all-or-nothing: any foreign id answers 404
+    ("GET", "/api/v1/evidence"),
     ("GET", "/api/v1/me"),  # the caller's own identity; no project data
     ("GET", "/api/v1/billing/me"),  # the caller's own subscriptions; no project data
     ("GET", "/regulation"),
@@ -247,7 +256,7 @@ def test_tokens_are_never_echoed_or_logged(app, caplog):
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {unknown}"}),
             client.post("/api/v1/entities", json={}, headers={"Authorization": f"Bearer {READ}"}),
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {WRITE}"}),
-            client.get("/api/v1/evidence", headers={"Authorization": f"Bearer {RESTRICTED}"}),
+            client.get("/api/v1/artifacts", headers={"Authorization": f"Bearer {RESTRICTED}"}),
         ]
     assert [r.status_code for r in responses] == [401, 403, 403, 403]
     for response in responses:
@@ -371,6 +380,6 @@ def test_project_acl_on_regulation_works(monkeypatch, tmp_path):
         assert len(gateway_calls) == calls_before
 
         # Cross-project routes fail closed for project-restricted tokens (entities/graph filter instead).
-        for path in ("/api/v1/evidence", "/api/v1/relations/candidates", "/api/v1/artifacts"):
+        for path in ("/api/v1/artifacts", "/api/v1/outbox", "/api/v1/review/report"):
             assert client.get(path, headers=limited).status_code == 403, path
         assert client.post("/api/v1/regulation/gateway/report", json={}, headers=limited).status_code == 403

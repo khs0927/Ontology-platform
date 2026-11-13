@@ -27,6 +27,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Project-scoped knowledge writes** — entity, relation, relation-invalidate and evidence writes
   accept project-restricted callers and keep them inside their projects (404 otherwise; no new
   `Project` entities, no moving entities between projects).
+- **Project-scoped review queue and evidence** — `/api/v1/relations/candidates*` and
+  `GET /api/v1/evidence` accept project-restricted callers and show or decide only what lies
+  inside their projects (optional `project_id` filter for everyone); signed-in reviewers are
+  recorded by account.
 
 ## [0.3.0] - 2026-11-11
 

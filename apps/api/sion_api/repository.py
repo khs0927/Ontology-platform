@@ -228,11 +228,19 @@ def invalidate_relation(
 
 
 def list_evidence(
-    session: Session, *, limit: int, offset: int
+    session: Session, *, limit: int, offset: int, projects: frozenset[str] | None = None
 ) -> list[models.Evidence]:
+    """With ``projects``: only evidence whose entity and relation (whichever are set) are visible."""
+    statement = select(models.Evidence)
+    if projects is not None:
+        visible_relations = select(models.Relation.id).where(relation_in_projects(projects))
+        statement = statement.where(
+            or_(models.Evidence.entity_id.is_(None), models.Evidence.entity_id.in_(_scoped_entity_ids(projects))),
+            or_(models.Evidence.relation_id.is_(None), models.Evidence.relation_id.in_(visible_relations)),
+        )
     return list(
         session.scalars(
-            select(models.Evidence)
+            statement
             .order_by(models.Evidence.created_at, models.Evidence.id)
             .offset(offset)
             .limit(limit)
