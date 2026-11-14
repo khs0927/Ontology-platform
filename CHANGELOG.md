@@ -36,6 +36,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Remote MCP server** (upgrade phase 5) — `sion-mcp` (new `mcp` extra, official SDK 2.3)
+  serves the knowledge core over stateless Streamable HTTP. It speaks both the 2026-07-28
+  per-request envelope and the older initialize handshake. Its tools are all read-only:
+  ChatGPT-style `search`/`fetch`, `law_search`/`law_article`/`law_refs` with `as_of`, and
+  `get_entity`/`neighbors`/`evidence_for` (review candidates hidden unless asked).
+  Access uses the API bearer tokens with `read:knowledge`; project-restricted tokens are refused.
+  Without bearer mode it serves loopback only. Refused requests get an RFC 9728
+  protected-resource metadata challenge. See `docs/MCP_SERVER.md`.
 
 - **Hybrid law search** (upgrade phase 4) — `GET /api/v1/law/search` defaults to `mode=hybrid`.
   Hybrid mode runs BM25 over word tokens plus Hangul bigrams, adds an optional vector channel
