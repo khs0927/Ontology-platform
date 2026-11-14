@@ -626,7 +626,10 @@ def create_app(
                 raise HTTPException(status_code=422, detail="project_id is required for project-scoped access")
             return engine
         require_project_access(request, project_id)
-        return await engine.for_project(project_id)
+        try:
+            return await engine.for_project(project_id)
+        except GraphRagUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     @app.get("/api/v1/storage/status", dependencies=[Depends(read_knowledge)])
     def storage_status():

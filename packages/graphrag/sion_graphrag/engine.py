@@ -155,6 +155,10 @@ class SionGraphRag:
         if self.project_id is not None:
             raise RuntimeError("for_project() is only available on the base engine")
         workspace = project_workspace(self.config.workspace, project_id)
+        if self.config.storage == "postgres" and os.getenv("POSTGRES_WORKSPACE"):
+            # LightRAG's Postgres storages let POSTGRES_WORKSPACE override every instance's
+            # workspace, which would put all projects into one shared index.
+            raise GraphRagUnavailable("unset POSTGRES_WORKSPACE to use per-project GraphRAG workspaces")
         async with self._children_lock:
             child = self._children.get(workspace)
             if child is None:
