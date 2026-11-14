@@ -144,8 +144,8 @@ jobs:
           docker exec -i "$PG_CONTAINER" psql -U ontology -d ontology -X -v ON_ERROR_STOP=1 <<'SQL'
           DO $$
           BEGIN
-            IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'public') <> 13 THEN
-              RAISE EXCEPTION 'expected 13 public tables (11 core + law_articles + sion_schema_migrations)';
+            IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'public') <> 17 THEN
+              RAISE EXCEPTION 'expected 17 public tables (11 core + law_articles + 2 billing + 2 project membership + sion_schema_migrations)';
             END IF;
             IF (SELECT count(*) FROM pg_tables WHERE schemaname = 'regulation') < 29 THEN
               RAISE EXCEPTION 'ArchOntos tables missing from schema regulation';
@@ -157,7 +157,7 @@ jobs:
           SQL
 
       - name: Unified PostgreSQL tests
-        run: python -m pytest -q tests/test_unified_postgres.py
+        run: python -m pytest -q tests/test_unified_postgres.py tests/test_project_vector_search.py
 
       # LightRAG's real Postgres storages (PGTableGraphStorage, pgvector) with a local hash
       # embedding: per-project workspaces stay separate in every LightRAG table.

@@ -27,8 +27,8 @@ EXTRAS: dict[str, tuple[str, ...]] = {
     "ocr": ("pypdfium2",),
     "validation": ("rdflib", "pyshacl"),
     "mcp": ("mcp",),
-
     "jobs": ("dbos",),
+    "saas": ("jwt", "cryptography"),
 }
 
 # import name -> extra that provides it

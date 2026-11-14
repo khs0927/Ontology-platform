@@ -40,6 +40,9 @@ PUBLIC_ROUTES = {
     ("GET", "/docs"),
     ("GET", "/docs/oauth2-redirect"),
     ("GET", "/redoc"),
+    # Paddle webhook: authenticated by its HMAC signature (sion_api.billing.verify_signature),
+    # not by a bearer token; 503 unless SION_PADDLE_WEBHOOK_SECRET is set.
+    ("POST", "/api/v1/billing/paddle/webhook"),
 }
 
 # POST routes that compute an answer without persisting anything. They need a read scope.
@@ -52,8 +55,50 @@ READ_ONLY_POSTS = {
     "/api/v1/regulation/gateway/report",  # advisory gateway report; not saved
 }
 
+# Writes that change only the caller's own project membership, authorized by a one-time
+# invitation token rather than a write scope, so free (read-only) users can join a project.
+SELF_SERVICE_WRITES = {
+    ("POST", "/api/v1/invites/accept"),  # sion_api.projects.accept_invite
+}
+
 # Routes that apply the project ACL themselves and therefore accept project-restricted tokens.
 PROJECT_SCOPED_ROUTES = {
+    # Knowledge reads filtered to the caller's projects (repository.in_projects).
+    ("GET", "/api/v1/entities"),
+    ("GET", "/api/v1/entities/{entity_id}"),
+    ("GET", "/api/v1/relations"),
+    ("GET", "/api/v1/graph"),
+    # Knowledge writes that check the caller's projects (sion_api.project_writes).
+    ("POST", "/api/v1/entities"),  # properties.project_id must be on the ACL; no new projects
+    ("PATCH", "/api/v1/entities/{entity_id}"),  # only visible entities; project_id is frozen
+    ("POST", "/api/v1/relations"),  # both endpoints visible
+    ("POST", "/api/v1/relations/{relation_id}/invalidate"),  # relation visible
+    ("POST", "/api/v1/evidence"),  # target entity/relation visible
+    ("POST", "/api/v1/projects/{project_id}/documents"),  # upload into a project on the ACL
+    ("GET", "/api/v1/projects/{project_id}/documents"),
+    # Review queue and evidence, limited to relations whose both endpoints are visible.
+    ("GET", "/api/v1/relations/candidates"),
+    ("GET", "/api/v1/relations/candidates/{relation_id}"),
+    ("GET", "/api/v1/relations/candidates/{relation_id}/audit"),
+    ("POST", "/api/v1/relations/candidates/{relation_id}/approve"),
+    ("POST", "/api/v1/relations/candidates/{relation_id}/reject"),
+    ("POST", "/api/v1/relations/candidates/{relation_id}/reopen"),
+    ("POST", "/api/v1/relations/candidates/bulk"),  # all-or-nothing: any foreign id answers 404
+    ("GET", "/api/v1/evidence"),
+    ("POST", "/api/v1/embeddings"),  # target entity / chunk document in the caller's projects
+    ("POST", "/api/v1/vector/search"),  # searches only embeddings inside the caller's projects
+    # Projects for signed-in users (sion_api.projects); member rows are the ACL source.
+    ("POST", "/api/v1/projects"),  # creates a project owned by the caller
+    ("GET", "/api/v1/projects"),
+    ("GET", "/api/v1/projects/{project_id}/members"),
+    ("PATCH", "/api/v1/projects/{project_id}/members/{subject}"),  # owners only
+    ("DELETE", "/api/v1/projects/{project_id}/members/{subject}"),  # owners, or the member leaving
+    ("POST", "/api/v1/projects/{project_id}/invites"),  # owners only
+    ("GET", "/api/v1/projects/{project_id}/invites"),
+    ("DELETE", "/api/v1/projects/{project_id}/invites/{invite_id}"),
+    ("POST", "/api/v1/invites/accept"),
+    ("GET", "/api/v1/me"),  # the caller's own identity; no project data
+    ("GET", "/api/v1/billing/me"),  # the caller's own subscriptions; no project data
     ("GET", "/regulation"),
     ("GET", "/api/v1/regulation/summary"),  # applies the project ACL itself (project_summary.project_scope)
     ("GET", "/api/v1/regulation/works"),
@@ -121,7 +166,7 @@ def test_every_route_is_public_or_scoped(app):
 def test_every_mutating_route_requires_a_write_scope(app):
     offenders = []
     for method, path, deps in _routes(app):
-        if method not in MUTATING or (method, path) in PUBLIC_ROUTES:
+        if method not in MUTATING or (method, path) in PUBLIC_ROUTES or (method, path) in SELF_SERVICE_WRITES:
             continue
         scopes = {dep.required_scope for dep in deps}
         if path in READ_ONLY_POSTS and method == "POST":
@@ -148,6 +193,20 @@ def test_allowlists_are_not_stale(app):
     assert PROJECT_SCOPED_ROUTES <= present
 
 
+# Routes that return only tenant-independent data, so project-restricted tokens may read them.
+SHARED_REFERENCE_ROUTES = {
+    ("GET", "/api/v1/schema/ontology"),  # the ontology schema file
+    ("GET", "/api/v1/law/search"),  # published law text
+    ("GET", "/api/v1/law/articles/{law_id}/{article_key}"),
+}
+
+
+def test_shared_reference_routes_are_explicit(app):
+    marked = {(m, p) for m, p, deps in _routes(app) if any(getattr(d, "shared_reference", False) for d in deps)}
+    assert marked == SHARED_REFERENCE_ROUTES
+    assert all(m == "GET" for m, _ in marked)  # never a write
+
+
 def test_project_scoped_routes_are_explicit(app):
     marked = {(m, p) for m, p, deps in _routes(app) if any(getattr(d, "project_scoped", False) for d in deps)}
     assert marked == PROJECT_SCOPED_ROUTES
@@ -156,7 +215,7 @@ def test_project_scoped_routes_are_explicit(app):
 def test_read_token_is_rejected_on_every_mutating_route(app):
     with TestClient(app) as client:
         for method, path, deps in _routes(app):
-            if method not in MUTATING or not deps or path in READ_ONLY_POSTS:
+            if method not in MUTATING or not deps or path in READ_ONLY_POSTS or (method, path) in SELF_SERVICE_WRITES:
                 continue
             response = client.request(method, _concrete(path), json={}, headers={"Authorization": f"Bearer {READ}"})
             assert response.status_code == 403, (method, path, response.status_code)
@@ -217,7 +276,7 @@ def test_tokens_are_never_echoed_or_logged(app, caplog):
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {unknown}"}),
             client.post("/api/v1/entities", json={}, headers={"Authorization": f"Bearer {READ}"}),
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {WRITE}"}),
-            client.get("/api/v1/entities", headers={"Authorization": f"Bearer {RESTRICTED}"}),
+            client.get("/api/v1/artifacts", headers={"Authorization": f"Bearer {RESTRICTED}"}),
         ]
     assert [r.status_code for r in responses] == [401, 403, 403, 403]
     for response in responses:
@@ -340,7 +399,7 @@ def test_project_acl_on_regulation_works(monkeypatch, tmp_path):
         assert denied.status_code == 404
         assert len(gateway_calls) == calls_before
 
-        # Cross-project routes fail closed for project-restricted tokens.
-        for path in ("/api/v1/entities", "/api/v1/graph", "/api/v1/evidence", "/api/v1/relations/candidates"):
+        # Cross-project routes fail closed for project-restricted tokens (entities/graph filter instead).
+        for path in ("/api/v1/artifacts", "/api/v1/outbox", "/api/v1/review/report"):
             assert client.get(path, headers=limited).status_code == 403, path
         assert client.post("/api/v1/regulation/gateway/report", json={}, headers=limited).status_code == 403

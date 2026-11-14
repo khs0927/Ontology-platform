@@ -100,6 +100,39 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - Concurrency is limited per process. `sion-worker` adds worker processes.
   - Tested on SQLite and PostgreSQL 16. See `docs/JOBS.md`.
 
+### Added
+
+- **Hosted sign-in and billing (phase 7a)** — OIDC access-token verification (Supabase Auth by
+  default, any JWKS issuer) as `Principal(kind="user")` with fail-closed project claims,
+  `GET /api/v1/me`, a signature-verified, idempotent and order-safe Paddle Billing webhook, and
+  `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
+- **Plan entitlements** — `SION_PLAN_SCOPES_JSON` maps Paddle price ids to extra API scopes for
+  signed-in users with an active subscription; cached 60 s and cleared on every billing webhook.
+- **Projects and members** — signed-in users create projects (`POST /api/v1/projects`), invite
+  members with one-time, expiring, optionally email-bound tokens and manage `owner` / `editor` /
+  `viewer` roles. Membership lives in `migrations/011_project_members.sql` and is merged into the
+  project ACL on every request; viewers are read-only. See `docs/SAAS.md`.
+- **Project uploads and edits** — `POST/GET /api/v1/projects/{id}/documents` (raw-body upload,
+  size-limited, content-addressed per project, ingested with `properties.project_id`) and
+  `PATCH /api/v1/entities/{id}` (merge-patch edit) for project members with `write:knowledge`.
+
+### Changed
+
+- **Project-scoped knowledge reads** — `GET /api/v1/entities`, `/entities/{id}`, `/relations` and
+  `/graph` now accept project-restricted callers (OIDC users, project tokens) and filter to their
+  projects (`properties.project_id`), with an optional `project_id` filter for everyone. Law search
+  and the ontology schema are marked shared reference data. See `docs/API_AUTH.md`.
+- **Project-scoped knowledge writes** — entity, relation, relation-invalidate and evidence writes
+  accept project-restricted callers and keep them inside their projects (404 otherwise; no new
+  `Project` entities, no moving entities between projects).
+- **Project-scoped review queue and evidence** — `/api/v1/relations/candidates*` and
+  `GET /api/v1/evidence` accept project-restricted callers and show or decide only what lies
+  inside their projects (optional `project_id` filter for everyone); signed-in reviewers are
+  recorded by account.
+- **Project-scoped vector search** — `POST /api/v1/vector/search` and `POST /api/v1/embeddings`
+  accept project-restricted callers and stay inside their projects (entities, and chunks via
+  `documents.entity_id`); the search takes an optional `project_id`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

@@ -88,8 +88,13 @@ validation = [
   "rdflib>=7.6,<8",
   "pyshacl>=0.40.1,<1",
 ]
+# Hosted (SaaS) mode: OIDC access-token verification (Supabase Auth or any JWKS issuer).
+# Paddle webhooks need nothing extra. See docs/SAAS.md.
+saas = [
+  "PyJWT[crypto]>=2.10,<3",
+]
 all = [
-  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,hwp,ocr,validation,mcp,jobs]",
+  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,hwp,ocr,validation,mcp,jobs,saas]",
 ]
 # Tooling
 test = [

@@ -21,7 +21,7 @@ class VectorConflictError(ValueError):
     pass
 
 
-def _require_pgvector(session: Session) -> None:
+def require_pgvector(session: Session) -> None:
     bind = session.get_bind()
     if bind.dialect.name != "postgresql":
         raise VectorBackendUnavailable(
@@ -52,8 +52,35 @@ def _target_exists(session: Session, payload: EmbeddingCreate) -> None:
         raise VectorReferenceError("embedding chunk does not exist")
 
 
+# Entities inside :project_ids (the Project entity itself or ``properties.project_id``); the
+# same membership rule as repository.in_projects, written in SQL for the raw pgvector query.
+_SCOPED_ENTITIES = """
+    SELECT e.id FROM entities e
+    WHERE e.id::text = ANY(CAST(:project_ids AS text[]))
+       OR e.properties ->> 'project_id' = ANY(CAST(:project_ids AS text[]))
+"""
+
+
+def target_in_projects(session: Session, payload: EmbeddingCreate, projects: frozenset[str]) -> bool:
+    """Whether the embedding's entity, or the entity behind its chunk's document, is in ``projects``."""
+    if payload.entity_id is not None:
+        statement = f"SELECT EXISTS (SELECT 1 FROM ({_SCOPED_ENTITIES}) s WHERE s.id = :id)"
+        target = payload.entity_id
+    else:
+        statement = f"""
+            SELECT EXISTS (
+                SELECT 1 FROM chunks c JOIN documents d ON d.id = c.document_id
+                WHERE c.id = :id AND d.entity_id IN ({_SCOPED_ENTITIES})
+            )
+        """
+        target = payload.chunk_id
+    return bool(
+        session.execute(text(statement), {"id": target, "project_ids": sorted(projects)}).scalar_one()
+    )
+
+
 def create_embedding(session: Session, payload: EmbeddingCreate) -> dict:
-    _require_pgvector(session)
+    require_pgvector(session)
     _target_exists(session, payload)
 
     vector_literal = json.dumps(payload.embedding, separators=(",", ":"))
@@ -97,8 +124,12 @@ def create_embedding(session: Session, payload: EmbeddingCreate) -> dict:
     return dict(row)
 
 
-def search_vectors(session: Session, payload: VectorSearchRequest) -> list[dict]:
-    _require_pgvector(session)
+def search_vectors(
+    session: Session, payload: VectorSearchRequest, projects: frozenset[str] | None = None
+) -> list[dict]:
+    """Nearest embeddings. With ``projects`` only embeddings of entities in those projects, or of
+    chunks whose document entity is in them, are searched (``None`` is unrestricted)."""
+    require_pgvector(session)
 
     vector_literal = json.dumps(payload.embedding, separators=(",", ":"))
     target_clause = ""
@@ -106,6 +137,18 @@ def search_vectors(session: Session, payload: VectorSearchRequest) -> list[dict]
         target_clause = "AND entity_id IS NOT NULL"
     elif payload.target_kind == "chunk":
         target_clause = "AND chunk_id IS NOT NULL"
+    scope_clause = ""
+    params: dict = {}
+    if projects is not None:
+        scope_clause = f"""
+              AND (
+                entity_id IN ({_SCOPED_ENTITIES})
+                OR chunk_id IN (
+                  SELECT c.id FROM chunks c JOIN documents d ON d.id = c.document_id
+                  WHERE d.entity_id IN ({_SCOPED_ENTITIES})
+                )
+              )"""
+        params["project_ids"] = sorted(projects)
 
     rows = session.execute(
         text(
@@ -123,7 +166,7 @@ def search_vectors(session: Session, payload: VectorSearchRequest) -> list[dict]
             FROM embeddings
             WHERE model = :model
               AND dimensions = :dimensions
-              {target_clause}
+              {target_clause}{scope_clause}
             ORDER BY embedding <=> CAST(:embedding AS vector)
             LIMIT :limit
             """
@@ -133,6 +176,7 @@ def search_vectors(session: Session, payload: VectorSearchRequest) -> list[dict]
             "model": payload.model,
             "dimensions": len(payload.embedding),
             "limit": payload.limit,
+            **params,
         },
     ).mappings().all()
 

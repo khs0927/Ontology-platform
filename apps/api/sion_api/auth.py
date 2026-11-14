@@ -20,6 +20,7 @@ PROJECT_SCOPE_PREFIX = "project:"
 # Scopes are deliberately disjoint: ``write:*`` does not imply ``read:*``. A reviewer
 # token that reads candidates and records decisions needs both scopes (or ``*``).
 KNOWN_SCOPES = frozenset({"read:knowledge", "write:knowledge", "read:aec", "*"})
+WRITE_ROLES = frozenset({"owner", "editor"})
 
 
 @dataclass(frozen=True)
@@ -31,15 +32,37 @@ class Principal:
     token without a project allowlist); otherwise only those project ids are visible.
     """
 
-    kind: str  # "local" or "bearer"
+    kind: str  # "local", "bearer" (static token) or "user" (verified OIDC access token)
     scopes: frozenset[str]
     projects: frozenset[str] | None = None
+    subject: str | None = None  # OIDC ``sub`` for "user" principals
+    # Projects the caller may change. ``None`` means the same as ``projects``; a signed-in
+    # viewer member sees a project (``projects``) without being able to write to it.
+    write_projects: frozenset[str] | None = None
+    email: str | None = None  # verified OIDC email, used to match email-bound invitations
+    # project id -> membership role ("owner", "editor", "viewer") for signed-in users.
+    roles: tuple[tuple[str, str], ...] = ()
 
     def can_access_project(self, project_id: object) -> bool:
         if self.projects is None:
             return True
         normalized = normalize_project_id(project_id)
         return normalized is not None and normalized in self.projects
+
+    @property
+    def writable(self) -> frozenset[str] | None:
+        return self.projects if self.write_projects is None else self.write_projects
+
+    def can_write_project(self, project_id: object) -> bool:
+        writable = self.writable
+        if writable is None:
+            return True
+        normalized = normalize_project_id(project_id)
+        return normalized is not None and normalized in writable
+
+    def role_in(self, project_id: object) -> str | None:
+        normalized = normalize_project_id(project_id)
+        return dict(self.roles).get(normalized) if normalized else None
 
 
 LOCAL_PRINCIPAL = Principal(kind="local", scopes=frozenset({"*"}))
@@ -98,6 +121,15 @@ class AuthPolicy:
     # Optional per-token project ACL: token -> allowed project ids. Tokens absent here
     # are unrestricted (backward compatible with the plain token -> scopes map).
     token_projects: tuple[tuple[str, frozenset[str]], ...] = ()
+    # Optional OIDC verifier (sion_api.oidc.OidcVerifier). Bearer values that are not a
+    # configured static token are tried as identity-provider access tokens.
+    oidc: Any = None
+    # Optional ``subject -> extra scopes`` callable (sion_api.billing.EntitlementResolver) that
+    # adds paid-plan scopes to verified OIDC users.
+    entitlements: Any = None
+    # Optional ``subject -> {project_id: role}`` callable (sion_api.projects.MembershipResolver)
+    # that adds the projects a signed-in user is a member of.
+    memberships: Any = None
 
     @classmethod
     def from_env(cls) -> "AuthPolicy":
@@ -124,9 +156,14 @@ class AuthPolicy:
                 if projects is not None:
                     token_projects.append((token, projects))
 
-        if mode in {"bearer", "local-or-bearer"} and not token_scopes:
-            raise RuntimeError("SION_API_TOKENS_JSON is required when bearer authentication is enabled")
-        return cls(mode=mode, token_scopes=tuple(token_scopes), token_projects=tuple(token_projects))
+        from .oidc import OidcVerifier
+
+        oidc = OidcVerifier.from_env()
+        if mode in {"bearer", "local-or-bearer"} and not token_scopes and oidc is None:
+            raise RuntimeError(
+                "SION_API_TOKENS_JSON or SION_OIDC_ISSUER is required when bearer authentication is enabled"
+            )
+        return cls(mode=mode, token_scopes=tuple(token_scopes), token_projects=tuple(token_projects), oidc=oidc)
 
     @staticmethod
     def _is_local(request: Request) -> bool:
@@ -170,7 +207,7 @@ class AuthPolicy:
         presented = token.encode("utf-8")
         scopes = _lookup(self.token_scopes, presented)
         if scopes is None:
-            return None
+            return self._oidc_principal(token)
         projects = _lookup(self.token_projects, presented)
         if "*" not in scopes:
             # ``project:<uuid>`` scope entries also restrict the token. Malformed entries fail
@@ -180,6 +217,36 @@ class AuthPolicy:
                 from_scopes = frozenset(p for p in (normalize_project_id(e) for e in entries) if p is not None)
                 projects = from_scopes if projects is None else projects & from_scopes
         return Principal(kind="bearer", scopes=scopes, projects=projects)
+
+    def _oidc_principal(self, token: str) -> Principal | None:
+        if self.oidc is None or not self.oidc.looks_like_jwt(token):
+            return None
+        from .oidc import OidcError
+
+        try:
+            claims = self.oidc.verify(token)
+        except OidcError:
+            return None
+        scopes = claims.scopes
+        if self.entitlements is not None:
+            scopes = scopes | frozenset(s for s in self.entitlements(claims.subject) if s != "*")
+        projects = claims.projects
+        write_projects = None
+        roles: dict[str, str] = {}
+        if self.memberships is not None and projects is not None:
+            roles = dict(self.memberships(claims.subject))
+            # Projects granted in the token claim behave like editor memberships.
+            write_projects = projects | frozenset(p for p, role in roles.items() if role in WRITE_ROLES)
+            projects = projects | frozenset(roles)
+        return Principal(
+            kind="user",
+            scopes=scopes,
+            projects=projects,
+            subject=claims.subject,
+            write_projects=write_projects,
+            email=claims.email,
+            roles=tuple(sorted(roles.items())),
+        )
 
     def _matched_token(self, authorization: str | None) -> str | None:
         """The configured token the header authenticates as (never returned to clients)."""
@@ -254,6 +321,11 @@ class AuthPolicy:
         matched = self._matched_token(request.headers.get("Authorization"))
         if matched is not None:
             return "token:" + hashlib.sha256(matched.encode("utf-8")).hexdigest()[:32]
+        principal = getattr(request.state, "sion_principal", None)
+        if not isinstance(principal, Principal) and self.oidc is not None:
+            principal = self._principal_for_authorization(request.headers.get("Authorization"))
+        if isinstance(principal, Principal) and principal.kind == "user" and principal.subject:
+            return "user:" + hashlib.sha256(principal.subject.encode("utf-8")).hexdigest()[:32]
         return host
 
 def _lookup(entries: Iterable[tuple[str, frozenset[str]]], presented: bytes) -> frozenset[str] | None:
@@ -270,18 +342,22 @@ def _remember(request: Request, principal: Principal) -> Principal:
     return principal
 
 
-def require_scope(policy: AuthPolicy, scope: str, *, project_scoped: bool = False) -> Callable[[Request], None]:
+def require_scope(
+    policy: AuthPolicy, scope: str, *, project_scoped: bool = False, shared_reference: bool = False
+) -> Callable[[Request], None]:
     """FastAPI dependency requiring ``scope``.
 
     A token restricted to a project allowlist may only reach routes declared
     ``project_scoped`` (routes that apply the project ACL themselves through
-    :func:`require_project_access` / :func:`allowed_projects`). Every other route
-    could return cross-project data, so restricted tokens fail closed there.
+    :func:`require_project_access` / :func:`allowed_projects`) or
+    ``shared_reference`` (routes that only return data shared by every tenant, such as
+    published law text or the ontology schema). Every other route could return
+    cross-project data, so restricted tokens fail closed there.
     """
 
     def dependency(request: Request) -> None:
         principal = policy.authorize(request, scope)
-        if principal.projects is not None and not project_scoped:
+        if principal.projects is not None and not (project_scoped or shared_reference):
             raise HTTPException(
                 status_code=403,
                 detail="project-restricted token cannot access cross-project routes",
@@ -290,6 +366,7 @@ def require_scope(policy: AuthPolicy, scope: str, *, project_scoped: bool = Fals
     # Introspected by the route-coverage test (tests/test_api_scopes.py).
     dependency.required_scope = scope  # type: ignore[attr-defined]
     dependency.project_scoped = project_scoped  # type: ignore[attr-defined]
+    dependency.shared_reference = shared_reference  # type: ignore[attr-defined]
     dependency.policy = policy  # type: ignore[attr-defined]
     dependency.sion_scope = scope  # type: ignore[attr-defined]  # read by install_openapi_security
     return dependency
@@ -303,6 +380,21 @@ def project_scoped(dependency: Callable[[Request], None]) -> Callable[[Request],
         dependency.policy,  # type: ignore[attr-defined]
         dependency.required_scope,  # type: ignore[attr-defined]
         project_scoped=True,
+    )
+
+
+def shared_reference(dependency: Callable[[Request], None]) -> Callable[[Request], None]:
+    """Derive a variant of a :func:`require_scope` dependency for tenant-independent data.
+
+    Only for routes whose responses contain no project data at all (published law text,
+    the ontology schema). Project-restricted callers may reach them.
+    """
+    if not hasattr(dependency, "policy"):
+        return dependency
+    return require_scope(
+        dependency.policy,  # type: ignore[attr-defined]
+        dependency.required_scope,  # type: ignore[attr-defined]
+        shared_reference=True,
     )
 
 
@@ -326,6 +418,18 @@ def require_project_access(request: Request, project_id: object) -> None:
 def allowed_projects(request: Request) -> frozenset[str] | None:
     """Project ids visible to the caller, or ``None`` when unrestricted."""
     return current_principal(request).projects
+
+
+def writable_projects(request: Request) -> frozenset[str] | None:
+    """Project ids the caller may change, or ``None`` when unrestricted."""
+    return current_principal(request).writable
+
+
+def require_project_write(request: Request, project_id: object) -> None:
+    """Write gate: 404 for a project the caller cannot see, 403 for one it may only read."""
+    require_project_access(request, project_id)
+    if not current_principal(request).can_write_project(project_id):
+        raise HTTPException(status_code=403, detail="read-only access to this project")
 
 
 BEARER_SCHEME = "SionBearer"
