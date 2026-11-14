@@ -30,9 +30,9 @@ from starlette.concurrency import run_in_threadpool
 
 from . import models, repository, schemas
 from .auth import (
-    normalize_project_id,
     allowed_projects,
     current_principal,
+    normalize_project_id,
     require_project_access,
     require_project_write,
     writable_projects,
