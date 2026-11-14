@@ -70,13 +70,21 @@ documents = [
 mcp = [
   "mcp==2.3.0",
 ]
+# HWP 5.0 / HWPX through hwp-hwpx-parser (without it: HWPX via the built-in reader, HWP skipped)
+hwp = [
+  "hwp-hwpx-parser>=1.0,<2",
+]
+# Page rendering for vision OCR of scanned PDFs (SION_OCR_BASE_URL + SION_OCR_MODEL; see docs/INGESTION.md)
+ocr = [
+  "pypdfium2>=5,<6",
+]
 # SHACL validation endpoint GET /api/v1/validation/shacl (without it: 503)
 validation = [
   "rdflib>=7.6,<8",
   "pyshacl>=0.40.1,<1",
 ]
 all = [
-  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,validation,mcp]",
+  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,hwp,ocr,validation,mcp]",
 ]
 # Tooling
 test = [
