@@ -67,16 +67,20 @@ def _pick(record: Any, fields: tuple[str, ...]) -> dict[str, Any] | None:
     return {field: record.get(field) for field in fields}
 
 
-def _current_relations_query(at: datetime, columns: tuple[Any, ...]):
-    """Relations the projection would consider at ``at``: active, both endpoints present, no self-loop."""
+def _current_relations_query(at: datetime, columns: tuple[Any, ...], scope: Any | None = None):
+    """Relations the projection would consider at ``at``: active, both endpoints present, no self-loop.
+
+    ``scope`` is an extra SQL condition on ``Relation`` (for example the project ACL).
+    """
     src = aliased(models.Entity)
     tgt = aliased(models.Entity)
-    return (
+    query = (
         select(*columns)
         .join(src, src.id == models.Relation.source_entity_id)
         .join(tgt, tgt.id == models.Relation.target_entity_id)
         .where(_active_at(at), models.Relation.source_entity_id != models.Relation.target_entity_id)
     )
+    return query if scope is None else query.where(scope)
 
 
 def build_review_report(
@@ -87,11 +91,16 @@ def build_review_report(
     limit: int = 100,
     offset: int = 0,
     batch_id: str | None = None,
+    relation_scope: Any | None = None,
 ) -> dict[str, Any]:
     """Return the review verification report for the policy filtered by ``review_states``.
 
     ``limit``/``offset`` page both ``relations`` and ``batches`` independently;
     ``batch_id`` restricts both to one bulk decision.
+
+    ``relation_scope`` (an SQL condition on ``Relation``) limits the report to the relations a
+    caller may see. Bulk decisions are then listed only when every relation they touched is in
+    scope, so a decision that also covered another project is never revealed.
     """
     if limit < 1 or offset < 0:
         raise ValueError("limit must be >= 1 and offset >= 0")
@@ -106,7 +115,7 @@ def build_review_report(
 
     counts: dict[str, dict[str, int]] = {}
     for state, total in session.execute(
-        _current_relations_query(effective_at, (models.Relation.verification_state, func.count()))
+        _current_relations_query(effective_at, (models.Relation.verification_state, func.count()), relation_scope)
         .group_by(models.Relation.verification_state)
     ):
         counts[state] = {"total": int(total), "projected_under_policy": int(total) if kept(state) else 0}
@@ -123,6 +132,7 @@ def build_review_report(
                 models.Relation.confidence,
                 models.Relation.properties,
             ),
+            relation_scope,
         ).order_by(models.Relation.stable_key)
     )
     for stable_key, state, confidence, properties in rows:
@@ -160,12 +170,24 @@ def build_review_report(
             batch_query = batch_query.where(models.OutboxEvent.aggregate_id == uuid.UUID(batch_id))
         except ValueError:
             batch_query = batch_query.where(false())
-    ordered: list[tuple[str, Any]] = [
-        (str(aggregate_id), event_id)
-        for event_id, aggregate_id in session.execute(
-            batch_query.order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
-        )
-    ]
+    if relation_scope is None:
+        ordered: list[tuple[str, Any]] = [
+            (str(aggregate_id), event_id)
+            for event_id, aggregate_id in session.execute(
+                batch_query.order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
+            )
+        ]
+    else:
+        visible_ids = {str(rid) for rid in session.scalars(select(models.Relation.id).where(relation_scope))}
+        ordered = []
+        for event in session.scalars(
+            select(models.OutboxEvent)
+            .where(models.OutboxEvent.id.in_(batch_query.with_only_columns(models.OutboxEvent.id)))
+            .order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
+        ):
+            touched = {str(item.get("id")) for item in (event.payload or {}).get("results", []) if isinstance(item, dict)}
+            if touched and touched <= visible_ids:
+                ordered.append((str(event.aggregate_id), event.id))
     logged = {key for key, _ in ordered}
     legacy = sorted(set(batch_relations) - logged)
     if batch_id is not None:

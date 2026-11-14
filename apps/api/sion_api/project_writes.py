@@ -32,6 +32,7 @@ from . import models, repository, schemas
 from .auth import (
     allowed_projects,
     current_principal,
+    normalize_project_id,
     require_project_access,
     require_project_write,
     writable_projects,
@@ -123,6 +124,17 @@ def check_entity_create(request: Request, payload: schemas.EntityCreate) -> None
     if project_id is None:
         raise HTTPException(status_code=422, detail="properties.project_id is required for project-restricted callers")
     require_project_write(request, project_id)
+
+
+def check_artifact_create(request: Request, payload: schemas.ArtifactCreate) -> None:
+    """A restricted caller may only register artifacts in a project it can write."""
+    if allowed_projects(request) is None:
+        return
+    project_id = (payload.properties or {}).get("project_id")
+    if project_id is None:
+        raise HTTPException(status_code=422, detail="properties.project_id is required for project-restricted callers")
+    require_project_write(request, project_id)
+    payload.properties["project_id"] = normalize_project_id(project_id)  # stored in the ACL's canonical form
 
 
 def check_entities_visible(

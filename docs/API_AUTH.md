@@ -82,8 +82,9 @@ Project-scoped routes today are `/regulation`, `/api/v1/regulation/works*`,
 `/api/v1/regulation/summary`, `/api/v1/me`, `/api/v1/billing/me`, and the knowledge reads
 `GET /api/v1/entities`, `/api/v1/entities/{id}`, `/api/v1/relations` and `/api/v1/graph`, the
 project writes listed below, `/api/v1/projects/{project_id}/documents`, the review queue
-(`/api/v1/relations/candidates*`), `GET /api/v1/evidence`, `POST /api/v1/embeddings` and
-`POST /api/v1/vector/search`.
+(`/api/v1/relations/candidates*`), `GET /api/v1/evidence`, `POST /api/v1/embeddings`,
+`POST /api/v1/vector/search`, `/api/v1/artifacts*`, `GET /api/v1/review/report` and the GraphRAG
+`project`/`query` routes.
 
 For the knowledge reads, an entity belongs to a project when it **is** the `Project` entity or
 its `properties.project_id` names it (the convention regulation works already use). A relation
@@ -115,6 +116,15 @@ projects. Evidence is listed when its entity and relation (whichever are set) ar
 signed-in user the reviewer is recorded as `user:<sub>`, whatever `reviewer` the request names.
 A decision still casts one vote on its extraction rule; those votes are shared across projects
 and change only the ranking of later candidates.
+
+Artifacts belong to the project in their `properties.project_id`. A restricted caller lists and
+reads only those (others answer 404) and must name a writable project when it registers one
+(422 without, 404 for another project). Artifacts without a project are visible only to
+unrestricted callers.
+
+`GET /api/v1/review/report` for a restricted caller covers only relations whose endpoints are both
+visible, and lists a bulk decision only when every relation it touched is visible, so a decision
+an operator made across several projects is not shown to any one of them.
 
 Signed-in users also get the projects they are members of (`sion_api.projects`, see
 `docs/SAAS.md`). A `viewer` member sees a project without being able to change it: every write

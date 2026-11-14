@@ -148,3 +148,51 @@ def test_signed_in_reviewer_is_recorded_by_account(tmp_path):
         )
         assert response.status_code == 200, response.text
         assert "user:user-42" in response.text and "impersonated" not in response.text
+
+
+def test_review_report_only_covers_the_members_project(env):
+    client, ids = env
+    # An operator approves across projects in one batch; a member approves inside project A.
+    cross = {"ids": [ids["cand_b"], ids["cand_x"]], "decision": "approve", "note": "operator batch"}
+    assert client.post("/api/v1/relations/candidates/bulk", json=cross, headers=ADMIN_H).status_code == 200
+    own = {"ids": [ids["cand_a"]], "decision": "approve", "note": "member batch"}
+    member_batch = client.post("/api/v1/relations/candidates/bulk", json=own, headers=MEMBER_H).json()["batch_id"]
+
+    report = client.get("/api/v1/review/report", headers=MEMBER_H)
+    assert report.status_code == 200, report.text
+    body = report.json()
+    assert [r["stable_key"] for r in body["relations"]] == ["cand_a"]
+    assert sum(c["total"] for c in body["counts"].values()) == 1
+    assert [b["batch_id"] for b in body["batches"]] == [member_batch]
+    assert "operator batch" not in report.text
+
+    full = client.get("/api/v1/review/report", headers=ADMIN_H).json()
+    assert {r["stable_key"] for r in full["relations"]} == {"cand_a", "cand_b", "cand_x"}
+    assert len(full["batches"]) == 2
+
+
+def test_artifacts_are_scoped_to_the_members_projects(env):
+    client, ids = env
+
+    def artifact(key, headers, project=None):
+        properties = {} if project is None else {"project_id": project}
+        return client.post(
+            "/api/v1/artifacts",
+            json={"stable_key": key, "name": key, "storage_uri": f"urn:{key}", "properties": properties},
+            headers=headers,
+        )
+
+    shared = artifact("art-shared", ADMIN_H).json()["id"]
+    other = artifact("art-b", ADMIN_H, ids["b"]).json()["id"]
+    assert artifact("art-none", MEMBER_H).status_code == 422
+    assert artifact("art-b2", MEMBER_H, ids["b"]).status_code == 404
+    mine = artifact("art-a", MEMBER_H, ids["a"].upper())
+    assert mine.status_code == 201, mine.text
+    assert mine.json()["properties"]["project_id"] == ids["a"]
+
+    listed = client.get("/api/v1/artifacts", headers=MEMBER_H).json()
+    assert [a["stable_key"] for a in listed] == ["art-a"]
+    assert client.get(f"/api/v1/artifacts/{mine.json()['id']}", headers=MEMBER_H).status_code == 200
+    for hidden in (shared, other):
+        assert client.get(f"/api/v1/artifacts/{hidden}", headers=MEMBER_H).status_code == 404
+    assert len(client.get("/api/v1/artifacts", headers=ADMIN_H).json()) == 3

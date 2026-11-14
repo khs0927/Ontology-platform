@@ -292,10 +292,22 @@ def create_artifact(session: Session, payload) -> models.Artifact:
     return row
 
 
-def list_artifacts(session: Session, *, limit: int, offset: int) -> list[models.Artifact]:
+def artifact_in_projects(projects: frozenset[str] | None):
+    """SQL condition: the artifact's ``properties.project_id`` is one of ``projects``."""
+    if projects is None:
+        return true()
+    if not projects:
+        return false()
+    return models.Artifact.properties["project_id"].as_string().in_(sorted(projects))
+
+
+def list_artifacts(
+    session: Session, *, limit: int, offset: int, projects: frozenset[str] | None = None
+) -> list[models.Artifact]:
     return list(
         session.scalars(
             select(models.Artifact)
+            .where(artifact_in_projects(projects))
             .order_by(models.Artifact.created_at, models.Artifact.id)
             .offset(offset)
             .limit(limit)

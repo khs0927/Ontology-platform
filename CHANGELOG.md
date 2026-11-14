@@ -8,6 +8,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Artifacts and the review report for project users** — `/api/v1/artifacts*` and
+  `GET /api/v1/review/report` are project-scoped: restricted callers see only their projects'
+  artifacts (`properties.project_id`) and reviewed relations, and only bulk decisions made entirely
+  inside their projects. See `docs/API_AUTH.md`.
 - **Docker Compose local stack** — `compose.yaml` runs PostgreSQL + pgvector, the core migrations
   and the API (bearer auth, loopback ports, health check); `deploy/api.Dockerfile` builds the API
   image with optional extras. CI starts the stack and smoke-tests it. See `docs/DEPLOY_LOCAL.md`.
