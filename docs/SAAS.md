@@ -9,7 +9,7 @@ static bearer tokens and never need anything on this page.
 | Sign-in | Supabase Auth (any OIDC issuer with a JWKS works) | `sion_api/oidc.py`, `sion_api/auth.py` |
 | Billing | Paddle Billing (merchant of record: tax, invoices, refunds) | `sion_api/billing.py` |
 | Entitlements | `billing_subscriptions` + `billing_events` tables | `migrations/010_billing.sql` |
-| Web app | Next.js 16 (separate PR) | `apps/web` |
+| Web app | Next.js 16 console | `apps/console` |
 
 ## Sign-in (OIDC)
 
@@ -92,6 +92,11 @@ request without re-issuing tokens and do not depend on the identity provider.
   (owners) and removes members (owners, or a member leaving). A project always keeps one owner.
 - Lookups are cached for 30 s per user and cleared on every membership change made through the
   API. Operators with an unrestricted token see and manage every project.
+
+## Web console
+
+`apps/console` is the Next.js 16 front end: magic-link sign-in, a dashboard that shows what the
+API grants the user, and Paddle checkout. Setup is in [`apps/console/README.md`](../apps/console/README.md).
 
 ## Not in this slice
 

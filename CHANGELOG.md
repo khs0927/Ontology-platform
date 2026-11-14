@@ -133,6 +133,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   accept project-restricted callers and stay inside their projects (entities, and chunks via
   `documents.entity_id`); the search takes an optional `project_id`.
 
+- **Sion Console (phase 7b)** — Next.js 16 web app in `apps/console`: Supabase magic-link sign-in
+  via `proxy.ts`, account/subscription dashboard calling the API server-side, Paddle checkout.
+- **Console search** — `/projects` (the user's project entities and relations) and `/search`
+  (law search with a reference date) in `apps/console`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable
