@@ -208,9 +208,10 @@ wheels = [
 [[package]]
 name = "archontos"
 version = "0.1.0"
-source = { git = "https://github.com/khs0927/ArchOntos?rev=7b4785f04bc3a19e6e9e7bc01667b6930eebedc3#7b4785f04bc3a19e6e9e7bc01667b6930eebedc3" }
+source = { git = "https://github.com/khs0927/ArchOntos?rev=a9e268651140b90a38e2867fa0f8ca37c24d13c5#a9e268651140b90a38e2867fa0f8ca37c24d13c5" }
 dependencies = [
     { name = "asyncpg" },
+    { name = "defusedxml" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "jsonschema" },
@@ -780,6 +781,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a9/95/a3dbbb5028f35eafb79008e7522a75244477d2838f38cbb722248dabc2a8/cycler-0.12.1.tar.gz", hash = "sha256:88bb128f02ba341da8ef447245a9e138fae777f6a23943da4540077d3601eb1c", size = 7615, upload-time = "2023-10-07T05:32:18.335Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30", size = 8321, upload-time = "2023-10-07T05:32:16.783Z" },
+]
+
+[[package]]
+name = "defusedxml"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69", size = 75520, upload-time = "2021-03-08T10:59:26.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61", size = 25604, upload-time = "2021-03-08T10:59:24.45Z" },
 ]
 
 [[package]]
@@ -3269,7 +3279,7 @@ validation = [
 
 [package.metadata]
 requires-dist = [
-    { name = "archontos", marker = "python_full_version < '3.15' and extra == 'regulation'", git = "https://github.com/khs0927/ArchOntos?rev=7b4785f04bc3a19e6e9e7bc01667b6930eebedc3" },
+    { name = "archontos", marker = "python_full_version < '3.15' and extra == 'regulation'", git = "https://github.com/khs0927/ArchOntos?rev=a9e268651140b90a38e2867fa0f8ca37c24d13c5" },
     { name = "asyncpg", marker = "extra == 'rag'", specifier = "==0.32.0" },
     { name = "asyncpg", marker = "extra == 'regulation'", specifier = "==0.32.0" },
     { name = "build", marker = "extra == 'dev'", specifier = "==1.6.1" },
