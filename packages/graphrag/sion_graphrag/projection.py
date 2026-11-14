@@ -124,13 +124,27 @@ def _evidence_lines(rows: list[models.Evidence]) -> list[str]:
     ]
 
 
+def in_project(entity: models.Entity, project_id: Any) -> bool:
+    """Membership convention shared with the API: the Project row or ``properties.project_id``."""
+    wanted = str(project_id)
+    if str(entity.id) == wanted:
+        return True
+    owner = (entity.properties or {}).get("project_id")
+    return owner is not None and str(owner) == wanted
+
+
 def build_custom_kg(
     session: Session,
     *,
     at: datetime | None = None,
     review_states: Iterable[str] | None = None,
+    project_id: Any | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Return a LightRAG ``custom_kg`` built from relations valid at ``at`` (default: now).
+
+    ``project_id`` limits the projection to one project: the Project entity itself and
+    entities whose ``properties.project_id`` names it. Relations survive only when both
+    endpoints are inside, so nothing from another project (or shared material) leaks in.
 
     ``review_states`` restricts relationships (and their weights) to the given
     review buckets (``verified``/``unverified``/``rejected``) or raw
@@ -142,6 +156,8 @@ def build_custom_kg(
         effective_at = effective_at.replace(tzinfo=timezone.utc)
 
     entities = list(session.scalars(select(models.Entity).order_by(models.Entity.stable_key)))
+    if project_id is not None:
+        entities = [entity for entity in entities if in_project(entity, project_id)]
     relations = list(
         session.scalars(
             _relation_query(effective_at, allowed_states).order_by(models.Relation.stable_key)

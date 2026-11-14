@@ -7,7 +7,7 @@ from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 from sion_bim.ifc import ifcopenshell_available, ingest_ifc
@@ -38,7 +38,14 @@ from . import (
     schemas,
     vector_repository,
 )
-from .auth import AuthPolicy, install_openapi_security, project_scoped, require_scope
+from .auth import (
+    AuthPolicy,
+    allowed_projects,
+    install_openapi_security,
+    project_scoped,
+    require_project_access,
+    require_scope,
+)
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .drive_export import DriveExporter, install_export_on_write
@@ -607,6 +614,23 @@ def create_app(
             raise HTTPException(status_code=503, detail="GraphRAG layer is not configured")
         return graphrag
 
+    async def graphrag_for(request: Request, project_id: uuid.UUID | None) -> SionGraphRag:
+        """Base engine for unrestricted callers without a project; else that project's workspace.
+
+        A project-restricted caller must name a project on its ACL (404 otherwise), so the
+        shared workspace, which spans every project, is never answered to it.
+        """
+        engine = require_graphrag()
+        if project_id is None:
+            if allowed_projects(request) is not None:
+                raise HTTPException(status_code=422, detail="project_id is required for project-scoped access")
+            return engine
+        require_project_access(request, project_id)
+        try:
+            return await engine.for_project(project_id)
+        except GraphRagUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+
     @app.get("/api/v1/storage/status", dependencies=[Depends(read_knowledge)])
     def storage_status():
         if drive_exporter is None:
@@ -659,33 +683,42 @@ def create_app(
             "canonical": False,
             "engine": "lightrag",
             "storage": config.storage,
+            "graph_storage": config.storages["graph_storage"],
             "workspace": config.workspace,
             "embedding_model": config.embedding_model,
             "answers_enabled": config.answers_enabled,
         }
 
-    @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/graphrag/project", dependencies=[Depends(project_scoped(write_knowledge))])
     async def graphrag_project(
+        request: Request,
         include_rejected: bool = Query(
             default=False, description="Preview the audit projection, including /review-rejected relations, without indexing"
         ),
+        project_id: uuid.UUID | None = Query(default=None, description="Project into this project's own workspace"),
     ):
-        engine = require_graphrag()
+        engine = await graphrag_for(request, project_id)
         try:
             counts = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         result_key = "preview" if include_rejected else "written"
-        return {"canonical": False, result_key: counts, "include_rejected": include_rejected}
+        return {
+            "canonical": False,
+            result_key: counts,
+            "include_rejected": include_rejected,
+            "workspace": engine.config.workspace,
+            "project_id": engine.project_id,
+        }
 
-    @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
-    async def graphrag_query(payload: schemas.GraphRagQuery):
-        engine = require_graphrag()
+    @app.post("/api/v1/graphrag/query", dependencies=[Depends(project_scoped(read_knowledge))])
+    async def graphrag_query(request: Request, payload: schemas.GraphRagQuery):
+        engine = await graphrag_for(request, payload.project_id)
         try:
             result = await engine.query(payload.question, mode=payload.mode, top_k=payload.top_k)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"canonical": False, **result}
+        return {"canonical": False, "project_id": engine.project_id, **result}
 
     @app.get("/review")
     def review_page():

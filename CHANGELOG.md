@@ -12,6 +12,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `sion-migrate`, so `/api/v1/law/*` had no table on a migrated database. It is now in the core
   sequence, and a test fails if a migration file is left out again.
 
+### Added
+
+- **Docker Compose local stack** — `compose.yaml` runs PostgreSQL + pgvector, the core migrations
+  and the API (bearer auth, loopback ports, health check); `deploy/api.Dockerfile` builds the API
+  image with optional extras. CI starts the stack and smoke-tests it. See `docs/DEPLOY_LOCAL.md`.
+- **GraphRAG on real PostgreSQL in CI** — `tests/test_graphrag_postgres.py` runs LightRAG's
+  Postgres storages and checks that project workspaces stay separate. Per-project GraphRAG now
+  refuses to run while `POSTGRES_WORKSPACE` is set, because that variable merges every workspace.
+- **GraphRAG per-project workspaces** — `POST /api/v1/graphrag/project?project_id=` and
+  `POST /api/v1/graphrag/query {"project_id"}` use a separate LightRAG workspace per project,
+  projected from that project's entities only. Project-restricted callers must name a project on
+  their ACL; unrestricted callers keep the shared workspace. See `docs/GRAPHRAG.md`.
+
+### Changed
+
+- **GraphRAG graph backend** — with `SION_GRAPHRAG_STORAGE=postgres`, LightRAG now stores its graph in
+  plain tables (`PGTableGraphStorage`) instead of Apache AGE (`PGGraphStorage`). LightRAG 1.5.7 refuses
+  the AGE backend on AGE 1.8.0+. Existing deployments keep their data by running
+  `python -m lightrag.tools.migrate_graph_storage --apply` once, or rebuild with
+  `POST /api/v1/graphrag/project`; `SION_GRAPHRAG_GRAPH_BACKEND=age` restores the old backend.
+  `GET /api/v1/graphrag/status` reports the active `graph_storage`. See `docs/GRAPHRAG.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

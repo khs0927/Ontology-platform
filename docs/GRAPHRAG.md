@@ -39,24 +39,58 @@ projected before it was rejected), project into a new `SION_GRAPHRAG_WORKSPACE`.
 ## Storage
 
 `SION_GRAPHRAG_STORAGE=postgres` (default) keeps KV, vectors (pgvector), graph
-(Apache AGE) and document status in PostgreSQL. LightRAG reads its own
-connection settings: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`,
-`POSTGRES_PASSWORD`, `POSTGRES_DATABASE`. The server needs both extensions and
-AGE preloaded:
+and document status in PostgreSQL. LightRAG reads its own connection settings:
+`POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
+`POSTGRES_DATABASE`. Only the `vector` extension is required:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS age;
--- postgresql.conf: shared_preload_libraries = 'age'
 ```
+
+### Graph backend
+
+`SION_GRAPHRAG_GRAPH_BACKEND` picks LightRAG's Postgres graph storage:
+
+| Value | LightRAG class | Needs |
+| --- | --- | --- |
+| `table` (default) | `PGTableGraphStorage` | plain tables `lightrag_graph_nodes` / `lightrag_graph_edges`, created on first start |
+| `age` (legacy) | `PGGraphStorage` | Apache AGE loaded in every session |
+
+The default moved from AGE to plain tables because LightRAG 1.5.6 made
+`PGTableGraphStorage` its preferred Postgres graph backend, and 1.5.7 refuses
+`PGGraphStorage` on AGE 1.8.0 or newer. AGE is also unavailable on most managed
+Postgres hosts. `GET /api/v1/graphrag/status` reports the active class as
+`graph_storage`. The optional Cypher projection in `migrations/005_age_projection.sql`
+(`sion_graphrag.age`) is separate and unchanged.
+
+#### Moving an existing AGE projection
+
+The projection is rebuildable, so either path is safe:
+
+1. **Rebuild** (canonical relations only): start with the default backend and call
+   `POST /api/v1/graphrag/project`. Graph edges that LightRAG extracted from inserted
+   documents with an LLM are not rebuilt this way.
+2. **Migrate** (keeps everything): stop the API and workers, keep AGE loaded, then run
+   LightRAG's offline tool against the same database. It is a dry run unless `--apply`
+   is given, refuses a non-empty target, verifies counts and payloads, and rolls back
+   its own writes on failure:
+
+   ```bash
+   python -m lightrag.tools.migrate_graph_storage --workspace "$SION_GRAPHRAG_WORKSPACE"
+   python -m lightrag.tools.migrate_graph_storage --workspace "$SION_GRAPHRAG_WORKSPACE" --apply
+   ```
+
+Until the migration is done, set `SION_GRAPHRAG_GRAPH_BACKEND=age` and keep AGE
+below 1.8.0.
 
 ### Sharing the Ontology pipeline's PostgreSQL
 
 The Ontology pipeline's `aec-postgres-age` container (PostgreSQL 16 with AGE
 and pgvector, host port `55432`) can host the projection in a separate
-database. `scripts/graphrag_db_setup.sql` creates `sion_graphrag` and loads
-AGE per session through `session_preload_libraries`, so the server config
-does not change:
+database. `scripts/graphrag_db_setup.sql` creates `sion_graphrag` with
+pgvector. The default graph backend needs no AGE, so the server config does
+not change (the script keeps the per-session AGE lines, commented, for the
+legacy backend):
 
 ```bash
 psql -h localhost -p 55432 -U aec -d aec -f scripts/graphrag_db_setup.sql
@@ -69,12 +103,13 @@ POSTGRES_USER=aec
 POSTGRES_PASSWORD=<AEC_DB_PASSWORD>
 POSTGRES_DATABASE=sion_graphrag
 SION_GRAPHRAG_STORAGE=postgres
+SION_GRAPHRAG_GRAPH_BACKEND=table
 SION_GRAPHRAG_WORKSPACE=sion
 ```
 
 `SION_GRAPHRAG_STORAGE=local` uses LightRAG's file stores under
 `SION_GRAPHRAG_WORKING_DIR` (default `runtime/graphrag`) for machines without
-AGE.
+PostgreSQL.
 
 ## Models
 
@@ -99,6 +134,26 @@ Any OpenAI-compatible endpoint works, including local Ollama or vLLM.
 - `POST /api/v1/graphrag/project` (`write:knowledge`) projects the canonical graph and returns `written` counts. With `?include_rejected=true`, it returns `preview` counts and skips indexing and model calls.
 - `POST /api/v1/graphrag/query` (`read:knowledge`) `{"question", "mode": "mix|local|global|hybrid|naive", "top_k"}`
 - `GET /api/v1/graphrag/assets` (`read:knowledge`) SketchUp BIM asset Graph RAG (see below)
+
+### Per-project workspaces
+
+`project_id` (query parameter on `/graphrag/project`, body field on `/graphrag/query`) selects
+that project's own LightRAG workspace, `<SION_GRAPHRAG_WORKSPACE>_p_<project uuid hex>`. LightRAG
+keys every Postgres row and every local storage directory by workspace, so one project's chunks,
+vectors and graph never mix with another's. The project projection contains only the Project
+entity and entities whose `properties.project_id` names it; relations survive only when both
+endpoints are inside, so shared material is not copied into project workspaces.
+
+- A project-restricted caller (a token with `project:<id>` scopes, or a signed-in user) must pass
+  a `project_id` on its ACL: none answers 422, another project answers 404.
+- An unrestricted caller may omit `project_id` and keeps the shared workspace as before.
+- Leave `POSTGRES_WORKSPACE` unset. LightRAG lets it override every storage's workspace, which
+  would put all projects into one index, so per-project requests answer 503 while it is set.
+- `tests/test_graphrag_postgres.py` checks the separation on real PostgreSQL + pgvector with
+  `PGTableGraphStorage` (CI: `verify.yml` postgres job).
+- The server keeps at most 32 per-project engines open and finalizes the least recently used one.
+- Rebuild a project's workspace with `POST /api/v1/graphrag/project?project_id=<id>` after its
+  knowledge changes. The shared workspace is not split retroactively.
 
 Install with `pip install -e ".[graphrag]"`. Note that importing LightRAG can
 install missing provider packages at runtime, so the package is imported only
