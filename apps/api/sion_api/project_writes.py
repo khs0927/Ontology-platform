@@ -30,6 +30,7 @@ from starlette.concurrency import run_in_threadpool
 
 from . import models, repository, schemas
 from .auth import (
+    normalize_project_id,
     allowed_projects,
     current_principal,
     require_project_access,
@@ -123,6 +124,17 @@ def check_entity_create(request: Request, payload: schemas.EntityCreate) -> None
     if project_id is None:
         raise HTTPException(status_code=422, detail="properties.project_id is required for project-restricted callers")
     require_project_write(request, project_id)
+
+
+def check_artifact_create(request: Request, payload: schemas.ArtifactCreate) -> None:
+    """A restricted caller may only register artifacts in a project it can write."""
+    if allowed_projects(request) is None:
+        return
+    project_id = (payload.properties or {}).get("project_id")
+    if project_id is None:
+        raise HTTPException(status_code=422, detail="properties.project_id is required for project-restricted callers")
+    require_project_write(request, project_id)
+    payload.properties["project_id"] = normalize_project_id(project_id)  # stored in the ACL's canonical form
 
 
 def check_entities_visible(

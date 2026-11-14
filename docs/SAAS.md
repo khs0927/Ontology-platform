@@ -106,6 +106,6 @@ API grants the user, and Paddle checkout. Setup is in [`apps/console/README.md`]
   law search and the ontology schema are shared, users with `write:knowledge` can upload
   documents into their projects and edit their entities, relations and evidence (see
   `docs/API_AUTH.md`), review their projects' candidate relations, read their evidence and run vector search over
-  them, and the remaining knowledge routes (artifacts, review report, GraphRAG, path-based
-  ingest) stay closed to them for now.
+  them, list their artifacts, read their review report and build and query their own GraphRAG
+  workspace. Path-based ingest (server paths) stays operator-only.
 - The Next.js 16 web app (sign-in, dashboard, checkout): next PR.

@@ -106,7 +106,11 @@ PROJECT_SCOPED_ROUTES = {
     ("GET", "/api/v1/regulation/works/{work_id}"),
     ("POST", "/api/v1/regulation/works/{work_id}"),
     ("GET", "/api/v1/regulation/works/{work_id}/briefing"),
-    ("POST", "/api/v1/graphrag/project"),  # per-project LightRAG workspace (require_project_access)
+    ("POST", "/api/v1/graphrag/project"),
+    ("GET", "/api/v1/artifacts"),  # filtered by properties.project_id
+    ("POST", "/api/v1/artifacts"),
+    ("GET", "/api/v1/artifacts/{artifact_id}"),
+    ("GET", "/api/v1/review/report"),  # relations and bulk decisions inside the caller's projects  # per-project LightRAG workspace (require_project_access)
     ("POST", "/api/v1/graphrag/query"),
 }
 
@@ -277,7 +281,7 @@ def test_tokens_are_never_echoed_or_logged(app, caplog):
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {unknown}"}),
             client.post("/api/v1/entities", json={}, headers={"Authorization": f"Bearer {READ}"}),
             client.get("/api/v1/entities", headers={"Authorization": f"Bearer {WRITE}"}),
-            client.get("/api/v1/artifacts", headers={"Authorization": f"Bearer {RESTRICTED}"}),
+            client.get("/api/v1/outbox", headers={"Authorization": f"Bearer {RESTRICTED}"}),
         ]
     assert [r.status_code for r in responses] == [401, 403, 403, 403]
     for response in responses:
@@ -401,6 +405,6 @@ def test_project_acl_on_regulation_works(monkeypatch, tmp_path):
         assert len(gateway_calls) == calls_before
 
         # Cross-project routes fail closed for project-restricted tokens (entities/graph filter instead).
-        for path in ("/api/v1/artifacts", "/api/v1/outbox", "/api/v1/review/report"):
+        for path in ("/api/v1/outbox", "/api/v1/jobs", "/api/v1/contracts"):
             assert client.get(path, headers=limited).status_code == 403, path
         assert client.post("/api/v1/regulation/gateway/report", json={}, headers=limited).status_code == 403

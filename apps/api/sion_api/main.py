@@ -47,6 +47,7 @@ from .auth import (
     allowed_projects,
     current_principal,
     install_openapi_security,
+    normalize_project_id,
     project_scoped,
     require_project_access,
     require_project_write,
@@ -470,8 +471,9 @@ def create_app(
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.get("/api/v1/review/report", dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/review/report", dependencies=[Depends(read_project)])
     def review_verification_report(
+        request: Request,
         include_rejected: bool = Query(
             default=False, description="Audit/debug only: report the policy that also keeps /review-rejected relations"
         ),
@@ -494,7 +496,11 @@ def create_app(
         )
 
         states = AUDIT_REPORT_REVIEW_STATES if include_rejected else DEFAULT_REPORT_REVIEW_STATES
-        return build_review_report(session, review_states=states, limit=limit, offset=offset, batch_id=batch_id)
+        projects = allowed_projects(request)
+        scope = None if projects is None else repository.relation_in_projects(projects)
+        return build_review_report(
+            session, review_states=states, limit=limit, offset=offset, batch_id=batch_id, relation_scope=scope
+        )
 
     @app.post(
         "/api/v1/evidence",
@@ -570,32 +576,38 @@ def create_app(
         "/api/v1/artifacts",
         response_model=schemas.ArtifactRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_artifact(
+        request: Request,
         payload: schemas.ArtifactCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_artifact_create(request, payload)
         try:
             return repository.create_artifact(session, payload)
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/artifacts", response_model=list[schemas.ArtifactRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/artifacts", response_model=list[schemas.ArtifactRead], dependencies=[Depends(read_project)])
     def list_artifacts(
+        request: Request,
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         session: Session = Depends(get_session),
     ):
-        return repository.list_artifacts(session, limit=limit, offset=offset)
+        return repository.list_artifacts(session, limit=limit, offset=offset, projects=allowed_projects(request))
 
-    @app.get("/api/v1/artifacts/{artifact_id}", response_model=schemas.ArtifactRead, dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/artifacts/{artifact_id}", response_model=schemas.ArtifactRead, dependencies=[Depends(read_project)])
     def get_artifact(
+        request: Request,
         artifact_id: uuid.UUID,
         session: Session = Depends(get_session),
     ):
         row = session.get(models.Artifact, artifact_id)
-        if row is None:
+        projects = allowed_projects(request)
+        owner = None if row is None else normalize_project_id((row.properties or {}).get("project_id"))
+        if row is None or (projects is not None and owner not in projects):
             raise HTTPException(status_code=404, detail="artifact not found")
         return row
 
