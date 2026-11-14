@@ -8,6 +8,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Docker Compose local stack** — `compose.yaml` runs PostgreSQL + pgvector, the core migrations
+  and the API (bearer auth, loopback ports, health check); `deploy/api.Dockerfile` builds the API
+  image with optional extras. CI starts the stack and smoke-tests it. See `docs/DEPLOY_LOCAL.md`.
+- **GraphRAG on real PostgreSQL in CI** — `tests/test_graphrag_postgres.py` runs LightRAG's
+  Postgres storages and checks that project workspaces stay separate. Per-project GraphRAG now
+  refuses to run while `POSTGRES_WORKSPACE` is set, because that variable merges every workspace.
 - **GraphRAG per-project workspaces** — `POST /api/v1/graphrag/project?project_id=` and
   `POST /api/v1/graphrag/query {"project_id"}` use a separate LightRAG workspace per project,
   projected from that project's entities only. Project-restricted callers must name a project on

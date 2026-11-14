@@ -147,6 +147,10 @@ endpoints are inside, so shared material is not copied into project workspaces.
 - A project-restricted caller (a token with `project:<id>` scopes, or a signed-in user) must pass
   a `project_id` on its ACL: none answers 422, another project answers 404.
 - An unrestricted caller may omit `project_id` and keeps the shared workspace as before.
+- Leave `POSTGRES_WORKSPACE` unset. LightRAG lets it override every storage's workspace, which
+  would put all projects into one index, so per-project requests answer 503 while it is set.
+- `tests/test_graphrag_postgres.py` checks the separation on real PostgreSQL + pgvector with
+  `PGTableGraphStorage` (CI: `verify.yml` postgres job).
 - The server keeps at most 32 per-project engines open and finalizes the least recently used one.
 - Rebuild a project's workspace with `POST /api/v1/graphrag/project?project_id=<id>` after its
   knowledge changes. The shared workspace is not split retroactively.
