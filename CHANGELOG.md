@@ -88,6 +88,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Built-in DOCX/HWPX readers refuse XML members over 64 MB uncompressed and use defusedxml when
   it is installed.
 
+### Added
+
+- **Durable ingestion jobs** (upgrade phase 6) — with `SION_JOBS=on` (new `jobs` extra, DBOS
+  Transact), `POST /api/v1/jobs/ingest` queues one checkpointed workflow per file
+  (parse → load → relation candidates). The system database is the existing PostgreSQL or a
+  local SQLite file.
+  - Finished steps never re-run, and unfinished workflows resume after a crash.
+  - Parsing retries transient errors, and unreadable files end as skips.
+  - `…/retry` re-runs a failed job from its first failed step.
+  - Concurrency is limited per process. `sion-worker` adds worker processes.
+  - Tested on SQLite and PostgreSQL 16. See `docs/JOBS.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable
