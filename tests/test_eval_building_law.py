@@ -68,7 +68,8 @@ def test_bigram_tokens_split_inflected_korean():
 @pytest.mark.parametrize(("name", "recall_floor", "mrr_floor"), [
     ("bm25-bigram", 0.95, 0.72),
     ("bm25-word", 0.68, 0.45),
-    ("law-search", 0.60, 0.40),
+    ("law-search", 0.60, 0.40),          # lexical mode of GET /api/v1/law/search
+    ("law-hybrid", 0.95, 0.74),          # default mode since phase 4
 ])
 def test_baseline_floors(name, recall_floor, mrr_floor, gold, corpus):
     rows = evaluate(gold, RETRIEVERS[name](corpus), k=10)

@@ -23,6 +23,7 @@ import re
 import unicodedata
 import uuid
 from datetime import date, datetime, timezone
+from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -276,8 +277,17 @@ def register(app: FastAPI, get_session, read_dep, write_dep) -> None:
     @app.get("/api/v1/law/search", dependencies=[Depends(read_dep)])
     def law_search(q: str = Query(min_length=1, max_length=500), law: str | None = None,
                    as_of: date | None = None, limit: int = Query(10, ge=1, le=50),
+                   mode: Literal["hybrid", "lexical"] = "hybrid", graph: bool = True,
                    session: Session = Depends(get_session)):
-        return search(session, q, law=law, as_of=as_of, limit=limit)
+        if mode == "lexical":
+            return {**search(session, q, law=law, as_of=as_of, limit=limit), "mode": "lexical"}
+        from .law_search import HybridOptions, embedder_from_env, hybrid_search
+
+        if not tokens(q):
+            raise HTTPException(422, "query has no searchable tokens")
+        embedder, model = embedder_from_env()
+        return hybrid_search(session, q, law=law, as_of=as_of, limit=limit,
+                             options=HybridOptions(embedder=embedder, embed_model=model, graph=graph))
 
     @app.get("/api/v1/law/articles/{law_id}/{article_key}/refs", dependencies=[Depends(read_dep)])
     def law_article_refs(law_id: str, article_key: str, as_of: date | None = None,

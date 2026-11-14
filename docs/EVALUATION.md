@@ -51,3 +51,33 @@ What the numbers say:
 
 `tests/test_eval_building_law.py` holds floors slightly under these numbers; a retriever change
 that drops below them fails CI. Raise the floors when a change improves the numbers.
+
+## Phase 4: hybrid search (2026-11-12)
+
+`GET /api/v1/law/search` now defaults to `mode=hybrid` (`sion_api.law_search`). The old scorer
+is still available as `mode=lexical`. The hybrid search combines these channels:
+- bigram BM25;
+- an optional vector channel (`SION_LAW_EMBED_MODEL`), fused with BM25 by RRF;
+- citation-graph expansion over `law_articles.refs` (upgrade phase 3).
+
+| Retriever | hit@1 | hit@5 | recall@5 | recall@10 | mrr | ndcg@10 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `law-search` (`mode=lexical`) | 0.250 | 0.636 | 0.625 | 0.625 | 0.422 | 0.471 |
+| `law-hybrid-nograph` | 0.636 | 0.955 | 0.920 | 0.977 | 0.768 | 0.806 |
+| `law-hybrid` (default) | 0.636 | 0.909 | 0.898 | 0.977 | 0.770 | 0.815 |
+
+What the numbers say:
+
+- The production endpoint goes from recall@10 0.625 to 0.977 and from MRR 0.422 to 0.770.
+- **Graph expansion is close to neutral on this gold set.** nDCG and MRR rise slightly, and
+  recall@5 drops on one question. Most cross questions already find both articles lexically,
+  because the gold questions repeat the statutes' wording.
+- Adding graph expansion as a third RRF list was tried first and failed: recall@10 fell to 0.614
+  and hit@1 to 0.045. RRF adds the scores, so cited articles overtook the articles that cite
+  them. The shipped version instead lifts cited articles to sit just below their citer. It does
+  this only for articles that the other channels also matched, from the top 3 hits.
+- Expanding to cited articles that no other channel matched (one per hit) lowered every metric,
+  so it is off.
+- Vectors are not scored here: no embedding endpoint was available. Measure them with
+  `--retriever` once `SION_LAW_EMBED_MODEL` is set, and add paraphrased questions first (see
+  above).

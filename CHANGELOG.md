@@ -36,6 +36,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+
+- **Hybrid law search** (upgrade phase 4) — `GET /api/v1/law/search` defaults to `mode=hybrid`.
+  Hybrid mode runs BM25 over word tokens plus Hangul bigrams, adds an optional vector channel
+  (`SION_LAW_EMBED_MODEL`, an EmbedHub model key) fused by RRF, and applies citation-graph
+  expansion over `law_articles.refs`. Every result reports which channels found it.
+  On the building-law gold set, recall@10 rises from 0.625 to 0.977 and MRR from 0.422 to
+  0.770. `mode=lexical` keeps the previous scorer. See `docs/EVALUATION.md`.
+
 - **Retrieval evaluation** (`sion_eval`, `packages/eval`) — Korean building-law gold set (44 questions)
   over a 1,159-article statute corpus, recall/MRR/nDCG metrics, baseline retrievers and a CLI
   (`python -m sion_eval.cli run`). Baseline: the current law search reaches recall@10 0.625;
