@@ -198,6 +198,7 @@ SHARED_REFERENCE_ROUTES = {
     ("GET", "/api/v1/schema/ontology"),  # the ontology schema file
     ("GET", "/api/v1/law/search"),  # published law text
     ("GET", "/api/v1/law/articles/{law_id}/{article_key}"),
+    ("GET", "/api/v1/law/articles/{law_id}/{article_key}/refs"),  # published law cross-references
 }
 
 

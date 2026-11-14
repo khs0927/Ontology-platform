@@ -174,3 +174,46 @@ def test_membership_migration_matches_models():
         assert f"CREATE TABLE IF NOT EXISTS {table.name}" in sql
         for column in table.columns:
             assert f"  {column.name} " in sql, column.name
+
+
+def test_viewer_can_query_but_not_rebuild_project_graphrag(tmp_path):
+    """GraphRAG (per-project LightRAG workspaces): rebuilding writes the index, so viewers get 403."""
+    from sion_graphrag.engine import project_workspace
+
+    class FakeEngine:
+        project_id = None
+
+        async def for_project(self, project_id):
+            child = FakeEngine()
+            child.project_id = str(project_id)
+            child.config = type("Config", (), {"workspace": project_workspace("sion", project_id)})()
+            return child
+
+        async def project(self, session_factory, *, include_rejected=False):
+            return {"chunks": 0, "entities": 0, "relationships": 0}
+
+        async def query(self, question, *, mode="mix", top_k=20):
+            return {"mode": mode, "context": ""}
+
+    policy = AuthPolicy(
+        mode="bearer",
+        token_scopes=((ADMIN, frozenset({"*"})),),
+        oidc=OidcVerifier(issuer=ISSUER, key_resolver=lambda _token: KEY.public_key()),
+    )
+    app = create_app(
+        database_url=f"sqlite:///{tmp_path / 'g.db'}", auto_create_schema=True, auth_policy=policy, graphrag=FakeEngine()
+    )
+    with TestClient(app) as client:
+        project = client.post("/api/v1/projects", json={"name": "graph"}, headers=OWNER).json()["id"]
+        token = _invite(client, project, role="viewer")["token"]
+        assert client.post("/api/v1/invites/accept", json={"token": token}, headers=VIEWER).status_code == 200
+
+        rebuild = "/api/v1/graphrag/project"
+        assert client.post(rebuild, params={"project_id": project}, headers=VIEWER).status_code == 403
+        # The audit preview only counts rows and writes nothing, so a viewer may run it.
+        preview = client.post(rebuild, params={"project_id": project, "include_rejected": True}, headers=VIEWER)
+        assert preview.status_code == 200, preview.text
+        assert client.post(rebuild, params={"project_id": project}, headers=OWNER).status_code == 200
+        query = client.post("/api/v1/graphrag/query", json={"question": "wall", "project_id": project}, headers=VIEWER)
+        assert query.status_code == 200, query.text
+        assert query.json()["project_id"] == project

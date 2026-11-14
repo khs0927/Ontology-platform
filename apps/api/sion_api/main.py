@@ -49,6 +49,7 @@ from .auth import (
     install_openapi_security,
     project_scoped,
     require_project_access,
+    require_project_write,
     require_scope,
     shared_reference,
     writable_projects,
@@ -723,7 +724,7 @@ def create_app(
             raise HTTPException(status_code=503, detail="GraphRAG layer is not configured")
         return graphrag
 
-    async def graphrag_for(request: Request, project_id: uuid.UUID | None) -> SionGraphRag:
+    async def graphrag_for(request: Request, project_id: uuid.UUID | None, *, write: bool = False) -> SionGraphRag:
         """Base engine for unrestricted callers without a project; else that project's workspace.
 
         A project-restricted caller must name a project on its ACL (404 otherwise), so the
@@ -734,7 +735,10 @@ def create_app(
             if allowed_projects(request) is not None:
                 raise HTTPException(status_code=422, detail="project_id is required for project-scoped access")
             return engine
-        require_project_access(request, project_id)
+        if write:
+            require_project_write(request, project_id)  # viewers may query, never rebuild
+        else:
+            require_project_access(request, project_id)
         try:
             return await engine.for_project(project_id)
         except GraphRagUnavailable as exc:
@@ -806,7 +810,7 @@ def create_app(
         ),
         project_id: uuid.UUID | None = Query(default=None, description="Project into this project's own workspace"),
     ):
-        engine = await graphrag_for(request, project_id)
+        engine = await graphrag_for(request, project_id, write=not include_rejected)
         try:
             counts = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
