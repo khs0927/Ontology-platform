@@ -34,6 +34,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `POST /api/v1/graphrag/project`; `SION_GRAPHRAG_GRAPH_BACKEND=age` restores the old backend.
   `GET /api/v1/graphrag/status` reports the active `graph_storage`. See `docs/GRAPHRAG.md`.
 
+### Added
+
+- **Retrieval evaluation** (`sion_eval`, `packages/eval`) — Korean building-law gold set (44 questions)
+  over a 1,159-article statute corpus, recall/MRR/nDCG metrics, baseline retrievers and a CLI
+  (`python -m sion_eval.cli run`). Baseline: the current law search reaches recall@10 0.625;
+  BM25 over Hangul bigrams reaches 0.977. See `docs/EVALUATION.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable
