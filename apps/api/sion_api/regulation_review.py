@@ -41,6 +41,10 @@ class ProjectRef(BaseModel):
     project_id: uuid.UUID
 
 
+class CancelRef(ProjectRef):
+    dry_run: bool = False
+
+
 class Explain(ProjectRef):
     question: str = Field(min_length=1, max_length=2000)
 
@@ -194,6 +198,14 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
             raise HTTPException(404, "project not found")
         return project
 
+    def wants_dry_run(body: Any, query: bool | None) -> bool:
+        """Every review write takes ``dry_run`` in the body or the query; either one previews.
+
+        A preview is never turned into a real write because the flag came the other way.
+        """
+
+        return bool(body) or bool(query)
+
     def guarded(call, *args, **kwargs):
         """Another project's run reads exactly like a run that does not exist."""
 
@@ -212,7 +224,16 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
             raise HTTPException(422, "invalid review request") from exc
 
     @app.post(root, dependencies=[Depends(write)])
-    def start(payload: dict[str, Any], dry_run: bool = False, session=Depends(get_session)):
+    def start(
+        payload: dict[str, Any],
+        dry_run: bool | None = Query(None),
+        session=Depends(get_session),
+    ):
+        payload = dict(payload)
+        body_dry_run = payload.pop("dry_run", False)
+        if not isinstance(body_dry_run, bool):
+            raise HTTPException(422, "dry_run must be a boolean")
+        dry_run = wants_dry_run(body_dry_run, dry_run)
         request = parse_request(payload)
         require_project(session, request.proposal.project_id)
         conflict = module("runs").IdempotencyConflict
@@ -273,16 +294,26 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         return guarded(flow().explain, run_id, payload.question, project_id=str(payload.project_id))
 
     @app.post(root + "/{run_id}/cancel", dependencies=[Depends(write)])
-    def cancel(run_id: str, payload: ProjectRef):
-        return guarded(flow().cancel_review, run_id, project_id=str(payload.project_id))
+    def cancel(run_id: str, payload: CancelRef, dry_run: bool | None = Query(None)):
+        project = str(payload.project_id)
+        if wants_dry_run(payload.dry_run, dry_run):
+            current = guarded(flow().get_review, run_id, project_id=project)
+            status = current["execution_status"]
+            return {
+                "dry_run": True,
+                "saved": False,
+                "run_id": run_id,
+                "execution_status": status,
+                # The engine leaves a completed run as it is; anything else would be cancelled.
+                "would_cancel": status not in ("completed", "cancelled"),
+            }
+        return guarded(flow().cancel_review, run_id, project_id=project)
 
     @app.post(root + "/{run_id}/resume", dependencies=[Depends(write)])
-    def resume(run_id: str, payload: Resume):
+    def resume(run_id: str, payload: Resume, dry_run: bool | None = Query(None)):
         model = module("model")
         project = str(payload.project_id)
-        if payload.dry_run:
-            current = guarded(flow().get_review, run_id, project_id=project)
-            return {"dry_run": True, "saved": False, "next_revision": current["run_revision"] + 1}
+        preview = wants_dry_run(payload.dry_run, dry_run)
         try:
             facts = [model.Fact.model_validate(item) for item in payload.facts]
         except ValueError as exc:
@@ -290,6 +321,16 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         refuse_collected_facts(facts)
         in_flight = module("runs").RunInFlight
         try:
+            if preview:
+                # The same checks as the real resume (ownership, cancelled, in flight, supplement).
+                checked = guarded(
+                    flow().preview_resume,
+                    run_id,
+                    project_id=project,
+                    supplement=facts,
+                    changed_requests=payload.changed_requests,
+                )
+                return {"dry_run": True, "saved": False, "next_revision": checked["next_revision"]}
             return guarded(
                 flow().resume_review,
                 run_id,
@@ -313,7 +354,12 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         return row
 
     @app.post(root + "/{run_id}/works", dependencies=[Depends(write)])
-    def save_work(run_id: str, payload: SaveWork, session=Depends(get_session)):
+    def save_work(
+        run_id: str,
+        payload: SaveWork,
+        dry_run: bool | None = Query(None),
+        session=Depends(get_session),
+    ):
         """Save the server-owned output and prove it by reading the row back."""
 
         project = require_project(session, payload.project_id)
@@ -330,7 +376,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         if not flow().verify_receipt(receipt):
             raise HTTPException(500, "run revision failed read-back verification")
         key = f"regulation-review-work:{project_id}:{run_id}:{receipt.run_revision}"
-        if payload.dry_run:
+        if wants_dry_run(payload.dry_run, dry_run):
             return {"dry_run": True, "saved": False, "receipt": receipt.model_dump(mode="json")}
 
         existing = session.scalar(select(models.Entity).where(models.Entity.stable_key == key))

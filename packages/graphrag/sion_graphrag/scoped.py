@@ -48,9 +48,10 @@ def _private_keys(session: Session, project_id: str | None) -> set[str]:
     """Stable keys of entities that belong only to projects other than ``project_id``.
 
     An entity belongs to a project when it is that project's ``Project`` entity or carries
-    ``properties.project_id``. An entity with neither belongs to every ``Project`` its ``PART_OF``
-    chain reaches, in any review state or validity window, so a document linked to a project only
-    by relation stays that project's material. With ``project_id`` None every project-owned entity
+    ``properties.project_id``. An entity with neither belongs to every project owning an entity its
+    ``PART_OF`` chain reaches (a ``Project`` row or any entity owned through
+    ``properties.project_id``), in any review state or validity window, so a document linked to
+    project material only by relation stays that project's material. With ``project_id`` None every project-owned entity
     is hidden, so the public-only scope never sees project material.
     """
 
@@ -65,7 +66,8 @@ def _private_keys(session: Session, project_id: str | None) -> set[str]:
         if owner is not None:
             own.add(_owner_key(owner))
         explicit[row.id] = own
-        reached[row.id] = {_owner_key(row.id)} if row.entity_type_id == "Project" else set()
+        # Ownership flows down PART_OF from any owned entity, not only from Project rows.
+        reached[row.id] = set(own)
     part_of: list[Any] = list(
         session.scalars(select(models.Relation).where(models.Relation.relation_type_id == "PART_OF"))
     )

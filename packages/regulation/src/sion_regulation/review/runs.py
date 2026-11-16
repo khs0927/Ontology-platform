@@ -261,22 +261,23 @@ class RunEngine:
 
         digest = canonical_digest(payload)
         run_key = key or idempotency_key(project_id, proposal_revision, payload)
-        existing = self.store.find_by_key(run_key)
-        if existing is not None:
-            if existing.payload_digest != digest:
-                raise IdempotencyConflict(f"key {run_key} was used with a different payload")
-            return existing
-        record = RunRecord(
-            run_id="run:" + canonical_digest([run_key, digest])[:24],
-            idempotency_key=run_key,
-            payload_digest=digest,
-            project_id=project_id,
-            proposal_revision=proposal_revision,
-            nodes={key_: node.model_copy(deep=True) for key_, node in dag.nodes.items()},
-            context=context or {},
-        )
-        self.store.save(record)
-        return record
+        with self._commit:
+            existing = self.store.find_by_key(run_key)
+            if existing is not None:
+                if existing.payload_digest != digest:
+                    raise IdempotencyConflict(f"key {run_key} was used with a different payload")
+                return existing
+            record = RunRecord(
+                run_id="run:" + canonical_digest([run_key, digest])[:24],
+                idempotency_key=run_key,
+                payload_digest=digest,
+                project_id=project_id,
+                proposal_revision=proposal_revision,
+                nodes={key_: node.model_copy(deep=True) for key_, node in dag.nodes.items()},
+                context=context or {},
+            )
+            self.store.save(record)
+            return record
 
     def cancel(self, run_id: str) -> RunRecord:
         with self._commit:
@@ -307,6 +308,8 @@ class RunEngine:
                 return record
             if record.status is ExecutionStatus.CANCELLED or record.output is not None:
                 return record
+            if record.failure is not None:
+                return record  # its evaluation failed; a retry opens a new revision via resume
             record.output = output
             record.failure = None
             self.store.save(record)
@@ -360,8 +363,8 @@ class RunEngine:
             record.status = ExecutionStatus.QUEUED
             record.output = None
             record.failure = None
-            record.lease_owner = None
-            record.lease_expires_at = None
+            owner = uuid4().hex
+            self._take(record, owner)  # in flight from the moment the revision exists
             if context is not None:
                 record.context = context
             changed = dict(changed_requests or {})
@@ -385,7 +388,7 @@ class RunEngine:
                 self._reset(node)
                 record.results.pop(node.node_id, None)
             self.store.save(record)
-        return self.execute(run_id)
+        return self.execute(run_id, owner=owner)
 
     @staticmethod
     def _downstream(record: RunRecord, changed: set[str]) -> set[str]:
@@ -411,16 +414,17 @@ class RunEngine:
         node.lease_owner = None
         node.lease_expires_at = None
 
-    def execute(self, run_id: str) -> RunRecord:
+    def execute(self, run_id: str, *, owner: str | None = None) -> RunRecord:
         """Run ready nodes wave by wave until nothing more can start.
 
         A run another worker holds is returned as it is, still QUEUED or RUNNING.
         """
 
-        owner = uuid4().hex
+        owner = owner or uuid4().hex
         with self._commit:
             record = self.store.load(run_id)
-            if record.status is ExecutionStatus.CANCELLED or self.in_flight(record):
+            held = self.in_flight(record) and record.lease_owner != owner
+            if record.status is ExecutionStatus.CANCELLED or held:
                 return record
             revision = record.run_revision
             for node in record.nodes.values():

@@ -6,6 +6,8 @@ cancelled revision keeps no conclusion; a rejected supplement opens no revision 
 evaluation reads as failed. All values are synthetic fixtures.
 """
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import threading
@@ -13,6 +15,10 @@ from datetime import timedelta
 from typing import Any
 
 import pytest
+
+# The minimal ".[test]" install has no archontos/greenlet; skip like test_review_scenarios.
+pytest.importorskip("sion_regulation.review.workflow", exc_type=ImportError)
+
 from sion_regulation.review.runs import RunInFlight
 from test_review_scenarios import (
     NOW,
@@ -249,3 +255,108 @@ def test_failed_evaluation_marks_the_revision_failed() -> None:
     assert recovered["run_revision"] == 2
     assert recovered["execution_status"] == ExecutionStatus.COMPLETED.value
     assert store.load(run_id, 1).status is ExecutionStatus.FAILED
+
+
+# ------------------------------------------------------------------ races on start and resume
+
+
+def test_second_resume_before_the_first_takes_its_lease_is_refused() -> None:
+    store = InMemoryRunStore()
+    flow = workflow_with(
+        store=store, executors={"p": lambda n: _result(n, CollectionStatus.TRUNCATED)}
+    )
+    run_id = flow.start_review(request(requested_sources=[RunNode(node_id="n", provider="p")]))[
+        "run_id"
+    ]
+    original = flow.engine.execute
+    second: list[BaseException] = []
+
+    def execute(rid: str, **kwargs: Any) -> Any:
+        # Revision 2 exists but execute() has not run yet: a second resume arrives now.
+        if not second:
+            try:
+                flow.resume_review(rid, project_id="proj-1")
+            except RunInFlight as exc:
+                second.append(exc)
+            else:
+                second.append(AssertionError("second resume was accepted"))
+        return original(rid, **kwargs)
+
+    flow.engine.execute = execute  # type: ignore[method-assign]
+    first = flow.resume_review(run_id, project_id="proj-1")
+    assert len(second) == 1 and isinstance(second[0], RunInFlight)  # the API answers 409
+    assert first["run_revision"] == 2
+    assert store.revisions(run_id) == [1, 2]
+    assert store.load(run_id, 2).status is not ExecutionStatus.QUEUED
+
+
+def test_concurrent_first_start_with_one_key_calls_the_provider_once() -> None:
+    calls: list[str] = []
+    started, release = threading.Event(), threading.Event()
+
+    def slow(node: RunNode) -> CollectionResult:
+        calls.append(node.node_id)
+        started.set()
+        release.wait(5)
+        return _result(node, CollectionStatus.FOUND)
+
+    store = InMemoryRunStore()
+    flow = workflow_with(store=store, executors={"p": slow})
+    req = request(requested_sources=[RunNode(node_id="n", provider="p")], idempotency_key="k")
+    barrier = threading.Barrier(2)
+    real_find = store.find_by_key
+    saved_by_a = threading.Event()
+
+    def find(key: str) -> Any:
+        found = real_find(key)
+        try:
+            barrier.wait(0.5)  # both callers looked the key up before either saved
+        except threading.BrokenBarrierError:
+            return found  # lookups are serialised: no race window
+        if threading.current_thread().name == "B":
+            saved_by_a.wait(5)  # B saves only once A's worker is inside the provider
+        return found
+
+    store.find_by_key = find  # type: ignore[method-assign]
+    out: dict[str, Any] = {}
+    a = threading.Thread(name="A", target=lambda: out.__setitem__("A", flow.start_review(req)))
+    b = threading.Thread(name="B", target=lambda: out.__setitem__("B", flow.start_review(req)))
+    a.start()
+    b.start()
+    assert started.wait(5)
+    saved_by_a.set()
+    b.join(1)
+    release.set()
+    a.join(5)
+    b.join(5)
+    assert calls == ["n"]
+    record = store.load(out["A"]["run_id"])
+    assert record.nodes["n"].attempts == 1 and record.late_results == []
+    assert out["A"]["run_id"] == out["B"]["run_id"]
+
+
+def test_start_retry_after_a_failed_evaluation_keeps_the_revision_failed() -> None:
+    store = InMemoryRunStore()
+    flow = workflow_with(store=store)
+    original = flow._evaluate
+    failing = [True]
+
+    def evaluate(record: Any) -> dict[str, Any]:
+        if failing[0]:
+            raise RuntimeError("transient evaluation fault")
+        return original(record)
+
+    flow._evaluate = evaluate  # type: ignore[method-assign]
+    req = request()
+    with pytest.raises(RuntimeError):
+        flow.start_review(req)
+    run_id = next(iter(store._rows))
+    failing[0] = False
+    retried = flow.start_review(req)
+    assert retried["execution_status"] == ExecutionStatus.FAILED.value
+    stored = store.load(run_id)
+    assert stored.status is ExecutionStatus.FAILED and stored.output is None
+    assert "transient evaluation fault" in (stored.failure or "")
+    assert store.revisions(run_id) == [1]
+    with pytest.raises(ValueError, match="no output"):
+        flow.save_work(run_id, project_id="proj-1")

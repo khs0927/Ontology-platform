@@ -27,6 +27,7 @@ from sion_regulation.review.citations import verify_citations
 from sion_regulation.review.facts import (
     CLAIM_METHODS,
     FactStore,
+    canonical_path,
     collection_only,
     is_claim,
     to_rule_facts,
@@ -109,7 +110,9 @@ def client_fact_problems(facts: Sequence[Fact]) -> list[str]:
     A request may state claims. It cannot state official records or evidence: those only come from
     server-side collection, otherwise a caller could manufacture a negative finding. Nor can it
     state collection-only paths (designations, legal status, documents, query completeness and
-    official land-register values): only collected facts with evidence resolve those.
+    official land-register values) or any parent of them: only collected facts with evidence
+    resolve those. A claim names one canonical leaf path (lower-case dotted identifiers, never the
+    workflow-owned roots ``fact_units``/``context``) and states a scalar or list, not a mapping.
     """
 
     problems: list[str] = []
@@ -122,6 +125,12 @@ def client_fact_problems(facts: Sequence[Fact]) -> list[str]:
             )
         if fact.evidence_ids:
             problems.append(f"{fact.fact_id}: a claim cannot cite evidence")
+        if not canonical_path(fact.path):
+            problems.append(
+                f"{fact.fact_id}: path {fact.path!r} is not a canonical lower-case dotted path"
+            )
+        if isinstance(fact.value, Mapping):
+            problems.append(f"{fact.fact_id}: a claim states one leaf value, not a mapping")
         if collection_only(fact.path):
             problems.append(f"{fact.fact_id}: path {fact.path} is resolved only by collection")
     return problems
@@ -298,6 +307,47 @@ class ReviewWorkflow:
         only the new revision carries it. A run still in flight raises :class:`RunInFlight`.
         """
 
+        record, context, changed = self._resume_checked(
+            run_id, project_id, supplement, changed_requests
+        )
+        resumed = self.engine.resume(
+            run_id,
+            changed_requests=changed,
+            expected_revision=record.run_revision,
+            context=context,
+        )
+        return self._complete(resumed)
+
+    def preview_resume(
+        self,
+        run_id: str,
+        *,
+        project_id: str,
+        supplement: Sequence[Fact] = (),
+        changed_requests: Mapping[str, dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Run every check :meth:`resume_review` runs and report the revision it would open.
+
+        Nothing is written: a refused resume raises exactly as the real call would.
+        """
+
+        record, _context, _changed = self._resume_checked(
+            run_id, project_id, supplement, changed_requests
+        )
+        return {
+            "run_id": record.run_id,
+            "run_revision": record.run_revision,
+            "next_revision": record.run_revision + 1,
+            "execution_status": record.status.value,
+        }
+
+    def _resume_checked(
+        self,
+        run_id: str,
+        project_id: str,
+        supplement: Sequence[Fact],
+        changed_requests: Mapping[str, dict[str, Any]] | None,
+    ) -> tuple[RunRecord, dict[str, Any], dict[str, Any]]:
         record = self._owned(run_id, project_id)
         if record.status is ExecutionStatus.CANCELLED:
             raise ValueError("a cancelled run is not resumed; start a new run")
@@ -310,13 +360,7 @@ class ReviewWorkflow:
             *(fact.model_dump(mode="json") for fact in supplement),
         ]
         self._check_supplement(record, context, changed)
-        resumed = self.engine.resume(
-            run_id,
-            changed_requests=changed,
-            expected_revision=record.run_revision,
-            context=context,
-        )
-        return self._complete(resumed)
+        return record, context, changed
 
     def _check_supplement(
         self, record: RunRecord, context: dict[str, Any], changed: Mapping[str, Any]

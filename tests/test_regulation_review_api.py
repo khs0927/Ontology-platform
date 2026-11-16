@@ -382,7 +382,11 @@ def test_scoped_projection_hides_other_projects_and_rejected():
         assert len(wider["relationships"]) == 2
 
         public_only = build_scoped_kg(session, ProjectionScope())
-        assert {item["entity_name"] for item in public_only["entities"]} == {"law"}
+        # "law" has no owner of its own but is PART_OF "mine" (project p1) through the unverified
+        # "candidate" edge. Ownership follows PART_OF in any review state and from any owned
+        # entity, so "law" is p1 material and the public-only scope hides it. Over-hiding is the
+        # safe side for S25: a leak of project material is never traded for public recall.
+        assert {item["entity_name"] for item in public_only["entities"]} == set()
 
 
 def test_scoped_projection_hides_other_project_entities_and_part_of_material():
@@ -545,3 +549,145 @@ def test_resume_while_in_flight_is_a_fixed_409(api):
     resumed = api.post(f"{ROOT}/{run}/resume", json={"project_id": mine})
     assert resumed.status_code == 409
     assert resumed.json() == {"detail": "run is still in flight; retry later"}
+
+
+def run_rows(api, run):
+    return api.app_state.regulation_review_flow.store.revisions(run)
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        ("land", {"exempt": True}),
+        ("legal", {"is_farmland": False}),
+        ("designation", {"query_complete": True}),
+        ("document", {"district_plan_decision": True}),
+        ("building", {"height": 10}),
+        ("fact_units", {"building.height": "m"}),
+        ("context", {"jurisdiction": "99999"}),
+        ("rase.exempted", True),
+        ("Legal.is_farmland", False),
+        ("x.height", {"value": 10}),
+    ],
+)
+def test_parent_path_and_mapping_claims_are_refused_on_start_and_resume(api, path, value):
+    mine = project(api)
+    refused = api.post(ROOT, json=payload(mine, facts=[claim(path=path, value=value)]))
+    assert refused.status_code == 422, refused.text
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    resume = {"project_id": mine, "facts": [claim(path=path, value=value)]}
+    assert api.post(f"{ROOT}/{run}/resume", json=resume).status_code == 422
+    assert run_rows(api, run) == [1]
+
+
+def test_dry_run_cancel_writes_nothing(api):
+    mine = project(api)
+    body = payload(mine, requested_sources=[{"node_id": "n", "provider": "no-executor"}])
+    run = api.post(ROOT, json=body).json()["run_id"]
+    for preview in (
+        api.post(f"{ROOT}/{run}/cancel", json={"project_id": mine, "dry_run": True}),
+        api.post(f"{ROOT}/{run}/cancel", params={"dry_run": "true"}, json={"project_id": mine}),
+    ):
+        assert preview.status_code == 200, preview.text
+        assert preview.json()["dry_run"] is True and preview.json()["would_cancel"] is True
+    read = api.get(f"{ROOT}/{run}", params={"project_id": mine}).json()
+    assert read["execution_status"] == "partial"
+    other = project(api, "다른 프로젝트")
+    hidden = api.post(f"{ROOT}/{run}/cancel", json={"project_id": other, "dry_run": True})
+    assert hidden.status_code == 404
+
+
+def test_dry_run_resume_runs_the_real_checks_and_writes_nothing(api):
+    from datetime import UTC, datetime, timedelta
+
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    for preview in (
+        api.post(f"{ROOT}/{run}/resume", json={"project_id": mine, "dry_run": True}),
+        api.post(f"{ROOT}/{run}/resume", params={"dry_run": "true"}, json={"project_id": mine}),
+    ):
+        assert preview.status_code == 200, preview.text
+        assert preview.json() == {"dry_run": True, "saved": False, "next_revision": 2}
+    assert run_rows(api, run) == [1]
+
+    invalid = {"project_id": mine, "dry_run": True, "facts": [claim(path="designation.zone")]}
+    assert api.post(f"{ROOT}/{run}/resume", json=invalid).status_code == 422
+    assert run_rows(api, run) == [1]
+
+    store = api.app_state.regulation_review_flow.store
+    record = store.load(run)
+    record.run_revision += 1
+    record.output = None
+    record.status = record.status.RUNNING
+    record.lease_owner = "other-worker"
+    record.lease_expires_at = datetime.now(UTC) + timedelta(hours=1)
+    store.save(record)
+    in_flight = api.post(f"{ROOT}/{run}/resume", json={"project_id": mine, "dry_run": True})
+    assert in_flight.status_code == 409
+    assert run_rows(api, run) == [1, 2]
+
+    body = payload(mine, revision="r2", requested_sources=[{"node_id": "n", "provider": "none"}])
+    partial = api.post(ROOT, json=body).json()["run_id"]
+    api.post(f"{ROOT}/{partial}/cancel", json={"project_id": mine})
+    cancelled = api.post(f"{ROOT}/{partial}/resume", params={"dry_run": "true"}, json={"project_id": mine})
+    assert cancelled.status_code == 409
+    assert run_rows(api, partial) == [1]
+
+
+def test_dry_run_save_and_start_honour_body_and_query(api):
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    body = {"project_id": mine, "title": "t"}
+    preview = api.post(f"{ROOT}/{run}/works", params={"dry_run": "true"}, json=body)
+    assert preview.status_code == 200 and preview.json()["saved"] is False
+    assert work_rows(api) == []
+    assert api.app_state.regulation_review_flow.outbox.pending() == []
+
+    started = api.post(ROOT, json={**payload(mine, revision="r9"), "dry_run": True})
+    assert started.status_code == 200 and started.json()["saved"] is False
+    with api.app_state.session_factory() as session:
+        rows = session.scalars(select(models.Entity).where(models.Entity.category == RUN_CATEGORY))
+        assert {row.properties["run_id"] for row in rows} == {run}
+    assert api.post(ROOT, json={**payload(mine), "dry_run": "yes"}).status_code == 422
+
+
+def test_scoped_projection_follows_part_of_from_entities_owned_by_project_id():
+    """S25: material PART_OF an entity owned through properties.project_id stays private."""
+
+    app = create_app(database_url="sqlite://", auto_create_schema=True)
+    with app.state.session_factory() as session:
+
+        def entity(key, kind="Document", **props):
+            row = models.Entity(stable_key=key, entity_type_id=kind, name=key, properties=props)
+            session.add(row)
+            session.flush()
+            return row
+
+        def part_of(key, source, target):
+            session.add(
+                models.Relation(
+                    stable_key=key,
+                    source_entity_id=source.id,
+                    target_entity_id=target.id,
+                    relation_type_id="PART_OF",
+                    verification_state="human_verified",
+                    source_kind="test",
+                )
+            )
+
+        entity("law")
+        a, b = entity("project:A", kind="Project"), entity("project:B", kind="Project")
+        b_doc = entity("b-doc", project_id=str(b.id))
+        part_of("child", entity("b-doc-child-secret"), b_doc)
+        b_run = entity("b-run-record", project_id=str(b.id))
+        part_of("attachment", entity("b-run-attachment"), b_run)
+        session.commit()
+
+        def names(scope):
+            return {item["entity_name"] for item in build_scoped_kg(session, scope)["entities"]}
+
+        assert names(ProjectionScope(project_id=str(a.id))) == {"law", "project:A"}
+        assert names(ProjectionScope()) == {"law"}
+        assert {"b-doc-child-secret", "b-run-attachment"} <= names(
+            ProjectionScope(project_id=str(b.id))
+        )

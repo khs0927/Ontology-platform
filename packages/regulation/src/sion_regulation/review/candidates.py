@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from sion_regulation.review.facts import FactStore
+from sion_regulation.review.facts import FactResolution, FactStore
 from sion_regulation.review.legal import LegalCatalog, expand_references
 from sion_regulation.review.model import (
     CandidateProvision,
@@ -461,11 +461,17 @@ def _coverage_row(
 def _ruled_out(facts: FactStore, code: str, subject: str, day: date) -> bool:
     """An evidenced negative: the designation is collected as absent, or the query was complete."""
 
+    def whole(resolution: FactResolution) -> bool:
+        # A negative observed on part of the subject is not a negative for the whole subject.
+        return resolution.evidenced and all(
+            fact.observation_scope == "whole" for fact in resolution.facts
+        )
+
     absent = facts.current(f"designation.{code}", subject, day)
-    if absent.evidenced and absent.value is False:
+    if whole(absent) and absent.value is False:
         return True
     complete = facts.current("designation.query_complete", subject, day)
-    return complete.evidenced and complete.value is True
+    return whole(complete) and complete.value is True
 
 
 def _untriggered_row(
