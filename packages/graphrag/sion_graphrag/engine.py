@@ -7,9 +7,13 @@ provider packages at runtime.
 
 from __future__ import annotations
 
+import asyncio
 import os
+import re
+import uuid
+from collections import OrderedDict
 from contextlib import nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
@@ -19,10 +23,18 @@ from .projection import AUDIT_PROJECTION_REVIEW_STATES, DEFAULT_PROJECTION_REVIE
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
+# Graph backend for SION_GRAPHRAG_STORAGE=postgres. "table" (default) is LightRAG's
+# PGTableGraphStorage: plain indexed tables, no Apache AGE. "age" keeps the legacy
+# PGGraphStorage, which LightRAG 1.5.7 refuses on AGE >= 1.8.0; move an existing AGE
+# graph with `python -m lightrag.tools.migrate_graph_storage` (see docs/GRAPHRAG.md).
+POSTGRES_GRAPH_STORAGES = {
+    "table": "PGTableGraphStorage",
+    "age": "PGGraphStorage",
+}
 POSTGRES_STORAGES = {
     "kv_storage": "PGKVStorage",
     "vector_storage": "PGVectorStorage",
-    "graph_storage": "PGGraphStorage",
+    "graph_storage": POSTGRES_GRAPH_STORAGES["table"],
     "doc_status_storage": "PGDocStatusStorage",
 }
 LOCAL_STORAGES = {
@@ -32,6 +44,23 @@ LOCAL_STORAGES = {
     "doc_status_storage": "JsonDocStatusStorage",
 }
 QUERY_MODES = {"local", "global", "hybrid", "naive", "mix"}
+# Open per-project engines kept at once; the least recently used one is finalized first.
+DEFAULT_MAX_PROJECT_ENGINES = 32
+
+
+def project_workspace(base: str, project_id: object) -> str:
+    """LightRAG workspace for one project: ``<base>_p_<uuid hex>``.
+
+    LightRAG keys every Postgres row (and every local storage directory) by workspace,
+    so a project's chunks, vectors and graph never mix with another project's.
+    """
+    try:
+        token = uuid.UUID(str(project_id)).hex
+    except ValueError as exc:
+        raise ValueError("project_id must be a UUID") from exc
+    if not re.fullmatch(r"[A-Za-z0-9_]+", base):
+        raise ValueError("SION_GRAPHRAG_WORKSPACE may contain only letters, digits and '_'")
+    return f"{base}_p_{token}"
 
 
 class GraphRagUnavailable(RuntimeError):
@@ -52,6 +81,8 @@ class GraphRagConfig:
     llm_api_key: str | None = None
     # "openai" (OpenAI-compatible endpoint) or "embedhub" (sion_embedhub registry key in embedding_model, e.g. nv-1b)
     embedding_provider: str = "openai"
+    # Postgres graph backend: "table" (PGTableGraphStorage, no AGE) or "age" (legacy PGGraphStorage)
+    graph_backend: str = "table"
 
     @classmethod
     def from_env(cls) -> "GraphRagConfig | None":
@@ -62,6 +93,9 @@ class GraphRagConfig:
         storage = os.getenv("SION_GRAPHRAG_STORAGE", "postgres").strip().lower()
         if storage not in {"postgres", "local"}:
             raise ValueError("SION_GRAPHRAG_STORAGE must be 'postgres' or 'local'")
+        graph_backend = os.getenv("SION_GRAPHRAG_GRAPH_BACKEND", "table").strip().lower()
+        if graph_backend not in POSTGRES_GRAPH_STORAGES:
+            raise ValueError("SION_GRAPHRAG_GRAPH_BACKEND must be 'table' or 'age'")
         return cls(
             workspace=os.getenv("SION_GRAPHRAG_WORKSPACE", "sion"),
             storage=storage,
@@ -74,11 +108,21 @@ class GraphRagConfig:
             llm_base_url=os.getenv("SION_GRAPHRAG_LLM_BASE_URL"),
             llm_api_key=os.getenv("SION_GRAPHRAG_LLM_API_KEY"),
             embedding_provider=os.getenv("SION_GRAPHRAG_EMBED_PROVIDER", "openai").strip().lower(),
+            graph_backend=graph_backend,
         )
 
     @property
     def answers_enabled(self) -> bool:
         return bool(self.llm_model)
+
+    @property
+    def storages(self) -> dict[str, str]:
+        """LightRAG storage class names for this configuration."""
+        if self.storage != "postgres":
+            return dict(LOCAL_STORAGES)
+        if self.graph_backend not in POSTGRES_GRAPH_STORAGES:
+            raise ValueError("graph_backend must be 'table' or 'age'")
+        return {**POSTGRES_STORAGES, "graph_storage": POSTGRES_GRAPH_STORAGES[self.graph_backend]}
 
 
 async def _no_llm(*_args: Any, **_kwargs: Any) -> str:
@@ -101,6 +145,38 @@ class SionGraphRag:
         self._embedding_func = embedding_func
         self._llm_func = llm_func
         self._rag = None
+        self.project_id: str | None = None
+        self._children: OrderedDict[str, SionGraphRag] = OrderedDict()
+        self._children_lock = asyncio.Lock()
+        self.max_project_engines = DEFAULT_MAX_PROJECT_ENGINES
+
+    async def for_project(self, project_id: object) -> "SionGraphRag":
+        """Engine bound to one project's own LightRAG workspace (cached, LRU-bounded)."""
+        if self.project_id is not None:
+            raise RuntimeError("for_project() is only available on the base engine")
+        workspace = project_workspace(self.config.workspace, project_id)
+        if self.config.storage == "postgres" and os.getenv("POSTGRES_WORKSPACE"):
+            # LightRAG's Postgres storages let POSTGRES_WORKSPACE override every instance's
+            # workspace, which would put all projects into one shared index.
+            raise GraphRagUnavailable("unset POSTGRES_WORKSPACE to use per-project GraphRAG workspaces")
+        async with self._children_lock:
+            child = self._children.get(workspace)
+            if child is None:
+                child = SionGraphRag(
+                    replace(self.config, workspace=workspace),
+                    embedding_func=self._embedding_func,
+                    llm_func=self._llm_func,
+                    tokenizer=self._tokenizer,
+                )
+                child.project_id = str(uuid.UUID(str(project_id)))
+                self._children[workspace] = child
+            self._children.move_to_end(workspace)
+            evicted = []
+            while len(self._children) > self.max_project_engines:
+                evicted.append(self._children.popitem(last=False)[1])
+        for old in evicted:
+            await old.close()
+        return child
 
     def _build(self):
         try:
@@ -150,7 +226,7 @@ class SionGraphRag:
                     **kwargs,
                 )
 
-        storages = POSTGRES_STORAGES if config.storage == "postgres" else LOCAL_STORAGES
+        storages = config.storages
         config.working_dir.mkdir(parents=True, exist_ok=True)
         extra: dict[str, Any] = {"tokenizer": self._tokenizer} if self._tokenizer is not None else {}
         return LightRAG(
@@ -181,6 +257,10 @@ class SionGraphRag:
             self._rag = rag
 
     async def close(self) -> None:
+        children = list(self._children.values())
+        self._children.clear()
+        for child in children:
+            await child.close()
         if self._rag is not None:
             await self._rag.finalize_storages()
             self._rag = None
@@ -191,7 +271,7 @@ class SionGraphRag:
         """Upsert the default projection, or count the audit projection without indexing it."""
         states = AUDIT_PROJECTION_REVIEW_STATES if include_rejected else DEFAULT_PROJECTION_REVIEW_STATES
         with session_factory() as session:
-            custom_kg = build_custom_kg(session, review_states=states)
+            custom_kg = build_custom_kg(session, review_states=states, project_id=self.project_id)
         if not include_rejected and custom_kg["chunks"]:
             await self.start()
             await self._rag.ainsert_custom_kg(custom_kg, full_doc_id=f"sion-canonical-{self.config.workspace}")

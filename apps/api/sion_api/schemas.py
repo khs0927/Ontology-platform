@@ -173,6 +173,7 @@ class VectorSearchRequest(BaseModel):
     embedding: list[float] = Field(min_length=1, max_length=8192)
     limit: int = Field(default=10, ge=1, le=100)
     target_kind: str | None = Field(default=None, pattern="^(entity|chunk)$")
+    project_id: uuid.UUID | None = Field(default=None, description="Only embeddings inside this project")
 
 
 class VectorHit(BaseModel):
@@ -215,6 +216,8 @@ class GraphRagQuery(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     mode: Literal["local", "global", "hybrid", "naive", "mix"] = "mix"
     top_k: int = Field(default=20, ge=1, le=200)
+    # Query one project's own LightRAG workspace. Required for project-restricted callers.
+    project_id: uuid.UUID | None = None
 
 
 class OutboxEventRead(BaseModel):
@@ -325,6 +328,15 @@ class RelationExtractionRequest(BaseModel):
     paths: list[str] = Field(min_length=1, max_length=500)
     min_cooccurrence: int = Field(default=2, ge=1, le=100)
     include_cooccurrence: bool = True
+
+
+class LlmExtractionRequest(BaseModel):
+    paths: list[str] = Field(min_length=1, max_length=100)
+
+
+class IngestJobRequest(BaseModel):
+    paths: list[str] = Field(min_length=1, max_length=1000)
+    extract_relations: bool = True
 
 
 class GraphExportImportRequest(BaseModel):

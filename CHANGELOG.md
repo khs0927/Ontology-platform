@@ -4,6 +4,116 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Docker Compose local stack** — `compose.yaml` runs PostgreSQL + pgvector, the core migrations
+  and the API (bearer auth, loopback ports, health check); `deploy/api.Dockerfile` builds the API
+  image with optional extras. CI starts the stack and smoke-tests it. See `docs/DEPLOY_LOCAL.md`.
+- **GraphRAG on real PostgreSQL in CI** — `tests/test_graphrag_postgres.py` runs LightRAG's
+  Postgres storages and checks that project workspaces stay separate. Per-project GraphRAG now
+  refuses to run while `POSTGRES_WORKSPACE` is set, because that variable merges every workspace.
+- **GraphRAG per-project workspaces** — `POST /api/v1/graphrag/project?project_id=` and
+  `POST /api/v1/graphrag/query {"project_id"}` use a separate LightRAG workspace per project,
+  projected from that project's entities only. Project-restricted callers must name a project on
+  their ACL; unrestricted callers keep the shared workspace. See `docs/GRAPHRAG.md`.
+- **Remote MCP server** (upgrade phase 5) — `sion-mcp` (new `mcp` extra, official SDK 2.3)
+  serves the knowledge core over stateless Streamable HTTP. It speaks both the 2026-07-28
+  per-request envelope and the older initialize handshake. Its tools are all read-only:
+  ChatGPT-style `search`/`fetch`, `law_search`/`law_article`/`law_refs` with `as_of`, and
+  `get_entity`/`neighbors`/`evidence_for` (review candidates hidden unless asked).
+  Access uses the API bearer tokens with `read:knowledge`; project-restricted tokens are refused.
+  Without bearer mode it serves loopback only. Refused requests get an RFC 9728
+  protected-resource metadata challenge. See `docs/MCP_SERVER.md`.
+- **Hybrid law search** (upgrade phase 4) — `GET /api/v1/law/search` defaults to `mode=hybrid`.
+  Hybrid mode runs BM25 over word tokens plus Hangul bigrams, adds an optional vector channel
+  (`SION_LAW_EMBED_MODEL`, an EmbedHub model key) fused by RRF, and applies citation-graph
+  expansion over `law_articles.refs`. Every result reports which channels found it.
+  On the building-law gold set, recall@10 rises from 0.625 to 0.977 and MRR from 0.422 to
+  0.770. `mode=lexical` keeps the previous scorer. See `docs/EVALUATION.md`.
+- **Retrieval evaluation** (`sion_eval`, `packages/eval`) — Korean building-law gold set (44 questions)
+  over a 1,159-article statute corpus, recall/MRR/nDCG metrics, baseline retrievers and a CLI
+  (`python -m sion_eval.cli run`). Baseline: the current law search reaches recall@10 0.625;
+  BM25 over Hangul bigrams reaches 0.977. See `docs/EVALUATION.md`.
+- **Ontology-constrained model extraction** — `POST /api/v1/extract/relations/llm` asks any
+  OpenAI-compatible model for relations with a JSON schema generated from the live
+  `entity_types`/`relation_types`. Replies pass schema (one retry), verbatim-quote grounding,
+  curated-entity resolution and domain/range gates, and the survivors are stored as unverified
+  review candidates. Unknown names come back as `entity_suggestions`.
+  `GET /api/v1/extract/llm/schema` shows the schema and prompt. See `docs/EXTRACTION.md`.
+- **Law cross-references** (law-knowledge slice 3) — a rule extractor fills `law_articles.refs`
+  on ingest. It handles 법/영/규칙, 같은 법, 「…」, lists, ranges and 별표, and resolves 97.4% of
+  in-corpus references on the evaluation corpus. `GET /api/v1/law/articles/{law_id}/{article}/refs`
+  returns outgoing and incoming references as of a date, and `POST /api/v1/law/refs/rebuild`
+  backfills stored rows.
+- **Document parser router** (`sion_ingestion.parsers`) — picks a backend per file type:
+  HWP/HWPX and `.xls` through the kordoc CLI (MIT, first choice when installed), then
+  `hwp-hwpx-parser` (new `hwp` extra) or the built-in HWPX reader. Scanned PDFs and images go to
+  any OpenAI-compatible vision OCR endpoint such as PaddleOCR-VL (`SION_OCR_BASE_URL`,
+  `SION_OCR_MODEL`; page rendering from the new `ocr` extra), else to kordoc's built-in OCR.
+  Docling handles PPTX/XLSX/HTML. `SION_PARSER_PREFER=kordoc|docling` makes either parser the
+  first choice for PDF/DOCX too. See `docs/INGESTION.md`.
+- **Durable ingestion jobs** (upgrade phase 6) — with `SION_JOBS=on` (new `jobs` extra, DBOS
+  Transact), `POST /api/v1/jobs/ingest` queues one checkpointed workflow per file
+  (parse → load → relation candidates). The system database is the existing PostgreSQL or a
+  local SQLite file.
+  - Finished steps never re-run, and unfinished workflows resume after a crash.
+  - Parsing retries transient errors, and unreadable files end as skips.
+  - `…/retry` re-runs a failed job from its first failed step.
+  - Concurrency is limited per process. `sion-worker` adds worker processes.
+  - Tested on SQLite and PostgreSQL 16. See `docs/JOBS.md`.
+- **Hosted sign-in and billing (phase 7a)** — OIDC access-token verification (Supabase Auth by
+  default, any JWKS issuer) as `Principal(kind="user")` with fail-closed project claims,
+  `GET /api/v1/me`, a signature-verified, idempotent and order-safe Paddle Billing webhook, and
+  `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
+- **Plan entitlements** — `SION_PLAN_SCOPES_JSON` maps Paddle price ids to extra API scopes for
+  signed-in users with an active subscription; cached 60 s and cleared on every billing webhook.
+- **Projects and members** — signed-in users create projects (`POST /api/v1/projects`), invite
+  members with one-time, expiring, optionally email-bound tokens and manage `owner` / `editor` /
+  `viewer` roles. Membership lives in `migrations/011_project_members.sql` and is merged into the
+  project ACL on every request; viewers are read-only. See `docs/SAAS.md`.
+- **Project uploads and edits** — `POST/GET /api/v1/projects/{id}/documents` (raw-body upload,
+  size-limited, content-addressed per project, ingested with `properties.project_id`) and
+  `PATCH /api/v1/entities/{id}` (merge-patch edit) for project members with `write:knowledge`.
+
+### Changed
+
+- **GraphRAG graph backend** — with `SION_GRAPHRAG_STORAGE=postgres`, LightRAG now stores its graph in
+  plain tables (`PGTableGraphStorage`) instead of Apache AGE (`PGGraphStorage`). LightRAG 1.5.7 refuses
+  the AGE backend on AGE 1.8.0+. Existing deployments keep their data by running
+  `python -m lightrag.tools.migrate_graph_storage --apply` once, or rebuild with
+  `POST /api/v1/graphrag/project`; `SION_GRAPHRAG_GRAPH_BACKEND=age` restores the old backend.
+  `GET /api/v1/graphrag/status` reports the active `graph_storage`. See `docs/GRAPHRAG.md`.
+- Document ingest skips now say why: an image without an OCR endpoint, or a scanned PDF, names
+  the settings that enable OCR instead of `unsupported type` / `OCR is not performed`.
+- Built-in DOCX/HWPX readers refuse XML members over 64 MB uncompressed and use defusedxml when
+  it is installed.
+- **Project-scoped knowledge reads** — `GET /api/v1/entities`, `/entities/{id}`, `/relations` and
+  `/graph` now accept project-restricted callers (OIDC users, project tokens) and filter to their
+  projects (`properties.project_id`), with an optional `project_id` filter for everyone. Law search
+  and the ontology schema are marked shared reference data. See `docs/API_AUTH.md`.
+- **Project-scoped knowledge writes** — entity, relation, relation-invalidate and evidence writes
+  accept project-restricted callers and keep them inside their projects (404 otherwise; no new
+  `Project` entities, no moving entities between projects).
+- **Project-scoped review queue and evidence** — `/api/v1/relations/candidates*` and
+  `GET /api/v1/evidence` accept project-restricted callers and show or decide only what lies
+  inside their projects (optional `project_id` filter for everyone); signed-in reviewers are
+  recorded by account.
+- **Project-scoped vector search** — `POST /api/v1/vector/search` and `POST /api/v1/embeddings`
+  accept project-restricted callers and stay inside their projects (entities, and chunks via
+  `documents.entity_id`); the search takes an optional `project_id`.
+- **Sion Console (phase 7b)** — Next.js 16 web app in `apps/console`: Supabase magic-link sign-in
+  via `proxy.ts`, account/subscription dashboard calling the API server-side, Paddle checkout.
+- **Console search** — `/projects` (the user's project entities and relations) and `/search`
+  (law search with a reference date) in `apps/console`.
+
+### Fixed
+
+- **Law-article table in PostgreSQL** — `migrations/008_law_articles.sql` was never applied by
+  `sion-migrate`, so `/api/v1/law/*` had no table on a migrated database. It is now in the core
+  sequence, and a test fails if a migration file is left out again.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

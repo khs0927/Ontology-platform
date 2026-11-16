@@ -18,7 +18,13 @@ from sion_core.contracts import validate
 from sqlalchemy import select
 
 from . import models
-from .auth import allowed_projects, current_principal, project_scoped, require_project_access
+from .auth import (
+    allowed_projects,
+    current_principal,
+    project_scoped,
+    require_project_access,
+    require_project_write,
+)
 
 TaskText = Annotated[str, Field(min_length=1, max_length=1000)]
 
@@ -155,7 +161,7 @@ def register(app, get_session, read, write, client=None):
 
     @app.post("/api/v1/regulation/works", dependencies=[Depends(write_project)])
     async def save(payload: WorkSave, request: Request, session=Depends(get_session)):
-        require_project_access(request, payload.project_id)
+        require_project_write(request, payload.project_id)
         project = session.get(models.Entity, payload.project_id)
         if project is None or project.entity_type_id != "Project":
             raise HTTPException(404, "project not found")

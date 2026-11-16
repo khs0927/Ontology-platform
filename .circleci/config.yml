@@ -6,6 +6,15 @@ jobs:
   pytest:
     docker:
       - image: cimg/python:3.12
+      # The image's SQLite (3.37) is older than DBOS needs for a SQLite system database,
+      # so the durable-jobs tests run against PostgreSQL here (tests/test_ingest_jobs.py).
+      - image: cimg/postgres:16.4
+        environment:
+          POSTGRES_USER: sion
+          POSTGRES_PASSWORD: sion
+          POSTGRES_DB: sion_test
+    environment:
+      SION_TEST_JOBS_POSTGRES_URL: postgresql+psycopg://sion:sion@localhost:5432/sion_test
     steps:
       - checkout
       - run:
@@ -13,6 +22,21 @@ jobs:
           command: |
             python -m pip install --upgrade pip
             python -m pip install -e ".[all,test,dev]"
+      - run:
+          name: Wait for PostgreSQL
+          # CircleCI 2.1 treats << as a parameter tag; \<< is its escape for a literal heredoc.
+          command: |
+            python - \<<'PY'
+            import time, psycopg
+            for _ in range(60):
+                try:
+                    psycopg.connect("postgresql://sion:sion@localhost:5432/sion_test").close()
+                    break
+                except psycopg.OperationalError:
+                    time.sleep(1)
+            else:
+                raise SystemExit("PostgreSQL did not start")
+            PY
       - run:
           name: Run tests
           command: |

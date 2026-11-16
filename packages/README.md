@@ -16,6 +16,7 @@ need them (`sion_core.require()` gives an actionable error naming the extra).
 | `cair/` | `sion_cair` | read-only AEC/CAIR federation over MCP stdio; `SION_AEC_ONTOLOGY_ROOT=bundled` runs the in-repo `aec_intelligence` | – |
 | `aec/` | `aec_intelligence` | khs0927/Ontology AEC engine: DXF/IFC/PDF/raster adapters, CAIR, classifier, compliance, MCP gateway, operational stack. Merged with full history via `git subtree` (binary blobs excluded) | `cad`, `bim` (+ its own extras, see `packages/aec/pyproject.toml`) |
 | `drive-store/` | `sion_drive_store` | content-addressed artifact lake, Drive publish (one-way, backup-before-replace into `.history/`) and service-account upload | `drive` |
+| `eval/` | `sion_eval` | retrieval evaluation: building-law gold set, metrics, baseline retrievers ([docs/EVALUATION.md](../docs/EVALUATION.md)) | – |
 | `graphrag/` | `sion_graphrag` | LightRAG GraphRAG projection, Apache AGE projection | `rag` |
 | `regulation/` (docs only) | `archontos` — **external dependency**, not vendored | ArchOntos regulation fabric: evidence, assertions + review, rule DSL compiler/evaluator, outbox, RLS. Installed from khs0927/ArchOntos at the commit pinned in `pyproject.toml` ([regulation/README.md](regulation/README.md)) | `regulation` |
 

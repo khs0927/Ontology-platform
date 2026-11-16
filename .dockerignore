@@ -1,0 +1,18 @@
+# Build context for deploy/api.Dockerfile: source only, never local state or secrets.
+.git
+.github
+.venv
+**/__pycache__
+**/*.py[cod]
+**/node_modules
+**/.next
+*.egg-info
+.pytest_cache
+.env
+.env.*
+*.pem
+*.key
+runtime/
+apps/console/
+packages/aec/tests/
+packages/aec/.env*

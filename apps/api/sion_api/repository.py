@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, false, or_, select, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -132,10 +132,42 @@ def create_evidence(session: Session, payload: EvidenceCreate) -> models.Evidenc
     return row
 
 
-def list_entities(session: Session, *, limit: int, offset: int) -> list[models.Entity]:
+def in_projects(projects: frozenset[str] | None):
+    """SQL condition: the entity is one of ``projects`` or belongs to one.
+
+    Membership is the ``properties.project_id`` convention used by regulation works and
+    project-scoped ingest. ``None`` means unrestricted (no condition).
+    """
+    if projects is None:
+        return true()
+    ids = sorted(projects)
+    if not ids:
+        return false()
+    return or_(
+        models.Entity.id.in_([uuid.UUID(p) for p in ids]),
+        models.Entity.properties["project_id"].as_string().in_(ids),
+    )
+
+
+def _scoped_entity_ids(projects: frozenset[str]):
+    return select(models.Entity.id).where(in_projects(projects))
+
+
+def relation_in_projects(projects: frozenset[str] | None):
+    """Both endpoints must be visible, so an edge never reveals an entity outside the scope."""
+    if projects is None:
+        return true()
+    visible = _scoped_entity_ids(projects)
+    return and_(models.Relation.source_entity_id.in_(visible), models.Relation.target_entity_id.in_(visible))
+
+
+def list_entities(
+    session: Session, *, limit: int, offset: int, projects: frozenset[str] | None = None
+) -> list[models.Entity]:
     return list(
         session.scalars(
             select(models.Entity)
+            .where(in_projects(projects))
             .order_by(models.Entity.created_at, models.Entity.id)
             .offset(offset)
             .limit(limit)
@@ -150,11 +182,12 @@ def list_relations(
     offset: int,
     at: datetime | None = None,
     active_only: bool = False,
+    projects: frozenset[str] | None = None,
 ) -> list[models.Relation]:
     effective_at = at or (datetime.now(timezone.utc) if active_only else None)
     if effective_at is not None:
         effective_at = _utc_datetime(effective_at)
-    statement = select(models.Relation)
+    statement = select(models.Relation).where(relation_in_projects(projects))
     if effective_at is not None:
         statement = statement.where(_relation_valid_at(effective_at))
     return list(
@@ -195,11 +228,19 @@ def invalidate_relation(
 
 
 def list_evidence(
-    session: Session, *, limit: int, offset: int
+    session: Session, *, limit: int, offset: int, projects: frozenset[str] | None = None
 ) -> list[models.Evidence]:
+    """With ``projects``: only evidence whose entity and relation (whichever are set) are visible."""
+    statement = select(models.Evidence)
+    if projects is not None:
+        visible_relations = select(models.Relation.id).where(relation_in_projects(projects))
+        statement = statement.where(
+            or_(models.Evidence.entity_id.is_(None), models.Evidence.entity_id.in_(_scoped_entity_ids(projects))),
+            or_(models.Evidence.relation_id.is_(None), models.Evidence.relation_id.in_(visible_relations)),
+        )
     return list(
         session.scalars(
-            select(models.Evidence)
+            statement
             .order_by(models.Evidence.created_at, models.Evidence.id)
             .offset(offset)
             .limit(limit)
@@ -213,10 +254,11 @@ def get_graph(
     limit: int,
     at: datetime | None = None,
     active_only: bool = False,
+    projects: frozenset[str] | None = None,
 ):
     nodes = list(
         session.scalars(
-            select(models.Entity).order_by(models.Entity.created_at).limit(limit)
+            select(models.Entity).where(in_projects(projects)).order_by(models.Entity.created_at).limit(limit)
         )
     )
     node_ids = {node.id for node in nodes}

@@ -7,7 +7,7 @@ from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 from sion_bim.ifc import ifcopenshell_available, ingest_ifc
@@ -20,16 +20,20 @@ from sion_ingestion.project_contracts import (
     ProjectContractCatalog,
     ProjectContractCatalogError,
 )
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from . import (
     __version__,
+    billing,
     law_knowledge,
     models,
     nvidia_auto_ontology,
     ops,
     outbox,
     project_summary,
+    project_writes,
+    projects,
     regulation,
     regulation_review,
     regulation_workspace,
@@ -38,7 +42,18 @@ from . import (
     schemas,
     vector_repository,
 )
-from .auth import AuthPolicy, install_openapi_security, project_scoped, require_scope
+from .auth import (
+    AuthPolicy,
+    allowed_projects,
+    current_principal,
+    install_openapi_security,
+    project_scoped,
+    require_project_access,
+    require_project_write,
+    require_scope,
+    shared_reference,
+    writable_projects,
+)
 from .config import Settings, load_settings
 from .db import Base, build_engine, build_session_factory, session_dependency
 from .drive_export import DriveExporter, install_export_on_write
@@ -56,6 +71,7 @@ def create_app(
     regulation_transport=None,
     review_require_version: bool | None = None,
     nvidia_transport=None,
+    jobs: bool | None = None,
 ) -> FastAPI:
     settings: Settings = load_settings()
     if review_require_version is not None:
@@ -101,13 +117,33 @@ def create_app(
 
     auth_policy = auth_policy or AuthPolicy.from_env()
     auth_policy = replace(auth_policy, trusted_origins=settings.cors_origins)
+    # Paid-plan scopes for signed-in users (SION_PLAN_SCOPES_JSON); off without OIDC or plans.
+    plans = billing.PlanCatalog.from_env()
+    app.state.entitlements = None
+    if auth_policy.oidc is not None and plans and auth_policy.entitlements is None:
+        app.state.entitlements = billing.EntitlementResolver(factory, plans)
+        auth_policy = replace(auth_policy, entitlements=app.state.entitlements)
+    # Project memberships for signed-in users (sion_api.projects); off without OIDC.
+    app.state.memberships = None
+    if auth_policy.oidc is not None and auth_policy.memberships is None:
+        app.state.memberships = projects.MembershipResolver(factory)
+        auth_policy = replace(auth_policy, memberships=app.state.memberships)
     app.state.auth_policy = auth_policy
     read_knowledge = require_scope(auth_policy, "read:knowledge")
     write_knowledge = require_scope(auth_policy, "write:knowledge")
     read_aec = require_scope(auth_policy, "read:aec")
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
     regulation_review.register(app, factory, get_session, read_knowledge, write_knowledge)
-    law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
+    # Published law text is the same for every tenant, so project-restricted users may read it.
+    law_knowledge.register(app, get_session, shared_reference(read_knowledge), write_knowledge)
+    # Knowledge reads that filter to the caller's projects themselves (see _project_filter).
+    read_project = project_scoped(read_knowledge)
+    # Knowledge writes that check the caller's projects themselves (see project_writes).
+    write_project = project_scoped(write_knowledge)
+    project_writes.register(app, get_session, write_project, read_project)
+    projects.register(app, get_session, read_project, write_project, read_project, app.state.memberships)
+    # /me routes return only the caller's own data, so project-restricted users may reach them.
+    billing.register(app, get_session, project_scoped(read_knowledge))
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
     nvidia_auto_ontology.register(app, read_knowledge, transport=nvidia_transport)
 
@@ -129,7 +165,7 @@ def create_app(
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
         allow_credentials=False,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
     # Outermost: one JSON access-log line per request; headers/query strings are never logged.
@@ -150,7 +186,19 @@ def create_app(
         """Installed optional extras (cad, bim, rag, drive). Uses find_spec only."""
         return {"version": __version__, "extras": extras_report()}
 
-    @app.get("/api/v1/schema/ontology", response_class=PlainTextResponse, dependencies=[Depends(read_knowledge)])
+    def _project_filter(request: Request, project_id: uuid.UUID | None) -> frozenset[str] | None:
+        """Projects this request may see: the caller's ACL, narrowed by an optional ``project_id``."""
+        allowed = allowed_projects(request)
+        if project_id is None:
+            return allowed
+        require_project_access(request, project_id)
+        return frozenset({str(project_id)})
+
+    @app.get(
+        "/api/v1/schema/ontology",
+        response_class=PlainTextResponse,
+        dependencies=[Depends(shared_reference(read_knowledge))],
+    )
     def ontology_schema():
         path: Path = settings.ontology_path
         if not path.exists():
@@ -168,12 +216,14 @@ def create_app(
         "/api/v1/entities",
         response_model=schemas.EntityRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_entity(
+        request: Request,
         payload: schemas.EntityCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_entity_create(request, payload)
         try:
             return repository.create_entity(session, payload)
         except repository.MissingReferenceError as exc:
@@ -181,21 +231,28 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/entities", response_model=list[schemas.EntityRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/entities", response_model=list[schemas.EntityRead], dependencies=[Depends(read_project)])
     def list_entities(
+        request: Request,
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
+        project_id: uuid.UUID | None = Query(default=None, description="Only this project and its members"),
         session: Session = Depends(get_session),
     ):
-        return repository.list_entities(session, limit=limit, offset=offset)
+        projects = _project_filter(request, project_id)
+        return repository.list_entities(session, limit=limit, offset=offset, projects=projects)
 
-    @app.get("/api/v1/entities/{entity_id}", response_model=schemas.EntityRead, dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/entities/{entity_id}", response_model=schemas.EntityRead, dependencies=[Depends(read_project)])
     def get_entity(
+        request: Request,
         entity_id: uuid.UUID,
         session: Session = Depends(get_session),
     ):
-        row = session.get(models.Entity, entity_id)
-        if row is None:
+        projects = allowed_projects(request)
+        row = session.scalar(
+            select(models.Entity).where(models.Entity.id == entity_id, repository.in_projects(projects))
+        )
+        if row is None:  # also for entities outside the caller's projects: no probing
             raise HTTPException(status_code=404, detail="entity not found")
         return row
 
@@ -203,12 +260,14 @@ def create_app(
         "/api/v1/relations",
         response_model=schemas.RelationRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_relation(
+        request: Request,
         payload: schemas.RelationCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_entities_visible(session, request, payload.source_entity_id, payload.target_entity_id, write=True)
         try:
             return repository.create_relation(session, payload)
         except repository.MissingReferenceError as exc:
@@ -216,8 +275,10 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/relations", response_model=list[schemas.RelationRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/relations", response_model=list[schemas.RelationRead], dependencies=[Depends(read_project)])
     def list_relations(
+        request: Request,
+        project_id: uuid.UUID | None = Query(default=None, description="Only relations inside this project"),
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         at: datetime | None = Query(default=None, description="Return relations valid at this instant"),
@@ -230,18 +291,21 @@ def create_app(
             offset=offset,
             at=at,
             active_only=active_only,
+            projects=_project_filter(request, project_id),
         )
 
     @app.post(
         "/api/v1/relations/{relation_id}/invalidate",
         response_model=schemas.RelationRead,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def invalidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.RelationInvalidate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return repository.invalidate_relation(session, relation_id, payload)
         except repository.MissingReferenceError as exc:
@@ -250,17 +314,27 @@ def create_app(
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     # --- candidate relations: review queue ---------------------------------------
-    @app.get("/api/v1/relations/candidates", dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/relations/candidates", dependencies=[Depends(read_project)])
     def list_candidate_relations(
+        request: Request,
         status: str = Query(default="pending", pattern="^(pending|approved|rejected|all)$"),
+        project_id: uuid.UUID | None = Query(default=None, description="Only candidates inside this project"),
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         session: Session = Depends(get_session),
     ):
-        return review.list_candidates(session, status=status, limit=limit, offset=offset)
+        return review.list_candidates(
+            session, status=status, limit=limit, offset=offset, projects=_project_filter(request, project_id)
+        )
 
-    @app.get("/api/v1/relations/candidates/{relation_id}", dependencies=[Depends(read_knowledge)])
-    def get_candidate_relation(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+    def _reviewer(request: Request, claimed: str | None) -> str | None:
+        """Signed-in reviewers are recorded by their account, never by a name they typed."""
+        principal = current_principal(request)
+        return f"user:{principal.subject}" if principal.kind == "user" and principal.subject else claimed
+
+    @app.get("/api/v1/relations/candidates/{relation_id}", dependencies=[Depends(read_project)])
+    def get_candidate_relation(request: Request, relation_id: uuid.UUID, session: Session = Depends(get_session)):
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             row = review.get_candidate(session, relation_id)
         except LookupError as exc:
@@ -291,13 +365,16 @@ def create_app(
         review.LowTrustConfirmationRequired,
     )
 
-    def _decide(relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool):
+    def _decide(
+        request: Request, relation_id: uuid.UUID, payload: schemas.CandidateDecision, session: Session, approve: bool
+    ):
+        project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return review.decide(
                 session,
                 relation_id,
                 approve=approve,
-                reviewer=payload.reviewer,
+                reviewer=_reviewer(request, payload.reviewer),
                 note=payload.note,
                 expected_version=payload.expected_version,
                 confirm_low_trust=payload.confirm_low_trust,
@@ -307,16 +384,29 @@ def create_app(
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_knowledge)])
-    def bulk_decide_candidate_relations(payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)):
-        """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item."""
+    @app.post("/api/v1/relations/candidates/bulk", dependencies=[Depends(write_project)])
+    def bulk_decide_candidate_relations(
+        request: Request, payload: schemas.BulkCandidateDecision, session: Session = Depends(get_session)
+    ):
+        """Approve/reject an explicit id list; per-id results, idempotent, same audit trail as per-item.
+
+        Project-restricted callers: every well-formed id must be a relation inside their projects,
+        otherwise the whole request answers 404 and nothing is decided.
+        """
+        if allowed_projects(request) is not None:
+            for raw in payload.ids:
+                try:
+                    relation_id = uuid.UUID(raw)
+                except ValueError:
+                    continue  # reported per item as invalid by decide_bulk
+                project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return review.decide_bulk(
                 session,
                 payload.ids,
                 approve=payload.decision == "approve",
                 note=payload.note,
-                reviewer=payload.reviewer,
+                reviewer=_reviewer(request, payload.reviewer),
                 expected_versions=payload.expected_versions,
                 confirm_low_trust=payload.confirm_low_trust,
                 dry_run=payload.dry_run,
@@ -325,16 +415,18 @@ def create_app(
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.get("/api/v1/relations/candidates/{relation_id}/audit", dependencies=[Depends(read_knowledge)])
-    def candidate_relation_audit(relation_id: uuid.UUID, session: Session = Depends(get_session)):
+    @app.get("/api/v1/relations/candidates/{relation_id}/audit", dependencies=[Depends(read_project)])
+    def candidate_relation_audit(request: Request, relation_id: uuid.UUID, session: Session = Depends(get_session)):
         """Replayable decision log of one candidate (and whether replaying it reproduces the stored state)."""
+        project_writes.check_relation_visible(session, request, relation_id)
         try:
             return review.audit(session, relation_id)
         except review_errors as exc:
             raise _review_error(exc) from exc
 
-    @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/relations/candidates/{relation_id}/approve", dependencies=[Depends(write_project)])
     def approve_candidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
@@ -344,30 +436,33 @@ def create_app(
         The decision also casts one reversible vote on the candidate's extraction rule or guideline
         predicate. That vote can change only the ranking score of later candidates.
         """
-        return _decide(relation_id, payload or schemas.CandidateDecision(), session, True)
+        return _decide(request, relation_id, payload or schemas.CandidateDecision(), session, True)
 
-    @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/relations/candidates/{relation_id}/reject", dependencies=[Depends(write_project)])
     def reject_candidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.CandidateDecision | None = None,
         session: Session = Depends(get_session),
     ):
         """Record a review rejection; the candidate and its evidence are kept (rejected), never deleted."""
-        return _decide(relation_id, payload or schemas.CandidateDecision(), session, False)
+        return _decide(request, relation_id, payload or schemas.CandidateDecision(), session, False)
 
-    @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/relations/candidates/{relation_id}/reopen", dependencies=[Depends(write_project)])
     def reopen_candidate_relation(
+        request: Request,
         relation_id: uuid.UUID,
         payload: schemas.CandidateReopen,
         session: Session = Depends(get_session),
     ):
         """Return an approved/rejected candidate to pending (note required; the reverted decision stays on record)."""
+        project_writes.check_relation_visible(session, request, relation_id, write=True)
         try:
             return review.reopen(
                 session,
                 relation_id,
                 note=payload.note,
-                reviewer=payload.reviewer,
+                reviewer=_reviewer(request, payload.reviewer),
                 expected_version=payload.expected_version,
                 dry_run=payload.dry_run,
                 require_version=settings.review_require_version,
@@ -405,12 +500,15 @@ def create_app(
         "/api/v1/evidence",
         response_model=schemas.EvidenceRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_evidence(
+        request: Request,
         payload: schemas.EvidenceCreate,
         session: Session = Depends(get_session),
     ):
+        project_writes.check_entities_visible(session, request, payload.entity_id, write=True)
+        project_writes.check_relation_visible(session, request, payload.relation_id, write=True)
         try:
             return repository.create_evidence(session, payload)
         except repository.MissingReferenceError as exc:
@@ -418,16 +516,22 @@ def create_app(
         except repository.ConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead], dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/evidence", response_model=list[schemas.EvidenceRead], dependencies=[Depends(read_project)])
     def list_evidence(
+        request: Request,
+        project_id: uuid.UUID | None = Query(default=None, description="Only evidence inside this project"),
         limit: int = Query(default=100, ge=1, le=1000),
         offset: int = Query(default=0, ge=0),
         session: Session = Depends(get_session),
     ):
-        return repository.list_evidence(session, limit=limit, offset=offset)
+        return repository.list_evidence(
+            session, limit=limit, offset=offset, projects=_project_filter(request, project_id)
+        )
 
-    @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_knowledge)])
+    @app.get("/api/v1/graph", response_model=schemas.GraphResponse, dependencies=[Depends(read_project)])
     def graph(
+        request: Request,
+        project_id: uuid.UUID | None = Query(default=None, description="Only this project's subgraph"),
         limit: int = Query(default=500, ge=1, le=5000),
         at: datetime | None = Query(default=None, description="Return graph edges valid at this instant"),
         active_only: bool = Query(default=False, description="Return graph edges valid now; ignored when at is supplied"),
@@ -439,6 +543,7 @@ def create_app(
             limit=limit,
             at=at,
             active_only=active_only,
+            projects=_project_filter(request, project_id),
         )
         if not include_rejected:
             edges = [edge for edge in edges if edge.verification_state != "rejected"]
@@ -498,13 +603,21 @@ def create_app(
         "/api/v1/embeddings",
         response_model=schemas.EmbeddingRead,
         status_code=201,
-        dependencies=[Depends(write_knowledge)],
+        dependencies=[Depends(write_project)],
     )
     def create_embedding(
+        request: Request,
         payload: schemas.EmbeddingCreate,
         session: Session = Depends(get_session),
     ):
         try:
+            projects = allowed_projects(request)
+            if projects is not None:
+                vector_repository.require_pgvector(session)
+                if not vector_repository.target_in_projects(session, payload, projects):
+                    raise HTTPException(status_code=404, detail="embedding target not found")
+                if not vector_repository.target_in_projects(session, payload, writable_projects(request)):
+                    raise HTTPException(status_code=403, detail="read-only access to this project")
             return vector_repository.create_embedding(session, payload)
         except vector_repository.VectorBackendUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -516,14 +629,18 @@ def create_app(
     @app.post(
         "/api/v1/vector/search",
         response_model=schemas.VectorSearchResponse,
-        dependencies=[Depends(read_knowledge)],
+        dependencies=[Depends(read_project)],
     )
     def vector_search(
+        request: Request,
         payload: schemas.VectorSearchRequest,
         session: Session = Depends(get_session),
     ):
+        projects = _project_filter(request, payload.project_id)
+        if projects is not None and not projects:
+            return schemas.VectorSearchResponse(hits=[], count=0)
         try:
-            hits = vector_repository.search_vectors(session, payload)
+            hits = vector_repository.search_vectors(session, payload, projects)
         except vector_repository.VectorBackendUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         return schemas.VectorSearchResponse(
@@ -607,6 +724,26 @@ def create_app(
             raise HTTPException(status_code=503, detail="GraphRAG layer is not configured")
         return graphrag
 
+    async def graphrag_for(request: Request, project_id: uuid.UUID | None, *, write: bool = False) -> SionGraphRag:
+        """Base engine for unrestricted callers without a project; else that project's workspace.
+
+        A project-restricted caller must name a project on its ACL (404 otherwise), so the
+        shared workspace, which spans every project, is never answered to it.
+        """
+        engine = require_graphrag()
+        if project_id is None:
+            if allowed_projects(request) is not None:
+                raise HTTPException(status_code=422, detail="project_id is required for project-scoped access")
+            return engine
+        if write:
+            require_project_write(request, project_id)  # viewers may query, never rebuild
+        else:
+            require_project_access(request, project_id)
+        try:
+            return await engine.for_project(project_id)
+        except GraphRagUnavailable as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+
     @app.get("/api/v1/storage/status", dependencies=[Depends(read_knowledge)])
     def storage_status():
         if drive_exporter is None:
@@ -659,33 +796,42 @@ def create_app(
             "canonical": False,
             "engine": "lightrag",
             "storage": config.storage,
+            "graph_storage": config.storages["graph_storage"],
             "workspace": config.workspace,
             "embedding_model": config.embedding_model,
             "answers_enabled": config.answers_enabled,
         }
 
-    @app.post("/api/v1/graphrag/project", dependencies=[Depends(write_knowledge)])
+    @app.post("/api/v1/graphrag/project", dependencies=[Depends(project_scoped(write_knowledge))])
     async def graphrag_project(
+        request: Request,
         include_rejected: bool = Query(
             default=False, description="Preview the audit projection, including /review-rejected relations, without indexing"
         ),
+        project_id: uuid.UUID | None = Query(default=None, description="Project into this project's own workspace"),
     ):
-        engine = require_graphrag()
+        engine = await graphrag_for(request, project_id, write=not include_rejected)
         try:
             counts = await engine.project(factory, include_rejected=include_rejected)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         result_key = "preview" if include_rejected else "written"
-        return {"canonical": False, result_key: counts, "include_rejected": include_rejected}
+        return {
+            "canonical": False,
+            result_key: counts,
+            "include_rejected": include_rejected,
+            "workspace": engine.config.workspace,
+            "project_id": engine.project_id,
+        }
 
-    @app.post("/api/v1/graphrag/query", dependencies=[Depends(read_knowledge)])
-    async def graphrag_query(payload: schemas.GraphRagQuery):
-        engine = require_graphrag()
+    @app.post("/api/v1/graphrag/query", dependencies=[Depends(project_scoped(read_knowledge))])
+    async def graphrag_query(request: Request, payload: schemas.GraphRagQuery):
+        engine = await graphrag_for(request, payload.project_id)
         try:
             result = await engine.query(payload.question, mode=payload.mode, top_k=payload.top_k)
         except GraphRagUnavailable as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
-        return {"canonical": False, **result}
+        return {"canonical": False, "project_id": engine.project_id, **result}
 
     @app.get("/review")
     def review_page():
@@ -734,6 +880,75 @@ def create_app(
         if path.suffix.lower() not in suffixes or not path.is_file():
             raise HTTPException(status_code=422, detail=f"{label} file required")
         return path
+
+    # --- durable ingestion jobs (DBOS, `jobs` extra) -------------------------------
+    jobs_enabled = jobs if jobs is not None else os.getenv("SION_JOBS", "").strip().lower() in {"1", "on", "true"}
+    if jobs_enabled:
+        import anyio
+        from sion_ingestion import jobs as ingest_jobs
+
+        async def _start_jobs() -> None:  # DBOS setup is blocking; keep it off the event loop
+            await anyio.to_thread.run_sync(lambda: ingest_jobs.start(
+                factory, database_url=ingest_jobs.system_database_url(settings.database_url)))
+
+        async def _stop_jobs() -> None:
+            await anyio.to_thread.run_sync(ingest_jobs.stop)
+
+        app.router.on_startup.append(_start_jobs)
+        app.router.on_shutdown.append(_stop_jobs)
+
+    def _jobs_module():
+        from sion_ingestion import jobs as ingest_jobs
+
+        if not jobs_enabled or not ingest_jobs.started():
+            raise HTTPException(503, "ingestion jobs are off: set SION_JOBS=on (and install the jobs extra)")
+        return ingest_jobs
+
+    @app.post("/api/v1/jobs/ingest", status_code=202, dependencies=[Depends(write_knowledge)])
+    def enqueue_ingest_jobs(payload: schemas.IngestJobRequest):
+        """Queue one durable workflow per file (parse -> load -> relation candidates)."""
+        ingest_jobs = _jobs_module()
+        paths = [resolve_ingest_path(item) for item in payload.paths]
+        return {"jobs": ingest_jobs.enqueue(paths, extract_relations=payload.extract_relations)}
+
+    @app.get("/api/v1/jobs", dependencies=[Depends(read_knowledge)])
+    def list_ingest_jobs(status: str | None = None, limit: int = Query(50, ge=1, le=500)):
+        return {"jobs": _jobs_module().list_jobs(status=status, limit=limit)}
+
+    @app.get("/api/v1/jobs/{job_id}", dependencies=[Depends(read_knowledge)])
+    def get_ingest_job(job_id: str):
+        found = _jobs_module().get(job_id)
+        if found is None:
+            raise HTTPException(404, "no such job")
+        return found
+
+    @app.post("/api/v1/jobs/{job_id}/cancel", dependencies=[Depends(write_knowledge)])
+    def cancel_ingest_job(job_id: str):
+        ingest_jobs = _jobs_module()
+        if ingest_jobs.get(job_id) is None:
+            raise HTTPException(404, "no such job")
+        ingest_jobs.cancel(job_id)
+        return ingest_jobs.get(job_id)
+
+    @app.post("/api/v1/jobs/{job_id}/resume", dependencies=[Depends(write_knowledge)])
+    def resume_ingest_job(job_id: str):
+        """Continue a cancelled job where it stopped."""
+        ingest_jobs = _jobs_module()
+        if ingest_jobs.get(job_id) is None:
+            raise HTTPException(404, "no such job")
+        ingest_jobs.resume(job_id)
+        return ingest_jobs.get(job_id)
+
+    @app.post("/api/v1/jobs/{job_id}/retry", status_code=202, dependencies=[Depends(write_knowledge)])
+    def retry_ingest_job(job_id: str):
+        """Re-run a failed job from its first failed step as a new job (finished steps are reused)."""
+        ingest_jobs = _jobs_module()
+        found = ingest_jobs.get(job_id)
+        if found is None:
+            raise HTTPException(404, "no such job")
+        if found["status"] not in ingest_jobs.TERMINAL:
+            raise HTTPException(409, "job is still running")
+        return {"job_id": ingest_jobs.retry(job_id), "retry_of": job_id}
 
     @app.post("/api/v1/ingest/documents", dependencies=[Depends(write_knowledge)])
     def ingest_document_route(payload: dict, session: Session = Depends(get_session)):
@@ -794,6 +1009,24 @@ def create_app(
             min_cooccurrence=payload.min_cooccurrence,
             include_cooccurrence=payload.include_cooccurrence,
         )
+
+    @app.get("/api/v1/extract/llm/schema", dependencies=[Depends(read_knowledge)])
+    def extract_llm_schema_route(session: Session = Depends(get_session)):
+        """The ontology-derived JSON schema and prompt the extraction model is held to."""
+        from sion_ingestion.llm_extraction import schema_preview
+
+        return schema_preview(session)
+
+    @app.post("/api/v1/extract/relations/llm", dependencies=[Depends(write_knowledge)])
+    def extract_relations_llm_route(payload: schemas.LlmExtractionRequest, session: Session = Depends(get_session)):
+        """Ontology-constrained model extraction -> gated, unverified review candidates (503 if unset)."""
+        from sion_ingestion.llm_extraction import LlmConfig, extract_with_llm
+
+        config = LlmConfig.from_env()
+        if config is None:
+            raise HTTPException(503, "set SION_EXTRACT_BASE_URL and SION_EXTRACT_MODEL to enable model extraction")
+        paths = [resolve_ingest_path(item) for item in payload.paths]
+        return extract_with_llm(session, paths, config)
 
     @app.post("/api/v1/import/graph-export", dependencies=[Depends(write_knowledge)])
     def import_graph_export_route(payload: schemas.GraphExportImportRequest, session: Session = Depends(get_session)):

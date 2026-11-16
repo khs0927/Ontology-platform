@@ -189,7 +189,7 @@ def test_ingest_api_reports_skipped_files_instead_of_failing(tmp_path):
         reasons = {Path(s["path"]).name: s["reason"] for s in body["skipped"]}
         assert set(reasons) == {"bad.docx", "scan.pdf", "image.png"}
         assert "DOCX could not be read" in reasons["bad.docx"]
-        assert reasons["image.png"] == "unsupported type .png"
+        assert "SION_OCR_BASE_URL" in reasons["image.png"]  # images need vision OCR (parsers.route)
         if is_available("pypdf"):
             assert "no extractable text" in reasons["scan.pdf"]
         else:

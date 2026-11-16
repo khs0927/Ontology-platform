@@ -1,0 +1,80 @@
+# Local stack: PostgreSQL + pgvector, one-shot migrations, Sion API.
+#
+#   cp deploy/compose.env.example .env   # then set SION_DB_PASSWORD and SION_API_TOKENS_JSON
+#   docker compose up -d --build
+#   curl -H "Authorization: Bearer <token>" http://127.0.0.1:8000/api/v1/graphrag/status
+#
+# GraphRAG (LightRAG on the same database, PGTableGraphStorage, per-project workspaces):
+#   SION_API_EXTRAS=rag and SION_GRAPHRAG_EMBED_MODEL / _DIM / _BASE_URL in .env.
+# Ports are published on loopback only. See docs/DEPLOY_LOCAL.md.
+name: sion
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.6-pg17
+    environment:
+      POSTGRES_DB: sion
+      POSTGRES_USER: sion
+      POSTGRES_PASSWORD: ${SION_DB_PASSWORD:?set SION_DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${SION_DB_PORT:-55433}:5432"
+    volumes:
+      - sion-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sion -d sion"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  migrate:
+    build: &api-build
+      context: .
+      dockerfile: deploy/api.Dockerfile
+      args:
+        EXTRAS: ${SION_API_EXTRAS:-}
+    image: sion-api:local
+    command: ["sion-migrate", "--dsn", "postgresql://sion:${SION_DB_PASSWORD}@db:5432/sion", "--skip-regulation"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: *api-build
+    image: sion-api:local
+    environment:
+      SION_DATABASE_URL: postgresql+psycopg://sion:${SION_DB_PASSWORD}@db:5432/sion
+      SION_AUTO_CREATE_SCHEMA: "false"
+      # Requests arrive through Docker's port forward, never from 127.0.0.1, so require tokens.
+      SION_API_AUTH_MODE: bearer
+      SION_API_TOKENS_JSON: ${SION_API_TOKENS_JSON:?set SION_API_TOKENS_JSON in .env}
+      SION_CORS_ORIGINS: ${SION_CORS_ORIGINS:-http://localhost:3000}
+      SION_GRAPHRAG_STORAGE: postgres
+      SION_GRAPHRAG_EMBED_MODEL: ${SION_GRAPHRAG_EMBED_MODEL:-}
+      SION_GRAPHRAG_EMBED_DIM: ${SION_GRAPHRAG_EMBED_DIM:-}
+      SION_GRAPHRAG_EMBED_BASE_URL: ${SION_GRAPHRAG_EMBED_BASE_URL:-}
+      SION_GRAPHRAG_EMBED_API_KEY: ${SION_GRAPHRAG_EMBED_API_KEY:-}
+      SION_GRAPHRAG_LLM_MODEL: ${SION_GRAPHRAG_LLM_MODEL:-}
+      SION_GRAPHRAG_LLM_BASE_URL: ${SION_GRAPHRAG_LLM_BASE_URL:-}
+      SION_GRAPHRAG_LLM_API_KEY: ${SION_GRAPHRAG_LLM_API_KEY:-}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: sion
+      POSTGRES_PASSWORD: ${SION_DB_PASSWORD}
+      POSTGRES_DATABASE: sion
+    ports:
+      - "127.0.0.1:${SION_API_PORT:-8000}:8000"
+    volumes:
+      - sion-runtime:/app/runtime
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  sion-pgdata:
+  sion-runtime:
