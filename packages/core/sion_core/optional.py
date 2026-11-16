@@ -23,6 +23,8 @@ EXTRAS: dict[str, tuple[str, ...]] = {
     "drive": ("googleapiclient", "google.oauth2"),
     "regulation": ("pydantic_settings", "asyncpg", "greenlet"),
     "documents": ("pypdf", "docx"),
+    "hwp": ("hwp_hwpx_parser",),
+    "ocr": ("pypdfium2",),
     "validation": ("rdflib", "pyshacl"),
 }
 
