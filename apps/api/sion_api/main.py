@@ -795,6 +795,24 @@ def create_app(
             include_cooccurrence=payload.include_cooccurrence,
         )
 
+    @app.get("/api/v1/extract/llm/schema", dependencies=[Depends(read_knowledge)])
+    def extract_llm_schema_route(session: Session = Depends(get_session)):
+        """The ontology-derived JSON schema and prompt the extraction model is held to."""
+        from sion_ingestion.llm_extraction import schema_preview
+
+        return schema_preview(session)
+
+    @app.post("/api/v1/extract/relations/llm", dependencies=[Depends(write_knowledge)])
+    def extract_relations_llm_route(payload: schemas.LlmExtractionRequest, session: Session = Depends(get_session)):
+        """Ontology-constrained model extraction -> gated, unverified review candidates (503 if unset)."""
+        from sion_ingestion.llm_extraction import LlmConfig, extract_with_llm
+
+        config = LlmConfig.from_env()
+        if config is None:
+            raise HTTPException(503, "set SION_EXTRACT_BASE_URL and SION_EXTRACT_MODEL to enable model extraction")
+        paths = [resolve_ingest_path(item) for item in payload.paths]
+        return extract_with_llm(session, paths, config)
+
     @app.post("/api/v1/import/graph-export", dependencies=[Depends(write_knowledge)])
     def import_graph_export_route(payload: schemas.GraphExportImportRequest, session: Session = Depends(get_session)):
         """Convert a Sites/HTML/D3/vis/Cytoscape/Mermaid/GraphML/JSON graph export and import it."""
