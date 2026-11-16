@@ -245,6 +245,29 @@ def test_callers_cannot_submit_collected_facts(api, forged):
     assert api.post(f"{ROOT}/{run}/resume", json=resume).status_code == 422
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "document.district_plan_decision",
+        "designation.query_complete",
+        "designation.district_unit_plan",
+        "legal.is_farmland",
+        "land.jimok",
+    ],
+)
+def test_claims_on_collection_only_paths_are_refused(api, path):
+    """Documents, designations, legal status and query completeness come only from collection."""
+
+    mine = project(api)
+    body = payload(mine, facts=[claim(path=path, value=True)])
+    refused = api.post(ROOT, json=body)
+    assert refused.status_code == 422
+    assert "resolved only by collection" in str(refused.json())
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    resume = {"project_id": mine, "facts": [claim(path=path, value=True)]}
+    assert api.post(f"{ROOT}/{run}/resume", json=resume).status_code == 422
+
+
 def test_submitted_node_state_is_ignored(api):
     mine = project(api)
     forged = [{"node_id": "land", "provider": "unconnected", "status": "completed"}]
@@ -256,6 +279,48 @@ def test_duplicate_fact_ids_are_a_client_error(api):
     mine = project(api)
     body = payload(mine, facts=[claim(), claim(value=True)])
     assert api.post(ROOT, json=body).status_code == 422
+
+
+def test_rejected_resume_leaves_no_output_less_revision(api):
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    first = {"project_id": mine, "facts": [claim(value=True)]}
+    assert api.post(f"{ROOT}/{run}/resume", json=first).status_code == 200
+    second = api.get(f"{ROOT}/{run}", params={"project_id": mine}).json()
+    corrected = {"project_id": mine, "facts": [claim(value=False)]}
+    assert api.post(f"{ROOT}/{run}/resume", json=corrected).status_code == 409
+    # The rejected supplement opened no revision and rewrote none.
+    assert api.get(f"{ROOT}/{run}", params={"project_id": mine}).json() == second
+    record = api.app_state.regulation_review_flow.store.load(run, 1)
+    assert "supplement" not in record.context
+    third = api.post(f"{ROOT}/{run}/resume", json={"project_id": mine})
+    assert third.status_code == 200 and third.json()["run_revision"] == 3
+    work = api.post(f"{ROOT}/{run}/works", json={"project_id": mine, "title": "t"})
+    assert work.status_code == 200
+
+
+def test_in_flight_run_is_neither_restarted_nor_resumed(api):
+    from datetime import UTC, datetime, timedelta
+
+    mine = project(api)
+    body = payload(mine, idempotency_key="k-in-flight")
+    run = api.post(ROOT, json=body).json()["run_id"]
+    store = api.app_state.regulation_review_flow.store
+    record = store.load(run)
+    # Another worker holds a live lease on a new revision that is still running.
+    record.run_revision += 1
+    record.output = None
+    record.status = record.status.RUNNING
+    record.lease_owner = "other-worker"
+    record.lease_expires_at = datetime.now(UTC) + timedelta(hours=1)
+    store.save(record)
+    retried = api.post(ROOT, json=body)
+    assert retried.status_code == 200
+    assert retried.json()["execution_status"] == "running"
+    assert store.load(run).lease_owner == "other-worker"
+    resumed = api.post(f"{ROOT}/{run}/resume", json={"project_id": mine})
+    assert resumed.status_code == 409
+    assert store.revisions(run) == [1, 2]
 
 
 def test_missing_regulation_extra_is_a_503(api, monkeypatch):
@@ -318,3 +383,165 @@ def test_scoped_projection_hides_other_projects_and_rejected():
 
         public_only = build_scoped_kg(session, ProjectionScope())
         assert {item["entity_name"] for item in public_only["entities"]} == {"law"}
+
+
+def test_scoped_projection_hides_other_project_entities_and_part_of_material():
+    """S25: a Project entity and anything reaching it only by PART_OF is that project's material."""
+
+    app = create_app(database_url="sqlite://", auto_create_schema=True)
+    with app.state.session_factory() as session:
+
+        def entity(key, kind="Document", **props):
+            row = models.Entity(stable_key=key, entity_type_id=kind, name=key, properties=props)
+            session.add(row)
+            session.flush()
+            return row
+
+        law = entity("law")
+        mine = entity("project:mine", kind="Project")
+        theirs = models.Entity(
+            stable_key="project:secret-client",
+            entity_type_id="Project",
+            name="비공개 고객 물류센터",
+            properties={"address": "서울 비공개 주소"},
+        )
+        session.add(theirs)
+        session.flush()
+        my_note = entity("my-note")
+        folder = entity("secret-folder")
+        secret_doc = entity("secret-doc")
+
+        def part_of(key, source, target, state="human_verified"):
+            session.add(
+                models.Relation(
+                    stable_key=key,
+                    source_entity_id=source.id,
+                    target_entity_id=target.id,
+                    relation_type_id="PART_OF",
+                    verification_state=state,
+                    source_kind="test",
+                )
+            )
+
+        part_of("my-note:project", my_note, mine)
+        part_of("folder:project", folder, theirs, state="rejected")
+        part_of("secret-doc:folder", secret_doc, folder)
+        part_of("secret-doc:law", secret_doc, law)
+        session.commit()
+
+        # The scope id may arrive in another UUID spelling; it still names the same project.
+        scoped = build_scoped_kg(session, ProjectionScope(project_id=str(mine.id).upper()))
+        names = {item["entity_name"] for item in scoped["entities"]}
+        assert names == {"law", "project:mine", "my-note"}
+        text = "\n".join(chunk["content"] for chunk in scoped["chunks"])
+        assert "비공개" not in text and "secret" not in text
+
+        public_only = build_scoped_kg(session, ProjectionScope())
+        assert {item["entity_name"] for item in public_only["entities"]} == {"law"}
+        assert public_only["relationships"] == []
+
+
+def work_rows(api):
+    from sion_api.regulation_review import WORK_CATEGORY
+
+    with api.app_state.session_factory() as session:
+        query = select(models.Entity).where(models.Entity.category == WORK_CATEGORY)
+        return session.scalars(query).all()
+
+
+def test_dry_run_save_has_no_side_effects(api):
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    body = {"project_id": mine, "title": "t", "notes": "draft"}
+    preview = api.post(f"{ROOT}/{run}/works", json={**body, "dry_run": True})
+    assert preview.status_code == 200 and preview.json()["saved"] is False
+    assert api.app_state.regulation_review_flow.outbox.pending() == []
+    assert work_rows(api) == []
+    # The user edits the notes after the preview; the real save goes through.
+    saved = api.post(f"{ROOT}/{run}/works", json={**body, "notes": "final"})
+    assert saved.status_code == 200, saved.text
+
+
+def test_resave_with_other_notes_conflicts_on_the_stored_row(api):
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    body = {"project_id": mine, "title": "t", "notes": "A"}
+    first = api.post(f"{ROOT}/{run}/works", json=body)
+    assert first.status_code == 200
+    other = {**body, "notes": "B"}
+    refused = api.post(f"{ROOT}/{run}/works", json=other)
+    assert refused.status_code == 409
+    assert refused.json() == {"detail": "this run revision was already saved with other content"}
+    # A restarted process has an empty outbox; the stored row still decides.
+    api.app_state.regulation_review_flow = flow(api.app_state.session_factory)
+    assert api.post(f"{ROOT}/{run}/works", json=other).status_code == 409
+    again = api.post(f"{ROOT}/{run}/works", json=body)
+    assert again.status_code == 200 and again.json()["work_id"] == first.json()["work_id"]
+    work = api.get(f"{ROOT}/works/{first.json()['work_id']}", params={"project_id": mine})
+    assert work.json()["notes"] == "A"
+
+
+def test_cancelled_run_is_refused_and_writes_no_row(api):
+    mine = project(api)
+    body = payload(mine, requested_sources=[{"node_id": "n", "provider": "no-executor"}])
+    run = api.post(ROOT, json=body).json()
+    assert run["execution_status"] == "partial"
+    cancel = api.post(f"{ROOT}/{run['run_id']}/cancel", json={"project_id": mine})
+    assert cancel.json()["execution_status"] == "cancelled"
+    for _ in range(2):
+        save = api.post(f"{ROOT}/{run['run_id']}/works", json={"project_id": mine, "title": "t"})
+        assert save.status_code == 409
+    assert work_rows(api) == []
+
+
+def test_saved_output_digest_matches_the_receipt(api):
+    from sion_regulation.review.model import canonical_digest
+
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    saved = api.post(f"{ROOT}/{run}/works", json={"project_id": mine, "title": "t"}).json()
+    work = api.get(f"{ROOT}/works/{saved['work_id']}", params={"project_id": mine}).json()
+    assert canonical_digest(work["output"]) == saved["receipt"]["digest"] == work["digest"]
+
+
+def test_idempotency_keys_are_scoped_per_project(api):
+    mine, other = project(api, "A"), project(api, "B")
+    first = api.post(ROOT, json=payload(mine, idempotency_key="k1"))
+    assert first.status_code == 200
+    second = api.post(ROOT, json=payload(other, idempotency_key="k1"))
+    assert second.status_code == 200, second.text
+    assert second.json()["run_id"] != first.json()["run_id"]
+    assert api.post(ROOT, json=payload(mine, idempotency_key="k1")).json() == first.json()
+
+
+def test_project_id_spelling_is_normalised(api):
+    mine = project(api)
+    variant = mine.replace("-", "").upper()
+    started = api.post(ROOT, json=payload(variant))
+    assert started.status_code == 200, started.text
+    assert started.json()["project_id"] == mine
+    run = started.json()["run_id"]
+    assert api.get(f"{ROOT}/{run}", params={"project_id": mine}).status_code == 200
+    assert api.get(f"{ROOT}/{run}", params={"project_id": variant}).status_code == 200
+    save = api.post(f"{ROOT}/{run}/works", json={"project_id": mine, "title": "t"})
+    assert save.status_code == 200, save.text
+    assert api.post(ROOT, json=payload(mine)).json()["run_id"] == run
+    assert api.post(ROOT + "/plan", json=payload(variant)).status_code == 200
+
+
+def test_resume_while_in_flight_is_a_fixed_409(api):
+    from datetime import UTC, datetime, timedelta
+
+    mine = project(api)
+    run = api.post(ROOT, json=payload(mine)).json()["run_id"]
+    store = api.app_state.regulation_review_flow.store
+    record = store.load(run)
+    record.run_revision += 1
+    record.output = None
+    record.status = record.status.RUNNING
+    record.lease_owner = "other-worker"
+    record.lease_expires_at = datetime.now(UTC) + timedelta(hours=1)
+    store.save(record)
+    resumed = api.post(f"{ROOT}/{run}/resume", json={"project_id": mine})
+    assert resumed.status_code == 409
+    assert resumed.json() == {"detail": "run is still in flight; retry later"}

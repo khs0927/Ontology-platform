@@ -436,7 +436,9 @@ def _coverage_row(
         )
     for document in item.required_documents:
         path = f"document.{document}"
-        if not facts.current(path, subject, day).known:
+        held = facts.current(path, subject, day)
+        # Only a collected document with evidence counts; a claimed one leaves the gap open.
+        if not held.evidenced or held.value is False:
             gaps.append(
                 builder.gap(
                     "missing_document",
@@ -453,6 +455,38 @@ def _coverage_row(
         state="unresolved" if gaps else "satisfied",
         candidate_ids=candidate_ids,
         unresolved_ids=gaps,
+    )
+
+
+def _ruled_out(facts: FactStore, code: str, subject: str, day: date) -> bool:
+    """An evidenced negative: the designation is collected as absent, or the query was complete."""
+
+    absent = facts.current(f"designation.{code}", subject, day)
+    if absent.evidenced and absent.value is False:
+        return True
+    complete = facts.current("designation.query_complete", subject, day)
+    return complete.evidenced and complete.value is True
+
+
+def _untriggered_row(
+    builder: _Builder, item: ChecklistItem, subject: str, code: str
+) -> CoverageItem:
+    """A mandatory row whose trigger is neither raised nor ruled out stays visible and open."""
+
+    gap = builder.gap(
+        "missing_fact",
+        f"{item.label}: 지정 {code} 여부 미확정 (조회 완전성 미확인은 부정 확인이 아님)",
+        subject=subject,
+        role="data_operator",
+        target=f"designation.{code}",
+    )
+    return CoverageItem(
+        checklist_id=item.checklist_id,
+        label=item.label,
+        subject=subject,
+        state="unresolved",
+        candidate_ids=[],
+        unresolved_ids=[gap],
     )
 
 
@@ -541,13 +575,16 @@ def generate_candidates(
         )
     subjects = _subjects(site, proposal)
     raised = _designation_candidates(builder, site, proposal, facts, links, catalog, day)
-    coverage = [
-        _coverage_row(builder, item, subject, site, facts, catalog, day)
-        for item in active.items
-        if _matches(item, proposal)
-        and (item.trigger_designation is None or item.trigger_designation in raised)
-        for subject in subjects
-    ]
+    coverage: list[CoverageItem] = []
+    for item in active.items:
+        if not _matches(item, proposal):
+            continue
+        code = item.trigger_designation
+        for subject in subjects:
+            if code is None or code in raised:
+                coverage.append(_coverage_row(builder, item, subject, site, facts, catalog, day))
+            elif item.mandatory and not _ruled_out(facts, code, subject, day):
+                coverage.append(_untriggered_row(builder, item, subject, code))
     _expand(builder, scope, catalog)
     _additive(builder, catalog, user_laws, CandidateSource.USER_SUPPLIED, subjects[0], "사용자")
     _additive(builder, catalog, hints, CandidateSource.EXTERNAL_HINT, subjects[0], "외부 힌트")

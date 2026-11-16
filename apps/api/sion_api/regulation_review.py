@@ -25,6 +25,7 @@ from . import models
 
 RUN_CATEGORY = "regulation_review_run"
 WORK_CATEGORY = "regulation_review_work"
+SAVED_ELSEWHERE = "this run revision was already saved with other content"
 
 
 class Resume(BaseModel):
@@ -170,6 +171,11 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         except ValueError as exc:
             raise HTTPException(422, "invalid review request") from exc
         refuse_collected_facts(request.facts)
+        # Every read compares against str(uuid.UUID(...)), so store the same canonical spelling.
+        try:
+            request.proposal.project_id = str(uuid.UUID(request.proposal.project_id))
+        except ValueError as exc:
+            raise HTTPException(404, "project not found") from exc
         return request
 
     def refuse_collected_facts(facts) -> None:
@@ -282,6 +288,7 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
         except ValueError as exc:
             raise HTTPException(422, "invalid supplementary fact") from exc
         refuse_collected_facts(facts)
+        in_flight = module("runs").RunInFlight
         try:
             return guarded(
                 flow().resume_review,
@@ -290,6 +297,8 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
                 supplement=facts,
                 changed_requests=payload.changed_requests,
             )
+        except in_flight as exc:
+            raise HTTPException(409, "run is still in flight; retry later") from exc
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
 
@@ -309,17 +318,32 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
 
         project = require_project(session, payload.project_id)
         project_id = str(payload.project_id)
+        # The receipt is hashed over exactly the object stored below; preparing it has no effect.
         try:
-            receipt = guarded(flow().save_work, run_id, project_id=project_id, notes=payload.notes)
+            receipt, output = guarded(flow().prepare_work, run_id, project_id=project_id)
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
-        output = guarded(flow().get_review, run_id, project_id=project_id)
+        digest = module("model").canonical_digest
+        if digest(output) != receipt.digest:
+            raise HTTPException(500, "saved work failed read-back verification")
+        # The run store is read with its own session, so check the revision before any write.
+        if not flow().verify_receipt(receipt):
+            raise HTTPException(500, "run revision failed read-back verification")
         key = f"regulation-review-work:{project_id}:{run_id}:{receipt.run_revision}"
         if payload.dry_run:
             return {"dry_run": True, "saved": False, "receipt": receipt.model_dump(mode="json")}
 
         existing = session.scalar(select(models.Entity).where(models.Entity.stable_key == key))
-        if existing is None:
+        if existing is not None:
+            # The persisted row, not process memory, decides a conflict (section 13).
+            same = (
+                existing.properties.get("digest") == receipt.digest
+                and existing.properties.get("notes") == payload.notes
+                and existing.name == payload.title
+            )
+            if not same:
+                raise HTTPException(409, SAVED_ELSEWHERE)
+        else:
             row = models.Entity(
                 stable_key=key,
                 entity_type_id="Document",
@@ -348,21 +372,23 @@ def register(app, factory: sessionmaker[Session], get_session, read, write):
                     properties={"canonical": False},
                 )
             )
-            session.commit()
+            session.flush()
             existing = row
-        elif existing.properties["digest"] != receipt.digest:
-            raise HTTPException(409, "saved work differs from the stored run output")
 
-        session.expire_all()
-        stored = session.get(models.Entity, existing.id)
-        digest = module("model").canonical_digest
-        if stored is None or digest(stored.properties["output"]) != receipt.digest:
+        # Read the row back before anything is committed; roll back on a mismatch.
+        session.expire(existing)
+        session.refresh(existing)
+        if digest(existing.properties["output"]) != receipt.digest:
+            session.rollback()
             raise HTTPException(500, "saved work failed read-back verification")
-        if not flow().verify_receipt(receipt):
-            raise HTTPException(500, "run revision failed read-back verification")
+        session.commit()
+        try:
+            flow().enqueue_work(receipt, notes=payload.notes)
+        except module("runs").IdempotencyConflict as exc:
+            raise HTTPException(409, SAVED_ELSEWHERE) from exc
         return {
             "saved": True,
             "verified": True,
-            "work_id": str(stored.id),
+            "work_id": str(existing.id),
             "receipt": receipt.model_dump(mode="json"),
         }

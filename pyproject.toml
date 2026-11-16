@@ -113,6 +113,7 @@ addopts = "-q --import-mode=importlib"
 pythonpath = [
   "tests",  # tests/ modules import sibling helpers (importlib mode drops rootdir insertion)
   "packages/aec/tests",  # AEC acceptance suites import the sibling _runtimes helper
+  "packages/regulation/tests",  # review regression suites reuse fixtures from test_review_scenarios
   "packages/aec/extensions/drawing_context",
   "packages/aec/extensions/external_capabilities",
   "packages/aec/extensions/intelligence_fabric",

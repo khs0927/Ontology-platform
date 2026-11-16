@@ -100,7 +100,10 @@ def assess(
         return ApplicabilityFinding(
             status=Applicability.APPLICABLE, reasons=["적용조건 충족"], **base
         )
-    if evidence_ids and fact_ids:
+    # A negative needs its own basis: every unmet path, not just any required path, must rest
+    # on collected facts with evidence. A claim never rules a provision out (section 7, 16).
+    unbacked = [path for path in unmet if not resolved[path].evidenced]
+    if not unbacked:
         return ApplicabilityFinding(
             status=Applicability.NOT_APPLICABLE,
             reasons=[f"적용조건 불충족: {path}" for path in unmet],
@@ -108,7 +111,7 @@ def assess(
         )
     return ApplicabilityFinding(
         status=Applicability.UNRESOLVED,
-        reasons=[f"근거 없는 사실로 비해당 판단 불가: {path}" for path in unmet],
+        reasons=[f"근거 없는 사실로 비해당 판단 불가: {path}" for path in unbacked],
         **base,
     )
 
