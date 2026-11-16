@@ -24,6 +24,7 @@ god-cad = "god_cad.cli:main"
 aec = "aec_intelligence.cli:main"
 aec-mcp = "aec_intelligence.mcp_stdio:main"
 aec-mcp-http = "aec_intelligence.mcp_http:main"
+sion-mcp = "sion_api.mcp_server:main"
 
 [project.optional-dependencies]
 # Feature extras (install only what you need; the core install stays light)
@@ -65,13 +66,17 @@ documents = [
   "pypdf>=6.19,<7",
   "python-docx>=1.2,<2",
 ]
+# Remote MCP server for the knowledge core (`sion-mcp`; see docs/MCP_SERVER.md)
+mcp = [
+  "mcp==2.3.0",
+]
 # SHACL validation endpoint GET /api/v1/validation/shacl (without it: 503)
 validation = [
   "rdflib>=7.6,<8",
   "pyshacl>=0.40.1,<1",
 ]
 all = [
-  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,validation]",
+  "sion-ontology-platform[cad,bim,rag,drive,regulation,documents,validation,mcp]",
 ]
 # Tooling
 test = [
@@ -131,6 +136,7 @@ packages = [
   "sion_drive_store",
   "sion_graphrag",
   "sion_embedhub",
+  "sion_eval",
   # Overlapping-regulation review workflow. ArchOntos itself stays a pinned
   # dependency; this package calls archontos.rules and is not a vendored copy.
   "sion_regulation",
@@ -154,6 +160,7 @@ sion_cair = "packages/cair/sion_cair"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
 sion_embedhub = "packages/embedhub/sion_embedhub"
+sion_eval = "packages/eval/sion_eval"
 sion_regulation = "packages/regulation/src/sion_regulation"
 god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"

@@ -12,6 +12,8 @@
 | [TOOL-CATALOG.ko.md](TOOL-CATALOG.ko.md) | 서버별 도구 수와 확인된 도구 이름(SketchUp 두 서버는 전체 목록) |
 | [CHATGPT-MCP-E2E-CHECKLIST.ko.md](CHATGPT-MCP-E2E-CHECKLIST.ko.md) | Issue #71 G: 자동 MCP 검토 흐름 E2E 범위와 ChatGPT(iOS) OAuth 수동 체크리스트 |
 
+지식 코어(법령·그래프)를 원격으로 제공하는 무상태 MCP 서버(`sion-mcp`)는 [`docs/MCP_SERVER.md`](../MCP_SERVER.md)를 참고합니다.
+
 관련 위치:
 - 스킬: [`skills/`](../../skills/README.md)
 - 브리지 소스: [`tools/grokbot-mcp-bridge/`](../../tools/grokbot-mcp-bridge/README.md)
