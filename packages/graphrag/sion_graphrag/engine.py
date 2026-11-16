@@ -19,10 +19,18 @@ from .projection import AUDIT_PROJECTION_REVIEW_STATES, DEFAULT_PROJECTION_REVIE
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
+# Graph backend for SION_GRAPHRAG_STORAGE=postgres. "table" (default) is LightRAG's
+# PGTableGraphStorage: plain indexed tables, no Apache AGE. "age" keeps the legacy
+# PGGraphStorage, which LightRAG 1.5.7 refuses on AGE >= 1.8.0; move an existing AGE
+# graph with `python -m lightrag.tools.migrate_graph_storage` (see docs/GRAPHRAG.md).
+POSTGRES_GRAPH_STORAGES = {
+    "table": "PGTableGraphStorage",
+    "age": "PGGraphStorage",
+}
 POSTGRES_STORAGES = {
     "kv_storage": "PGKVStorage",
     "vector_storage": "PGVectorStorage",
-    "graph_storage": "PGGraphStorage",
+    "graph_storage": POSTGRES_GRAPH_STORAGES["table"],
     "doc_status_storage": "PGDocStatusStorage",
 }
 LOCAL_STORAGES = {
@@ -52,6 +60,8 @@ class GraphRagConfig:
     llm_api_key: str | None = None
     # "openai" (OpenAI-compatible endpoint) or "embedhub" (sion_embedhub registry key in embedding_model, e.g. nv-1b)
     embedding_provider: str = "openai"
+    # Postgres graph backend: "table" (PGTableGraphStorage, no AGE) or "age" (legacy PGGraphStorage)
+    graph_backend: str = "table"
 
     @classmethod
     def from_env(cls) -> "GraphRagConfig | None":
@@ -62,6 +72,9 @@ class GraphRagConfig:
         storage = os.getenv("SION_GRAPHRAG_STORAGE", "postgres").strip().lower()
         if storage not in {"postgres", "local"}:
             raise ValueError("SION_GRAPHRAG_STORAGE must be 'postgres' or 'local'")
+        graph_backend = os.getenv("SION_GRAPHRAG_GRAPH_BACKEND", "table").strip().lower()
+        if graph_backend not in POSTGRES_GRAPH_STORAGES:
+            raise ValueError("SION_GRAPHRAG_GRAPH_BACKEND must be 'table' or 'age'")
         return cls(
             workspace=os.getenv("SION_GRAPHRAG_WORKSPACE", "sion"),
             storage=storage,
@@ -74,11 +87,21 @@ class GraphRagConfig:
             llm_base_url=os.getenv("SION_GRAPHRAG_LLM_BASE_URL"),
             llm_api_key=os.getenv("SION_GRAPHRAG_LLM_API_KEY"),
             embedding_provider=os.getenv("SION_GRAPHRAG_EMBED_PROVIDER", "openai").strip().lower(),
+            graph_backend=graph_backend,
         )
 
     @property
     def answers_enabled(self) -> bool:
         return bool(self.llm_model)
+
+    @property
+    def storages(self) -> dict[str, str]:
+        """LightRAG storage class names for this configuration."""
+        if self.storage != "postgres":
+            return dict(LOCAL_STORAGES)
+        if self.graph_backend not in POSTGRES_GRAPH_STORAGES:
+            raise ValueError("graph_backend must be 'table' or 'age'")
+        return {**POSTGRES_STORAGES, "graph_storage": POSTGRES_GRAPH_STORAGES[self.graph_backend]}
 
 
 async def _no_llm(*_args: Any, **_kwargs: Any) -> str:
@@ -150,7 +173,7 @@ class SionGraphRag:
                     **kwargs,
                 )
 
-        storages = POSTGRES_STORAGES if config.storage == "postgres" else LOCAL_STORAGES
+        storages = config.storages
         config.working_dir.mkdir(parents=True, exist_ok=True)
         extra: dict[str, Any] = {"tokenizer": self._tokenizer} if self._tokenizer is not None else {}
         return LightRAG(

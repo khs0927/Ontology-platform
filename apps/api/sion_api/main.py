@@ -659,6 +659,7 @@ def create_app(
             "canonical": False,
             "engine": "lightrag",
             "storage": config.storage,
+            "graph_storage": config.storages["graph_storage"],
             "workspace": config.workspace,
             "embedding_model": config.embedding_model,
             "answers_enabled": config.answers_enabled,
