@@ -4,6 +4,15 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Hosted sign-in and billing (phase 7a)** — OIDC access-token verification (Supabase Auth by
+  default, any JWKS issuer) as `Principal(kind="user")` with fail-closed project claims,
+  `GET /api/v1/me`, a signature-verified, idempotent and order-safe Paddle Billing webhook, and
+  `GET /api/v1/billing/me`. New `saas` extra and `migrations/010_billing.sql`. See `docs/SAAS.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable

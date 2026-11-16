@@ -40,6 +40,9 @@ PUBLIC_ROUTES = {
     ("GET", "/docs"),
     ("GET", "/docs/oauth2-redirect"),
     ("GET", "/redoc"),
+    # Paddle webhook: authenticated by its HMAC signature (sion_api.billing.verify_signature),
+    # not by a bearer token; 503 unless SION_PADDLE_WEBHOOK_SECRET is set.
+    ("POST", "/api/v1/billing/paddle/webhook"),
 }
 
 # POST routes that compute an answer without persisting anything. They need a read scope.
@@ -54,6 +57,8 @@ READ_ONLY_POSTS = {
 
 # Routes that apply the project ACL themselves and therefore accept project-restricted tokens.
 PROJECT_SCOPED_ROUTES = {
+    ("GET", "/api/v1/me"),  # the caller's own identity; no project data
+    ("GET", "/api/v1/billing/me"),  # the caller's own subscriptions; no project data
     ("GET", "/regulation"),
     ("GET", "/api/v1/regulation/summary"),  # applies the project ACL itself (project_summary.project_scope)
     ("GET", "/api/v1/regulation/works"),

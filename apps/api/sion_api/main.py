@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from . import (
     __version__,
+    billing,
     law_knowledge,
     models,
     nvidia_auto_ontology,
@@ -108,6 +109,8 @@ def create_app(
     regulation_workspace.register(app, get_session, read_knowledge, write_knowledge, regulation_transport)
     regulation_review.register(app, factory, get_session, read_knowledge, write_knowledge)
     law_knowledge.register(app, get_session, read_knowledge, write_knowledge)
+    # /me routes return only the caller's own data, so project-restricted users may reach them.
+    billing.register(app, get_session, project_scoped(read_knowledge))
     project_summary.register(app, get_session, auth_policy, project_scoped(read_knowledge))
     nvidia_auto_ontology.register(app, read_knowledge, transport=nvidia_transport)
 
