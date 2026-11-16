@@ -7,6 +7,7 @@ output snapshot is never rewritten; a resume adds a new revision. Generated text
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any
@@ -23,7 +24,14 @@ from sion_regulation.review.candidates import (
     generate_candidates,
 )
 from sion_regulation.review.citations import verify_citations
-from sion_regulation.review.facts import FactStore, to_rule_facts
+from sion_regulation.review.facts import (
+    CLAIM_METHODS,
+    FactStore,
+    canonical_path,
+    collection_only,
+    is_claim,
+    to_rule_facts,
+)
 from sion_regulation.review.legal import LegalCatalog
 from sion_regulation.review.model import (
     SCHEMA_VERSION,
@@ -52,12 +60,15 @@ from sion_regulation.review.runs import (
     ReviewOutbox,
     RunDAG,
     RunEngine,
+    RunInFlight,
     RunNode,
     RunRecord,
     RunStore,
     idempotency_key,
     missing_ledger,
 )
+
+_ACTIVE = frozenset({ExecutionStatus.QUEUED, ExecutionStatus.RUNNING})
 
 Explainer = Callable[[str, dict[str, Any]], str]
 
@@ -97,12 +108,16 @@ def client_fact_problems(facts: Sequence[Fact]) -> list[str]:
     """Why caller-supplied facts cannot be accepted as they are.
 
     A request may state claims. It cannot state official records or evidence: those only come from
-    server-side collection, otherwise a caller could manufacture a negative finding.
+    server-side collection, otherwise a caller could manufacture a negative finding. Nor can it
+    state collection-only paths (designations, legal status, documents, query completeness and
+    official land-register values) or any parent of them: only collected facts with evidence
+    resolve those. A claim names one canonical leaf path (lower-case dotted identifiers, never the
+    workflow-owned roots ``fact_units``/``context``) and states a scalar or list, not a mapping.
     """
 
     problems: list[str] = []
     for fact in facts:
-        if fact.method not in {"user_claim", "design_observed"}:
+        if fact.method not in CLAIM_METHODS:
             problems.append(f"{fact.fact_id}: method {fact.method} is reserved for collection")
         if fact.status not in {FactStatus.ASSERTED, FactStatus.UNKNOWN}:
             problems.append(
@@ -110,7 +125,47 @@ def client_fact_problems(facts: Sequence[Fact]) -> list[str]:
             )
         if fact.evidence_ids:
             problems.append(f"{fact.fact_id}: a claim cannot cite evidence")
+        if not canonical_path(fact.path):
+            problems.append(
+                f"{fact.fact_id}: path {fact.path!r} is not a canonical lower-case dotted path"
+            )
+        if isinstance(fact.value, Mapping):
+            problems.append(f"{fact.fact_id}: a claim states one leaf value, not a mapping")
+        if collection_only(fact.path):
+            problems.append(f"{fact.fact_id}: path {fact.path} is resolved only by collection")
     return problems
+
+
+def _binding_filter(
+    rule: RaseRule, evidence: Mapping[str, Evidence]
+) -> Callable[[str, Fact], bool]:
+    """Which facts a rule may read, from its ``fact_bindings``.
+
+    A bound path accepts only the listed methods and, when ``sources`` is set, only facts whose
+    every evidence comes from a listed provider. An exception path without an explicit binding
+    needs a collected fact with evidence: a claim never exempts a requirement (S13, S22).
+    """
+
+    bindings = {binding.path: binding for binding in rule.fact_bindings}
+    exception_paths = {clause.fact_path for clause in rule.exceptions}
+
+    def accept(path: str, fact: Fact) -> bool:
+        binding = bindings.get(path)
+        if binding is not None:
+            if binding.allowed_methods and fact.method not in binding.allowed_methods:
+                return False
+            if binding.sources:
+                providers = [
+                    evidence[eid].source.provider if eid in evidence else None
+                    for eid in fact.evidence_ids
+                ]
+                if not providers or any(p not in binding.sources for p in providers):
+                    return False
+        if path in exception_paths and (binding is None or not binding.allowed_methods):
+            return not is_claim(fact) and bool(fact.evidence_ids)
+        return True
+
+    return accept
 
 
 def _proposal_facts(request: ReviewRequest) -> list[Fact]:
@@ -216,8 +271,12 @@ class ReviewWorkflow:
     def start_review(self, request: ReviewRequest) -> dict[str, Any]:
         payload = request.model_dump(mode="json", exclude={"idempotency_key"})
         proposal = request.proposal
-        key = request.idempotency_key or idempotency_key(
-            proposal.project_id, proposal.revision, payload
+        # A caller-supplied key is scoped to its project: one project can neither probe nor
+        # occupy another project's key.
+        key = (
+            canonical_digest({"project": proposal.project_id, "key": request.idempotency_key})
+            if request.idempotency_key
+            else idempotency_key(proposal.project_id, proposal.revision, payload)
         )
         record = self.engine.create(
             proposal.project_id,
@@ -229,7 +288,10 @@ class ReviewWorkflow:
         )
         if record.output is not None or record.status is ExecutionStatus.CANCELLED:
             return self._read(record)
-        return self._complete(self.engine.execute(record.run_id))
+        if record.status in _ACTIVE:
+            # A retry while another call still runs it gets the current status (S26).
+            record = self.engine.execute(record.run_id)
+        return self._complete(record)
 
     def resume_review(
         self,
@@ -239,30 +301,110 @@ class ReviewWorkflow:
         supplement: Sequence[Fact] = (),
         changed_requests: Mapping[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        """Continue with supplementary facts as a new revision; old output stays as it was."""
+        """Continue with supplementary facts as a new revision; old output stays as it was.
 
+        The supplement is checked against the facts it joins before any revision is opened, and
+        only the new revision carries it. A run still in flight raises :class:`RunInFlight`.
+        """
+
+        record, context, changed = self._resume_checked(
+            run_id, project_id, supplement, changed_requests
+        )
+        resumed = self.engine.resume(
+            run_id,
+            changed_requests=changed,
+            expected_revision=record.run_revision,
+            context=context,
+        )
+        return self._complete(resumed)
+
+    def preview_resume(
+        self,
+        run_id: str,
+        *,
+        project_id: str,
+        supplement: Sequence[Fact] = (),
+        changed_requests: Mapping[str, dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Run every check :meth:`resume_review` runs and report the revision it would open.
+
+        Nothing is written: a refused resume raises exactly as the real call would.
+        """
+
+        record, _context, _changed = self._resume_checked(
+            run_id, project_id, supplement, changed_requests
+        )
+        return {
+            "run_id": record.run_id,
+            "run_revision": record.run_revision,
+            "next_revision": record.run_revision + 1,
+            "execution_status": record.status.value,
+        }
+
+    def _resume_checked(
+        self,
+        run_id: str,
+        project_id: str,
+        supplement: Sequence[Fact],
+        changed_requests: Mapping[str, dict[str, Any]] | None,
+    ) -> tuple[RunRecord, dict[str, Any], dict[str, Any]]:
         record = self._owned(run_id, project_id)
         if record.status is ExecutionStatus.CANCELLED:
             raise ValueError("a cancelled run is not resumed; start a new run")
+        if self.engine.in_flight(record):
+            raise RunInFlight(f"run {run_id} revision {record.run_revision} is still in flight")
+        changed = dict(changed_requests or {})
         context = dict(record.context)
         context["supplement"] = [
             *context.get("supplement", []),
             *(fact.model_dump(mode="json") for fact in supplement),
         ]
-        record.context = context
-        self.store.save(record)
-        return self._complete(self.engine.resume(run_id, changed_requests=changed_requests))
+        self._check_supplement(record, context, changed)
+        return record, context, changed
+
+    def _check_supplement(
+        self, record: RunRecord, context: dict[str, Any], changed: Mapping[str, Any]
+    ) -> None:
+        """Raise ValueError when the merged facts would not form a valid fact store."""
+
+        request = ReviewRequest.model_validate(context["request"])
+        recollected = RunEngine._downstream(record, set(changed))
+        probe = record.model_copy(
+            update={
+                "context": context,
+                "results": {k: v for k, v in record.results.items() if k not in recollected},
+            }
+        )
+        collected, _evidence, _quarantined = self._collected(probe)
+        self._fact_store(request, collected)
 
     def cancel_review(self, run_id: str, *, project_id: str) -> dict[str, Any]:
         self._owned(run_id, project_id)
         return self._read(self.engine.cancel(run_id))
 
     def _complete(self, record: RunRecord) -> dict[str, Any]:
-        if record.status is ExecutionStatus.CANCELLED:
+        """Evaluate a finished revision and attach the output compare-and-set (S29).
+
+        A revision still in flight elsewhere, cancelled, or changed during evaluation is reported
+        as stored. A failed evaluation marks the revision failed before the error propagates.
+        """
+
+        if record.status is ExecutionStatus.CANCELLED or record.status in _ACTIVE:
             return self._read(record)
-        record.output = self._evaluate(record)
-        self.store.save(record)
-        return record.output
+        try:
+            output = self._evaluate(record)
+        except Exception as exc:
+            self.engine.mark_failed(
+                record.run_id,
+                record.run_revision,
+                record.status,
+                f"evaluation failed: {type(exc).__name__}: {exc}",
+            )
+            raise
+        stored = self.engine.attach_output(
+            record.run_id, record.run_revision, record.status, output
+        )
+        return self._read(stored)
 
     def _collected(
         self, record: RunRecord
@@ -325,7 +467,12 @@ class ReviewWorkflow:
                     )
                 )
                 continue
-            rule_facts, used, _missing = to_rule_facts(facts, [candidate.subject, project_id], day)
+            rule_facts, used, _missing = to_rule_facts(
+                facts,
+                [candidate.subject, project_id],
+                day,
+                accept=_binding_filter(rule, {**self.evidence, **evidence}),
+            )
             rule_facts.setdefault("context", {})["jurisdiction"] = request.site.jurisdiction_code
             version = self.catalog.version(candidate.ref.work_id, candidate.ref.version_id)
             evaluations.append(
@@ -440,6 +587,7 @@ class ReviewWorkflow:
             "run_revision": record.run_revision,
             "project_id": record.project_id,
             "execution_status": record.status.value,
+            "failure": record.failure,
             "canonical": False,
             "read_only": True,
         }
@@ -551,24 +699,46 @@ class ReviewWorkflow:
 
     # ------------------------------------------------------------------ saving
 
-    def save_work(self, run_id: str, *, project_id: str, notes: str = "") -> WorkReceipt:
-        """Queue a stored output for the project and return a receipt to read back."""
+    def prepare_work(self, run_id: str, *, project_id: str) -> tuple[WorkReceipt, dict[str, Any]]:
+        """The receipt and exactly the output object it was hashed from; no side effects.
+
+        A cancelled run is not saved: its stored output was produced before the cancel and no
+        longer describes the run (S29).
+        """
 
         record = self._owned(run_id, project_id)
+        if record.status is ExecutionStatus.CANCELLED:
+            raise ValueError("a cancelled run is not saved; start a new run")
         if record.output is None:
             raise ValueError("run has no output to save")
-        digest = canonical_digest(record.output)
+        output = copy.deepcopy(record.output)
         work_id = "work:" + canonical_digest([project_id, run_id, record.run_revision])[:24]
         receipt = WorkReceipt(
             work_id=work_id,
             project_id=project_id,
             run_id=run_id,
             run_revision=record.run_revision,
-            digest=digest,
+            digest=canonical_digest(output),
         )
-        self.outbox.enqueue(
-            f"{work_id}:{digest}", {**receipt.model_dump(mode="json"), "notes": notes}
-        )
+        return receipt, output
+
+    def enqueue_work(self, receipt: WorkReceipt, *, notes: str = "") -> None:
+        """Hand a saved work to the outbox; the key covers every field of the payload."""
+
+        payload = {**receipt.model_dump(mode="json"), "notes": notes}
+        self.outbox.enqueue(f"{receipt.work_id}:{canonical_digest(payload)}", payload)
+
+    def save_work(
+        self, run_id: str, *, project_id: str, notes: str = "", dry_run: bool = False
+    ) -> WorkReceipt:
+        """Queue a stored output for the project and return a receipt to read back.
+
+        ``dry_run`` returns the receipt without queuing anything.
+        """
+
+        receipt, _output = self.prepare_work(run_id, project_id=project_id)
+        if not dry_run:
+            self.enqueue_work(receipt, notes=notes)
         return receipt
 
     def verify_receipt(self, receipt: WorkReceipt) -> bool:
