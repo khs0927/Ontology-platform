@@ -4,6 +4,15 @@ All notable user-visible changes to this repository are recorded here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Retrieval evaluation** (`sion_eval`, `packages/eval`) — Korean building-law gold set (44 questions)
+  over a 1,159-article statute corpus, recall/MRR/nDCG metrics, baseline retrievers and a CLI
+  (`python -m sion_eval.cli run`). Baseline: the current law search reaches recall@10 0.625;
+  BM25 over Hangul bigrams reaches 0.977. See `docs/EVALUATION.md`.
+
 ## [0.3.0] - 2026-11-11
 
 Monorepo consolidation release: regulation, AEC/Ontology and GOD-CAD now ship as one installable
