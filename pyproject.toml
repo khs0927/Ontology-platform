@@ -131,6 +131,7 @@ packages = [
   "sion_drive_store",
   "sion_graphrag",
   "sion_embedhub",
+  "sion_eval",
   # Overlapping-regulation review workflow. ArchOntos itself stays a pinned
   # dependency; this package calls archontos.rules and is not a vendored copy.
   "sion_regulation",
@@ -154,6 +155,7 @@ sion_cair = "packages/cair/sion_cair"
 sion_drive_store = "packages/drive-store/sion_drive_store"
 sion_graphrag = "packages/graphrag/sion_graphrag"
 sion_embedhub = "packages/embedhub/sion_embedhub"
+sion_eval = "packages/eval/sion_eval"
 sion_regulation = "packages/regulation/src/sion_regulation"
 god_cad = "packages/cad/god-cad/src/god_cad"
 aec_intelligence = "packages/aec/src/aec_intelligence"
