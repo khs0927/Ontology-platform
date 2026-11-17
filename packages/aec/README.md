@@ -112,6 +112,12 @@ What headless/CI tests prove (fail-closed contracts, cross-OS drawing-context po
 
 `kg-build` turns the ingested documents/objects into a canonical knowledge graph (`aec.kg_*`: Project → Phase/Drawing/Sheet → Storey → Space/ElementGroup → SteelSection, DrawingSeries/supersedes for revisions), `kg-summarize` adds cached Korean community summaries from a local LLM, and `POST /v1/ask` / MCP `aec.graph_rag_query` answer Korean questions with citations (document, sheet, object ids, bbox) or refuse. LLM and embeddings run on local Ollama only (`AEC_LLM_ALLOW_REMOTE` is off by default). Korean operator guide: [`docs/GRAPHRAG.ko.md`](docs/GRAPHRAG.ko.md).
 
+The optional `project` argument is a retrieval filter, not a project authorization boundary.
+An explicit unknown, blank, or ambiguous project is refused; if a scoped project has no stored project-ID
+alias, object-level semantic search is skipped rather than widened. Omitting `project` still permits
+unscoped retrieval. Shared knowledge may be searched separately; enforce project access independently.
+
+
 ## Opt-in Jev + Graph Intelligence Fabric
 
 The repository now includes an isolated upgrade framework under
