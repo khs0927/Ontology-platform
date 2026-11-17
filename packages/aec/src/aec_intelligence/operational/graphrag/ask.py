@@ -284,14 +284,19 @@ class GraphRAG:
     # ------------------------------------------------------------------ linking
     def link(self, conn, question: str, project: str | None = None) -> Linked:
         linked = link_static(question)
+        if project is not None and not project.strip():
+            return linked
         rows = conn.execute(
             """SELECT n.id, n.project_key AS key, n.name FROM aec.kg_nodes n WHERE n.type = 'Project'""").fetchall()
-        if project:
+        if project is not None:
             alias = conn.execute(
                 "SELECT n.project_key FROM aec.kg_aliases a JOIN aec.kg_nodes n ON n.id = a.node_id "
                 "WHERE a.alias_type IN ('project_id','project_name') AND a.alias = %s LIMIT 1", (project,)).fetchone()
             keys = {alias["project_key"]} if alias else {project}
             linked.projects = [dict(r) for r in rows if r["key"] in keys]
+            # Do not resolve room aliases globally when an explicit project is unknown.
+            if not linked.projects:
+                return linked
         else:
             q = re.sub(r"\s+", "", question).casefold()
             scored = []
@@ -327,6 +332,10 @@ class GraphRAG:
         started = time.monotonic()
         with self.db.connect() as conn:
             linked = self.link(conn, question, project)
+            if project is not None and not linked.projects:
+                return {"linked": linked, "route": "refuse", "items": [], "cypher": [],
+                        "gate": "requested project could not be resolved",
+                        "retrieval_ms": round((time.monotonic() - started) * 1000)}
             route = choose_route(linked)
             keys = [p["key"] for p in linked.projects] or None
             items: list[ContextItem] = []
@@ -802,16 +811,22 @@ class GraphRAG:
                 self._search.embedding_service.connect_timeout = min(self._search.embedding_service.connect_timeout, 1.0)
                 self._search.embedding_service.timeout = min(self._search.embedding_service.timeout, 1.0)
         project_ids = None
-        if keys:
+        if keys is not None:
+            if not keys:
+                return []
             project_ids = [r["alias"] for r in conn.execute(
                 "SELECT a.alias FROM aec.kg_aliases a WHERE a.alias_type='project_id' AND a.node_id = ANY(%s)",
-                ([f"kg:p:{k}" for k in keys],)).fetchall()]
+                ([f"kg:p:{k}" for k in keys],)).fetchall()
+                if isinstance(r["alias"], str) and r["alias"].strip()]
+            # An absent project_id alias must not become an unfiltered object search.
+            if not project_ids:
+                return []
         deadline = time.monotonic() + budget_ms / 1000 if budget_ms else None
         timed_out = []
 
         def run() -> list:
             found = []
-            for pid in (project_ids or [None])[:4]:
+            for pid in (project_ids if project_ids is not None else [None])[:4]:
                 left = None
                 if deadline is not None:
                     left = int((deadline - time.monotonic()) * 1000)
