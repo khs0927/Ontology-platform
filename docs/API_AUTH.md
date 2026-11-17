@@ -124,7 +124,10 @@ unrestricted callers.
 
 `GET /api/v1/review/report` for a restricted caller covers only relations whose endpoints are both
 visible, and lists a bulk decision only when every relation it touched is visible, so a decision
-an operator made across several projects is not shown to any one of them.
+an operator made across several projects is not shown to any one of them. Batch metadata in a
+relation's current review or history is also withheld unless a complete batch log proves that every
+submitted relation is visible. Missing, malformed, and legacy batch logs fail closed for restricted
+callers; unrestricted operators retain access to legacy batches.
 
 Signed-in users also get the projects they are members of (`sion_api.projects`, see
 `docs/SAAS.md`). A `viewer` member sees a project without being able to change it: every write

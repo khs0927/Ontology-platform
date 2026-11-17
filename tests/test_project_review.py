@@ -196,3 +196,95 @@ def test_artifacts_are_scoped_to_the_members_projects(env):
     for hidden in (shared, other):
         assert client.get(f"/api/v1/artifacts/{hidden}", headers=MEMBER_H).status_code == 404
     assert len(client.get("/api/v1/artifacts", headers=ADMIN_H).json()) == 3
+
+
+def test_review_report_hides_mixed_project_batch_metadata(env):
+    client, ids = env
+    cross = {"ids": [ids["cand_a"], ids["cand_b"]], "decision": "approve",
+             "reviewer": "private-reviewer", "note": "private-note"}
+    response = client.post("/api/v1/relations/candidates/bulk", json=cross, headers=ADMIN_H)
+    assert response.status_code == 200, response.text
+    batch = response.json()["batch_id"]
+    for params in ({}, {"batch_id": batch}, {"limit": 1, "offset": 0}):
+        report = client.get("/api/v1/review/report", params=params, headers=MEMBER_H)
+        assert report.status_code == 200, report.text
+        body = report.json()
+        body.pop("batch_id")  # The query parameter is echoed, not discovered.
+        assert batch not in str(body)
+        assert "private-reviewer" not in report.text
+        assert "private-note" not in report.text
+        assert report.json()["batches_total"] == 0
+    admin = client.get("/api/v1/review/report", headers=ADMIN_H)
+    assert batch in admin.text and "private-note" in admin.text
+
+
+@pytest.mark.parametrize("damage", ["missing", "truncated", "malformed"])
+def test_review_report_fails_closed_on_unproven_batch(env, damage):
+    import uuid
+
+    from sion_api import models
+    from sqlalchemy import select
+
+    client, ids = env
+    response = client.post(
+        "/api/v1/relations/candidates/bulk",
+        json={"ids": [ids["cand_a"]], "decision": "approve", "note": "private-note"},
+        headers=ADMIN_H,
+    )
+    batch = response.json()["batch_id"]
+    with client.app.state.session_factory() as session:
+        event = session.scalar(select(models.OutboxEvent).where(models.OutboxEvent.aggregate_id == uuid.UUID(batch)))
+        if damage == "missing":
+            session.delete(event)
+        else:
+            payload = dict(event.payload)
+            payload["results"] = [] if damage == "truncated" else [{"id": "not-a-uuid"}]
+            event.payload = payload
+        session.commit()
+    body = client.get("/api/v1/review/report", headers=MEMBER_H).json()
+    assert batch not in str(body)
+    assert "private-note" not in str(body)
+    assert body["batches_total"] == 0
+
+
+def test_review_report_hides_mixed_batch_history(env):
+    client, ids = env
+    response = client.post(
+        "/api/v1/relations/candidates/bulk",
+        json={"ids": [ids["cand_a"], ids["cand_b"]], "decision": "approve", "note": "private-note"},
+        headers=ADMIN_H,
+    )
+    batch = response.json()["batch_id"]
+    assert client.post(
+        f"/api/v1/relations/candidates/{ids['cand_a']}/reopen", json={"note": "reopen"}, headers=ADMIN_H
+    ).status_code == 200
+    body = client.get("/api/v1/review/report", headers=MEMBER_H).json()
+    assert batch not in str(body)
+    assert "private-note" not in str(body)
+
+
+def test_filtered_report_preserves_visible_prior_batch_history(env):
+    client, ids = env
+    payload = {"ids": [ids["cand_a"]], "decision": "approve", "note": "earlier"}
+    earlier = client.post("/api/v1/relations/candidates/bulk", json=payload, headers=MEMBER_H).json()["batch_id"]
+    assert client.post(f"/api/v1/relations/candidates/{ids['cand_a']}/reopen", json={"note": "redo"}, headers=MEMBER_H).status_code == 200
+    payload["note"] = "later"
+    later = client.post("/api/v1/relations/candidates/bulk", json=payload, headers=MEMBER_H).json()["batch_id"]
+    unfiltered = client.get("/api/v1/review/report", headers=MEMBER_H).json()
+    filtered = client.get("/api/v1/review/report", params={"batch_id": later}, headers=MEMBER_H).json()
+    assert unfiltered["relations"][0]["review_history"][0]["batch_id"] == earlier
+    assert filtered["relations"][0]["review_history"] == unfiltered["relations"][0]["review_history"]
+    assert [b["batch_id"] for b in filtered["batches"]] == [later]
+
+
+def test_filtered_report_hides_foreign_prior_batch_history(env):
+    client, ids = env
+    cross = {"ids": [ids["cand_a"], ids["cand_b"]], "decision": "approve", "note": "foreign-note"}
+    foreign = client.post("/api/v1/relations/candidates/bulk", json=cross, headers=ADMIN_H).json()["batch_id"]
+    assert client.post(f"/api/v1/relations/candidates/{ids['cand_a']}/reopen", json={"note": "redo"}, headers=ADMIN_H).status_code == 200
+    own = {"ids": [ids["cand_a"]], "decision": "approve", "note": "own-note"}
+    batch = client.post("/api/v1/relations/candidates/bulk", json=own, headers=MEMBER_H).json()["batch_id"]
+    body = client.get("/api/v1/review/report", params={"batch_id": batch}, headers=MEMBER_H).json()
+    assert body["relations"][0]["review_history"] == []
+    assert foreign not in str(body) and "foreign-note" not in str(body)
+    assert [b["batch_id"] for b in body["batches"]] == [batch]

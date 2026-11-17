@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterable
 
 from sion_api import models
-from sqlalchemy import false, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, aliased
 
 from .projection import (
@@ -120,6 +120,42 @@ def build_review_report(
     ):
         counts[state] = {"total": int(total), "projected_under_policy": int(total) if kept(state) else 0}
 
+    # A scoped reader may see batch metadata only when the complete outbox record
+    # proves every submitted relation is visible. Missing or malformed records are
+    # not proof: legacy batches and deleted/foreign relations must fail closed.
+    batch_query = select(models.OutboxEvent.id, models.OutboxEvent.aggregate_id).where(
+        models.OutboxEvent.aggregate_type == REVIEW_BATCH_AGGREGATE,
+        models.OutboxEvent.event_type == REVIEW_BATCH_EVENT,
+    )
+    if relation_scope is None:
+        ordered = [(str(aggregate_id), event_id) for event_id, aggregate_id in session.execute(
+            batch_query.order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
+        )]
+        visible_batches = None
+    else:
+        visible_ids = {str(rid) for rid in session.scalars(select(models.Relation.id).where(relation_scope))}
+        ordered = []
+        for event in session.scalars(
+            select(models.OutboxEvent)
+            .where(models.OutboxEvent.id.in_(batch_query.with_only_columns(models.OutboxEvent.id)))
+            .order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
+        ):
+            payload = event.payload
+            if not isinstance(payload, dict):
+                continue
+            results = payload.get("results")
+            if not isinstance(results, list) or not results or payload.get("requested") != len(results):
+                continue
+            try:
+                touched = {str(uuid.UUID(str(item["id"]))) for item in results if isinstance(item, dict)}
+                if len([item for item in results if isinstance(item, dict)]) != len(results):
+                    continue
+            except (ValueError, TypeError, KeyError, AttributeError):
+                continue
+            if touched and touched <= visible_ids:
+                ordered.append((str(event.aggregate_id), event.id))
+        visible_batches = {key for key, _ in ordered}
+
     relations: list[dict[str, Any]] = []
     relations_total = 0
     batch_relations: dict[str, list[str]] = {}
@@ -141,6 +177,10 @@ def build_review_report(
         history = [h for h in (_pick(item, _HISTORY_FIELDS) for item in properties.get("review_history") or []) if h]
         if review is None and not history:
             continue
+        if visible_batches is not None:
+            if review and review.get("batch_id") and str(review["batch_id"]) not in visible_batches:
+                review = None
+            history = [h for h in history if not h.get("batch_id") or str(h["batch_id"]) in visible_batches]
         if review and review.get("batch_id"):
             batch_relations.setdefault(str(review["batch_id"]), []).append(stable_key)
         if batch_id is not None and str((review or {}).get("batch_id")) != batch_id:
@@ -159,40 +199,23 @@ def build_review_report(
             "review_history": history,
         })
 
-    # Batch ids in log order (only ids are loaded), then batches decided before the batch log
-    # existed (they are known only from the relations that still carry their batch_id).
-    batch_query = select(models.OutboxEvent.id, models.OutboxEvent.aggregate_id).where(
-        models.OutboxEvent.aggregate_type == REVIEW_BATCH_AGGREGATE,
-        models.OutboxEvent.event_type == REVIEW_BATCH_EVENT,
-    )
+    # The response filter must not narrow the authorization set above: a current
+    # decision can have visible history from other batches.
     if batch_id is not None:
         try:
-            batch_query = batch_query.where(models.OutboxEvent.aggregate_id == uuid.UUID(batch_id))
-        except ValueError:
-            batch_query = batch_query.where(false())
+            target_batch = str(uuid.UUID(batch_id))
+        except (ValueError, TypeError, AttributeError):
+            target_batch = None
+        ordered = [(key, event_id) for key, event_id in ordered if key == target_batch]
+
+    # Legacy batches have no complete audit record, so only an unrestricted
+    # reader may see them. Scoped readers must not infer safety from one relation.
     if relation_scope is None:
-        ordered: list[tuple[str, Any]] = [
-            (str(aggregate_id), event_id)
-            for event_id, aggregate_id in session.execute(
-                batch_query.order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
-            )
-        ]
-    else:
-        visible_ids = {str(rid) for rid in session.scalars(select(models.Relation.id).where(relation_scope))}
-        ordered = []
-        for event in session.scalars(
-            select(models.OutboxEvent)
-            .where(models.OutboxEvent.id.in_(batch_query.with_only_columns(models.OutboxEvent.id)))
-            .order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
-        ):
-            touched = {str(item.get("id")) for item in (event.payload or {}).get("results", []) if isinstance(item, dict)}
-            if touched and touched <= visible_ids:
-                ordered.append((str(event.aggregate_id), event.id))
-    logged = {key for key, _ in ordered}
-    legacy = sorted(set(batch_relations) - logged)
-    if batch_id is not None:
-        legacy = [key for key in legacy if key == batch_id]
-    ordered.extend((key, None) for key in legacy)
+        logged = {key for key, _ in ordered}
+        legacy = sorted(set(batch_relations) - logged)
+        if batch_id is not None:
+            legacy = [key for key in legacy if key == batch_id]
+        ordered.extend((key, None) for key in legacy)
     page = ordered[offset : offset + limit]
     event_ids = [event_id for _, event_id in page if event_id is not None]
     events = (
