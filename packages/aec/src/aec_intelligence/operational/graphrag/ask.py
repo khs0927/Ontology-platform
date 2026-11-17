@@ -289,10 +289,16 @@ class GraphRAG:
         rows = conn.execute(
             """SELECT n.id, n.project_key AS key, n.name FROM aec.kg_nodes n WHERE n.type = 'Project'""").fetchall()
         if project is not None:
-            alias = conn.execute(
-                "SELECT n.project_key FROM aec.kg_aliases a JOIN aec.kg_nodes n ON n.id = a.node_id "
-                "WHERE a.alias_type IN ('project_id','project_name') AND a.alias = %s LIMIT 1", (project,)).fetchone()
-            keys = {alias["project_key"]} if alias else {project}
+            aliases = conn.execute(
+                "SELECT DISTINCT n.project_key FROM aec.kg_aliases a JOIN aec.kg_nodes n ON n.id = a.node_id "
+                "WHERE n.type = 'Project' AND a.alias_type IN ('project_id','project_name') AND a.alias = %s",
+                (project,)).fetchall()
+            known_keys = {r["key"] for r in rows}
+            keys = ({r["project_key"] for r in aliases} | {project}) & known_keys
+            # Alias collisions (including a key that is another project's alias) must not
+            # select an arbitrary project. The schema permits aliases on multiple nodes.
+            if len(keys) != 1:
+                return linked
             linked.projects = [dict(r) for r in rows if r["key"] in keys]
             # Do not resolve room aliases globally when an explicit project is unknown.
             if not linked.projects:
