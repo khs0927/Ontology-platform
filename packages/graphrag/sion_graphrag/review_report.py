@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterable
 
 from sion_api import models
-from sqlalchemy import false, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, aliased
 
 from .projection import (
@@ -127,11 +127,6 @@ def build_review_report(
         models.OutboxEvent.aggregate_type == REVIEW_BATCH_AGGREGATE,
         models.OutboxEvent.event_type == REVIEW_BATCH_EVENT,
     )
-    if batch_id is not None:
-        try:
-            batch_query = batch_query.where(models.OutboxEvent.aggregate_id == uuid.UUID(batch_id))
-        except ValueError:
-            batch_query = batch_query.where(false())
     if relation_scope is None:
         ordered = [(str(aggregate_id), event_id) for event_id, aggregate_id in session.execute(
             batch_query.order_by(models.OutboxEvent.created_at, models.OutboxEvent.id)
@@ -203,6 +198,15 @@ def build_review_report(
             "review": review,
             "review_history": history,
         })
+
+    # The response filter must not narrow the authorization set above: a current
+    # decision can have visible history from other batches.
+    if batch_id is not None:
+        try:
+            target_batch = str(uuid.UUID(batch_id))
+        except (ValueError, TypeError, AttributeError):
+            target_batch = None
+        ordered = [(key, event_id) for key, event_id in ordered if key == target_batch]
 
     # Legacy batches have no complete audit record, so only an unrestricted
     # reader may see them. Scoped readers must not infer safety from one relation.

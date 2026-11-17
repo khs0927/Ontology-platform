@@ -261,3 +261,30 @@ def test_review_report_hides_mixed_batch_history(env):
     body = client.get("/api/v1/review/report", headers=MEMBER_H).json()
     assert batch not in str(body)
     assert "private-note" not in str(body)
+
+
+def test_filtered_report_preserves_visible_prior_batch_history(env):
+    client, ids = env
+    payload = {"ids": [ids["cand_a"]], "decision": "approve", "note": "earlier"}
+    earlier = client.post("/api/v1/relations/candidates/bulk", json=payload, headers=MEMBER_H).json()["batch_id"]
+    assert client.post(f"/api/v1/relations/candidates/{ids['cand_a']}/reopen", json={"note": "redo"}, headers=MEMBER_H).status_code == 200
+    payload["note"] = "later"
+    later = client.post("/api/v1/relations/candidates/bulk", json=payload, headers=MEMBER_H).json()["batch_id"]
+    unfiltered = client.get("/api/v1/review/report", headers=MEMBER_H).json()
+    filtered = client.get("/api/v1/review/report", params={"batch_id": later}, headers=MEMBER_H).json()
+    assert unfiltered["relations"][0]["review_history"][0]["batch_id"] == earlier
+    assert filtered["relations"][0]["review_history"] == unfiltered["relations"][0]["review_history"]
+    assert [b["batch_id"] for b in filtered["batches"]] == [later]
+
+
+def test_filtered_report_hides_foreign_prior_batch_history(env):
+    client, ids = env
+    cross = {"ids": [ids["cand_a"], ids["cand_b"]], "decision": "approve", "note": "foreign-note"}
+    foreign = client.post("/api/v1/relations/candidates/bulk", json=cross, headers=ADMIN_H).json()["batch_id"]
+    assert client.post(f"/api/v1/relations/candidates/{ids['cand_a']}/reopen", json={"note": "redo"}, headers=ADMIN_H).status_code == 200
+    own = {"ids": [ids["cand_a"]], "decision": "approve", "note": "own-note"}
+    batch = client.post("/api/v1/relations/candidates/bulk", json=own, headers=MEMBER_H).json()["batch_id"]
+    body = client.get("/api/v1/review/report", params={"batch_id": batch}, headers=MEMBER_H).json()
+    assert body["relations"][0]["review_history"] == []
+    assert foreign not in str(body) and "foreign-note" not in str(body)
+    assert [b["batch_id"] for b in body["batches"]] == [batch]
